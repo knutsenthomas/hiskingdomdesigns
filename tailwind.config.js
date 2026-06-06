@@ -75,14 +75,14 @@ export default {
         "max-width": "1280px"
       },
       fontFamily: {
-        "headline-xl": ["Plus Jakarta Sans"],
-        "headline-lg-mobile": ["Plus Jakarta Sans"],
-        "label-sm": ["Plus Jakarta Sans"],
-        "headline-md": ["Plus Jakarta Sans"],
-        "headline-lg": ["Plus Jakarta Sans"],
-        "body-md": ["Plus Jakarta Sans"],
-        "body-lg": ["Plus Jakarta Sans"],
-        "label-md": ["Plus Jakarta Sans"]
+        "headline-xl": ["Inter"],
+        "headline-lg-mobile": ["Inter"],
+        "label-sm": ["Inter"],
+        "headline-md": ["Inter"],
+        "headline-lg": ["Inter"],
+        "body-md": ["Inter"],
+        "body-lg": ["Inter"],
+        "label-md": ["Inter"]
       },
       fontSize: {
         "headline-xl": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
