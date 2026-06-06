@@ -23,8 +23,8 @@ export default function Footer() {
             to="/" 
             className="flex items-center gap-3 font-bold text-terracotta hover:opacity-90 transition-all duration-300 logo group"
           >
-            <div className="w-10 h-10 flex items-center justify-center rounded-lg overflow-hidden shrink-0 bg-white shadow-sm border border-outline-variant/30 group-hover:scale-105 transition-transform duration-300">
-              <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-cover" />
+            <div className="w-10 h-10 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-headline-md font-headline-md font-extrabold tracking-tight text-white group-hover:text-terracotta transition-colors">
               His Kingdom Designs
