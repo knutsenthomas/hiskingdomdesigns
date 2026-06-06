@@ -10,6 +10,12 @@ import Home from '@/pages/Home';
 import Category from '@/pages/Category';
 import ProductDetails from '@/pages/ProductDetails';
 import Cart from '@/pages/Cart';
+import About from '@/pages/About';
+import Team from '@/pages/Team';
+import Shipping from '@/pages/Shipping';
+import Faq from '@/pages/Faq';
+import Privacy from '@/pages/Privacy';
+import Profile from '@/pages/Profile';
 import { AnimatePresence } from 'framer-motion';
 import '@/App.css';
 
@@ -38,6 +44,12 @@ function MainLayout() {
             <Route path="/category/:categoryName" element={<Category />} />
             <Route path="/product/:productId" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/profile" element={<Profile />} />
             {/* Fallback to home */}
             <Route path="*" element={<Home />} />
           </Routes>

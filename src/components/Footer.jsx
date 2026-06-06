@@ -78,19 +78,19 @@ export default function Footer() {
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Kundeservice</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
-              <a href="#" className="text-parchment/80 hover:text-terracotta transition-colors">Møt teamet</a>
+              <Link to="/team" className="text-parchment/80 hover:text-terracotta transition-colors">Møt teamet</Link>
             </li>
             <li>
-              <a href="#" className="text-parchment/80 hover:text-terracotta transition-colors">Hvem er vi</a>
+              <Link to="/about" className="text-parchment/80 hover:text-terracotta transition-colors">Hvem er vi</Link>
             </li>
             <li>
-              <a href="#" className="text-parchment/80 hover:text-terracotta transition-colors">Frakt og retur</a>
+              <Link to="/shipping" className="text-parchment/80 hover:text-terracotta transition-colors">Frakt og retur</Link>
             </li>
             <li>
-              <a href="#" className="text-parchment/80 hover:text-terracotta transition-colors">Ofte stilte spørsmål</a>
+              <Link to="/faq" className="text-parchment/80 hover:text-terracotta transition-colors">Ofte stilte spørsmål</Link>
             </li>
             <li>
-              <a href="#" className="text-parchment/80 hover:text-terracotta transition-colors">Personvernerklæring</a>
+              <Link to="/privacy" className="text-parchment/80 hover:text-terracotta transition-colors">Personvernerklæring</Link>
             </li>
           </ul>
         </div>

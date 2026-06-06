@@ -122,12 +122,13 @@ export default function Header() {
               <Search size={20} />
             </button>
             
-            <button 
+            <Link 
+              to="/profile"
               className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all"
               aria-label="Profil"
             >
               <User size={20} />
-            </button>
+            </Link>
 
             <Link 
               to="/cart"
