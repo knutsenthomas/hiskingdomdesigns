@@ -56,9 +56,14 @@ export default function Header() {
           <div className="flex items-center gap-8">
             <Link 
               to="/" 
-              className="text-headline-md font-headline-md font-extrabold text-onyx tracking-tight hover:text-terracotta transition-colors"
+              className="flex items-center gap-3 font-bold text-onyx hover:text-terracotta transition-all duration-300 logo group"
             >
-              His Kingdom Designs
+              <div className="w-10 h-10 flex items-center justify-center rounded-lg overflow-hidden shrink-0 bg-white shadow-sm border border-outline-variant/30 group-hover:scale-105 transition-transform duration-300">
+                <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-headline-md font-headline-md font-extrabold tracking-tight">
+                His Kingdom Designs
+              </span>
             </Link>
             
             <nav className="hidden lg:flex items-center gap-6 h-full">

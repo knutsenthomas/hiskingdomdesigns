@@ -19,8 +19,16 @@ export default function Footer() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto mb-16">
         {/* Brand Column */}
         <div className="space-y-6">
-          <Link to="/" className="font-headline-md text-headline-md text-terracotta font-extrabold tracking-tight block">
-            His Kingdom Designs
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 font-bold text-terracotta hover:opacity-90 transition-all duration-300 logo group"
+          >
+            <div className="w-10 h-10 flex items-center justify-center rounded-lg overflow-hidden shrink-0 bg-white shadow-sm border border-outline-variant/30 group-hover:scale-105 transition-transform duration-300">
+              <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-headline-md font-headline-md font-extrabold tracking-tight text-white group-hover:text-terracotta transition-colors">
+              His Kingdom Designs
+            </span>
           </Link>
           <p className="font-body-md text-body-md text-parchment/70 leading-relaxed">
             Vi skaper moderne kristne klær, plakater og tilbehør som kombinerer tro og stil for å spre Guds ord i hverdagen.
