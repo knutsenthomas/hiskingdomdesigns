@@ -17,6 +17,10 @@ import Faq from '@/pages/Faq';
 import Privacy from '@/pages/Privacy';
 import Profile from '@/pages/Profile';
 import { AnimatePresence } from 'framer-motion';
+import { useApp } from '@/contexts/AppContext';
+import CmsVisualToggle from '@/components/CmsVisualToggle';
+import { Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import '@/App.css';
 
 // ScrollToTop component to reset page scroll position on routing navigation
@@ -32,9 +36,10 @@ function ScrollToTop() {
 
 function MainLayout() {
   const location = useLocation();
+  const { toastMessage } = useApp();
 
   return (
-    <div className="flex flex-col min-h-screen bg-parchment text-onyx selection:bg-terracotta selection:text-white">
+    <div className="flex flex-col min-h-screen bg-parchment text-onyx selection:bg-terracotta selection:text-white relative">
       <Header />
       <div className="flex-grow">
         <AnimatePresence mode="wait">
@@ -58,6 +63,27 @@ function MainLayout() {
       <Footer />
       <HkmChatWidget />
       <CookieConsent />
+      <CmsVisualToggle />
+
+      {/* Global Branded Toast Manager */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-8 left-8 z-[200] bg-onyx text-white border-b-4 border-terracotta px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3.5 max-w-sm pointer-events-auto"
+          >
+            <div className="p-1.5 bg-terracotta/20 text-terracotta rounded-full shrink-0">
+              <Sparkles size={16} />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-terracotta">Systemvarsel</p>
+              <p className="text-xs font-semibold text-slate-100">{toastMessage}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

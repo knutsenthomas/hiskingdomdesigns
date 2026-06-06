@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { db } from '@/firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
 export const AppContext = createContext({});
@@ -191,6 +193,66 @@ export const AppProvider = ({ children }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
+  // CMS & Admin States
+  const [isAdminEditing, setIsAdminEditing] = useState(false);
+  const [cmsContent, setCmsContent] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('hkm-cms-content') || '{}');
+    } catch {
+      return {};
+    }
+  });
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (message) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+  };
+
+  // Update CMS Content
+  const updateCmsContent = async (slug, value) => {
+    setCmsContent(prev => {
+      const updated = { ...prev, [slug]: value };
+      try {
+        localStorage.setItem('hkm-cms-content', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Klarte ikke lagre cms content i localStorage:', e);
+      }
+      return updated;
+    });
+
+    try {
+      const cmsDocRef = doc(db, "cms_configs", "designs");
+      await setDoc(cmsDocRef, { [slug]: value }, { merge: true });
+    } catch (err) {
+      console.error("Feil ved oppdatering av CMS-innhold i Firestore:", err);
+    }
+  };
+
+  // Realtime Sync from Firestore
+  useEffect(() => {
+    try {
+      const cmsDocRef = doc(db, "cms_configs", "designs");
+      const unsubscribe = onSnapshot(cmsDocRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const dbData = snapshot.data();
+          setCmsContent(prev => {
+            const merged = { ...prev, ...dbData };
+            localStorage.setItem('hkm-cms-content', JSON.stringify(merged));
+            return merged;
+          });
+        }
+      }, (err) => {
+        console.warn("Kunne ikke synkronisere CMS fra Firestore:", err);
+      });
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Feil ved oppstart av CMS synkronisering:", e);
+    }
+  }, []);
+  
   // Chat Assistant State
   const [assistantMessages, setAssistantMessages] = useState(INITIAL_MESSAGES);
   const [isAssistantTyping, setIsAssistantTyping] = useState(false);
@@ -320,7 +382,13 @@ export const AppProvider = ({ children }) => {
       isAssistantTyping,
       assistantContext,
       setAssistantContext,
-      sendAssistantMessage
+      sendAssistantMessage,
+      isAdminEditing,
+      setIsAdminEditing,
+      cmsContent,
+      updateCmsContent,
+      toastMessage,
+      showToast
     }}>
       {children}
     </AppContext.Provider>

@@ -4,6 +4,7 @@ import { ArrowRight, Star, CheckCircle } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
+import CmsText from '@/components/CmsText';
 
 export default function Home() {
   const { products } = useApp();
@@ -55,12 +56,18 @@ export default function Home() {
         </div>
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto w-full">
           <div className="max-w-2xl text-white">
-            <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md">
-              Bær troen med stolthet
-            </h1>
-            <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed">
-              Inspirerende design skapt for å dele Guds ord gjennom moderne mote og tilbehør. Oppdag vår nyeste kolleksjon i dag.
-            </p>
+            <CmsText 
+              slug="home-hero-title" 
+              fallback="Bær troen med stolthet" 
+              as="h1" 
+              className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md"
+            />
+            <CmsText 
+              slug="home-hero-desc" 
+              fallback="Inspirerende design skapt for å dele Guds ord gjennom moderne mote og tilbehør. Oppdag vår nyeste kolleksjon i dag." 
+              as="p" 
+              className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed"
+            />
             <div className="flex flex-wrap gap-4">
               <button 
                 onClick={() => navigate('/products')}
@@ -249,8 +256,19 @@ export default function Home() {
             />
           </div>
           <div className="w-full lg:w-1/2">
-            <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold">Månedspakker</span>
-            <h2 className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx" style={{ lineHeight: '1.2' }}>Litt hverdagskos rett i postkassen</h2>
+            <CmsText 
+              slug="home-subscription-badge" 
+              fallback="Månedspakker" 
+              as="span" 
+              className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold"
+            />
+            <CmsText 
+              slug="home-subscription-title" 
+              fallback="Litt hverdagskos rett i postkassen" 
+              as="h2" 
+              className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx"
+              style={{ lineHeight: '1.2' }}
+            />
             <p className="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed">
               Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.
             </p>
@@ -281,10 +299,18 @@ export default function Home() {
           <div className="inline-block p-4 rounded-full bg-white mb-8 shadow-sm">
             <span className="material-symbols-outlined text-4xl text-terracotta">church</span>
           </div>
-          <h2 className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx">Hva betyr His Kingdom for oss?</h2>
-          <p className="font-body-lg text-body-lg text-secondary leading-relaxed mb-12">
-            Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap.
-          </p>
+          <CmsText 
+            slug="home-about-title" 
+            fallback="Hva betyr His Kingdom for oss?" 
+            as="h2" 
+            className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx"
+          />
+          <CmsText 
+            slug="home-about-desc" 
+            fallback="Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap." 
+            as="p" 
+            className="font-body-lg text-body-lg text-secondary leading-relaxed mb-12"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
               <h4 className="font-headline-md text-onyx mb-2">Kvalitet</h4>
