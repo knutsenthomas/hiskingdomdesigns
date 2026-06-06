@@ -169,7 +169,7 @@ const INITIAL_PRODUCTS = [
     colorNames: [],
     sizes: ['A3', 'A4'],
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDu3o35G9nlYl0nfPoza5x9mKq5HMS03clg_v2HMWROWJKSWTmVvNz66U4eziJbuZiGbxSOnDZctx_Ea5xIUoAeyFnj3po7-bgCfOCHdSS5YYQSXKFb7etMvOCWoZKo8vMM9Yga3aQsis_odOLs4J3_6QAHeuBssRQljE6OJoM4pQsqN5GEHi-2kxYp4pI_lTp3g1T3xlDA__hfAibdYXRulLQp4hDBEKJ5Dzdv_ZDURnjJoQ6IGOb1St9IkvnumbTioKzZN2ezxQ',
-    isBestseller: false,
+    isBestseller: true,
     isSale: false,
     description: 'Et vakkert kunsttrykk med hele teksten fra Salme 23 ("Herren er min hyrde"). Rammet inn i moderne og elegant oppsett.',
     subcategories: ['Bilder og plakater', 'Typografi', 'NORSKE produkter', 'Retro', 'Maleri']
