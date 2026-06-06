@@ -16,9 +16,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-onyx text-parchment pt-20 pb-8 mt-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-gutter px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto mb-16">
         {/* Brand Column */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-4">
           <Link 
             to="/" 
             className="flex items-center gap-3 font-bold text-terracotta hover:opacity-90 transition-all duration-300 logo group"
@@ -52,7 +52,7 @@ export default function Footer() {
         </div>
 
         {/* Explore Column */}
-        <div>
+        <div className="lg:col-span-2">
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Utforsk</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
@@ -74,7 +74,7 @@ export default function Footer() {
         </div>
 
         {/* Customer Info Column */}
-        <div>
+        <div className="lg:col-span-3">
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Kundeservice</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
@@ -96,7 +96,7 @@ export default function Footer() {
         </div>
 
         {/* Newsletter Column */}
-        <div>
+        <div className="lg:col-span-3">
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Nyhetsbrev</h4>
           <p className="text-body-md font-body-md text-parchment/70 mb-4 leading-relaxed">
             Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nye kolleksjoner.
