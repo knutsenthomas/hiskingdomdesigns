@@ -135,11 +135,20 @@ export default function Header() {
               aria-label="Handlekurv"
             >
               <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-terracotta text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold animate-pulse">
-                  {cartCount}
-                </span>
-              )}
+              <AnimatePresence mode="popLayout">
+                {cartCount > 0 && (
+                  <motion.span
+                    key={cartCount}
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: [1.3, 0.9, 1], opacity: 1 }}
+                    exit={{ scale: 0.6, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="absolute top-0 right-0 bg-terracotta text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold"
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </Link>
 
             <button 

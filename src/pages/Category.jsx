@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ChevronRight, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
+import { motion } from 'framer-motion';
 
 // natural category groupings
 export const CATEGORY_TAXONOMY = {
@@ -304,7 +305,13 @@ export default function Category() {
   );
 
   return (
-    <main className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28">
+    <motion.main
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28"
+    >
       {/* Breadcrumbs */}
       <div className="mb-12">
         <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-4">
@@ -419,6 +426,6 @@ export default function Category() {
           </div>
         </div>
       )}
-    </main>
+    </motion.main>
   );
 }

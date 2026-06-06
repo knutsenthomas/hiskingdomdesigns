@@ -4,6 +4,7 @@ import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft } from
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import ProductCard from '@/components/ProductCard';
+import { motion } from 'framer-motion';
 
 export default function ProductDetails() {
   const { products } = useApp();
@@ -36,7 +37,13 @@ export default function ProductDetails() {
 
   if (!product) {
     return (
-      <div className="max-w-md mx-auto py-40 px-4 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="max-w-md mx-auto py-40 px-4 text-center"
+      >
         <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">error</span>
         <h2 className="font-headline-md text-headline-md text-onyx mb-2">Produktet finnes ikke</h2>
         <p className="text-secondary font-body-md mb-8">
@@ -49,7 +56,7 @@ export default function ProductDetails() {
           <ArrowLeft size={16} />
           <span>Gå til alle produkter</span>
         </button>
-      </div>
+      </motion.div>
     );
   }
 
@@ -65,7 +72,13 @@ export default function ProductDetails() {
   };
 
   return (
-    <main className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28">
+    <motion.main
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28"
+    >
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-8">
         <Link to="/" className="hover:text-terracotta transition-colors">Hjem</Link>
@@ -262,6 +275,6 @@ export default function ProductDetails() {
           </div>
         </section>
       )}
-    </main>
+    </motion.main>
   );
 }

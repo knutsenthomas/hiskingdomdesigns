@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowLeft, ArrowRight, Truck, ShieldCheck, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { motion } from 'framer-motion';
 
 export default function Cart() {
   const {
@@ -28,7 +29,13 @@ export default function Cart() {
 
   if (checkoutStep === 'success') {
     return (
-      <main className="max-w-xl mx-auto py-32 px-4 text-center">
+      <motion.main
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="max-w-xl mx-auto py-32 px-4 text-center"
+      >
         <div className="bg-white p-10 rounded-2xl shadow-xl border border-outline-variant/40 flex flex-col items-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6">
             <span className="material-symbols-outlined text-4xl select-none" style={{ fontVariationSettings: "'wght' 600" }}>
@@ -46,13 +53,19 @@ export default function Cart() {
             Fortsett å handle
           </button>
         </div>
-      </main>
+      </motion.main>
     );
   }
 
   if (cartItems.length === 0) {
     return (
-      <main className="max-w-xl mx-auto py-40 px-4 text-center">
+      <motion.main
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="max-w-xl mx-auto py-40 px-4 text-center"
+      >
         <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">shopping_cart</span>
         <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">Handlekurven din er tom</h2>
         <p className="text-secondary font-body-md mb-8">
@@ -65,12 +78,18 @@ export default function Cart() {
           <ArrowLeft size={16} />
           <span>Utforsk produktene våre</span>
         </Link>
-      </main>
+      </motion.main>
     );
   }
 
   return (
-    <main className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28">
+    <motion.main
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28"
+    >
       <h1 className="font-headline-lg text-headline-lg mb-10 text-onyx">
         {checkoutStep === 'billing' ? 'Kasse & Betaling' : 'Din Handlekurv'}
       </h1>
@@ -309,6 +328,6 @@ export default function Cart() {
           </div>
         </aside>
       </div>
-    </main>
+    </motion.main>
   );
 }

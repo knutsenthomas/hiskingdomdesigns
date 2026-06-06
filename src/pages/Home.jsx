@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, CheckCircle } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const { products } = useApp();
@@ -35,7 +36,13 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="pt-20">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="pt-20"
+    >
       {/* Hero Section */}
       <section className="relative h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -386,6 +393,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </motion.div>
   );
 }
