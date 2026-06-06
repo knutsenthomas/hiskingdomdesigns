@@ -259,8 +259,8 @@ export default function ProductDetails() {
       {/* Section: Related Products */}
       {relatedProducts.length > 0 && (
         <section className="mt-section-gap border-t border-outline-variant/30 pt-16">
-          <div className="flex justify-between items-end mb-8">
-            <h2 className="font-headline-lg text-headline-lg text-onyx">Relaterte produkter</h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-2">
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg text-onyx">Relaterte produkter</h2>
             <Link 
               to={`/category/${product.category}`} 
               className="text-terracotta font-label-md hover:underline underline-offset-4 font-bold"

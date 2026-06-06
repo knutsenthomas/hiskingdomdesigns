@@ -108,7 +108,7 @@ export default function Home() {
 
       {/* Featured Categories (Bento Grid) */}
       <section className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto py-section-gap reveal-on-scroll">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
           <div>
             <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold">Kategorier</span>
             <h2 className="font-headline-lg text-2xl md:text-headline-lg text-onyx">Utforsk vårt utvalg</h2>
