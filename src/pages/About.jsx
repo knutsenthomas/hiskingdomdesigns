@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Heart, Shield, Compass } from 'lucide-react';
+import { ArrowRight, Heart, Shield, Compass } from 'lucide-react';
 
 export default function About() {
   return (
@@ -15,13 +15,13 @@ export default function About() {
       {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto mb-20">
         <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold">
-          Vår Historie
+          Hvem er vi
         </span>
         <h1 className="font-headline-xl text-headline-xl text-onyx mb-6">
-          Å bringe troen inn i det moderne hjemmet
+          His Kingdom Ministry & Designs
         </h1>
         <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
-          His Kingdom Designs ble etablert med et ønske om å kombinere moderne skandinavisk estetikk med dype, kristne verdier. Vi tror på kraften i de synlige påminnelsene i hverdagen.
+          His Kingdom Ministry er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.
         </p>
       </div>
 
@@ -30,25 +30,25 @@ export default function About() {
         <div className="relative">
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl -z-10"></div>
           <img 
-            alt="Vår visjon" 
+            alt="Vår tjeneste" 
             className="rounded-2xl shadow-xl w-full object-cover h-[450px]" 
-            src="https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR"
+            src="https://static.wixstatic.com/media/db4f96_2b25900fd882417e8fc88a62002ba11a~mv2.jpg/v1/fill/w_900,h_675,al_c,q_85,usm_0.66_1.00_0.01/FullSizeRender_edited_edited_edited_edited%20(1).jpg"
           />
         </div>
         <div className="space-y-6">
-          <h2 className="font-headline-lg text-headline-lg text-onyx">Hvorfor vi startet</h2>
+          <h2 className="font-headline-lg text-headline-lg text-onyx">Vårt fokus og arbeid</h2>
           <p className="font-body-md text-body-md text-secondary leading-relaxed">
-            I en travel og støyende verden er det lett å miste fokus på det som betyr mest. Vi ønsket å skape produkter som ikke bare ser flotte ut, men som bærer et meningsfullt budskap. Hvert plagg, bilde og tilbehør vi designer er ment å være en samtalestarter, en oppmuntring eller en daglig påminnelse om Guds løfter.
+            Vi ønsker å inspirere og utruste troende til å leve et liv i nær relasjon med Jesus. Som en del av vår tjeneste produserer vi en ukentlig podcast med andakter som gir åndelig påfyll i hverdagen, og vi arrangerer regelmessig ulike samlinger, bønnemøter og oppbyggelige seminarer.
           </p>
           <p className="font-body-md text-body-md text-secondary leading-relaxed">
-            Gjennom kompromissløs kvalitet på råmaterialer og et minimalistisk, tidsriktig formspråk, ønsker vi å tilby trosbaserte produkter som du stolt kan bruke og dekorere hjemmet ditt med.
+            Gjennom nettbutikken **His Kingdom Designs** ønsker vi å tilby vakre, moderne og konkrete påminnelser om Guds ord som du kan bære med deg eller pynte hjemmet ditt med. Hvert eneste produkt er skapt for å starte gode samtaler og minne oss på Guds uendelige kjærlighet og løfter.
           </p>
           <div className="pt-4">
             <Link 
               to="/products"
               className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-label-md text-label-md hover:bg-opacity-90 transition-all active:scale-[0.98] shadow-lg"
             >
-              <span>Utforsk kolleksjonen</span>
+              <span>Se produktene våre</span>
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -57,15 +57,15 @@ export default function About() {
 
       {/* Core Values */}
       <div className="bg-white rounded-3xl p-12 md:p-20 shadow-sm border border-outline-variant/30 mb-28">
-        <h2 className="font-headline-lg text-headline-lg text-onyx text-center mb-16">Våre Kjerneverdier</h2>
+        <h2 className="font-headline-lg text-headline-lg text-onyx text-center mb-16">Vår Tjeneste</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           <div className="space-y-4 flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
               <Heart size={28} />
             </div>
-            <h3 className="font-headline-md text-onyx text-xl">Kjærlighet & Misjon</h3>
+            <h3 className="font-headline-md text-onyx text-xl">Bønn & Forbønn</h3>
             <p className="font-body-md text-secondary leading-relaxed">
-              Vi brenner for å spre det gode budskap om Guds rike. En del av vårt overskudd går direkte til misjonsarbeid og veldedige kristne formål.
+              Vi brenner for forbønn og profetisk tjeneste. Vi ønsker å se mennesker bli satt i frihet og få oppleve Guds helbredende kraft.
             </p>
           </div>
           
@@ -73,9 +73,9 @@ export default function About() {
             <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
               <Shield size={28} />
             </div>
-            <h3 className="font-headline-md text-onyx text-xl">Ekte Kvalitet</h3>
+            <h3 className="font-headline-md text-onyx text-xl">Utrustning & Lære</h3>
             <p className="font-body-md text-secondary leading-relaxed">
-              Fra økologisk bomull til tykt, syrefritt kunstpapir. Vi inngår ingen kompromisser når det gjelder produktenes holdbarhet og finish.
+              Gjennom seminarer, andakter og podcasten vår ønsker vi å gi sunn bibelsk undervisning som styrker din personlige vandring med Gud.
             </p>
           </div>
 
@@ -83,9 +83,9 @@ export default function About() {
             <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
               <Compass size={28} />
             </div>
-            <h3 className="font-headline-md text-onyx text-xl">Moderne Design</h3>
+            <h3 className="font-headline-md text-onyx text-xl">Kreativ Formidling</h3>
             <p className="font-body-md text-secondary leading-relaxed">
-              Vi skaper tidsriktig mote og interiør som naturlig passer inn i det skandinaviske hjemmet, uten å miste det bibelske fundamentet.
+              Ved å forene estetisk vakkert design med troens budskap, skaper vi moderne t-skjorter, plakater og tilbehør som bærer Guds ord ut i hverdagen.
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function About() {
       <div className="bg-onyx rounded-3xl p-12 md:p-16 text-center text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-terracotta/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
         <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-          <h2 className="font-headline-lg text-headline-lg text-white">Har du spørsmål om oss eller produktene?</h2>
+          <h2 className="font-headline-lg text-headline-lg text-white">Har du spørsmål om oss eller våre produkter?</h2>
           <p className="font-body-md text-parchment/70">
             Vi har samlet svar på de vanligste spørsmålene angående frakt, materialer, og våre abonnementspakker.
           </p>

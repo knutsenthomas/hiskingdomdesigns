@@ -1,35 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Linkedin, Globe } from 'lucide-react';
+import { Mail, Facebook, Instagram, Youtube } from 'lucide-react';
 
 const TEAM_MEMBERS = [
   {
-    name: 'Thomas Knutsen',
-    role: 'Grunnlegger & Daglig Leder',
-    bio: 'Thomas har over 15 års erfaring innen regnskap og forretningsutvikling. Han brenner for å kombinere strukturert regnskapsarbeid med kreativ nyskaping.',
-    avatar: 'TK',
+    name: 'Hilde Karin Knutsen',
+    role: 'Misjonær & Profetisk Forbeder',
+    bio: 'Hilde Karin har reist som misjonær og profetisk forbeder i over halve livet sitt. Gjennom Bibelens prinsipper og Den Hellige Ånds ledelse hjelper hun deg å vokse i ditt personlige forhold til Jesus Kristus, og utruste deg til å bli alt det han har skapt deg til å være. Hun brenner for å se Guds verk manifestere seg gjennom mirakler, helbredelse og frelse.',
+    avatar: 'HKK',
+    image: 'https://static.wixstatic.com/media/db4f96_f1a7f17d0fe846069396b87f38497068~mv2.jpg/v1/fill/w_300,h_400,al_c,q_80,usm_0.66_1.00_0.01/IMG_8972_edited%20(1).jpg',
     color: 'bg-terracotta/10 text-terracotta border-terracotta/20',
+    socials: [
+      { icon: <Instagram size={16} />, url: 'https://www.instagram.com/freedomisathand/', label: 'Instagram' },
+      { icon: <Facebook size={16} />, url: 'https://www.facebook.com/hiskingdomministry777?locale=nb_NO', label: 'Facebook' },
+      { icon: <Youtube size={16} />, url: 'https://www.youtube.com/@HisKingdomMinistry', label: 'YouTube' }
+    ]
   },
   {
-    name: 'Helene Berg',
-    role: 'Sjefdesigner & Kreativ leder',
-    bio: 'Helene er utdannet innen grafisk design og visuell kommunikasjon. Det er hun som står bak de moderne, trosbaserte motivene og plakatdesignene våre.',
-    avatar: 'HB',
+    name: 'Thomas Knutsen',
+    role: 'Tilbedelsesleder & Teknisk Ansvarlig',
+    bio: 'Thomas har vært tilbedelsesleder siden han var 15 år gammel og elsker å lede lovsang. Han har jobbet 15 år i samme kirke med alt fra barn, ungdom og lovsang til administrasjon. I His Kingdom Ministry har han ansvaret for alt det tekniske – fra nettsiden og butikken til redigering av videoer og podcaster.',
+    avatar: 'TK',
+    image: 'https://static.wixstatic.com/media/db4f96_08185e402228443aa9f27b32ff3ada42~mv2.jpg/v1/fill/w_300,h_400,al_c,q_80,usm_0.66_1.00_0.01/IMG_0040_edited%20(1).jpg',
     color: 'bg-[#1B4965]/10 text-[#1B4965] border-[#1B4965]/20',
-  },
-  {
-    name: 'Jonas Stendal',
-    role: 'Logistikk & Kundeservice',
-    bio: 'Jonas sørger for at ordrene dine pakkes nøyaktig og sendes lynraskt fra vårt lager i Mandal. Han er også din primærkontakt for spørsmål om leveringer.',
-    avatar: 'JS',
-    color: 'bg-green-600/10 text-green-700 border-green-600/20',
-  },
-  {
-    name: 'Camilla Hansen',
-    role: 'Markedsansvarlig & Sosiale Medier',
-    bio: 'Camilla styrer våre fellesskap på Instagram og Facebook, og er bindeleddet mellom His Kingdom Designs og våre engasjerte kunder over hele landet.',
-    avatar: 'CH',
-    color: 'bg-amber-600/10 text-amber-700 border-amber-600/20',
+    socials: [
+      { icon: <Instagram size={16} />, url: 'https://www.instagram.com/tkdesignandmusic/', label: 'Instagram' },
+      { icon: <Facebook size={16} />, url: 'https://www.facebook.com/thomas.knutsen.75/?locale=nb_NO', label: 'Facebook' }
+    ]
   }
 ];
 
@@ -48,15 +45,15 @@ export default function Team() {
           Folkene Bak
         </span>
         <h1 className="font-headline-xl text-headline-xl text-onyx mb-6">
-          Møt vårt team
+          Møt hjertene bak tjenesten
         </h1>
         <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
-          Vi er en engasjert gjeng lokalisert i Mandal som jobber hver dag for å levere produkter av ypperste klasse – fra designbordet og helt hjem til postkassen din.
+          Vi koblet sammen med en gang og er så velsignet at Gud forente livene våre sammen for å tjene Hans rike. Vi elsker å se liv bli forandret og mennesker vokse i troen.
         </p>
       </div>
 
-      {/* Team grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+      {/* Team grid - centered columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto mb-24">
         {TEAM_MEMBERS.map((member, index) => (
           <motion.div
             key={member.name}
@@ -66,27 +63,41 @@ export default function Team() {
             className="bg-white rounded-2xl border border-outline-variant/30 p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
           >
             <div>
-              {/* Profile Avatar Graphics */}
-              <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center font-bold text-2xl mb-6 mx-auto md:mx-0 ${member.color}`}>
-                {member.avatar}
+              {/* Profile Image */}
+              <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-6 border border-outline-variant/20 shadow-inner bg-slate-50">
+                <img 
+                  alt={member.name} 
+                  className="w-full h-full object-cover hover:scale-102 transition-transform duration-300" 
+                  src={member.image}
+                  onError={(e) => {
+                    // Fallback to initials if image fails
+                    e.target.style.display = 'none';
+                  }}
+                />
               </div>
-              <h3 className="font-headline-md text-onyx text-[19px] mb-1 font-bold text-center md:text-left">{member.name}</h3>
-              <p className="text-terracotta font-label-sm text-label-sm mb-4 font-semibold text-center md:text-left">{member.role}</p>
-              <p className="font-body-sm text-body-sm text-secondary leading-relaxed mb-6 text-center md:text-left">
+              <h3 className="font-headline-md text-onyx text-[21px] mb-1 font-bold">{member.name}</h3>
+              <p className="text-terracotta font-label-sm text-label-sm mb-4 font-semibold">{member.role}</p>
+              <p className="font-body-sm text-body-sm text-secondary leading-relaxed mb-6">
                 {member.bio}
               </p>
             </div>
             {/* Social triggers */}
-            <div className="flex gap-4 border-t border-slate-100 pt-4 justify-center md:justify-start">
-              <a href="#" className="text-secondary hover:text-terracotta transition-colors" aria-label="E-post">
+            <div className="flex gap-4 border-t border-slate-100 pt-4">
+              <a href="mailto:kontakt@hiskingdom.no" className="text-secondary hover:text-terracotta transition-colors" aria-label="E-post">
                 <Mail size={16} />
               </a>
-              <a href="#" className="text-secondary hover:text-terracotta transition-colors" aria-label="LinkedIn">
-                <Linkedin size={16} />
-              </a>
-              <a href="#" className="text-secondary hover:text-terracotta transition-colors" aria-label="Nettsted">
-                <Globe size={16} />
-              </a>
+              {member.socials.map((soc) => (
+                <a 
+                  key={soc.url} 
+                  href={soc.url} 
+                  target="_blank" 
+                  rel="noreferrer noopener" 
+                  className="text-secondary hover:text-terracotta transition-colors" 
+                  aria-label={soc.label}
+                >
+                  {soc.icon}
+                </a>
+              ))}
             </div>
           </motion.div>
         ))}
@@ -98,16 +109,16 @@ export default function Team() {
           <span className="material-symbols-outlined text-4xl text-terracotta bg-white p-4 rounded-2xl shadow-sm">
             location_on
           </span>
-          <h2 className="font-headline-lg text-headline-lg text-onyx">Vårt Hovedkontor i Mandal</h2>
+          <h2 className="font-headline-lg text-headline-lg text-onyx">Vår Base</h2>
           <p className="font-body-md text-secondary leading-relaxed">
-            Vi holder til i hjertet av Mandal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner, administrerer nettbutikken og pakker alle forsendelser med kjærlighet og nøyaktighet.
+            Vi holder til i hjertet av Mandal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet.
           </p>
           <div className="text-label-sm text-secondary space-y-2">
             <p><strong>Adresse:</strong> Store Elvegate 16, 4514 Mandal</p>
             <p><strong>E-post:</strong> kontakt@hiskingdom.no</p>
           </div>
         </div>
-        <div className="md:w-1/2 w-full h-[300px] rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm relative">
+        <div className="md:w-1/2 w-full h-[300px] rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm relative bg-slate-50">
           <img 
             alt="Mandal kontor" 
             className="w-full h-full object-cover" 
