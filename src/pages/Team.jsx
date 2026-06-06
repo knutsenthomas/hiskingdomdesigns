@@ -1,12 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Facebook, Instagram, Youtube } from 'lucide-react';
+import CmsText from '@/components/CmsText';
 
 const TEAM_MEMBERS = [
   {
     name: 'Hilde Karin Knutsen',
     role: 'Misjonær & Profetisk Forbeder',
-    bio: 'Hilde Karin har reist som misjonær og profetisk forbeder i over halve livet sitt. Gjennom Bibelens prinsipper og Den Hellige Ånds ledelse hjelper hun deg å vokse i ditt personlige forhold til Jesus Kristus, og utruste deg til å bli alt det han har skapt deg til å være. Hun brenner for å se Guds verk manifestere seg gjennom mirakler, helbredelse og frelse.',
+    bio: 'Hilde Karin har reist som misjonær og profetisk forbeder i over halve livet sitt. Gjennom Bibelens prinsipper og Den Hellige Ånds ledelse hjelper hun deg å vokse i ditt personlige forhold to Jesus Kristus, og utruste deg til å bli alt det han har skapt deg til å være. Hun brenner for å se Guds verk manifestere seg gjennom mirakler, helbredelse og frelse.',
+    slugRole: 'team-member-role-hilde',
+    slugBio: 'team-member-bio-hilde',
     avatar: 'HKK',
     image: 'https://static.wixstatic.com/media/db4f96_f1a7f17d0fe846069396b87f38497068~mv2.jpg/v1/fill/w_300,h_400,al_c,q_80,usm_0.66_1.00_0.01/IMG_8972_edited%20(1).jpg',
     color: 'bg-terracotta/10 text-terracotta border-terracotta/20',
@@ -20,6 +23,8 @@ const TEAM_MEMBERS = [
     name: 'Thomas Knutsen',
     role: 'Tilbedelsesleder & Teknisk Ansvarlig',
     bio: 'Thomas har vært tilbedelsesleder siden han var 15 år gammel og elsker å lede lovsang. Han har jobbet 15 år i samme kirke med alt fra barn, ungdom og lovsang til administrasjon. I His Kingdom Ministry har han ansvaret for alt det tekniske – fra nettsiden og butikken til redigering av videoer og podcaster.',
+    slugRole: 'team-member-role-thomas',
+    slugBio: 'team-member-bio-thomas',
     avatar: 'TK',
     image: 'https://static.wixstatic.com/media/db4f96_08185e402228443aa9f27b32ff3ada42~mv2.jpg/v1/fill/w_300,h_400,al_c,q_80,usm_0.66_1.00_0.01/IMG_0040_edited%20(1).jpg',
     color: 'bg-[#1B4965]/10 text-[#1B4965] border-[#1B4965]/20',
@@ -41,15 +46,24 @@ export default function Team() {
     >
       {/* Title */}
       <div className="text-center max-w-3xl mx-auto mb-20">
-        <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold">
-          Folkene Bak
-        </span>
-        <h1 className="font-headline-xl text-headline-xl text-onyx mb-6">
-          Møt hjertene bak tjenesten
-        </h1>
-        <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
-          Vi koblet sammen med en gang og er så velsignet at Gud forente livene våre sammen for å tjene Hans rike. Vi elsker å se liv bli forandret og mennesker vokse i troen.
-        </p>
+        <CmsText
+          slug="team-badge"
+          fallback="Folkene Bak"
+          as="span"
+          className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold"
+        />
+        <CmsText
+          slug="team-title"
+          fallback="Møt hjertene bak tjenesten"
+          as="h1"
+          className="font-headline-xl text-headline-xl text-onyx mb-6"
+        />
+        <CmsText
+          slug="team-desc"
+          fallback="Vi koblet sammen med en gang og er så velsignet at Gud forente livene våre sammen for å tjene Hans rike. Vi elsker å se liv bli forandret og mennesker vokse i troen."
+          as="p"
+          className="font-body-lg text-body-lg text-secondary leading-relaxed"
+        />
       </div>
 
       {/* Team grid - centered columns */}
@@ -70,16 +84,23 @@ export default function Team() {
                   className="w-full h-full object-cover hover:scale-102 transition-transform duration-300" 
                   src={member.image}
                   onError={(e) => {
-                    // Fallback to initials if image fails
                     e.target.style.display = 'none';
                   }}
                 />
               </div>
               <h3 className="font-headline-md text-onyx text-[21px] mb-1 font-bold">{member.name}</h3>
-              <p className="text-terracotta font-label-sm text-label-sm mb-4 font-semibold">{member.role}</p>
-              <p className="font-body-sm text-body-sm text-secondary leading-relaxed mb-6">
-                {member.bio}
-              </p>
+              <CmsText
+                slug={member.slugRole}
+                fallback={member.role}
+                as="p"
+                className="text-terracotta font-label-sm text-label-sm mb-4 font-semibold"
+              />
+              <CmsText
+                slug={member.slugBio}
+                fallback={member.bio}
+                as="p"
+                className="font-body-sm text-body-sm text-secondary leading-relaxed mb-6"
+              />
             </div>
             {/* Social triggers */}
             <div className="flex gap-4 border-t border-slate-100 pt-4">
@@ -109,13 +130,35 @@ export default function Team() {
           <span className="material-symbols-outlined text-4xl text-terracotta bg-white p-4 rounded-2xl shadow-sm">
             location_on
           </span>
-          <h2 className="font-headline-lg text-headline-lg text-onyx">Vår Base</h2>
-          <p className="font-body-md text-secondary leading-relaxed">
-            Vi holder til i hjertet av Mandal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet.
-          </p>
+          <CmsText
+            slug="team-base-title"
+            fallback="Vår Base"
+            as="h2"
+            className="font-headline-lg text-headline-lg text-onyx"
+          />
+          <CmsText
+            slug="team-base-desc"
+            fallback="Vi holder til i hjertet av Mandal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
+            as="p"
+            className="font-body-md text-secondary leading-relaxed"
+          />
           <div className="text-label-sm text-secondary space-y-2">
-            <p><strong>Adresse:</strong> Store Elvegate 16, 4514 Mandal</p>
-            <p><strong>E-post:</strong> kontakt@hiskingdom.no</p>
+            <p>
+              <strong>Adresse: </strong>
+              <CmsText
+                slug="team-base-address"
+                fallback="Store Elvegate 16, 4514 Mandal"
+                as="span"
+              />
+            </p>
+            <p>
+              <strong>E-post: </strong>
+              <CmsText
+                slug="team-base-email"
+                fallback="kontakt@hiskingdom.no"
+                as="span"
+              />
+            </p>
           </div>
         </div>
         <div className="md:w-1/2 w-full h-[300px] rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm relative bg-slate-50">

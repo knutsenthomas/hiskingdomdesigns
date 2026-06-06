@@ -92,22 +92,22 @@ export default function Home() {
           <div className="flex items-center justify-center gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl">local_shipping</span>
             <div>
-              <p className="font-label-md text-label-md text-onyx">Gratis frakt over 800 kr</p>
-              <p className="text-label-sm text-secondary">Rask levering til hele landet</p>
+              <CmsText slug="home-benefits-title-1" fallback="Gratis frakt over 800 kr" as="p" className="font-label-md text-label-md text-onyx" />
+              <CmsText slug="home-benefits-desc-1" fallback="Rask levering til hele landet" as="p" className="text-label-sm text-secondary" />
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl">assignment_return</span>
             <div>
-              <p className="font-label-md text-label-md text-onyx">30 dagers åpent kjøp</p>
-              <p className="text-label-sm text-secondary">Enkel retur hvis du ombestemmer deg</p>
+              <CmsText slug="home-benefits-title-2" fallback="30 dagers åpent kjøp" as="p" className="font-label-md text-label-md text-onyx" />
+              <CmsText slug="home-benefits-desc-2" fallback="Enkel retur hvis du ombestemmer deg" as="p" className="text-label-sm text-secondary" />
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl">bolt</span>
             <div>
-              <p className="font-label-md text-label-md text-onyx">Lynrask levering</p>
-              <p className="text-label-sm text-secondary">Sendes fra vårt lager innen 24 timer</p>
+              <CmsText slug="home-benefits-title-3" fallback="Lynrask levering" as="p" className="font-label-md text-label-md text-onyx" />
+              <CmsText slug="home-benefits-desc-3" fallback="Sendes fra vårt lager innen 24 timer" as="p" className="text-label-sm text-secondary" />
             </div>
           </div>
         </div>
@@ -117,8 +117,8 @@ export default function Home() {
       <section className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto py-section-gap reveal-on-scroll">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
           <div>
-            <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold">Kategorier</span>
-            <h2 className="font-headline-lg text-2xl md:text-headline-lg text-onyx">Utforsk vårt utvalg</h2>
+            <CmsText slug="home-categories-badge" fallback="Kategorier" as="span" className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold" />
+            <CmsText slug="home-categories-title" fallback="Utforsk vårt utvalg" as="h2" className="font-headline-lg text-2xl md:text-headline-lg text-onyx" />
           </div>
           <button 
             onClick={() => navigate('/products')}
@@ -140,8 +140,8 @@ export default function Home() {
               src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-8">
-              <h3 className="text-white font-headline-md text-headline-md mb-2">Klær</h3>
-              <p className="text-white/80 font-body-md text-body-md mb-4 max-w-sm">Moderne t-skjorter og hettegensere med budskap.</p>
+              <CmsText slug="home-category-title-1" fallback="Klær" as="h3" className="text-white font-headline-md text-headline-md mb-2" />
+              <CmsText slug="home-category-desc-1" fallback="Moderne t-skjorter og hettegensere med budskap." as="p" className="text-white/80 font-body-md text-body-md mb-4 max-w-sm" />
               <span className="w-fit bg-white text-onyx px-5 py-2.5 rounded font-label-md text-label-md group-hover:bg-terracotta group-hover:text-white transition-colors duration-300">
                 Handle nå
               </span>
@@ -160,8 +160,8 @@ export default function Home() {
                 src="https://lh3.googleusercontent.com/aida/AP1WRLszihbNKwjOsKdnixf-5r35a6Xba2jlEmuqK6Ow72s8KEL52iJCXqZJrshr6YDlc03OqnuU4KZvmcKRaGwOX7Idbd9VsvxGhNJ8V30WGHf6RRHtzg7bw5ZarKCFYFpP05FYaleB_OCre6P4QrICKQyWws5x-mYsQlu2fhc91h9_obAeP-jeSREE2bDD9RVgwfg1vfpj_wKCPLkN1l4b9MD3SgYwtLtb9RddUykqMykJvv9U4mu43gvsDA"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
-                <h3 className="text-white font-headline-md text-headline-md">Klistermerker</h3>
-                <p className="text-white/70 text-label-sm mt-1">Små påminnelser i hverdagen.</p>
+                <CmsText slug="home-category-title-2" fallback="Klistermerker" as="h3" className="text-white font-headline-md text-headline-md" />
+                <CmsText slug="home-category-desc-2" fallback="Små påminnelser i hverdagen." as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
             </div>
             
@@ -176,8 +176,8 @@ export default function Home() {
                 src="https://lh3.googleusercontent.com/aida/AP1WRLtA5Wejh-acQOMfMxekjYryt6bxtjj3vnr-WRJvzY5vPB0gWYTV9mJoqtNjHjtFyZPcmtR_fF0GMsqHzLPVYGOBg0qMTf_C8Rj7YN0RDf1ZwX_rSFomzQK9QWQq0ltc1SoqaU2ypKQxUpP2lV2pf2pQr8TGwhinfhzYJPNkBsj_P3q-ZWaT4JUhewinEQk-4_kudEyuJVr0OaMoKbJ0yZs9bnfn3r6yMcOt7st5zMBV4hYqOQBydQk6wA"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
-                <h3 className="text-white font-headline-md text-headline-md">Plakater</h3>
-                <p className="text-white/70 text-label-sm mt-1">Dekorer hjemmet ditt med håp.</p>
+                <CmsText slug="home-category-title-3" fallback="Plakater" as="h3" className="text-white font-headline-md text-headline-md" />
+                <CmsText slug="home-category-desc-3" fallback="Dekorer hjemmet ditt med håp." as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
             </div>
           </div>
@@ -187,9 +187,12 @@ export default function Home() {
       {/* Best Sellers */}
       <section className="bg-white py-section-gap reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
-          <h2 className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 md:mb-16 text-onyx">
-            Våre bestselgere
-          </h2>
+          <CmsText 
+            slug="home-bestsellers-title" 
+            fallback="Våre bestselgere" 
+            as="h2" 
+            className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 md:mb-16 text-onyx block" 
+          />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
             {bestsellers.slice(0, 4).map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -201,20 +204,31 @@ export default function Home() {
       {/* Testimonials */}
       <section className="bg-parchment py-section-gap overflow-hidden reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
-          <h2 className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 text-onyx">
-            Kundeuttalelser
-          </h2>
+          <CmsText
+            slug="home-testimonials-title"
+            fallback="Kundeuttalelser"
+            as="h2"
+            className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 text-onyx block"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
               <div>
                 <div className="flex text-terracotta mb-4">
                   {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
                 </div>
-                <p className="font-body-md text-body-md italic mb-6 text-onyx/80">
-                  "Fantastisk kvalitet på t-skjortene! De holder formen vask etter vask, og budskapet starter alltid gode samtaler."
-                </p>
+                <CmsText
+                  slug="home-testimonial-quote-1"
+                  fallback='"Fantastisk kvalitet på t-skjortene! De holder formen vask etter vask, og budskapet starter alltid gode samtaler."'
+                  as="p"
+                  className="font-body-md text-body-md italic mb-6 text-onyx/80"
+                />
               </div>
-              <p className="font-label-md text-label-md text-onyx font-bold">- Maria H.</p>
+              <CmsText
+                slug="home-testimonial-author-1"
+                fallback="- Maria H."
+                as="p"
+                className="font-label-md text-label-md text-onyx font-bold"
+              />
             </div>
             
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
@@ -222,11 +236,19 @@ export default function Home() {
                 <div className="flex text-terracotta mb-4">
                   {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
                 </div>
-                <p className="font-body-md text-body-md italic mb-6 text-onyx/80">
-                  "Plakatene er så fine! De gir stuen min en helt egen ro og påminnelse om Guds fred hver eneste dag."
-                </p>
+                <CmsText
+                  slug="home-testimonial-quote-2"
+                  fallback='"Plakatene er så fine! De gir stuen min en helt egen ro og påminnelse om Guds fred hver eneste dag."'
+                  as="p"
+                  className="font-body-md text-body-md italic mb-6 text-onyx/80"
+                />
               </div>
-              <p className="font-label-md text-label-md text-onyx font-bold">- Andreas T.</p>
+              <CmsText
+                slug="home-testimonial-author-2"
+                fallback="- Andreas T."
+                as="p"
+                className="font-label-md text-label-md text-onyx font-bold"
+              />
             </div>
 
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
@@ -234,11 +256,19 @@ export default function Home() {
                 <div className="flex text-terracotta mb-4">
                   {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
                 </div>
-                <p className="font-body-md text-body-md italic mb-6 text-onyx/80">
-                  "Lynrask levering! Bestilte på mandag og pakken var i postkassen allerede onsdag. Veldig fornøyd."
-                </p>
+                <CmsText
+                  slug="home-testimonial-quote-3"
+                  fallback='"Lynrask levering! Bestilte på mandag og pakken var i postkassen allerede onsdag. Veldig fornøyd."'
+                  as="p"
+                  className="font-body-md text-body-md italic mb-6 text-onyx/80"
+                />
               </div>
-              <p className="font-label-md text-label-md text-onyx font-bold">- Karoline S.</p>
+              <CmsText
+                slug="home-testimonial-author-3"
+                fallback="- Karoline S."
+                as="p"
+                className="font-label-md text-label-md text-onyx font-bold"
+              />
             </div>
           </div>
         </div>
@@ -269,21 +299,24 @@ export default function Home() {
               className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx"
               style={{ lineHeight: '1.2' }}
             />
-            <p className="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed">
-              Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.
-            </p>
+            <CmsText
+              slug="home-subscription-desc"
+              fallback='Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.'
+              as="p"
+              className="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed"
+            />
             <ul className="space-y-4 mb-10">
               <li className="flex items-center gap-3">
                 <CheckCircle size={20} className="text-terracotta shrink-0" />
-                <span className="font-body-md text-onyx/80">Ingen bindingstid – avslutt når du vil</span>
+                <CmsText slug="home-subscription-feature-1" fallback="Ingen bindingstid – avslutt når du vil" as="span" className="font-body-md text-onyx/80" />
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle size={20} className="text-terracotta shrink-0" />
-                <span className="font-body-md text-onyx/80">Eksklusive design kun for abonnenter</span>
+                <CmsText slug="home-subscription-feature-2" fallback="Eksklusive design kun for abonnenter" as="span" className="font-body-md text-onyx/80" />
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle size={20} className="text-terracotta shrink-0" />
-                <span className="font-body-md text-onyx/80">Gratis frakt på alle pakker</span>
+                <CmsText slug="home-subscription-feature-3" fallback="Gratis frakt på alle pakker" as="span" className="font-body-md text-onyx/80" />
               </li>
             </ul>
             <button className="bg-onyx text-white px-10 py-4 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:scale-[1.02] transition-all shadow-lg active:scale-[0.98]">
@@ -313,16 +346,16 @@ export default function Home() {
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
-              <h4 className="font-headline-md text-onyx mb-2">Kvalitet</h4>
-              <p className="text-label-sm text-secondary opacity-80">Nøye utvalgte materialer for lang holdbarhet.</p>
+              <CmsText slug="home-value-title-1" fallback="Kvalitet" as="h4" className="font-headline-md text-onyx mb-2" />
+              <CmsText slug="home-value-desc-1" fallback="Nøye utvalgte materialer for lang holdbarhet." as="p" className="text-label-sm text-secondary opacity-80" />
             </div>
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
-              <h4 className="font-headline-md text-onyx mb-2">Budskap</h4>
-              <p className="text-label-sm text-secondary opacity-80">Bibelsk forankret og moderne designet.</p>
+              <CmsText slug="home-value-title-2" fallback="Budskap" as="h4" className="font-headline-md text-onyx mb-2" />
+              <CmsText slug="home-value-desc-2" fallback="Bibelsk forankret og moderne designet." as="p" className="text-label-sm text-secondary opacity-80" />
             </div>
             <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
-              <h4 className="font-headline-md text-onyx mb-2">Fellesskap</h4>
-              <p className="text-label-sm text-secondary opacity-80">Bygget for å inspirere og dele troen.</p>
+              <CmsText slug="home-value-title-3" fallback="Fellesskap" as="h4" className="font-headline-md text-onyx mb-2" />
+              <CmsText slug="home-value-desc-3" fallback="Bygget for å inspirere og dele troen." as="p" className="text-label-sm text-secondary opacity-80" />
             </div>
           </div>
         </div>
@@ -332,8 +365,8 @@ export default function Home() {
       <section className="py-section-gap bg-white reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
           <div className="text-center mb-12">
-            <h2 className="font-headline-lg text-2xl md:text-headline-lg mb-4 text-onyx">Følg oss på Instagram</h2>
-            <p className="text-secondary font-body-md">Se hvordan våre kunder bærer sin tro @hiskingdomdesigns</p>
+            <CmsText slug="home-instagram-title" fallback="Følg oss på Instagram" as="h2" className="font-headline-lg text-2xl md:text-headline-lg mb-4 text-onyx block" />
+            <CmsText slug="home-instagram-desc" fallback="Se hvordan våre kunder bærer sin tro @hiskingdomdesigns" as="p" className="text-secondary font-body-md" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             <div className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer">
@@ -395,12 +428,18 @@ export default function Home() {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-terracotta/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
           
           <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="font-headline-lg text-2xl md:text-headline-lg text-parchment mb-4">
-              Bli med i vårt fellesskap
-            </h2>
-            <p className="font-body-md text-body-md text-parchment/70 mb-10">
-              Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nyheter om nye kolleksjoner.
-            </p>
+            <CmsText
+              slug="home-newsletter-title"
+              fallback="Bli med i vårt fellesskap"
+              as="h2"
+              className="font-headline-lg text-2xl md:text-headline-lg text-parchment mb-4 block"
+            />
+            <CmsText
+              slug="home-newsletter-desc"
+              fallback="Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nyheter om nye kolleksjoner."
+              as="p"
+              className="font-body-md text-body-md text-parchment/70 mb-10"
+            />
             <form className="flex flex-col sm:flex-row gap-4 justify-center">
               <input 
                 className="bg-white/10 border border-white/20 text-white px-6 py-4 rounded-lg focus:outline-none focus:border-terracotta transition-colors placeholder:text-white/40 w-full sm:max-w-md" 
@@ -415,7 +454,7 @@ export default function Home() {
                 Meld meg på
               </button>
             </form>
-            <p className="text-label-sm text-parchment/40 mt-4">Vi respekterer ditt personvern. Avmeld deg når som helst.</p>
+            <CmsText slug="home-newsletter-privacy" fallback="Vi respekterer ditt personvern. Avmeld deg når som helst." as="p" className="text-label-sm text-parchment/40 mt-4" />
           </div>
         </div>
       </section>

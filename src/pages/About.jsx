@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Shield, Compass } from 'lucide-react';
+import CmsText from '@/components/CmsText';
 
 export default function About() {
   return (
@@ -14,15 +15,24 @@ export default function About() {
     >
       {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto mb-20">
-        <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold">
-          Hvem er vi
-        </span>
-        <h1 className="font-headline-xl text-headline-xl text-onyx mb-6">
-          His Kingdom Ministry & Designs
-        </h1>
-        <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
-          His Kingdom Ministry er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.
-        </p>
+        <CmsText
+          slug="about-badge"
+          fallback="Hvem er vi"
+          as="span"
+          className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold"
+        />
+        <CmsText
+          slug="about-title"
+          fallback="His Kingdom Ministry & Designs"
+          as="h1"
+          className="font-headline-xl text-headline-xl text-onyx mb-6"
+        />
+        <CmsText
+          slug="about-desc"
+          fallback="His Kingdom Ministry er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin."
+          as="p"
+          className="font-body-lg text-body-lg text-secondary leading-relaxed"
+        />
       </div>
 
       {/* Narrative grid */}
@@ -36,13 +46,24 @@ export default function About() {
           />
         </div>
         <div className="space-y-6">
-          <h2 className="font-headline-lg text-headline-lg text-onyx">Vårt fokus og arbeid</h2>
-          <p className="font-body-md text-body-md text-secondary leading-relaxed">
-            Vi ønsker å inspirere og utruste troende til å leve et liv i nær relasjon med Jesus. Som en del av vår tjeneste produserer vi en ukentlig podcast med andakter som gir åndelig påfyll i hverdagen, og vi arrangerer regelmessig ulike samlinger, bønnemøter og oppbyggelige seminarer.
-          </p>
-          <p className="font-body-md text-body-md text-secondary leading-relaxed">
-            Gjennom nettbutikken **His Kingdom Designs** ønsker vi å tilby vakre, moderne og konkrete påminnelser om Guds ord som du kan bære med deg eller pynte hjemmet ditt med. Hvert eneste produkt er skapt for å starte gode samtaler og minne oss på Guds uendelige kjærlighet og løfter.
-          </p>
+          <CmsText
+            slug="about-narrative-title"
+            fallback="Vårt fokus og arbeid"
+            as="h2"
+            className="font-headline-lg text-headline-lg text-onyx"
+          />
+          <CmsText
+            slug="about-narrative-p1"
+            fallback="Vi ønsker å inspirere og utruste troende til å leve et liv i nær relasjon med Jesus. Som en del av vår tjeneste produserer vi en ukentlig podcast med andakter som gir åndelig påfyll i hverdagen, og vi arrangerer regelmessig ulike samlinger, bønnemøter og oppbyggelige seminarer."
+            as="p"
+            className="font-body-md text-body-md text-secondary leading-relaxed"
+          />
+          <CmsText
+            slug="about-narrative-p2"
+            fallback="Gjennom nettbutikken His Kingdom Designs ønsker vi å tilby vakre, moderne og konkrete påminnelser om Guds ord som du kan bære med deg eller pynte hjemmet ditt med. Hvert eneste produkt er skapt for å starte gode samtaler og minne oss på Guds uendelige kjærlighet og løfter."
+            as="p"
+            className="font-body-md text-body-md text-secondary leading-relaxed"
+          />
           <div className="pt-4">
             <Link 
               to="/products"
@@ -57,36 +78,65 @@ export default function About() {
 
       {/* Core Values */}
       <div className="bg-white rounded-3xl p-12 md:p-20 shadow-sm border border-outline-variant/30 mb-28">
-        <h2 className="font-headline-lg text-headline-lg text-onyx text-center mb-16">Vår Tjeneste</h2>
+        <CmsText
+          slug="about-values-title"
+          fallback="Vår Tjeneste"
+          as="h2"
+          className="font-headline-lg text-headline-lg text-onyx text-center mb-16"
+        />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
           <div className="space-y-4 flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
               <Heart size={28} />
             </div>
-            <h3 className="font-headline-md text-onyx text-xl">Bønn & Forbønn</h3>
-            <p className="font-body-md text-secondary leading-relaxed">
-              Vi brenner for forbønn og profetisk tjeneste. Vi ønsker å se mennesker bli satt i frihet og få oppleve Guds helbredende kraft.
-            </p>
+            <CmsText
+              slug="about-value-title-1"
+              fallback="Bønn & Forbønn"
+              as="h3"
+              className="font-headline-md text-onyx text-xl font-bold"
+            />
+            <CmsText
+              slug="about-value-desc-1"
+              fallback="Vi brenner for forbønn og profetisk tjeneste. Vi ønsker å se mennesker bli satt i frihet og få oppleve Guds helbredende kraft."
+              as="p"
+              className="font-body-md text-secondary leading-relaxed"
+            />
           </div>
           
           <div className="space-y-4 flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
               <Shield size={28} />
             </div>
-            <h3 className="font-headline-md text-onyx text-xl">Utrustning & Lære</h3>
-            <p className="font-body-md text-secondary leading-relaxed">
-              Gjennom seminarer, andakter og podcasten vår ønsker vi å gi sunn bibelsk undervisning som styrker din personlige vandring med Gud.
-            </p>
+            <CmsText
+              slug="about-value-title-2"
+              fallback="Utrustning & Lære"
+              as="h3"
+              className="font-headline-md text-onyx text-xl font-bold"
+            />
+            <CmsText
+              slug="about-value-desc-2"
+              fallback="Gjennom seminarer, andakter og podcasten vår ønsker vi å gi sunn bibelsk undervisning som styrker din personlige vandring med Gud."
+              as="p"
+              className="font-body-md text-secondary leading-relaxed"
+            />
           </div>
 
           <div className="space-y-4 flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
               <Compass size={28} />
             </div>
-            <h3 className="font-headline-md text-onyx text-xl">Kreativ Formidling</h3>
-            <p className="font-body-md text-secondary leading-relaxed">
-              Ved å forene estetisk vakkert design med troens budskap, skaper vi moderne t-skjorter, plakater og tilbehør som bærer Guds ord ut i hverdagen.
-            </p>
+            <CmsText
+              slug="about-value-title-3"
+              fallback="Kreativ Formidling"
+              as="h3"
+              className="font-headline-md text-onyx text-xl font-bold"
+            />
+            <CmsText
+              slug="about-value-desc-3"
+              fallback="Ved å forene estetisk vakkert design med troens budskap, skaper vi moderne t-skjorter, plakater og tilbehør som bærer Guds ord ut i hverdagen."
+              as="p"
+              className="font-body-md text-secondary leading-relaxed"
+            />
           </div>
         </div>
       </div>
@@ -95,10 +145,18 @@ export default function About() {
       <div className="bg-onyx rounded-3xl p-12 md:p-16 text-center text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-terracotta/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
         <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-          <h2 className="font-headline-lg text-headline-lg text-white">Har du spørsmål om oss eller våre produkter?</h2>
-          <p className="font-body-md text-parchment/70">
-            Vi har samlet svar på de vanligste spørsmålene angående frakt, materialer, og våre abonnementspakker.
-          </p>
+          <CmsText
+            slug="about-faq-banner-title"
+            fallback="Har du spørsmål om oss eller våre produkter?"
+            as="h2"
+            className="font-headline-lg text-headline-lg text-white"
+          />
+          <CmsText
+            slug="about-faq-banner-desc"
+            fallback="Vi har samlet svar på de vanligste spørsmålene angående frakt, materialer, og våre abonnementspakker."
+            as="p"
+            className="font-body-md text-parchment/70"
+          />
           <div className="pt-2">
             <Link 
               to="/faq" 

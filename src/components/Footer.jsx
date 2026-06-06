@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CreditCard, Heart, Mail, ShieldCheck } from 'lucide-react';
+import CmsText from '@/components/CmsText';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -30,9 +31,12 @@ export default function Footer() {
               His Kingdom Designs
             </span>
           </Link>
-          <p className="font-body-md text-body-md text-parchment/70 leading-relaxed">
-            Vi skaper moderne kristne klær, plakater og tilbehør som kombinerer tro og stil for å spre Guds ord i hverdagen.
-          </p>
+          <CmsText
+            slug="footer-brand-desc"
+            fallback="Vi skaper moderne kristne klær, plakater og tilbehør som kombinerer tro og stil for å spre Guds ord i hverdagen."
+            as="p"
+            className="font-body-md text-body-md text-parchment/70 leading-relaxed"
+          />
           <div className="flex gap-4">
             <a 
               href="#" 
@@ -98,9 +102,12 @@ export default function Footer() {
         {/* Newsletter Column */}
         <div className="lg:col-span-3">
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Nyhetsbrev</h4>
-          <p className="text-body-md font-body-md text-parchment/70 mb-4 leading-relaxed">
-            Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nye kolleksjoner.
-          </p>
+          <CmsText
+            slug="footer-newsletter-desc"
+            fallback="Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nye kolleksjoner."
+            as="p"
+            className="text-body-md font-body-md text-parchment/70 mb-4 leading-relaxed"
+          />
           <form onSubmit={handleSubscribe} className="flex gap-2">
             <input 
               type="email"
