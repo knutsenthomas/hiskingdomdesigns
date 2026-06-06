@@ -250,7 +250,7 @@ export default function Home() {
           </div>
           <div className="w-full lg:w-1/2">
             <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold">Månedspakker</span>
-            <h2 className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx" style={{ lineHeight: '1.4' }}>Litt hverdagskos rett i postkassen</h2>
+            <h2 className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx" style={{ lineHeight: '1.2' }}>Litt hverdagskos rett i postkassen</h2>
             <p className="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed">
               Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.
             </p>
