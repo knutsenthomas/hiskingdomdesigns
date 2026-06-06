@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Star, CheckCircle } from 'lucide-react';
+import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
@@ -345,17 +345,28 @@ export default function Home() {
             className="font-body-lg text-body-lg text-secondary leading-relaxed mb-12"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
-              <CmsText slug="home-value-title-1" fallback="Kvalitet" as="h4" className="font-headline-md text-onyx mb-2" />
-              <CmsText slug="home-value-desc-1" fallback="Nøye utvalgte materialer for lang holdbarhet." as="p" className="text-label-sm text-secondary opacity-80" />
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
+                <Award size={24} />
+              </div>
+              <CmsText slug="home-value-title-1" fallback="Kvalitet" as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-desc-1" fallback="Nøye utvalgte materialer for lang holdbarhet." as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
-              <CmsText slug="home-value-title-2" fallback="Budskap" as="h4" className="font-headline-md text-onyx mb-2" />
-              <CmsText slug="home-value-desc-2" fallback="Bibelsk forankret og moderne designet." as="p" className="text-label-sm text-secondary opacity-80" />
+            
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
+                <BookOpen size={24} />
+              </div>
+              <CmsText slug="home-value-title-2" fallback="Budskap" as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-desc-2" fallback="Bibelsk forankret og moderne designet." as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
-              <CmsText slug="home-value-title-3" fallback="Fellesskap" as="h4" className="font-headline-md text-onyx mb-2" />
-              <CmsText slug="home-value-desc-3" fallback="Bygget for å inspirere og dele troen." as="p" className="text-label-sm text-secondary opacity-80" />
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
+              <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
+                <Users size={24} />
+              </div>
+              <CmsText slug="home-value-title-3" fallback="Fellesskap" as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-desc-3" fallback="Bygget for å inspirere og dele troen." as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
           </div>
         </div>
