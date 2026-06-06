@@ -61,7 +61,7 @@ export default function Header() {
               <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
                 <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-[15px] sm:text-lg md:text-xl lg:text-2xl font-extrabold tracking-tight whitespace-nowrap">
+              <span className="text-[13px] min-[360px]:text-[14px] min-[400px]:text-[15px] sm:text-lg md:text-xl lg:text-2xl font-extrabold tracking-tight whitespace-nowrap">
                 His Kingdom Designs
               </span>
             </Link>
@@ -113,7 +113,7 @@ export default function Header() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4">
             <button 
               onClick={() => setSearchOpen(true)}
               className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all"
@@ -124,7 +124,7 @@ export default function Header() {
             
             <Link 
               to="/profile"
-              className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all"
+              className="hidden sm:inline-flex p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all"
               aria-label="Profil"
             >
               <User size={20} />
@@ -431,6 +431,15 @@ export default function Header() {
                 className="text-body-lg font-bold py-2 text-sale-red"
               >
                 Salgskampanje
+              </Link>
+
+              <Link 
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-body-lg font-bold py-2 border-t border-outline-variant/30 text-onyx flex items-center gap-2 mt-4 pt-4"
+              >
+                <User size={20} className="text-terracotta" />
+                <span>Min Profil</span>
               </Link>
             </div>
           </nav>
