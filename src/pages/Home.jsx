@@ -329,8 +329,8 @@ export default function Home() {
       {/* Brand Story & Values */}
       <section id="historie" className="py-section-gap bg-parchment reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-[800px] mx-auto text-center">
-          <div className="inline-block p-4 rounded-full bg-white mb-8 shadow-sm">
-            <span className="material-symbols-outlined text-4xl text-terracotta">church</span>
+          <div className="w-20 h-20 rounded-full bg-white mb-8 shadow-sm flex items-center justify-center mx-auto p-3 overflow-hidden">
+            <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
           </div>
           <CmsText 
             slug="home-about-title" 
