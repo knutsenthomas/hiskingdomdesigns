@@ -54,7 +54,7 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-onyx/20"></div>
         </div>
-        <div className="relative z-10 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto w-full">
+        <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width mx-auto w-full">
           <div className="max-w-2xl text-white">
             <CmsText 
               slug="home-hero-title" 
