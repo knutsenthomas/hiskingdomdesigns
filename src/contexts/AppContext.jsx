@@ -26,7 +26,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLvS2Gg9UZVHCgiu1KenEmwd5GVGafLFLseCDyq34GzrgmK2lY1n2cZdrPOPblGw4Gkqkj89qqoFGdbACf_1m3Aqnn_AlwMZGv1jJ-kZhqmNEY4D0pQGA_Jlsk31RFVpCrbzrNe-WT5MA4eA0tacKmy6s0kSbGni7XNK3ncagu0iiUDLksVxADnEBj6qd5AOHqYMSMZK0bId_Jb5wXfO5b4eU3WaNDC-WjI9dFAJ6rXUgXFSLRBLqmbUcA',
     isBestseller: true,
     isSale: true,
-    description: 'En kvalitets t-skjorte i organisk bomull med et kraftfullt budskap. Designet for komfort og stil, perfekt til hverdagsbruk.'
+    description: 'En kvalitets t-skjorte i organisk bomull med et kraftfullt budskap. Designet for komfort og stil, perfekt til hverdagsbruk.',
+    subcategories: ['T-shirts', 'Klær', 'NORSKE produkter', 'Jesus', 'Bestselgere', 'Populære produkter']
   },
   {
     id: 'prod-2',
@@ -40,7 +41,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLvxjkiJesj28gRKog41etEjFio3rjm7GxP7Z0GGpUX73AoFQGGEkX1odNJxGbd2c3oTDwbnQgcT3t2N4ycCMDBcWQ5aUBFZs_EK4PonHa3ToJEVG4lEPoqkX2z8CbyU6_UFwm-dG4OjO9lZKjTH0Jr20F7USM1vgDaJ_gKDbRZNDB_GB3vxA2T9RUnD5kuFTgT4NpDBt6K3s0iDF8qSHe3Q1NtC35vhxNkNa230bEgy6hNvzCvNZk97Yw',
     isBestseller: false,
     isSale: false,
-    description: 'En elegant og feminin t-skjorte med et vakkert blomsterbroderi og et diskret trosbudskap.'
+    description: 'En elegant og feminin t-skjorte med et vakkert blomsterbroderi og et diskret trosbudskap.',
+    subcategories: ['Dameklær', 'T-shirts', 'Klær', 'ENGLISH products', 'Romantisk']
   },
   {
     id: 'prod-3',
@@ -54,7 +56,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLszihbNKwjOsKdnixf-5r35a6Xba2jlEmuqK6Ow72s8KEL52iJCXqZJrshr6YDlc03OqnuU4KZvmcKRaGwOX7Idbd9VsvxGhNJ8V30WGHf6RRHtzg7bw5ZarKCFYFpP05FYaleB_OCre6P4QrICKQyWws5x-mYsQlu2fhc91h9_obAeP-jeSREE2bDD9RVgwfg1vfpj_wKCPLkN1l4b9MD3SgYwtLtb9RddUykqMykJvv9U4mu43gvsDA',
     isBestseller: false,
     isSale: false,
-    description: 'En tidsriktig oversized t-skjorte i tykk, premium bomull. Gir en avslappet look samtidig som den bærer et klart budskap om nåde.'
+    description: 'En tidsriktig oversized t-skjorte i tykk, premium bomull. Gir en avslappet look samtidig som den bærer et klart budskap om nåde.',
+    subcategories: ['T-shirts', 'Klær', 'ENGLISH products', 'Minimalistisk']
   },
   {
     id: 'prod-4',
@@ -68,7 +71,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw',
     isBestseller: false,
     isSale: false,
-    description: 'En søt og slitesterk t-skjorte for de minste disiplene. Laget i supermyk økologisk bomull som tåler lek og moro.'
+    description: 'En søt og slitesterk t-skjorte for de minste disiplene. Laget i supermyk økologisk bomull som tåler lek og moro.',
+    subcategories: ['BARN & UNGDOM', 'T-shirts', 'Klær', 'ENGLISH products', 'Mirakel familie']
   },
   {
     id: 'prod-5',
@@ -82,7 +86,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw',
     isBestseller: true,
     isSale: false,
-    description: 'Vår absolutte signatur-tee. Bærer det kjente velsignelses-skriftstedet i et minimalistisk og moderne oppsett.'
+    description: 'Vår absolutte signatur-tee. Bærer det kjente velsignelses-skriftstedet i et minimalistisk og moderne oppsett.',
+    subcategories: ['T-shirts', 'Klær', 'NORSKE produkter', 'Jesus', 'Bestselgere', 'Populære produkter']
   },
   {
     id: 'prod-6',
@@ -95,7 +100,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBfCwmveP54NauV6GCq3jtT5CjyWuJFfm53P5Q0CntpY-e7aw2HolefBgeW-AMyk4iOfA-TDFxp80p5xzHIuML2F6n6fxD0uVxwWsviy9DemPlDrR0TuL3sE3xZcj8EbqNcUtRmELU7Y5ykw2TLqLQ7n_y1SbOLkZ2AVq6AYBpn3Wv7pkW3FQebSA0j79zbEbUzAFWKtxHx026HAm5rglxhqmuRnLBVDc3O9odDTpgmCebozSHO046JA-vEO7T0IpGTRNsiwoUOLA',
     isBestseller: true,
     isSale: false,
-    description: 'En pakke med 8 ulike slitesterke vinyl-klistermerker med oppmuntrende bibelvers og symboler.'
+    description: 'En pakke med 8 ulike slitesterke vinyl-klistermerker med oppmuntrende bibelvers og symboler.',
+    subcategories: ['Klistermerker', 'NORSKE produkter', 'Jesus', 'Bestselgere', 'Populære produkter']
   },
   {
     id: 'prod-7',
@@ -109,7 +115,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPD4ddRN2WNZGZeGxJgL2xYoQca5tBXUENCvryqkqiw4vveF9yvBt7sZ_igqbUvRn034YKCaoMyZyjbs49kKCF3f_cBAW-HU_vLxuWyPRz8zfDWkemX8Dq-jkSZyVOFq0vQsmHaD-U9lRDdYjSPXCGL_WvoW1WpmFVh6OhPrvFFb33vErx2sk0GUQ66oSOY8Sl9s6bxlcpCcVaoU3VaYZTR3wuC-o0fclh3hbveTO5w2DOGajJ3L8SuiKug3bFXgpjrPParjMlfg',
     isBestseller: false,
     isSale: true,
-    description: 'Et minimalistisk og elegant kunsttrykk med skriftstedet om Guds fred som overgår all forstand.'
+    description: 'Et minimalistisk og elegant kunsttrykk med skriftstedet om Guds fred som overgår all forstand.',
+    subcategories: ['Bilder og plakater', 'Minimalistisk', 'NORSKE produkter', 'Svart-hvit', 'Maleri']
   },
   {
     id: 'prod-8',
@@ -122,7 +129,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLslJCwuNK98ENTsmevd1XZVQ0AYvB63yFBF6VFoj6YsZbOmGnRLWeX0QYRbUgdidhARkJJp0psfGKrJ75-E3GcXbYVkTBqZd-UJssP5At3Uaugj1_AgjWlOse2vRiESTvsCFQnGmH---LF_0wlE8J2Gy4ElY3-53-URuRyGdhNL1wwx8TZkF1hQwG6yC2qq8TJdSxHofICpOWqEwH8_DZTvt0jV5onP6PGtiiepaRU_9VFG8mapnEH3Gw',
     isBestseller: false,
     isSale: false,
-    description: 'En varm og lun lue med brodert krone-detalj. Laget i myk, elastisk strikk.'
+    description: 'En varm og lun lue med brodert krone-detalj. Laget i myk, elastisk strikk.',
+    subcategories: ['Tilbehør', 'Hatter /caps', 'ENGLISH products']
   },
   {
     id: 'prod-9',
@@ -135,7 +143,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLtxy7b2t4ReBQEpdU-xdZ2kCnl2UpDNkd8DehvIkXz3cNrFYRvwDKpbTuAW4dcRyZSowggzen0ojoy3ZSbWMEc30-dDmJXHPFz7Q_9uJ8Rvx8tD1tK6YJXJSjDOmPpoeBDD-FiVZLzdsF8MC4nZLkaCqmGCRqatvFOz49FgBg3SeJnqtzMPyDHDEFFM91Xw0g3cHi5q8mo9KW-l87GESrBKRkPPZmfqZm5hvFOzLlXnlH5RhESATdJBjw',
     isBestseller: false,
     isSale: false,
-    description: 'Et robust mobildeksel med vakkert, preget design som beskytter telefonen din og minner deg om kongeriket.'
+    description: 'Et robust mobildeksel med vakkert, preget design som beskytter telefonen din og minner deg om kongeriket.',
+    subcategories: ['Tilbehør', 'Mobildeksel', 'ENGLISH products', 'Spiritual Battle']
   },
   {
     id: 'prod-10',
@@ -148,7 +157,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida/AP1WRLvZ9LxB_vy0geCI-23OZZG3NkY1bvtYMk9hvZa_D09rxkGXwCrUw8kpXVCbjhpQneGRZBD3eXF8fPwWzRLlDMb7Y2SOns7ym8ayGRvY76i0wP8YK0K46LrSz-jlEWiEuhl-NajQARkVZzUav7cJKQ34kp3L3RCkj0iQTKNfamckPbsbXU6-zufeskjsecr5IMV7HC3OAndRUS6UgQyWmV4RC6RyaCOq9tGQUITX7ePrkoz4RQ9FMOqxPw',
     isBestseller: false,
     isSale: false,
-    description: 'Et romslig og slitesterkt handlenett vevd av økologisk bomull. Perfekt til bibel, notatbok eller dagligvarehandel.'
+    description: 'Et romslig og slitesterkt handlenett vevd av økologisk bomull. Perfekt til bibel, notatbok eller dagligvarehandel.',
+    subcategories: ['Tilbehør', 'Handlenett / Totebag', 'ENGLISH products', 'Jesus']
   },
   {
     id: 'prod-11',
@@ -161,7 +171,8 @@ const INITIAL_PRODUCTS = [
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDu3o35G9nlYl0nfPoza5x9mKq5HMS03clg_v2HMWROWJKSWTmVvNz66U4eziJbuZiGbxSOnDZctx_Ea5xIUoAeyFnj3po7-bgCfOCHdSS5YYQSXKFb7etMvOCWoZKo8vMM9Yga3aQsis_odOLs4J3_6QAHeuBssRQljE6OJoM4pQsqN5GEHi-2kxYp4pI_lTp3g1T3xlDA__hfAibdYXRulLQp4hDBEKJ5Dzdv_ZDURnjJoQ6IGOb1St9IkvnumbTioKzZN2ezxQ',
     isBestseller: false,
     isSale: false,
-    description: 'Et vakkert kunsttrykk med hele teksten fra Salme 23 ("Herren er min hyrde"). Rammet inn i moderne og elegant oppsett.'
+    description: 'Et vakkert kunsttrykk med hele teksten fra Salme 23 ("Herren er min hyrde"). Rammet inn i moderne og elegant oppsett.',
+    subcategories: ['Bilder og plakater', 'Typografi', 'NORSKE produkter', 'Retro', 'Maleri']
   }
 ];
 

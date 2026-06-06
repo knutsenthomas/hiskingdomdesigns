@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronRight, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
+
+// natural category groupings
+export const CATEGORY_TAXONOMY = {
+  'Klær': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'],
+  'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
+  'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
+  'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
+  'Temaer & Budskap': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole'],
+  'Kampanjer & Formater': ['Høytider', 'CHRISTMAS', 'PÅSKE', 'SALG', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
+};
 
 export default function Category() {
   const { products } = useApp();
@@ -19,6 +29,16 @@ export default function Category() {
   const [priceRange, setPriceRange] = useState(1500);
   const [sortBy, setSortBy] = useState('Nyeste');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  
+  // Collapsible category groups state
+  const [expandedGroups, setExpandedGroups] = useState({
+    'Klær': true,
+    'Bilder & Kunst': false,
+    'Tilbehør & Hjem': false,
+    'Barn & Familie': false,
+    'Temaer & Budskap': false,
+    'Kampanjer & Formater': false
+  });
 
   // Sync category route param to state
   useEffect(() => {
@@ -32,6 +52,14 @@ export default function Category() {
       setSelectedCategories([]);
     }
   }, [categoryName]);
+
+  // Handle Collapsible toggle
+  const toggleGroup = (group) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [group]: !prev[group]
+    }));
+  };
 
   // Handle Category Checkbox Toggles
   const handleCategoryToggle = (category) => {
@@ -76,8 +104,6 @@ export default function Category() {
     setSearchParams({});
   };
 
-  // List of all available filters for rendering
-  const availableCategories = ['Klær', 'Klistermerker', 'Plakater', 'Tilbehør'];
   const availableSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL'];
   const availableColors = [
     { name: 'Hvit', hex: '#FFFFFF', border: 'border-outline-variant' },
@@ -96,7 +122,10 @@ export default function Category() {
     if (categoryName === 'Salg') {
       result = result.filter(p => p.isSale);
     } else if (selectedCategories.length > 0) {
-      result = result.filter(p => selectedCategories.includes(p.category));
+      result = result.filter(p => 
+        selectedCategories.includes(p.category) ||
+        (p.subcategories && p.subcategories.some(sub => selectedCategories.includes(sub)))
+      );
     }
 
     // 2. Filter by search query
@@ -105,6 +134,7 @@ export default function Category() {
       result = result.filter(p => 
         p.name.toLowerCase().includes(query) || 
         p.category.toLowerCase().includes(query) ||
+        (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
         (p.description && p.description.toLowerCase().includes(query))
       );
     }
@@ -147,25 +177,56 @@ export default function Category() {
       {!categoryName && (
         <div>
           <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Kategorier</h3>
-          <ul className="space-y-3">
-            {availableCategories.map(cat => (
-              <li key={cat}>
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <input 
-                    type="checkbox"
-                    checked={selectedCategories.includes(cat)}
-                    onChange={() => handleCategoryToggle(cat)}
-                    className="rounded border-outline-variant text-terracotta focus:ring-terracotta"
-                  />
-                  <span className={`font-body-md text-body-md group-hover:text-terracotta transition-colors ${
-                    selectedCategories.includes(cat) ? 'text-terracotta font-bold' : 'text-onyx'
-                  }`}>
-                    {cat}
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-3">
+            {Object.entries(CATEGORY_TAXONOMY).map(([group, cats]) => {
+              const isExpanded = expandedGroups[group];
+              const selectedInGroup = cats.filter(c => selectedCategories.includes(c));
+              return (
+                <div key={group} className="border border-outline-variant/30 rounded-lg overflow-hidden bg-white/40">
+                  <button
+                    onClick={() => toggleGroup(group)}
+                    className="w-full flex items-center justify-between p-3 font-label-md text-label-md text-onyx bg-slate-50/50 hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      {group}
+                      {selectedInGroup.length > 0 && (
+                        <span className="bg-terracotta text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                          {selectedInGroup.length}
+                        </span>
+                      )}
+                    </span>
+                    <ChevronDown 
+                      size={16} 
+                      className={`text-onyx/60 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180' : 'rotate-0'
+                      }`} 
+                    />
+                  </button>
+                  {isExpanded && (
+                    <ul className="p-3 space-y-2 border-t border-outline-variant/30 bg-white/10 max-h-48 overflow-y-auto custom-scrollbar">
+                      {cats.map(cat => (
+                        <li key={cat}>
+                          <label className="flex items-center gap-3 cursor-pointer group">
+                            <input 
+                              type="checkbox"
+                              checked={selectedCategories.includes(cat)}
+                              onChange={() => handleCategoryToggle(cat)}
+                              className="rounded border-outline-variant text-terracotta focus:ring-terracotta"
+                            />
+                            <span className={`font-body-md text-body-md group-hover:text-terracotta transition-colors ${
+                              selectedCategories.includes(cat) ? 'text-terracotta font-bold' : 'text-onyx'
+                            }`}>
+                              {cat}
+                            </span>
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

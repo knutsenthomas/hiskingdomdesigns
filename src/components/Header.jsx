@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// natural category groupings
+const CATEGORY_TAXONOMY = {
+  'Klær & Bekledning': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'],
+  'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
+  'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
+  'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
+  'Temaer, Kampanjer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
+};
 
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery } = useApp();
   const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [megamenuOpen, setMegamenuOpen] = useState(false);
+  const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -22,20 +34,16 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile drawer on route change
+  // Close drawers/menus on route change
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
+    setMegamenuOpen(false);
   }, [location.pathname, setMobileMenuOpen, setSearchOpen]);
 
-  const navLinks = [
-    { label: 'Alle Produkter', path: '/products' },
-    { label: 'Klær', path: '/category/Klær' },
-    { label: 'Klistermerker', path: '/category/Klistermerker' },
-    { label: 'Plakater', path: '/category/Plakater' },
-    { label: 'Tilbehør', path: '/category/Tilbehør' },
-    { label: 'Salg', path: '/category/Salg' }
-  ];
+  const toggleMobileGroup = (group) => {
+    setMobileExpandedGroup(prev => prev === group ? null : group);
+  };
 
   return (
     <>
@@ -53,29 +61,47 @@ export default function Header() {
               His Kingdom Designs
             </Link>
             
-            <nav className="hidden lg:flex items-center gap-6">
-              {navLinks.map((link) => {
-                const isActive = 
-                  location.pathname === link.path || 
-                  (link.path.startsWith('/category/') && location.pathname.startsWith(link.path));
-                
-                return (
-                  <Link
-                    key={link.label}
-                    to={link.path}
-                    className={`font-label-md text-label-md py-2 transition-colors relative ${
-                      isActive 
-                        ? 'text-terracotta font-bold' 
-                        : 'text-onyx hover:text-terracotta'
-                    }`}
-                  >
-                    {link.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
-                    )}
-                  </Link>
-                );
-              })}
+            <nav className="hidden lg:flex items-center gap-6 h-full">
+              {/* Alle produkter Link */}
+              <Link
+                to="/products"
+                className={`font-label-md text-label-md py-2 transition-colors relative ${
+                  location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx hover:text-terracotta'
+                }`}
+              >
+                Alle Produkter
+                {location.pathname === '/products' && (
+                  <span className="absolute bottom-[-18px] left-0 right-0 h-0.5 bg-terracotta rounded" />
+                )}
+              </Link>
+
+              {/* Collapsible Megamenu Link */}
+              <div 
+                className="h-full flex items-center"
+                onMouseEnter={() => setMegamenuOpen(true)}
+                onMouseLeave={() => setMegamenuOpen(false)}
+              >
+                <button
+                  className={`font-label-md text-label-md py-6 transition-colors flex items-center gap-1 cursor-pointer focus:outline-none ${
+                    megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx hover:text-terracotta'
+                  }`}
+                >
+                  Kategorier <ChevronDown size={14} className={`transition-transform duration-200 ${megamenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {/* Salg Link */}
+              <Link
+                to="/category/Salg"
+                className={`font-label-md text-label-md py-2 transition-colors relative ${
+                  location.pathname === '/category/Salg' ? 'text-sale-red font-bold animate-pulse' : 'text-sale-red/90 hover:text-sale-red font-semibold'
+                }`}
+              >
+                Salg
+                {location.pathname === '/category/Salg' && (
+                  <span className="absolute bottom-[-18px] left-0 right-0 h-0.5 bg-sale-red rounded" />
+                )}
+              </Link>
             </nav>
           </div>
 
@@ -117,6 +143,154 @@ export default function Header() {
             </button>
           </div>
         </div>
+
+        {/* Desktop Megamenu Panel */}
+        <AnimatePresence>
+          {megamenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="absolute left-0 right-0 w-full bg-white border-b border-outline-variant shadow-2xl z-40 py-8 px-margin-mobile md:px-margin-desktop"
+              style={{ top: isScrolled ? '64px' : '80px' }}
+              onMouseEnter={() => setMegamenuOpen(true)}
+              onMouseLeave={() => setMegamenuOpen(false)}
+            >
+              <div className="max-w-max-width mx-auto grid grid-cols-5 gap-8">
+                {/* Column 1: Klær & Bekledning */}
+                <div>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Klær & Bekledning</h4>
+                  <ul className="space-y-2.5">
+                    {CATEGORY_TAXONOMY['Klær & Bekledning'].map(sub => (
+                      <li key={sub}>
+                        <Link 
+                          to={`/category/${sub}`} 
+                          className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block"
+                        >
+                          {sub}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Column 2: Bilder & Kunst */}
+                <div>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Bilder & Kunst</h4>
+                  <ul className="space-y-2.5">
+                    {CATEGORY_TAXONOMY['Bilder & Kunst'].map(sub => (
+                      <li key={sub}>
+                        <Link 
+                          to={`/category/${sub}`} 
+                          className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block"
+                        >
+                          {sub}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Column 3: Tilbehør & Hjem */}
+                <div>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Tilbehør & Hjem</h4>
+                  <ul className="space-y-2.5">
+                    {CATEGORY_TAXONOMY['Tilbehør & Hjem'].map(sub => (
+                      <li key={sub}>
+                        <Link 
+                          to={`/category/${sub}`} 
+                          className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block"
+                        >
+                          {sub}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Column 4: Temaer, Kampanjer & Språk */}
+                <div>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="font-bold text-xs text-onyx mb-2">Barn & Familie</h5>
+                      <ul className="space-y-2">
+                        {CATEGORY_TAXONOMY['Barn & Familie'].map(sub => (
+                          <li key={sub}>
+                            <Link 
+                              to={`/category/${sub}`} 
+                              className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block text-xs"
+                            >
+                              {sub}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-xs text-onyx mb-2">Trosbudskap & Info</h5>
+                      <ul className="space-y-2">
+                        <li>
+                          <Link 
+                            to="/category/Jesus" 
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block text-xs"
+                          >
+                            Jesus
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/category/NORSKE produkter" 
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block text-xs"
+                          >
+                            Norske produkter
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/category/ENGLISH products" 
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block text-xs"
+                          >
+                            English products
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            to="/category/Abonnement" 
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:translate-x-1 transition-all inline-block text-xs"
+                          >
+                            Abonnementer
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 5: Featured Promo Box */}
+                <div className="bg-gradient-to-br from-terracotta/10 to-parchment border border-outline-variant/40 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
+                  <div>
+                    <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full inline-block mb-3">
+                      Fremhevet
+                    </span>
+                    <h5 className="font-headline-md text-sm font-bold text-onyx mb-2">Velsignelse Gavepakke</h5>
+                    <p className="text-xs text-secondary leading-relaxed mb-4">
+                      Få våre bestselgende klistermerker og en t-skjorte i en vakker gaveeske.
+                    </p>
+                  </div>
+                  <Link 
+                    to="/products"
+                    onClick={() => setMegamenuOpen(false)}
+                    className="bg-terracotta text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:opacity-95 active:scale-[0.98] transition-all block"
+                  >
+                    Utforsk Butikken
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Search Overlay */}
@@ -166,7 +340,7 @@ export default function Header() {
           />
           
           {/* Menu Drawer */}
-          <nav className="fixed top-0 right-0 bottom-0 w-64 max-w-[80vw] bg-parchment shadow-2xl p-6 flex flex-col z-10 transition-transform duration-300">
+          <nav className="fixed top-0 right-0 bottom-0 w-64 max-w-[80vw] bg-parchment shadow-2xl p-6 flex flex-col z-10 overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
               <span className="font-bold text-onyx">Meny</span>
               <button 
@@ -177,25 +351,58 @@ export default function Header() {
               </button>
             </div>
 
-            <div className="flex flex-col gap-4">
-              {navLinks.map((link) => {
-                const isActive = 
-                  location.pathname === link.path || 
-                  (link.path.startsWith('/category/') && location.pathname.startsWith(link.path));
-                
+            <div className="flex flex-col gap-3">
+              <Link 
+                to="/products"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-body-lg font-bold py-2 border-b border-outline-variant/30 text-onyx"
+              >
+                Alle Produkter
+              </Link>
+              
+              {Object.entries(CATEGORY_TAXONOMY).map(([group, cats]) => {
+                const isExpanded = mobileExpandedGroup === group;
                 return (
-                  <Link
-                    key={link.label}
-                    to={link.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`text-body-lg font-medium py-2 border-b border-outline-variant/30 ${
-                      isActive ? 'text-terracotta font-bold' : 'text-onyx'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
+                  <div key={group} className="border-b border-outline-variant/30 py-2">
+                    <button
+                      onClick={() => toggleMobileGroup(group)}
+                      className="w-full flex items-center justify-between font-body-lg font-semibold text-onyx text-left py-1"
+                    >
+                      <span>{group}</span>
+                      <ChevronDown 
+                        size={18} 
+                        className={`text-onyx/50 transition-transform duration-200 ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    
+                    {isExpanded && (
+                      <ul className="mt-2 pl-4 space-y-2.5">
+                        {cats.map(sub => (
+                          <li key={sub}>
+                            <Link
+                              to={`/category/${sub}`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="text-body-md text-secondary hover:text-terracotta transition-colors block py-0.5"
+                            >
+                              {sub}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 );
               })}
+
+              <Link 
+                to="/category/Salg"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-body-lg font-bold py-2 text-sale-red"
+              >
+                Salgskampanje
+              </Link>
             </div>
           </nav>
         </div>
