@@ -277,20 +277,31 @@ export default function Header() {
                 </div>
 
                 {/* Column 5: Featured Promo Box */}
-                <div className="bg-gradient-to-br from-terracotta/10 to-parchment border border-outline-variant/40 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
+                <div className="bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
-                    <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full inline-block mb-3">
+                    <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-3">
                       Fremhevet
                     </span>
-                    <h5 className="font-headline-md text-sm font-bold text-onyx mb-2">Velsignelse Gavepakke</h5>
-                    <p className="text-xs text-secondary leading-relaxed mb-4">
+                    <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">Velsignelse Gavepakke</h5>
+                    <p className="text-[11px] text-secondary leading-relaxed mb-3">
                       Få våre bestselgende klistermerker og en t-skjorte i en vakker gaveeske.
                     </p>
+                    
+                    {/* Visual Product Image Placeholder */}
+                    <div className="my-3 h-28 rounded-xl overflow-hidden relative group/promo">
+                      <img 
+                        src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=400&auto=format&fit=crop" 
+                        alt="Gavepakke" 
+                        className="w-full h-full object-cover group-hover/promo:scale-105 transition-transform duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-onyx/20 to-transparent" />
+                    </div>
                   </div>
+                  
                   <Link 
                     to="/products"
                     onClick={() => setMegamenuOpen(false)}
-                    className="bg-terracotta text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:opacity-95 active:scale-[0.98] transition-all block"
+                    className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                   >
                     Utforsk Butikken
                   </Link>
