@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html class="light" lang="no"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alle produkter - His Kingdom Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f0f3ff",
+                    "tertiary-fixed-dim": "#c6c7c0",
+                    "surface-bright": "#f9f9ff",
+                    "background": "#f9f9ff",
+                    "parchment": "#F5F5ED",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#723600",
+                    "on-background": "#151c27",
+                    "on-secondary-fixed": "#171c23",
+                    "on-surface": "#151c27",
+                    "on-tertiary-fixed": "#1a1c18",
+                    "surface-container-high": "#e2e8f8",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#5e636b",
+                    "on-primary-container": "#fffbff",
+                    "outline-variant": "#dbc2b3",
+                    "primary-container": "#b35e17",
+                    "on-primary-fixed": "#311300",
+                    "sale-red": "#B91C1C",
+                    "inverse-surface": "#2a313d",
+                    "inverse-primary": "#ffb787",
+                    "secondary-fixed-dim": "#c2c7d0",
+                    "primary-fixed-dim": "#ffb787",
+                    "on-error": "#ffffff",
+                    "secondary": "#5a5f67",
+                    "inverse-on-surface": "#ebf1ff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "terracotta": "#CC712B",
+                    "on-tertiary-fixed-variant": "#464742",
+                    "secondary-fixed": "#dee2ec",
+                    "surface": "#f9f9ff",
+                    "tertiary-container": "#74756f",
+                    "tertiary": "#5b5d57",
+                    "surface-variant": "#dce2f3",
+                    "primary": "#934700",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#887367",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#dce2f3",
+                    "surface-dim": "#d3daea",
+                    "onyx": "#151A21",
+                    "on-surface-variant": "#554338",
+                    "surface-container": "#e7eefe",
+                    "on-secondary-fixed-variant": "#42474f",
+                    "surface-tint": "#964900",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#fdfdf5",
+                    "secondary-container": "#dbe0ea",
+                    "tertiary-fixed": "#e3e3db",
+                    "primary-fixed": "#ffdcc7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "max-width": "1280px",
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "section-gap": "80px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filter-shadow {
+            box-shadow: 0 4px 20px rgba(204, 113, 43, 0.08);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(21, 26, 33, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-parchment text-onyx font-body-md selection:bg-terracotta selection:text-white">
+<!-- TopAppBar -->
+<header class="bg-parchment sticky top-0 z-50 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto h-20">
+<div class="text-headline-md font-headline-md font-bold text-onyx">His Kingdom Designs</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-onyx hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klær</a>
+<a class="text-onyx hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klistermerker</a>
+<a class="text-onyx hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Plakater</a>
+<a class="text-onyx hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Tilbehør</a>
+<a class="text-onyx hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Salg</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:text-terracotta transition-all opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="p-2 hover:text-terracotta transition-all opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+<button class="p-2 hover:text-terracotta transition-all opacity-80 active:scale-95 relative">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute top-0 right-0 bg-terracotta text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">2</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-max-width mx-auto px-margin-desktop py-section-gap">
+<!-- Header & Breadcrumbs -->
+<div class="mb-12">
+<nav class="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-4">
+<a class="hover:text-terracotta transition-colors" href="#">Hjem</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-onyx">Alle produkter</span>
+</nav>
+<h1 class="font-headline-xl text-headline-xl text-onyx mb-2">Alle produkter</h1>
+<p class="text-body-lg font-body-lg text-secondary max-w-2xl">Utforsk vår kolleksjon av trosbaserte produkter designet for å inspirere og spre Guds ord i hverdagen.</p>
+</div>
+<div class="flex flex-col md:flex-row gap-gutter">
+<!-- Filters (Sidebar) -->
+<aside class="w-full md:w-64 flex-shrink-0 space-y-8">
+<!-- Category Filter -->
+<div>
+<h3 class="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Kategorier</h3>
+<ul class="space-y-3">
+<li>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-terracotta focus:ring-terracotta" type="checkbox"/>
+<span class="font-body-md text-body-md group-hover:text-terracotta transition-colors">Klær</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-terracotta focus:ring-terracotta" type="checkbox"/>
+<span class="font-body-md text-body-md group-hover:text-terracotta transition-colors">Klistermerker</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-terracotta focus:ring-terracotta" type="checkbox"/>
+<span class="font-body-md text-body-md group-hover:text-terracotta transition-colors">Plakater</span>
+</label>
+</li>
+<li>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-terracotta focus:ring-terracotta" type="checkbox"/>
+<span class="font-body-md text-body-md group-hover:text-terracotta transition-colors">Tilbehør</span>
+</label>
+</li>
+</ul>
+</div>
+<!-- Size Filter -->
+<div>
+<h3 class="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Størrelse</h3>
+<div class="grid grid-cols-4 gap-2">
+<button class="h-10 border border-outline-variant rounded flex items-center justify-center font-label-sm text-label-sm hover:border-terracotta hover:text-terracotta transition-all">S</button>
+<button class="h-10 border border-terracotta bg-terracotta/5 rounded flex items-center justify-center font-label-sm text-label-sm text-terracotta font-bold">M</button>
+<button class="h-10 border border-outline-variant rounded flex items-center justify-center font-label-sm text-label-sm hover:border-terracotta hover:text-terracotta transition-all">L</button>
+<button class="h-10 border border-outline-variant rounded flex items-center justify-center font-label-sm text-label-sm hover:border-terracotta hover:text-terracotta transition-all">XL</button>
+</div>
+</div>
+<!-- Color Filter -->
+<div>
+<h3 class="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Farge</h3>
+<div class="flex flex-wrap gap-3">
+<button class="w-8 h-8 rounded-full bg-white border border-outline-variant ring-offset-2 hover:ring-2 ring-terracotta transition-all" title="Hvit"></button>
+<button class="w-8 h-8 rounded-full bg-onyx ring-offset-2 hover:ring-2 ring-terracotta transition-all" title="Sort"></button>
+<button class="w-8 h-8 rounded-full bg-terracotta ring-offset-2 hover:ring-2 ring-terracotta transition-all" title="Terrakotta"></button>
+<button class="w-8 h-8 rounded-full bg-[#D4C4B5] ring-offset-2 hover:ring-2 ring-terracotta transition-all" title="Beige"></button>
+</div>
+</div>
+<!-- Price Filter -->
+<div>
+<h3 class="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Pris</h3>
+<input class="w-full h-1 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-terracotta" type="range"/>
+<div class="flex justify-between mt-2 font-label-sm text-label-sm text-secondary">
+<span>0 kr</span>
+<span>1500 kr</span>
+</div>
+</div>
+</aside>
+<!-- Product Grid Container -->
+<div class="flex-1">
+<!-- Sorting & Count -->
+<div class="flex justify-between items-center mb-8 pb-4 border-b border-outline-variant/30">
+<span class="font-label-sm text-label-sm text-secondary">Viser 10 av 42 produkter</span>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-secondary">Sorter etter:</span>
+<select class="bg-transparent border-none font-label-md text-label-md text-onyx focus:ring-0 cursor-pointer">
+<option>Nyeste først</option>
+<option>Pris: Lav til Høy</option>
+<option>Pris: Høy til Lav</option>
+<option>Mest populære</option>
+</select>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Product Card 1 (Sale) -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img alt="Kingdom T-skjorte" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLvS2Gg9UZVHCgiu1KenEmwd5GVGafLFLseCDyq34GzrgmK2lY1n2cZdrPOPblGw4Gkqkj89qqoFGdbACf_1m3Aqnn_AlwMZGv1jJ-kZhqmNEY4D0pQGA_Jlsk31RFVpCrbzrNe-WT5MA4eA0tacKmy6s0kSbGni7XNK3ncagu0iiUDLksVxADnEBj6qd5AOHqYMSMZK0bId_Jb5wXfO5b4eU3WaNDC-WjI9dFAJ6rXUgXFSLRBLqmbUcA"/>
+<span class="absolute top-4 left-4 bg-sale-red text-white font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">SALG</span>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Klær</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Grace Upon Grace Tee</h3>
+<div class="flex items-center gap-3">
+<span class="font-bold text-terracotta text-lg">349 kr</span>
+<span class="text-secondary line-through text-sm">499 kr</span>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img alt="Hoodie" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLvxjkiJesj28gRKog41etEjFio3rjm7GxP7Z0GGpUX73AoFQGGEkX1odNJxGbd2c3oTDwbnQgcT3t2N4ycCMDBcWQ5aUBFZs_EK4PonHa3ToJEVG4lEPoqkX2z8CbyU6_UFwm-dG4OjO9lZKjTH0Jr20F7USM1vgDaJ_gKDbRZNDB_GB3vxA2T9RUnD5kuFTgT4NpDBt6K3s0iDF8qSHe3Q1NtC35vhxNkNa230bEgy6hNvzCvNZk97Yw"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Klær</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Faith Over Fear Hoodie</h3>
+<span class="font-bold text-terracotta text-lg">699 kr</span>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img alt="Stickers" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Klistermerker</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Scripture Pack - Vol 1</h3>
+<span class="font-bold text-terracotta text-lg">129 kr</span>
+</div>
+</div>
+<!-- Product Card 4 (Sale) -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img alt="Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLtaeP4sbiCpFCqqDrZM7VDSEFGDx5q6wvELtmzRkL4O1HG902BpXIXDtecwZReiKpp-UgpIHkjOWvq8yzu8qEt6SvlAkjZ1oBkeQtagiDSzjZ18kiIIVaalaitHrlYF1fcL6qa7GeO46hDwUCNSfexKWg-_AI19gVlUYsZG9iiz8S3OwEjOn7hbYxl9ttJm-hfpTyrh8T7SI91FQ8X8nEItcOjtz9Ib_DtFpBhEtay-_PrGrVMyDgrW4w"/>
+<span class="absolute top-4 left-4 bg-sale-red text-white font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">SALG</span>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Plakater</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Kingdom Typography Poster</h3>
+<div class="flex items-center gap-3">
+<span class="font-bold text-terracotta text-lg">199 kr</span>
+<span class="text-secondary line-through text-sm">299 kr</span>
+</div>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img alt="Poster 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLug5-LwaPfJk_Z-m0M-RIW-AUs4-GFrwCVBqAxF14Bqty-3kALIPsL_vWqenbszpEv1ZyKvvwbQtENnGdCN42EHkH56jTM3vdKHNLBgfsGOv_QogrDFqcFNT2bmnvycsXWbzmJGDWpd4R3JIX2mbd3kVFZ0oFQA3SgW7XsfnfrSOuJEq9s8rZA6euiumQFnNi8maFw797dQq4lQnKbIiR5a_L0bYTnFh5QZtOa-OdHGbnnPE6wI31nS9g"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Plakater</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Mountain Faith Artwork</h3>
+<span class="font-bold text-terracotta text-lg">249 kr</span>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[3/4] overflow-hidden bg-surface-container-lowest">
+<img alt="Accessories" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLslJCwuNK98ENTsmevd1XZVQ0AYvB63yFBF6VFoj6YsZbOmGnRLWeX0QYRbUgdidhARkJJp0psfGKrJ75-E3GcXbYVkTBqZd-UJssP5At3Uaugj1_AgjWlOse2vRiESTvsCFQnGmH---LF_0wlE8J2Gy4ElY3-53-URuRyGdhNL1wwx8TZkF1hQwG6yC2qq8TJdSxHofICpOWqEwH8_DZTvt0jV5onP6PGtiiepaRU_9VFG8mapnEH3Gw"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Tilbehør</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Embroidered Beanie</h3>
+<span class="font-bold text-terracotta text-lg">329 kr</span>
+</div>
+</div>
+<!-- Small Product Cards for grid variety -->
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[4/3] overflow-hidden bg-surface-container-lowest">
+<img alt="Sticker Small" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtA5Wejh-acQOMfMxekjYryt6bxtjj3vnr-WRJvzY5vPB0gWYTV9mJoqtNjHjtFyZPcmtR_fF0GMsqHzLPVYGOBg0qMTf_C8Rj7YN0RDf1ZwX_rSFomzQK9QWQq0ltc1SoqaU2ypKQxUpP2lV2pf2pQr8TGwhinfhzYJPNkBsj_P3q-ZWaT4JUhewinEQk-4_kudEyuJVr0OaMoKbJ0yZs9bnfn3r6yMcOt7st5zMBV4hYqOQBydQk6wA"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Klistermerker</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Cross Pattern Sticker</h3>
+<span class="font-bold text-terracotta text-lg">49 kr</span>
+</div>
+</div>
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[4/3] overflow-hidden bg-surface-container-lowest">
+<img alt="Phone case" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtxy7b2t4ReBQEpdU-xdZ2kCnl2UpDNkd8DehvIkXz3cNrFYRvwDKpbTuAW4dcRyZSowggzen0ojoy3ZSbWMEc30-dDmJXHPFz7Q_9uJ8Rvx8tD1tK6YJXJSjDOmPpoeBDD-FiVZLzdsF8MC4nZLkaCqmGCRqatvFOz49FgBg3SeJnqtzMPyDHDEFFM91Xw0g3cHi5q8mo9KW-l87GESrBKRkPPZmfqZm5hvFOzLlXnlH5RhESATdJBjw"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Tilbehør</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Kingdom Phone Case</h3>
+<span class="font-bold text-terracotta text-lg">289 kr</span>
+</div>
+</div>
+<div class="group card-hover bg-white rounded-xl overflow-hidden transition-all duration-300">
+<div class="relative aspect-[4/3] overflow-hidden bg-surface-container-lowest">
+<img alt="Tote bag" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvZ9LxB_vy0geCI-23OZZG3NkY1bvtYMk9hvZa_D09rxkGXwCrUw8kpXVCbjhpQneGRZBD3eXF8fPwWzRLlDMb7Y2SOns7ym8ayGRvY76i0wP8YK0K46LrSz-jlEWiEuhl-NajQARkVZzUav7cJKQ34kp3L3RCkj0iQTKNfamckPbsbXU6-zufeskjsecr5IMV7HC3OAndRUS6UgQyWmV4RC6RyaCOq9tGQUITX7ePrkoz4RQ9FMOqxPw"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-onyx p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+</div>
+<div class="p-5">
+<p class="text-terracotta font-label-sm text-label-sm uppercase tracking-wide mb-1">Tilbehør</p>
+<h3 class="font-headline-md text-headline-md text-onyx group-hover:text-terracotta transition-colors mb-2">Woven Tote Bag</h3>
+<span class="font-bold text-terracotta text-lg">199 kr</span>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex items-center justify-center gap-2">
+<button class="w-12 h-12 flex items-center justify-center rounded-full border border-outline-variant hover:border-terracotta hover:text-terracotta transition-all disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-terracotta text-white font-bold">1</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full border border-outline-variant hover:border-terracotta hover:text-terracotta transition-all">2</button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full border border-outline-variant hover:border-terracotta hover:text-terracotta transition-all">3</button>
+<span class="px-2 text-secondary">...</span>
+<button class="w-12 h-12 flex items-center justify-center rounded-full border border-outline-variant hover:border-terracotta hover:text-terracotta transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-onyx text-parchment py-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop max-w-max-width mx-auto">
+<div class="space-y-6">
+<div class="font-headline-md text-headline-md text-terracotta">His Kingdom Designs</div>
+<p class="text-body-md font-body-md text-parchment/70">
+                    Vi skaper moderne kristne klær og tilbehør som kombinerer tro og stil.
+                </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-parchment/20 hover:border-terracotta hover:text-terracotta transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="star">star</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center rounded-full border border-parchment/20 hover:border-terracotta hover:text-terracotta transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="public">public</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Utforsk</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Møt teamet</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Hvem er vi</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Blogg</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Kontakt oss</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Informasjon</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Podcast</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Frakt &amp; Retur</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Personvernerklæring</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta hover:underline underline-offset-4 transition-all font-body-md" href="#">Brukervilkår</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Nyhetsbrev</h4>
+<p class="text-body-md font-body-md text-parchment/70 mb-4">Bli den første til å vite om nye slipp og eksklusive tilbud.</p>
+<div class="flex gap-2">
+<input class="flex-1 bg-white/5 border border-parchment/20 rounded px-4 py-2 focus:ring-1 focus:ring-terracotta focus:border-terracotta outline-none text-white" placeholder="Din e-post" type="email"/>
+<button class="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 transition-all">Bli med</button>
+</div>
+</div>
+</div>
+<div class="mt-20 pt-8 border-t border-parchment/10 text-center text-label-sm font-label-sm text-parchment/50 px-margin-desktop max-w-max-width mx-auto">
+            © 2024 His Kingdom Designs. Alle rettigheter reservert.
+        </div>
+</footer>
+<script>
+        // Simple micro-interaction for filter check boxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const span = this.nextElementSibling;
+                if(this.checked) {
+                    span.classList.add('text-terracotta', 'font-bold');
+                } else {
+                    span.classList.remove('text-terracotta', 'font-bold');
+                }
+            });
+        });
+
+        // Price range display update
+        const priceRange = document.querySelector('input[type="range"]');
+        priceRange.addEventListener('input', function() {
+            // Placeholder for real logic
+        });
+    </script>
+</body></html>

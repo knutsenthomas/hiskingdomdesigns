@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="no"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>His Kingdom Designs - Velkommen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .text-shadow-sm {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e3e3db",
+                      "surface-container-low": "#f0f3ff",
+                      "terracotta": "#CC712B",
+                      "on-tertiary-fixed": "#1a1c18",
+                      "surface-bright": "#f9f9ff",
+                      "on-tertiary-container": "#fdfdf5",
+                      "surface": "#f9f9ff",
+                      "tertiary": "#5b5d57",
+                      "error": "#ba1a1a",
+                      "parchment": "#F5F5ED",
+                      "secondary-container": "#dbe0ea",
+                      "on-secondary-fixed": "#171c23",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#5a5f67",
+                      "sale-red": "#B91C1C",
+                      "on-primary-fixed": "#311300",
+                      "primary-container": "#b35e17",
+                      "outline": "#887367",
+                      "inverse-surface": "#2a313d",
+                      "surface-tint": "#964900",
+                      "surface-container": "#e7eefe",
+                      "surface-container-highest": "#dce2f3",
+                      "primary-fixed": "#ffdcc7",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#74756f",
+                      "on-tertiary-fixed-variant": "#464742",
+                      "surface-variant": "#dce2f3",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#dee2ec",
+                      "surface-container-high": "#e2e8f8",
+                      "secondary-fixed-dim": "#c2c7d0",
+                      "primary": "#934700",
+                      "on-primary-fixed-variant": "#723600",
+                      "on-secondary-container": "#5e636b",
+                      "on-background": "#151c27",
+                      "onyx": "#151A21",
+                      "outline-variant": "#dbc2b3",
+                      "background": "#f9f9ff",
+                      "on-primary-container": "#fffbff",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#ebf1ff",
+                      "on-surface-variant": "#554338",
+                      "tertiary-fixed-dim": "#c6c7c0",
+                      "primary-fixed-dim": "#ffb787",
+                      "on-surface": "#151c27",
+                      "on-secondary": "#ffffff",
+                      "inverse-primary": "#ffb787",
+                      "on-error": "#ffffff",
+                      "surface-dim": "#d3daea",
+                      "on-secondary-fixed-variant": "#42474f",
+                      "on-error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "section-gap": "80px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "max-width": "1280px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "headline-xl": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-xl": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-parchment font-body-md text-onyx overflow-x-hidden">
+<!-- TopAppBar -->
+<nav class="bg-parchment dark:bg-onyx border-b border-outline-variant dark:border-outline fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto h-20">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2" href="#">
+<img alt="Logo" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLtklRBqr6LXWtFH8I_AgFnzpClCvgIMBEO6YMYj-CWKOtUAA3TRo7UJu7D0p3JgkI-b1xrEj0mHKosemerJa7pPCaTO29AjqIUw0Z5apMj0y_M28cCvOMpp0g6VPfuC-rXiOtlPMfct1N63Cc9rh1-K66zsSQ048DR5mO9GdjSk5Oh7k1pDT2asLdQB1QYqWEITv8-ZysFMClMsYXg0E2vDsDSeXPN3ZPzrR3yio2CJqRaTEfKfbDhXIg"/>
+<span class="text-headline-md font-headline-md font-bold text-onyx dark:text-parchment">His Kingdom Designs</span>
+</a>
+<div class="hidden md:flex gap-6">
+<a class="text-terracotta dark:text-primary-fixed-dim font-bold border-b-2 border-terracotta font-label-md text-label-md px-1" href="#">Klær</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md px-1" href="#">Klistermerker</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md px-1" href="#">Plakater</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md px-1" href="#">Tilbehør</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md px-1" href="#">Salg</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-onyx dark:text-parchment hover:text-terracotta transition-all">search</button>
+<button class="material-symbols-outlined text-onyx dark:text-parchment hover:text-terracotta transition-all">person</button>
+<button class="material-symbols-outlined text-onyx dark:text-parchment hover:text-terracotta transition-all relative">
+                    shopping_cart
+                    <span class="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">2</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="mt-20">
+<!-- Hero Section -->
+<section class="relative h-[80vh] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Hero" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR"/>
+<div class="absolute inset-0 bg-onyx/30"></div>
+</div>
+<div class="relative z-10 text-center px-margin-mobile">
+<h1 class="text-white font-headline-xl text-headline-xl mb-8 drop-shadow-lg max-w-3xl mx-auto md:text-6xl">Velkommen til HK Designs butikken</h1>
+<div class="flex flex-col md:flex-row gap-4 justify-center">
+<a class="bg-white text-onyx px-8 py-4 rounded-lg font-label-md text-label-md hover:bg-parchment transition-all transform hover:scale-105" href="#kategorier">Se våre varer</a>
+<a class="bg-terracotta text-white px-8 py-4 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all transform hover:scale-105" href="#">Kontakt oss</a>
+</div>
+</div>
+</section>
+<!-- Sale Banner -->
+<div class="bg-sale-red py-4 overflow-hidden relative group">
+<div class="flex whitespace-nowrap animate-marquee group-hover:pause">
+<div class="flex gap-12 items-center px-4">
+<span class="text-white font-headline-md text-headline-md tracking-widest">SALG - OPPTIL 50 %</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white font-headline-md text-headline-md tracking-widest">SALG - OPPTIL 50 %</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white font-headline-md text-headline-md tracking-widest">SALG - OPPTIL 50 %</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div class="flex gap-12 items-center px-4">
+<span class="text-white font-headline-md text-headline-md tracking-widest">SALG - OPPTIL 50 %</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white font-headline-md text-headline-md tracking-widest">SALG - OPPTIL 50 %</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white font-headline-md text-headline-md tracking-widest">SALG - OPPTIL 50 %</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<!-- Categories Section (Bento Grid Style) -->
+<section class="max-w-max-width mx-auto px-margin-desktop py-section-gap" id="kategorier">
+<div class="flex items-center justify-between mb-12">
+<h2 class="font-headline-lg text-headline-lg text-onyx">Utforsk våre kategorier</h2>
+<div class="h-px flex-1 bg-outline-variant mx-8 hidden md:block"></div>
+<a class="text-terracotta font-label-md text-label-md flex items-center gap-2 group" href="#">Se alle <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Large Feature: Klær -->
+<div class="md:col-span-6 group relative rounded-xl overflow-hidden aspect-[4/5] md:aspect-auto h-[500px]">
+<img alt="Klær" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-onyx/80 to-transparent"></div>
+<div class="absolute bottom-8 left-8">
+<span class="bg-terracotta text-white px-3 py-1 rounded text-label-sm font-label-sm mb-2 inline-block">BESTSELGERE</span>
+<h3 class="text-white font-headline-md text-headline-md mb-2">Klær</h3>
+<p class="text-parchment/80 font-body-md text-body-md mb-4">Inspirerende design for hverdagen.</p>
+<button class="bg-white text-onyx px-6 py-2 rounded-full font-label-md text-label-md">Se kolleksjonen</button>
+</div>
+</div>
+<div class="md:col-span-6 grid grid-cols-2 gap-gutter">
+<!-- Barneklær -->
+<div class="group relative rounded-xl overflow-hidden aspect-square bg-white shadow-sm border border-outline-variant/30">
+<img alt="Barneklær" class="w-full h-full object-cover p-8 mix-blend-multiply group-hover:scale-105 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLvS2Gg9UZVHCgiu1KenEmwd5GVGafLFLseCDyq34GzrgmK2lY1n2cZdrPOPblGw4Gkqkj89qqoFGdbACf_1m3Aqnn_AlwMZGv1jJ-kZhqmNEY4D0pQGA_Jlsk31RFVpCrbzrNe-WT5MA4eA0tacKmy6s0kSbGni7XNK3ncagu0iiUDLksVxADnEBj6qd5AOHqYMSMZK0bId_Jb5wXfO5b4eU3WaNDC-WjI9dFAJ6rXUgXFSLRBLqmbUcA"/>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-white/90 backdrop-blur-sm transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="text-onyx font-label-md text-label-md">Barneklær</span>
+</div>
+<div class="absolute top-4 left-4 md:hidden text-onyx font-label-md text-label-md">Barneklær</div>
+</div>
+<!-- Babyklær -->
+<div class="group relative rounded-xl overflow-hidden aspect-square bg-white shadow-sm border border-outline-variant/30">
+<img alt="Babyklær" class="w-full h-full object-cover p-8 mix-blend-multiply group-hover:scale-105 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLvxjkiJesj28gRKog41etEjFio3rjm7GxP7Z0GGpUX73AoFQGGEkX1odNJxGbd2c3oTDwbnQgcT3t2N4ycCMDBcWQ5aUBFZs_EK4PonHa3ToJEVG4lEPoqkX2z8CbyU6_UFwm-dG4OjO9lZKjTH0Jr20F7USM1vgDaJ_gKDbRZNDB_GB3vxA2T9RUnD5kuFTgT4NpDBt6K3s0iDF8qSHe3Q1NtC35vhxNkNa230bEgy6hNvzCvNZk97Yw"/>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-white/90 backdrop-blur-sm transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="text-onyx font-label-md text-label-md">Babyklær</span>
+</div>
+<div class="absolute top-4 left-4 md:hidden text-onyx font-label-md text-label-md">Babyklær</div>
+</div>
+<!-- Klistermerker -->
+<div class="group relative rounded-xl overflow-hidden aspect-square bg-white shadow-sm border border-outline-variant/30">
+<img alt="Klistermerker" class="w-full h-full object-cover p-8 mix-blend-multiply group-hover:scale-105 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLug5-LwaPfJk_Z-m0M-RIW-AUs4-GFrwCVBqAxF14Bqty-3kALIPsL_vWqenbszpEv1ZyKvvwbQtENnGdCN42EHkH56jTM3vdKHNLBgfsGOv_QogrDFqcFNT2bmnvycsXWbzmJGDWpd4R3JIX2mbd3kVFZ0oFQA3SgW7XsfnfrSOuJEq9s8rZA6euiumQFnNi8maFw797dQq4lQnKbIiR5a_L0bYTnFh5QZtOa-OdHGbnnPE6wI31nS9g"/>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-white/90 backdrop-blur-sm transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="text-onyx font-label-md text-label-md">Klistermerker</span>
+</div>
+<div class="absolute top-4 left-4 md:hidden text-onyx font-label-md text-label-md">Klistermerker</div>
+</div>
+<!-- Tilbehør -->
+<div class="group relative rounded-xl overflow-hidden aspect-square bg-white shadow-sm border border-outline-variant/30">
+<img alt="Tilbehør" class="w-full h-full object-cover p-8 mix-blend-multiply group-hover:scale-105 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLslJCwuNK98ENTsmevd1XZVQ0AYvB63yFBF6VFoj6YsZbOmGnRLWeX0QYRbUgdidhARkJJp0psfGKrJ75-E3GcXbYVkTBqZd-UJssP5At3Uaugj1_AgjWlOse2vRiESTvsCFQnGmH---LF_0wlE8J2Gy4ElY3-53-URuRyGdhNL1wwx8TZkF1hQwG6yC2qq8TJdSxHofICpOWqEwH8_DZTvt0jV5onP6PGtiiepaRU_9VFG8mapnEH3Gw"/>
+<div class="absolute inset-x-0 bottom-0 p-4 bg-white/90 backdrop-blur-sm transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+<span class="text-onyx font-label-md text-label-md">Tilbehør</span>
+</div>
+<div class="absolute top-4 left-4 md:hidden text-onyx font-label-md text-label-md">Tilbehør</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Subscription Section -->
+<section class="bg-onyx text-parchment py-section-gap overflow-hidden">
+<div class="max-w-max-width mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+<div class="relative order-2 md:order-1">
+<div class="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/20 rounded-full blur-3xl"></div>
+<div class="relative z-10 bg-white p-4 rounded-2xl rotate-3 shadow-2xl transform hover:rotate-0 transition-transform duration-500">
+<img alt="Månedlige pakker" class="w-full rounded-xl" src="https://lh3.googleusercontent.com/aida/AP1WRLtaeP4sbiCpFCqqDrZM7VDSEFGDx5q6wvELtmzRkL4O1HG902BpXIXDtecwZReiKpp-UgpIHkjOWvq8yzu8qEt6SvlAkjZ1oBkeQtagiDSzjZ18kiIIVaalaitHrlYF1fcL6qa7GeO46hDwUCNSfexKWg-_AI19gVlUYsZG9iiz8S3OwEjOn7hbYxl9ttJm-hfpTyrh8T7SI91FQ8X8nEItcOjtz9Ib_DtFpBhEtay-_PrGrVMyDgrW4w"/>
+<div class="mt-4 p-2">
+<div class="flex items-center gap-2 text-onyx font-bold">
+<span class="material-symbols-outlined text-terracotta">check_circle</span>
+                                Månedlig glede
+                            </div>
+</div>
+</div>
+</div>
+<div class="order-1 md:order-2">
+<span class="text-terracotta font-label-md text-label-md tracking-widest block mb-4">GAVE SOM VARER</span>
+<h2 class="font-headline-lg text-headline-lg mb-6">Abonner på våre månedlige pakker</h2>
+<p class="font-body-lg text-body-lg text-parchment/70 mb-8">
+                        Gjør hverdagen litt mer inspirerende. Velg mellom våre mest populære produkter levert rett på døren hver måned.
+                    </p>
+<div class="space-y-4 mb-10">
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group">
+<div class="w-12 h-12 bg-terracotta rounded-full flex items-center justify-center font-bold">1</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-lg">Klistermerkepakken</h4>
+<p class="text-sm opacity-60">5 unike design hver måned</p>
+</div>
+<span class="material-symbols-outlined ml-auto opacity-0 group-hover:opacity-100 transition-opacity">add</span>
+</div>
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group">
+<div class="w-12 h-12 bg-terracotta/50 rounded-full flex items-center justify-center font-bold">2</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-lg">T-skjorteklubben</h4>
+<p class="text-sm opacity-60">Eksklusive medlems-t-skjorter</p>
+</div>
+<span class="material-symbols-outlined ml-auto opacity-0 group-hover:opacity-100 transition-opacity">add</span>
+</div>
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group">
+<div class="w-12 h-12 bg-terracotta/30 rounded-full flex items-center justify-center font-bold">3</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-lg">Kopp &amp; Kos</h4>
+<p class="text-sm opacity-60">Nye motiver for din morgenkaffe</p>
+</div>
+<span class="material-symbols-outlined ml-auto opacity-0 group-hover:opacity-100 transition-opacity">add</span>
+</div>
+</div>
+<button class="bg-terracotta text-white px-10 py-4 rounded-full font-label-md text-label-md w-full md:w-auto hover:bg-terracotta/90">Velg din pakke</button>
+</div>
+</div>
+</section>
+<!-- How it works -->
+<section class="py-section-gap bg-surface-container-low/50">
+<div class="max-w-max-width mx-auto px-margin-desktop text-center">
+<h2 class="font-headline-lg text-headline-lg mb-16">Hvordan fungerer det?</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter relative">
+<div class="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-px border-t-2 border-dashed border-outline-variant"></div>
+<div class="relative z-10 group">
+<div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center shadow-md mb-6 border border-outline-variant group-hover:border-terracotta transition-colors">
+<span class="material-symbols-outlined text-4xl text-terracotta">check_box</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-xl mb-2">Velg din vare</h3>
+<p class="font-body-md text-body-md text-secondary">Utforsk vårt unike utvalg av design og produkter.</p>
+</div>
+<div class="relative z-10 group mt-12 md:mt-0">
+<div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center shadow-md mb-6 border border-outline-variant group-hover:border-terracotta transition-colors">
+<span class="material-symbols-outlined text-4xl text-terracotta">shopping_basket</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-xl mb-2">Handlekurv</h3>
+<p class="font-body-md text-body-md text-secondary">Gå til kassen med dine favoritter.</p>
+</div>
+<div class="relative z-10 group mt-12 md:mt-0">
+<div class="w-24 h-24 bg-white rounded-full mx-auto flex items-center justify-center shadow-md mb-6 border border-outline-variant group-hover:border-terracotta transition-colors">
+<span class="material-symbols-outlined text-4xl text-terracotta">local_shipping</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-xl mb-2">Leveranse</h3>
+<p class="font-body-md text-body-md text-secondary">Vi sender din pakke raskt og trygt hjem til deg.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Gift Card Section -->
+<section class="max-w-max-width mx-auto px-margin-desktop py-section-gap">
+<div class="bg-gradient-to-br from-terracotta to-primary-container rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 text-white overflow-hidden relative">
+<div class="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+<div class="flex-1 z-10 text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg mb-4">Gled noen med et gavekort</h2>
+<p class="font-body-lg text-body-lg opacity-90 mb-8 max-w-lg">
+                        Den perfekte gaven for alle anledninger. La dine kjære velge sine egne favoritter fra vår butikk.
+                    </p>
+<div class="flex flex-wrap gap-4 justify-center md:justify-start">
+<button class="bg-white text-terracotta px-8 py-3 rounded-full font-label-md text-label-md hover:bg-parchment transition-colors">Kjøp gavekort</button>
+<button class="border border-white/30 text-white px-8 py-3 rounded-full font-label-md text-label-md hover:bg-white/10 transition-colors">Se design</button>
+</div>
+</div>
+<div class="w-full md:w-1/3 relative z-10 perspective-1000">
+<div class="bg-white/20 backdrop-blur-md border border-white/30 p-6 rounded-2xl shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-700">
+<div class="flex justify-between items-start mb-12">
+<img alt="Logo" class="w-8 h-8 opacity-80 invert" src="https://lh3.googleusercontent.com/aida/AP1WRLtklRBqr6LXWtFH8I_AgFnzpClCvgIMBEO6YMYj-CWKOtUAA3TRo7UJu7D0p3JgkI-b1xrEj0mHKosemerJa7pPCaTO29AjqIUw0Z5apMj0y_M28cCvOMpp0g6VPfuC-rXiOtlPMfct1N63Cc9rh1-K66zsSQ048DR5mO9GdjSk5Oh7k1pDT2asLdQB1QYqWEITv8-ZysFMClMsYXg0E2vDsDSeXPN3ZPzrR3yio2CJqRaTEfKfbDhXIg"/>
+<span class="font-bold text-lg">GAVEKORT</span>
+</div>
+<div class="space-y-4">
+<div class="h-2 w-3/4 bg-white/30 rounded"></div>
+<div class="h-2 w-1/2 bg-white/30 rounded"></div>
+<div class="pt-8 text-2xl font-bold">kr 500,-</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter -->
+<section class="bg-parchment py-section-gap border-t border-outline-variant">
+<div class="max-w-xl mx-auto px-margin-mobile text-center">
+<div class="w-16 h-16 bg-terracotta/10 rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-terracotta text-3xl">mail</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg mb-4">Bli med i vårt fellesskap</h2>
+<p class="font-body-md text-body-md text-secondary mb-8">
+                    Meld deg på vårt nyhetsbrev for eksklusive tilbud, nye slipp og inspirerende innhold.
+                </p>
+<form class="flex flex-col md:flex-row gap-3">
+<input class="flex-1 px-6 py-4 rounded-full border-outline-variant focus:ring-terracotta focus:border-terracotta bg-white" placeholder="Din e-postadresse" type="email"/>
+<button class="bg-onyx text-white px-8 py-4 rounded-full font-label-md text-label-md hover:bg-terracotta transition-colors" type="submit">Meld meg på</button>
+</form>
+<p class="text-xs text-secondary mt-4">Ved å melde deg på godtar du vår personvernerklæring.</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-onyx dark:bg-surface-container-lowest text-parchment pt-20 pb-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-max-width mx-auto">
+<div class="space-y-6">
+<a class="font-headline-md text-headline-md text-terracotta flex items-center gap-2" href="#">
+<img alt="Logo" class="w-8 h-8 object-contain brightness-0 invert" src="https://lh3.googleusercontent.com/aida/AP1WRLtklRBqr6LXWtFH8I_AgFnzpClCvgIMBEO6YMYj-CWKOtUAA3TRo7UJu7D0p3JgkI-b1xrEj0mHKosemerJa7pPCaTO29AjqIUw0Z5apMj0y_M28cCvOMpp0g6VPfuC-rXiOtlPMfct1N63Cc9rh1-K66zsSQ048DR5mO9GdjSk5Oh7k1pDT2asLdQB1QYqWEITv8-ZysFMClMsYXg0E2vDsDSeXPN3ZPzrR3yio2CJqRaTEfKfbDhXIg"/>
+                    His Kingdom Designs
+                </a>
+<p class="text-parchment/60 font-body-md text-body-md">
+                    Vi skaper design som inspirerer og sprer et budskap om håp og glede.
+                </p>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Utforsk</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Hvem er vi</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Møt teamet</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Podcast</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Blogg</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Kundeservice</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Kontakt oss</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Frakt &amp; Retur</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Ofte stilte spørsmål</a></li>
+<li><a class="text-parchment/80 hover:text-terracotta transition-all underline-offset-4 hover:underline" href="#">Personvernerklæring</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Følg oss</h4>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-terracotta hover:border-terracotta transition-all" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</a>
+<a class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-terracotta hover:border-terracotta transition-all" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+</a>
+</div>
+</div>
+</div>
+<div class="border-t border-white/10 mt-20 pt-10 text-center text-parchment/40 text-label-sm font-label-sm">
+            © 2024 His Kingdom Designs. Alle rettigheter reservert.
+        </div>
+</footer>
+<!-- Cookie Consent Banner -->
+<div class="fixed bottom-0 left-0 right-0 z-[100] bg-terracotta text-white py-4 px-margin-desktop shadow-2xl transition-transform duration-500 translate-y-0" id="cookie-banner">
+<div class="max-w-max-width mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+<p class="text-sm md:text-base md:flex-1 text-center md:text-left">
+                Vi bruker informasjonskapsler på nettstedet vårt for å se hvordan du samhandler med det. Ved å godta samtykker du til vår bruk av slike informasjonskapsler. <a class="underline font-bold" href="#">Personvernerklæring</a>
+</p>
+<div class="flex flex-wrap items-center justify-center gap-4">
+<button class="text-sm font-bold border-b border-transparent hover:border-white transition-all" onclick="hideCookies()">Innstillinger</button>
+<button class="text-sm font-bold border border-white/40 px-6 py-2 rounded-lg hover:bg-white/10 transition-all" onclick="hideCookies()">Avslå alle</button>
+<button class="bg-white text-terracotta px-8 py-2 rounded-lg font-bold hover:bg-parchment transition-all" onclick="hideCookies()">Godta</button>
+<button class="material-symbols-outlined ml-2 hover:opacity-70" onclick="hideCookies()">close</button>
+</div>
+</div>
+</div>
+<style>
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: inline-flex;
+            animation: marquee 20s linear infinite;
+        }
+        .pause {
+            animation-play-state: paused;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+    </style>
+<script>
+        function hideCookies() {
+            const banner = document.getElementById('cookie-banner');
+            banner.style.transform = 'translateY(100%)';
+            setTimeout(() => banner.remove(), 500);
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg', 'bg-opacity-95', 'backdrop-blur-md');
+                nav.style.height = '70px';
+            } else {
+                nav.classList.remove('shadow-lg', 'bg-opacity-95', 'backdrop-blur-md');
+                nav.style.height = '80px';
+            }
+        });
+    </script>
+</body></html>

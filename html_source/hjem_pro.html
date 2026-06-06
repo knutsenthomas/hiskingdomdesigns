@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html class="light" lang="no"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>His Kingdom Designs | Bær troen med stolthet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#fffbff",
+                        "primary": "#934700",
+                        "on-background": "#151c27",
+                        "secondary-fixed": "#dee2ec",
+                        "onyx": "#151A21",
+                        "inverse-surface": "#2a313d",
+                        "on-primary-fixed": "#311300",
+                        "surface-container": "#e7eefe",
+                        "background": "#f9f9ff",
+                        "surface-variant": "#dce2f3",
+                        "inverse-on-surface": "#ebf1ff",
+                        "primary-container": "#b35e17",
+                        "on-secondary-container": "#5e636b",
+                        "on-surface-variant": "#554338",
+                        "on-primary-fixed-variant": "#723600",
+                        "on-tertiary-container": "#fdfdf5",
+                        "error": "#ba1a1a",
+                        "parchment": "#F5F5ED",
+                        "tertiary-fixed": "#e3e3db",
+                        "on-secondary-fixed": "#171c23",
+                        "inverse-primary": "#ffb787",
+                        "terracotta": "#CC712B",
+                        "surface-dim": "#d3daea",
+                        "outline": "#887367",
+                        "surface-container-low": "#f0f3ff",
+                        "secondary-container": "#dbe0ea",
+                        "sale-red": "#B91C1C",
+                        "on-error": "#ffffff",
+                        "tertiary": "#5b5d57",
+                        "on-tertiary-fixed-variant": "#464742",
+                        "surface-bright": "#f9f9ff",
+                        "surface-container-high": "#e2e8f8",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#5a5f67",
+                        "on-tertiary-fixed": "#1a1c18",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#151c27",
+                        "tertiary-container": "#74756f",
+                        "surface": "#f9f9ff",
+                        "surface-container-highest": "#dce2f3",
+                        "primary-fixed-dim": "#ffb787",
+                        "tertiary-fixed-dim": "#c6c7c0",
+                        "on-secondary-fixed-variant": "#42474f",
+                        "primary-fixed": "#ffdcc7",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#c2c7d0",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#dbc2b3",
+                        "surface-tint": "#964900"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "section-gap": "80px",
+                        "margin-desktop": "64px",
+                        "max-width": "1280px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #F5F5ED;
+            color: #151A21;
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .product-card-hover:hover .add-to-cart-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-parchment dark:bg-onyx border-b border-outline-variant dark:border-outline fixed top-0 z-50 w-full">
+<nav class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto h-20">
+<div class="text-headline-md font-headline-md font-bold text-onyx dark:text-parchment tracking-tight">
+            His Kingdom Designs
+        </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klær</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klistermerker</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Plakater</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Tilbehør</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Salg</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-onyx dark:text-parchment hover:text-terracotta transition-all">search</button>
+<button class="material-symbols-outlined text-onyx dark:text-parchment hover:text-terracotta transition-all">person</button>
+<button class="material-symbols-outlined text-onyx dark:text-parchment hover:text-terracotta transition-all relative">
+                shopping_cart
+                <span class="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="mt-20">
+<!-- Hero Section -->
+<section class="relative h-[85vh] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="" class="w-full h-full object-cover" data-alt="A high-quality lifestyle photograph of an individual wearing a modern white faith-based t-shirt, standing in a bright, minimalist studio setting with warm natural sunlight. The atmosphere is serene and inspirational, reflecting a premium boutique aesthetic with soft shadows and a clean, airy composition. The person looks off-camera with a gentle, confident smile, embodying the brand's message of wearing faith with pride." src="https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR"/>
+<div class="absolute inset-0 bg-onyx/20"></div>
+</div>
+<div class="relative z-10 px-margin-desktop max-w-max-width mx-auto w-full">
+<div class="max-w-2xl text-white">
+<h1 class="font-headline-xl text-headline-xl mb-6 drop-shadow-md">Bær troen med stolthet</h1>
+<p class="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed">Inspirerende design skapt for å dele Guds ord gjennom moderne mote og tilbehør. Oppdag vår nyeste kolleksjon i dag.</p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-95">Se kolleksjonen</button>
+<button class="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white px-8 py-4 rounded font-label-md text-label-md transition-all">Vår historie</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Benefits Bar -->
+<section class="bg-white border-b border-outline-variant/30 py-6">
+<div class="px-margin-desktop max-w-max-width mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex items-center justify-center gap-4 text-center md:text-left">
+<span class="material-symbols-outlined text-terracotta text-3xl">local_shipping</span>
+<div>
+<p class="font-label-md text-label-md text-onyx">Gratis frakt over 800 kr</p>
+<p class="text-label-sm text-secondary">Rask levering til hele landet</p>
+</div>
+</div>
+<div class="flex items-center justify-center gap-4 text-center md:text-left">
+<span class="material-symbols-outlined text-terracotta text-3xl">assignment_return</span>
+<div>
+<p class="font-label-md text-label-md text-onyx">30 dagers åpent kjøp</p>
+<p class="text-label-sm text-secondary">Enkel retur hvis du ombestemmer deg</p>
+</div>
+</div>
+<div class="flex items-center justify-center gap-4 text-center md:text-left">
+<span class="material-symbols-outlined text-terracotta text-3xl">bolt</span>
+<div>
+<p class="font-label-md text-label-md text-onyx">Lynrask levering</p>
+<p class="text-label-sm text-secondary">Sendes fra vårt lager innen 24 timer</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Categories (Bento Grid Style) -->
+<section class="px-margin-desktop max-w-max-width mx-auto py-section-gap">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+<div>
+<span class="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block">Kategorier</span>
+<h2 class="font-headline-lg text-headline-lg">Utforsk vårt utvalg</h2>
+</div>
+<button class="text-terracotta font-label-md text-label-md flex items-center gap-2 hover:underline underline-offset-4">Se alle kategorier <span class="material-symbols-outlined">arrow_forward</span></button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter h-auto md:h-[600px]">
+<!-- Klær -->
+<div class="md:col-span-8 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A beautifully styled flat lay of minimalist apparel from the Kingdom collection, featuring high-quality cotton t-shirts and hoodies in neutral tones like cream, beige, and soft terracota. The garments are arranged artistically on a light parchment-colored background, showcasing clean typography and elegant religious motifs. The lighting is soft and even, highlighting the premium texture of the fabrics." src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-onyx/60 to-transparent flex flex-col justify-end p-8">
+<h3 class="text-white font-headline-md text-headline-md mb-2">Klær</h3>
+<p class="text-white/80 font-body-md text-body-md mb-4">Moderne t-skjorter og hettegensere med budskap.</p>
+<span class="w-fit bg-white text-onyx px-4 py-2 rounded font-label-md text-label-md group-hover:bg-terracotta group-hover:text-white transition-colors">Handle nå</span>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-gutter">
+<!-- Klistermerker -->
+<div class="h-1/2 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AP1WRLszihbNKwjOsKdnixf-5r35a6Xba2jlEmuqK6Ow72s8KEL52iJCXqZJrshr6YDlc03OqnuU4KZvmcKRaGwOX7Idbd9VsvxGhNJ8V30WGHf6RRHtzg7bw5ZarKCFYFpP05FYaleB_OCre6P4QrICKQyWws5x-mYsQlu2fhc91h9_obAeP-jeSREE2bDD9RVgwfg1vfpj_wKCPLkN1l4b9MD3SgYwtLtb9RddUykqMykJvv9U4mu43gvsDA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-onyx/60 to-transparent flex flex-col justify-end p-6">
+<h3 class="text-white font-headline-md text-headline-md">Klistermerker</h3>
+<p class="text-white/70 text-label-md">Små påminnelser i hverdagen.</p>
+</div>
+</div>
+<!-- Plakater -->
+<div class="h-1/2 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer">
+<img alt="" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AP1WRLtA5Wejh-acQOMfMxekjYryt6bxtjj3vnr-WRJvzY5vPB0gWYTV9mJoqtNjHjtFyZPcmtR_fF0GMsqHzLPVYGOBg0qMTf_C8Rj7YN0RDf1ZwX_rSFomzQK9QWQq0ltc1SoqaU2ypKQxUpP2lV2pf2pQr8TGwhinfhzYJPNkBsj_P3q-ZWaT4JUhewinEQk-4_kudEyuJVr0OaMoKbJ0yZs9bnfn3r6yMcOt7st5zMBV4hYqOQBydQk6wA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-onyx/60 to-transparent flex flex-col justify-end p-6">
+<h3 class="text-white font-headline-md text-headline-md">Plakater</h3>
+<p class="text-white/70 text-label-md">Dekorer hjemmet ditt med håp.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Best Sellers Carousel -->
+<section class="bg-white py-section-gap">
+<div class="px-margin-desktop max-w-max-width mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-center mb-16">Våre bestselgere</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Product 1 -->
+<div class="group product-card-hover">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden bg-parchment mb-4">
+<div class="absolute top-4 left-4 bg-terracotta text-white px-3 py-1 text-label-sm font-label-sm rounded uppercase z-10">Bestselger</div>
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A clean product shot of a white crewneck t-shirt with elegant black typography that reads 'Herren velsigne deg'. The shirt is presented on a minimalist wooden hanger against a soft cream-colored wall. The lighting is bright and natural, emphasizing the high-quality fabric and the delicate, sophisticated font style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBsBuwiQDOynL8bD9bizabvdPwX91pAYnBv3yIdTUHY-VnjqXfugUuhrHd3ZDb4y3Vq9DbDII5c_-3BaC5L901bLBR1KlAJMuHex45siKw5rnOgv1fD9fP8ICADoTYxW-0g7uvbkSOXL8xHg7BsB3-VqcyXBGfIJNSK66iWJkSw5vQtfnwH3d08zno_a0t9ogm2M6IEqWQ7epz8v85NnXbXkMZa0L1ZVSnfUB16cD9UbS93SFJhjCIrDY9WOYveEt9rPUfg9N2iA"/>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-onyx text-white py-3 rounded font-label-md text-label-md hover:bg-terracotta transition-colors">Legg i handlekurv</button>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-[18px] mb-1">Herren velsigne deg T-skjorte</h3>
+<p class="text-terracotta font-bold">299 kr</p>
+</div>
+<!-- Product 2 -->
+<div class="group product-card-hover">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden bg-parchment mb-4">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A stylish lifestyle photograph of a charcoal grey hoodie featuring a minimalist golden crown emblem on the chest. The hoodie is being worn by someone in a cozy indoor setting with warm ambient light. The overall mood is sophisticated and comforting, highlighting the brand's 'Kingdom Life' premium apparel line." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAegXNzYMjOIhdfYc64F-bIjm7jwZTDP84v5rVqnUzo1H6YsjXsCSWozOhnTKHqknK9trxWN7o0H0kjMBB_x8KZKuggwURG06ffnWTffBx-PCSSqNyHE-wRpXIqTQDUfeWfkQs4yHPq8ZMyUqbGOtz19eA-HBd2zk0GyCv2qVd9BIToknl-uz7dhRvPTotP-UVuItSOjak9YIQurSSSa5zYcZRsCAawG1aydoV_bqYeocQUd6XA2FBFES37KtpNtvQDZGaCdJ9p0g"/>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-onyx text-white py-3 rounded font-label-md text-label-md hover:bg-terracotta transition-colors">Legg i handlekurv</button>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-[18px] mb-1">Kingdom Life T-skjorte</h3>
+<p class="text-terracotta font-bold">349 kr</p>
+</div>
+<!-- Product 3 -->
+<div class="group product-card-hover">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden bg-parchment mb-4">
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A close-up shot of a set of aesthetic stickers featuring Bible verses and christian motifs. The stickers have a matte finish and are arranged on a clean white laptop cover. The photography uses a shallow depth of field, with soft morning light creating a peaceful and encouraging visual vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfCwmveP54NauV6GCq3jtT5CjyWuJFfm53P5Q0CntpY-e7aw2HolefBgeW-AMyk4iOfA-TDFxp80p5xzHIuML2F6n6fxD0uVxwWsviy9DemPlDrR0TuL3sE3xZcj8EbqNcUtRmELU7Y5ykw2TLqLQ7n_y1SbOLkZ2AVq6AYBpn3Wv7pkW3FQebSA0j79zbEbUzAFWKtxHx026HAm5rglxhqmuRnLBVDc3O9odDTpgmCebozSHO046JA-vEO7T0IpGTRNsiwoUOLA"/>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-onyx text-white py-3 rounded font-label-md text-label-md hover:bg-terracotta transition-colors">Legg i handlekurv</button>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-[18px] mb-1">Velsignelse Klistermerkepakke</h3>
+<p class="text-terracotta font-bold">149 kr</p>
+</div>
+<!-- Product 4 -->
+<div class="group product-card-hover">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden bg-parchment mb-4">
+<div class="absolute top-4 left-4 bg-sale-red text-white px-3 py-1 text-label-sm font-label-sm rounded uppercase z-10">Salg</div>
+<img alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A modern minimalist poster framed in light wood, featuring a bold typographic design of a scripture verse. The poster is displayed on a neutral grey wall in a brightly lit, contemporary living room. The visual style is clean and high-end, focusing on legibility and artistic balance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPD4ddRN2WNZGZeGxJgL2xYoQca5tBXUENCvryqkqiw4vveF9yvBt7sZ_igqbUvRn034YKCaoMyZyjbs49kKCF3f_cBAW-HU_vLxuWyPRz8zfDWkemX8Dq-jkSZyVOFq0vQsmHaD-U9lRDdYjSPXCGL_WvoW1WpmFVh6OhPrvFFb33vErx2sk0GUQ66oSOY8Sl9s6bxlcpCcVaoU3VaYZTR3wuC-o0fclh3hbveTO5w2DOGajJ3L8SuiKug3bFXgpjrPParjMlfg"/>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-onyx text-white py-3 rounded font-label-md text-label-md hover:bg-terracotta transition-colors">Legg i handlekurv</button>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-[18px] mb-1">Guds Fred Plakat (A3)</h3>
+<div class="flex gap-2">
+<p class="text-terracotta font-bold">199 kr</p>
+<p class="text-secondary line-through opacity-50">299 kr</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials Section -->
+<section class="bg-parchment py-section-gap overflow-hidden">
+<div class="px-margin-desktop max-w-max-width mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-center mb-12">Kundeuttalelser</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="bg-white p-8 rounded-xl shadow-sm">
+<div class="flex text-terracotta mb-4">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+</div>
+<p class="font-body-md text-body-md italic mb-6">"Fantastisk kvalitet på t-skjortene! De holder formen vask etter vask, og budskapet starter alltid gode samtaler."</p>
+<p class="font-label-md text-label-md text-onyx">- Maria H.</p>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-sm">
+<div class="flex text-terracotta mb-4">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+</div>
+<p class="font-body-md text-body-md italic mb-6">"Plakatene er så fine! De gir stuen min en helt egen ro og påminnelse om Guds fred hver eneste dag."</p>
+<p class="font-label-md text-label-md text-onyx">- Andreas T.</p>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-sm">
+<div class="flex text-terracotta mb-4">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+</div>
+<p class="font-body-md text-body-md italic mb-6">"Lynrask levering! Bestilte på mandag og pakken var i postkassen allerede onsdag. Veldig fornøyd."</p>
+<p class="font-label-md text-label-md text-onyx">- Karoline S.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Subscription Packages / Teaser -->
+<section class="bg-tertiary-fixed py-section-gap overflow-hidden">
+<div class="px-margin-desktop max-w-max-width mx-auto flex flex-col md:flex-row items-center gap-16">
+<div class="w-full md:w-1/2 relative">
+<div class="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
+<img alt="" class="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[500px]" src="https://lh3.googleusercontent.com/aida/AP1WRLtaeP4sbiCpFCqqDrZM7VDSEFGDx5q6wvELtmzRkL4O1HG902BpXIXDtecwZReiKpp-UgpIHkjOWvq8yzu8qEt6SvlAkjZ1oBkeQtagiDSzjZ18kiIIVaalaitHrlYF1fcL6qa7GeO46hDwUCNSfexKWg-_AI19gVlUYsZG9iiz8S3OwEjOn7hbYxl9ttJm-hfpTyrh8T7SI91FQ8X8nEItcOjtz9Ib_DtFpBhEtay-_PrGrVMyDgrW4w"/>
+</div>
+<div class="w-full md:w-1/2">
+<span class="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block">Månedspakker</span>
+<h2 class="font-headline-xl text-headline-xl mb-6">Litt hverdagskos rett i postkassen</h2>
+<p class="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed">Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.</p>
+<ul class="space-y-4 mb-10">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-terracotta">check_circle</span>
+<span class="font-body-md">Ingen bindingstid – avslutt når du vil</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-terracotta">check_circle</span>
+<span class="font-body-md">Eksklusive design kun for abonnenter</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-terracotta">check_circle</span>
+<span class="font-body-md">Gratis frakt på alle pakker</span>
+</li>
+</ul>
+<button class="bg-onyx text-white px-10 py-4 rounded-lg font-label-md text-label-md hover:bg-terracotta transition-all shadow-lg hover:shadow-terracotta/20">Se pakkene</button>
+</div>
+</div>
+</section>
+<!-- Brand Story / Values -->
+<section class="py-section-gap bg-parchment">
+<div class="px-margin-desktop max-w-[800px] mx-auto text-center">
+<div class="inline-block p-4 rounded-full bg-white mb-8 shadow-sm">
+<span class="material-symbols-outlined text-4xl text-terracotta">church</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg mb-6">Hva betyr His Kingdom for oss?</h2>
+<p class="font-body-lg text-body-lg text-secondary leading-relaxed mb-12">
+                Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap.
+            </p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<h4 class="font-headline-md text-[18px] mb-2">Kvalitet</h4>
+<p class="text-label-sm opacity-70">Nøye utvalgte materialer for lang holdbarhet.</p>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<h4 class="font-headline-md text-[18px] mb-2">Budskap</h4>
+<p class="text-label-sm opacity-70">Bibelsk forankret og moderne designet.</p>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<h4 class="font-headline-md text-[18px] mb-2">Fellesskap</h4>
+<p class="text-label-sm opacity-70">Bygget for å inspirere og dele troen.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Instagram Feed -->
+<section class="py-section-gap bg-white">
+<div class="px-margin-desktop max-w-max-width mx-auto">
+<div class="text-center mb-12">
+<h2 class="font-headline-lg text-headline-lg mb-4">Følg oss på Instagram</h2>
+<p class="text-secondary font-body-md">Se hvordan våre kunder bærer sin tro @hiskingdomdesigns</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+<div class="aspect-square relative group overflow-hidden rounded-lg">
+<img alt="Instagram Feed 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/AP1WRLtrw2htgQN1zfVzg4whrup6DQAKIgwIMIDXOnBqjIb_uWyoDo7cvZSFG7RPfxA0EiNT-zxQlvXNeF_wF_ob4rS8zmsOQ5LjG3MFLos92W8pD3S_9JM7EYyv47SrZNaa5g-y8RGUtlnkEotsquLvK4r4MKjbWSzn7QX1I2SgvNZGLqpgg4Ej4uFhRydn8on9kF4jkL8VKypTr4JBriKZro3XG6oixkpA2hjyhExNEeywETxZIeEn4YfV"/>
+<div class="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl">favorite</span>
+</div>
+</div>
+<div class="aspect-square relative group overflow-hidden rounded-lg">
+<img alt="Instagram Feed 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/AP1WRLsptlMOGRGL00xzeOWps4PZ6d3y2hNxGVPcWSpkA2sum7nGSw26JQewmdHmP1lK0kID5Gs8iWSfGqljy4-RkrPzRhy5WyHj0U1ZUj2qOm9f2lpEvt0ea1BHItnefXFXuz0D6izjf-RXOZ4_GqAbgdaDiaP1fN2b3dR__V65k9nrCiFUIdo-AKNNNX3JX92ViMu42X2K3rReZAbME2itysslGYsBk9ZXL1k_JpWhjKEBsLhkDq5ggLa9"/>
+<div class="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl">favorite</span>
+</div>
+</div>
+<div class="aspect-square relative group overflow-hidden rounded-lg">
+<img alt="Instagram Feed 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR"/>
+<div class="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl">favorite</span>
+</div>
+</div>
+<div class="aspect-square relative group overflow-hidden rounded-lg">
+<img alt="Instagram Feed 4" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/AP1WRLtxy7b2t4ReBQEpdU-xdZ2kCnl2UpDNkd8DehvIkXz3cNrFYRvwDKpbTuAW4dcRyZSowggzen0ojoy3ZSbWMEc30-dDmJXHPFz7Q_9uJ8Rvx8tD1tK6YJXJSjDOmPpoeBDD-FiVZLzdsF8MC4nZLkaCqmGCRqatvFOz49FgBg3SeJnqtzMPyDHDEFFM91Xw0g3cHi5q8mo9KW-l87GESrBKRkPPZmfqZm5hvFOzLlXnlH5RhESATdJBjw"/>
+<div class="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-3xl">favorite</span>
+</div>
+</div>
+</div>
+<div class="text-center">
+<a class="inline-flex items-center gap-2 bg-onyx text-white px-8 py-4 rounded font-label-md text-label-md hover:bg-terracotta transition-all" href="#">
+                    @hiskingdomdesigns
+                </a>
+</div>
+</div>
+</section>
+<!-- Newsletter -->
+<section class="px-margin-desktop max-w-max-width mx-auto mb-section-gap">
+<div class="bg-onyx rounded-3xl p-12 md:p-20 text-center relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-terracotta/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+<div class="absolute bottom-0 left-0 w-64 h-64 bg-terracotta/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+<div class="relative z-10 max-w-2xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-parchment mb-4">Bli med i vårt fellesskap</h2>
+<p class="font-body-md text-body-md text-parchment/70 mb-10">Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nyheter om nye kolleksjoner.</p>
+<form class="flex flex-col sm:flex-row gap-4">
+<input class="flex-grow bg-white/10 border border-white/20 text-white px-6 py-4 rounded-lg focus:outline-none focus:border-terracotta transition-colors placeholder:text-white/40" placeholder="Din e-postadresse" type="email"/>
+<button class="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap" type="submit">Meld meg på</button>
+</form>
+<p class="text-label-sm text-parchment/40 mt-4">Vi respekterer ditt personvern. Avmeld deg når som helst.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-onyx dark:bg-surface-container-lowest text-parchment py-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-max-width mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="font-headline-md text-headline-md text-terracotta mb-6">His Kingdom Designs</div>
+<p class="font-body-md text-body-md text-parchment/60 mb-6">Vi designer for Guds rike, med fokus på kvalitet og mening.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">public</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">share</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md mb-6 uppercase tracking-wider">Utforsk</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Møt teamet</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Hvem er vi</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Podcast</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Blogg</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md mb-6 uppercase tracking-wider">Kategorier</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Klær</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Klistermerker</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Plakater</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Tilbehør</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md mb-6 uppercase tracking-wider">Kundeservice</h4>
+<ul class="space-y-4">
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Kontakt oss</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Personvernerklæring</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Betingelser</a></li>
+<li><a class="text-parchment/80 dark:text-onyx/70 hover:text-terracotta transition-all hover:underline underline-offset-4 font-body-md text-body-md" href="#">Frakt og retur</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 mt-12 py-8 text-center text-label-sm text-parchment/40">
+        © 2024 His Kingdom Designs. Alle rettigheter reservert.
+    </div>
+</footer>
+<script>
+    // Intersection Observer for reveal animations
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('section, .group, .bg-white.p-8').forEach(el => {
+        el.classList.add('reveal-on-scroll');
+        observer.observe(el);
+    });
+
+    // Simple sticky header effect
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        const header = document.querySelector('header');
+        
+        if (currentScroll > 50) {
+            header.classList.add('shadow-md');
+            header.classList.remove('h-20');
+            header.classList.add('h-16');
+        } else {
+            header.classList.remove('shadow-md');
+            header.classList.add('h-20');
+            header.classList.remove('h-16');
+        }
+    });
+</script>
+</body></html>

@@ -1,0 +1,94 @@
+<USER_REQUEST>
+Lag denne siden: <!-- Klær - His Kingdom Designs -->
+<!DOCTYPE html>
+
+<html lang="no"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #F5F5ED; /* Parchment base */
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CC712B;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#fffbff",
+                        "secondary-fixed-dim": "#c2c7d0",
+                        "on-secondary-fixed-variant": "#42474f",
+                        "sale-red": "#B91C1C",
+                        "tertiary": "#5b5d57",
+                        "secondary-fixed": "#dee2ec",
+                        "onyx": "#151A21",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#151c27",
+                        "tertiary-fixed-dim": "#c6c7c0",
+             
+<truncated 45216 bytes>
+, {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #F5F5ED;
+            color: #151A21;
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .product-card-hover:hover .add-to-cart-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-parchment dark:bg-onyx border-b border-outline-variant dark:border-outline fixed top-0 z-50 w-full">
+<nav class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto h-20">
+<div class="text-headline-md font-headline-md font-bold text-onyx dark:text-parchment tracking-tight">
+            His Kingdom Designs
+        </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klær</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klistermerker</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Plakater</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Tilbehør</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" hr
+<truncated 146809 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

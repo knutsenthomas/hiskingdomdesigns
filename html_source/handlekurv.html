@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="no"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#fffbff",
+                    "secondary-fixed-dim": "#c2c7d0",
+                    "on-secondary-fixed-variant": "#42474f",
+                    "sale-red": "#B91C1C",
+                    "tertiary": "#5b5d57",
+                    "secondary-fixed": "#dee2ec",
+                    "onyx": "#151A21",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#151c27",
+                    "tertiary-fixed-dim": "#c6c7c0",
+                    "on-secondary-fixed": "#171c23",
+                    "inverse-on-surface": "#ebf1ff",
+                    "on-secondary-container": "#5e636b",
+                    "secondary-container": "#dbe0ea",
+                    "outline-variant": "#dbc2b3",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#5a5f67",
+                    "parchment": "#F5F5ED",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#dce2f3",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f0f3ff",
+                    "surface-bright": "#f9f9ff",
+                    "on-tertiary-fixed-variant": "#464742",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e2e8f8",
+                    "primary-container": "#b35e17",
+                    "surface": "#f9f9ff",
+                    "inverse-surface": "#2a313d",
+                    "primary-fixed": "#ffdcc7",
+                    "inverse-primary": "#ffb787",
+                    "on-surface-variant": "#554338",
+                    "on-primary-fixed-variant": "#723600",
+                    "on-tertiary-container": "#fdfdf5",
+                    "surface-dim": "#d3daea",
+                    "primary": "#934700",
+                    "on-surface": "#151c27",
+                    "tertiary-container": "#74756f",
+                    "surface-tint": "#964900",
+                    "on-primary-fixed": "#311300",
+                    "surface-container-highest": "#dce2f3",
+                    "error": "#ba1a1a",
+                    "surface-container": "#e7eefe",
+                    "tertiary-fixed": "#e3e3db",
+                    "primary-fixed-dim": "#ffb787",
+                    "terracotta": "#CC712B",
+                    "on-tertiary-fixed": "#1a1c18",
+                    "background": "#f9f9ff",
+                    "outline": "#887367"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "section-gap": "80px",
+                    "margin-desktop": "64px",
+                    "max-width": "1280px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-xl": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #F5F5ED; /* parchment */
+        }
+    </style>
+</head>
+<body class="font-body-md text-onyx">
+<!-- TopAppBar -->
+<header class="bg-parchment dark:bg-onyx border-b border-outline-variant dark:border-outline sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto h-20">
+<div class="text-headline-md font-headline-md font-bold text-onyx dark:text-parchment">
+                His Kingdom Designs
+            </div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klær</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Klistermerker</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Plakater</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Tilbehør</a>
+<a class="text-onyx dark:text-parchment hover:text-terracotta transition-colors font-label-md text-label-md" href="#">Salg</a>
+</nav>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-terracotta hover:scale-110 transition-transform" data-icon="search">search</button>
+<button class="material-symbols-outlined text-terracotta hover:scale-110 transition-transform" data-icon="person">person</button>
+<div class="relative">
+<button class="material-symbols-outlined text-terracotta hover:scale-110 transition-transform" data-icon="shopping_cart">shopping_cart</button>
+<span class="absolute -top-2 -right-2 bg-terracotta text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">2</span>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-12">
+<h1 class="font-headline-lg text-headline-lg mb-10 text-onyx">Din Handlekurv</h1>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Product List Section -->
+<div class="lg:col-span-8 space-y-6">
+<!-- Item 1 -->
+<div class="bg-white p-6 rounded-lg shadow-sm border border-outline-variant/30 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-32 h-32 rounded-md overflow-hidden flex-shrink-0 bg-parchment">
+<img alt="Herren velsigne deg T-skjorte" class="w-full h-full object-cover" data-alt="A premium quality minimalist white t-shirt featuring elegant typography with a spiritual message. The t-shirt is displayed in a clean, high-key studio setting with soft natural light hitting the organic cotton fabric. The overall mood is peaceful and modern, adhering to a light parchment and terracotta color palette to reflect a sacred yet contemporary brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIcpKVWgP58Zw7-iP3jEJmFLT4nKj6GfstkfTT_05AggjDGxSElRCiMB5YCN-vOCQ-U0gq50mFKFlty50wn47naPqG3tVYPZbsdKfVhWmPM7PSnhnxjsdcBWsAx8IhdLxIgdiZTiszyT7n8TimRQgimUlvsiSBrkLhUfcUD0KzBwtkzwEtt92B2Pcsq8hf53CXMT1NAiTwtvupVKeEXuDjzpA8n1Qkg4r8cOf5RX6rmTDuLv8LGf82ZRcH1IVpBrtJ0YDIaRLMRw"/>
+</div>
+<div class="flex-grow text-center md:text-left">
+<h3 class="font-headline-md text-headline-md text-onyx">Herren velsigne deg T-skjorte</h3>
+<p class="text-secondary font-body-md mt-1">Størrelse: Medium | Farge: Hvit</p>
+<button class="text-terracotta text-label-md font-label-md mt-2 flex items-center gap-1 mx-auto md:mx-0 hover:underline">
+<span class="material-symbols-outlined text-sm">delete</span> Fjern
+                        </button>
+</div>
+<div class="flex items-center gap-4 bg-parchment p-2 rounded-full border border-outline-variant">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors" onclick="decrement(this)">-</button>
+<span class="font-bold min-w-[20px] text-center">1</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors" onclick="increment(this)">+</button>
+</div>
+<div class="text-right min-w-[100px]">
+<span class="font-headline-md text-headline-md text-terracotta">399 kr</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-white p-6 rounded-lg shadow-sm border border-outline-variant/30 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-32 h-32 rounded-md overflow-hidden flex-shrink-0 bg-parchment">
+<img alt="Salme 23 Plakat" class="w-full h-full object-cover" data-alt="A modern minimalist poster featuring graceful line art with a spiritual theme, framed in light oak wood. The poster is showcased on a soft parchment-colored wall in a bright, sunlit room with subtle shadows and a warm, inviting atmosphere. The design captures the essence of tranquility and high-end boutique retail through balanced composition and elegant typography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu3o35G9nlYl0nfPoza5x9mKq5HMS03clg_v2HMWROWJKSWTmVvNz66U4eziJbuZiGbxSOnDZctx_Ea5xIUoAeyFnj3po7-bgCfOCHdSS5YYQSXKFb7etMvOCWoZKo8vMM9Yga3aQsis_odOLs4J3_6QAHeuBssRQljE6OJoM4pQsqN5GEHi-2kxYp4pI_lTp3g1T3xlDA__hfAibdYXRulLQp4hDBEKJ5Dzdv_ZDURnjJoQ6IGOb1St9IkvnumbTioKzZN2ezxQ"/>
+</div>
+<div class="flex-grow text-center md:text-left">
+<h3 class="font-headline-md text-headline-md text-onyx">Salme 23 Plakat</h3>
+<p class="text-secondary font-body-md mt-1">Format: A3 | Uten ramme</p>
+<button class="text-terracotta text-label-md font-label-md mt-2 flex items-center gap-1 mx-auto md:mx-0 hover:underline">
+<span class="material-symbols-outlined text-sm">delete</span> Fjern
+                        </button>
+</div>
+<div class="flex items-center gap-4 bg-parchment p-2 rounded-full border border-outline-variant">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors" onclick="decrement(this)">-</button>
+<span class="font-bold min-w-[20px] text-center">1</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors" onclick="increment(this)">+</button>
+</div>
+<div class="text-right min-w-[100px]">
+<span class="font-headline-md text-headline-md text-terracotta">249 kr</span>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant">
+<a class="inline-flex items-center gap-2 text-terracotta font-label-md hover:underline group" href="#">
+<span class="material-symbols-outlined transition-transform group-hover:-translate-x-1">arrow_back</span>
+                        Fortsett å handle
+                    </a>
+</div>
+</div>
+<!-- Summary Column -->
+<aside class="lg:col-span-4 sticky top-32">
+<div class="bg-white p-8 rounded-lg shadow-md border border-outline-variant/20">
+<h2 class="font-headline-md text-headline-md mb-6 border-b border-parchment pb-4">Oppsummering</h2>
+<div class="space-y-4 mb-8">
+<div class="flex justify-between font-body-md text-secondary">
+<span>Subtotal</span>
+<span>648 kr</span>
+</div>
+<div class="flex justify-between font-body-md text-secondary">
+<span>Frakt</span>
+<span>49 kr</span>
+</div>
+<div class="flex justify-between font-body-md text-secondary">
+<span>MVA (25%)</span>
+<span>129,60 kr</span>
+</div>
+<div class="h-px bg-parchment w-full my-4"></div>
+<div class="flex justify-between font-headline-md text-headline-md text-onyx">
+<span>Total</span>
+<span class="text-terracotta">697 kr</span>
+</div>
+</div>
+<button class="w-full bg-terracotta text-white py-4 rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all mb-6">
+                        Gå til kassen
+                    </button>
+<div class="space-y-4">
+<p class="text-center text-label-sm font-label-sm text-secondary tracking-widest uppercase">Sikre betalingsmetoder</p>
+<div class="flex justify-center gap-4 grayscale opacity-60">
+<!-- Vipps Placeholder -->
+<div class="w-12 h-8 bg-orange-500 rounded flex items-center justify-center text-[10px] text-white font-bold">VIPPS</div>
+<!-- Card Placeholders -->
+<div class="w-12 h-8 bg-blue-800 rounded flex items-center justify-center text-[10px] text-white font-bold">VISA</div>
+<div class="w-12 h-8 bg-red-600 rounded flex items-center justify-center text-[10px] text-white font-bold">MC</div>
+</div>
+</div>
+</div>
+<!-- Trust Badges -->
+<div class="mt-6 flex flex-col gap-4 px-4">
+<div class="flex items-center gap-3 text-secondary">
+<span class="material-symbols-outlined text-terracotta">local_shipping</span>
+<span class="text-label-sm font-label-sm">Gratis frakt over 800 kr</span>
+</div>
+<div class="flex items-center gap-3 text-secondary">
+<span class="material-symbols-outlined text-terracotta">verified_user</span>
+<span class="text-label-sm font-label-sm">30 dagers åpent kjøp</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-onyx dark:bg-surface-container-lowest text-parchment mt-section-gap">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap max-w-max-width mx-auto">
+<div class="space-y-4">
+<div class="font-headline-md text-headline-md text-terracotta">His Kingdom Designs</div>
+<p class="text-body-md opacity-80 max-w-xs">Klær og tilbehør som bærer et budskap om håp og tro.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md uppercase tracking-wider text-terracotta">Utforsk</h4>
+<nav class="flex flex-col gap-2">
+<a class="text-parchment/80 hover:text-terracotta hover:underline transition-all underline-offset-4 font-label-sm text-label-sm" href="#">Møt teamet</a>
+<a class="text-parchment/80 hover:text-terracotta hover:underline transition-all underline-offset-4 font-label-sm text-label-sm" href="#">Hvem er vi</a>
+<a class="text-parchment/80 hover:text-terracotta hover:underline transition-all underline-offset-4 font-label-sm text-label-sm" href="#">Podcast</a>
+</nav>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md uppercase tracking-wider text-terracotta">Ressurser</h4>
+<nav class="flex flex-col gap-2">
+<a class="text-parchment/80 hover:text-terracotta hover:underline transition-all underline-offset-4 font-label-sm text-label-sm" href="#">Blogg</a>
+<a class="text-parchment/80 hover:text-terracotta hover:underline transition-all underline-offset-4 font-label-sm text-label-sm" href="#">Kontakt oss</a>
+<a class="text-parchment/80 hover:text-terracotta hover:underline transition-all underline-offset-4 font-label-sm text-label-sm" href="#">Personvernerklæring</a>
+</nav>
+</div>
+<div class="space-y-4">
+<h4 class="font-label-md text-label-md uppercase tracking-wider text-terracotta">Nyhetsbrev</h4>
+<div class="flex gap-2">
+<input class="bg-white/10 border border-white/20 rounded-lg px-4 py-2 w-full text-label-sm focus:outline-none focus:border-terracotta transition-colors" placeholder="E-postadresse" type="email"/>
+<button class="bg-terracotta px-4 py-2 rounded-lg text-label-sm font-bold">Send</button>
+</div>
+</div>
+</div>
+<div class="border-t border-white/10 py-8 px-margin-desktop text-center">
+<p class="font-label-sm text-label-sm opacity-60">© 2024 His Kingdom Designs. Alle rettigheter reservert.</p>
+</div>
+</footer>
+<script>
+        function increment(btn) {
+            const span = btn.parentElement.querySelector('span');
+            let val = parseInt(span.innerText);
+            span.innerText = val + 1;
+        }
+
+        function decrement(btn) {
+            const span = btn.parentElement.querySelector('span');
+            let val = parseInt(span.innerText);
+            if (val > 1) {
+                span.innerText = val - 1;
+            }
+        }
+
+        // Add a subtle entrance animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.6s ease-out';
+            requestAnimationFrame(() => {
+                document.body.style.opacity = '1';
+            });
+        });
+    </script>
+</body></html>
