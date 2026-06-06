@@ -334,7 +334,7 @@ export default function Home() {
           </div>
           <CmsText 
             slug="home-about-title" 
-            fallback="Hva betyr His Kingdom for oss?" 
+            fallback="Hva betyr His Kingdom Designs for oss?" 
             as="h2" 
             className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx"
           />
