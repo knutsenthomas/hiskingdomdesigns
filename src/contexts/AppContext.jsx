@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { db } from '@/firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { wixClient } from '@/lib/wix';
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
 export const AppContext = createContext({});
@@ -189,6 +190,7 @@ const INITIAL_MESSAGES = [
 
 export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -251,6 +253,115 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       console.warn("Feil ved oppstart av CMS synkronisering:", e);
     }
+  }, []);
+
+  // Load products and collections from Wix
+  useEffect(() => {
+    const fetchWixData = async () => {
+      try {
+        console.log('Henter produkter fra Wix...');
+        const [collectionsList, productList] = await Promise.all([
+          wixClient.collections.queryCollections().find(),
+          wixClient.products.queryProducts().limit(100).find()
+        ]);
+
+        const collectionsMap = {};
+        collectionsList.items.forEach(c => {
+          collectionsMap[c._id] = c.name;
+        });
+
+        const mapped = productList.items.map(item => {
+          const resolvedCollections = item.collectionIds?.map(id => collectionsMap[id]).filter(Boolean) || [];
+          
+          let category = 'Tilbehør';
+          if (resolvedCollections.includes('Klær')) {
+            category = 'Klær';
+          } else if (resolvedCollections.includes('Klistermerker')) {
+            category = 'Klistermerker';
+          } else if (resolvedCollections.includes('Bilder og plakater') || resolvedCollections.includes('Plakater')) {
+            category = 'Plakater';
+          }
+
+          let sizes = [];
+          let colors = [];
+          let colorNames = [];
+          
+          if (item.productOptions) {
+            const sizeOpt = item.productOptions.find(o => {
+              const name = o.name?.toLowerCase();
+              return name === 'size' || name === 'størrelse' || name === 'choose your option';
+            });
+            if (sizeOpt) {
+              sizes = sizeOpt.choices?.map(c => c.value) || [];
+            }
+
+            const colorOpt = item.productOptions.find(o => {
+              const name = o.name?.toLowerCase();
+              return name === 'color' || name === 'farge';
+            });
+            if (colorOpt) {
+              colorNames = colorOpt.choices?.map(c => c.value) || [];
+              colors = colorNames.map(name => {
+                const lower = name.toLowerCase();
+                if (lower.includes('sort') || lower.includes('black')) return '#151A21';
+                if (lower.includes('hvit') || lower.includes('white')) return '#FFFFFF';
+                if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray')) return '#E5E7EB';
+                if (lower.includes('rød') || lower.includes('red')) return '#ef4444';
+                if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy')) return '#1e293b';
+                if (lower.includes('grønn') || lower.includes('green')) return '#16a34a';
+                if (lower.includes('gul') || lower.includes('yellow')) return '#eab308';
+                if (lower.includes('rosa') || lower.includes('pink')) return '#db2777';
+                if (lower.includes('beige')) return '#d4c4b5';
+                if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown')) return '#CC712B';
+                return '#888888';
+              });
+            }
+          }
+
+          // Fallbacks for color & size if empty
+          if (colors.length === 0) {
+            colors = ['#CC712B'];
+            colorNames = ['Terracotta'];
+          }
+          if (sizes.length === 0) {
+            sizes = ['One Size'];
+          }
+
+          const price = item.price?.discountedPrice || item.price?.price || 0;
+          const originalPrice = item.price?.price || 0;
+          const isSale = price < originalPrice || item.discount?.type !== 'NONE';
+          const isBestseller = resolvedCollections.includes('Bestselgere') || resolvedCollections.includes('Populære produkter');
+
+          return {
+            id: item._id,
+            name: item.name,
+            price: price,
+            originalPrice: isSale ? originalPrice : undefined,
+            category: category,
+            colors: colors,
+            colorNames: colorNames,
+            sizes: sizes,
+            image: item.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
+            images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
+            isBestseller: isBestseller,
+            isSale: isSale,
+            description: item.description?.replace(/<[^>]*>/g, '') || '',
+            subcategories: resolvedCollections
+          };
+        });
+
+        if (mapped.length > 0) {
+          setProducts(mapped);
+          console.log(`Laster ${mapped.length} produkter dynamisk fra Wix.`);
+        }
+      } catch (error) {
+        console.error('Kunne ikke hente produkter fra Wix, faller tilbake til lokale testdata:', error);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    fetchWixData();
   }, []);
   
   // Chat Assistant State
@@ -372,6 +483,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{
       products,
+      isLoadingProducts,
       mobileMenuOpen,
       setMobileMenuOpen,
       searchOpen,

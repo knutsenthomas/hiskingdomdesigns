@@ -7,7 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 
 export default function ProductDetails() {
-  const { products } = useApp();
+  const { products, isLoadingProducts } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -36,6 +36,15 @@ export default function ProductDetails() {
   }, [product]);
 
   if (!product) {
+    if (isLoadingProducts) {
+      return (
+        <div className="flex flex-col items-center justify-center py-56">
+          <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-secondary font-semibold font-body-md">Henter produkt fra Wix...</p>
+        </div>
+      );
+    }
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 15 }}
