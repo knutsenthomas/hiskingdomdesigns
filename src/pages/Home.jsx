@@ -55,7 +55,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto w-full">
           <div className="max-w-2xl text-white">
-            <h1 className="font-headline-xl text-headline-xl mb-6 drop-shadow-md">
+            <h1 className="font-headline-xl text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md">
               Bær troen med stolthet
             </h1>
             <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed">
@@ -111,7 +111,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
           <div>
             <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold">Kategorier</span>
-            <h2 className="font-headline-lg text-headline-lg text-onyx">Utforsk vårt utvalg</h2>
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg text-onyx">Utforsk vårt utvalg</h2>
           </div>
           <button 
             onClick={() => navigate('/products')}
@@ -180,10 +180,10 @@ export default function Home() {
       {/* Best Sellers */}
       <section className="bg-white py-section-gap reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
-          <h2 className="font-headline-lg text-headline-lg text-center mb-16 text-onyx">
+          <h2 className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 md:mb-16 text-onyx">
             Våre bestselgere
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
             {bestsellers.slice(0, 4).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -194,7 +194,7 @@ export default function Home() {
       {/* Testimonials */}
       <section className="bg-parchment py-section-gap overflow-hidden reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
-          <h2 className="font-headline-lg text-headline-lg text-center mb-12 text-onyx">
+          <h2 className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 text-onyx">
             Kundeuttalelser
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
@@ -250,7 +250,7 @@ export default function Home() {
           </div>
           <div className="w-full lg:w-1/2">
             <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold">Månedspakker</span>
-            <h2 className="font-headline-xl text-headline-xl mb-6 text-onyx leading-tight">Litt hverdagskos rett i postkassen</h2>
+            <h2 className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx leading-tight">Litt hverdagskos rett i postkassen</h2>
             <p className="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed">
               Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.
             </p>
@@ -281,7 +281,7 @@ export default function Home() {
           <div className="inline-block p-4 rounded-full bg-white mb-8 shadow-sm">
             <span className="material-symbols-outlined text-4xl text-terracotta">church</span>
           </div>
-          <h2 className="font-headline-lg text-headline-lg mb-6 text-onyx">Hva betyr His Kingdom for oss?</h2>
+          <h2 className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx">Hva betyr His Kingdom for oss?</h2>
           <p className="font-body-lg text-body-lg text-secondary leading-relaxed mb-12">
             Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap.
           </p>
@@ -306,7 +306,7 @@ export default function Home() {
       <section className="py-section-gap bg-white reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
           <div className="text-center mb-12">
-            <h2 className="font-headline-lg text-headline-lg mb-4 text-onyx">Følg oss på Instagram</h2>
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg mb-4 text-onyx">Følg oss på Instagram</h2>
             <p className="text-secondary font-body-md">Se hvordan våre kunder bærer sin tro @hiskingdomdesigns</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -369,7 +369,7 @@ export default function Home() {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-terracotta/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
           
           <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="font-headline-lg text-headline-lg text-parchment mb-4">
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg text-parchment mb-4">
               Bli med i vårt fellesskap
             </h2>
             <p className="font-body-md text-body-md text-parchment/70 mb-10">

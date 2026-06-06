@@ -319,7 +319,7 @@ export default function Category() {
           <ChevronRight size={14} className="text-secondary/60" />
           <span className="text-onyx font-bold">{displayTitle}</span>
         </nav>
-        <h1 className="font-headline-xl text-headline-xl text-onyx mb-2 capitalize">{displayTitle}</h1>
+        <h1 className="font-headline-xl text-3xl md:text-[48px] text-onyx mb-2 capitalize">{displayTitle}</h1>
         <p className="text-body-lg font-body-lg text-secondary max-w-2xl">
           Utforsk vår kolleksjon av trosbaserte produkter designet for å inspirere og spre Guds ord i hverdagen.
         </p>
@@ -380,7 +380,7 @@ export default function Category() {
 
           {/* Grid */}
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-gutter">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

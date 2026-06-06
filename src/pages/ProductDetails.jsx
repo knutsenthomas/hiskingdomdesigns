@@ -114,7 +114,7 @@ export default function ProductDetails() {
             <span className="text-terracotta font-label-sm text-label-sm uppercase tracking-widest font-semibold block mb-1">
               {product.category} {product.gender && `• ${product.gender}`}
             </span>
-            <h1 className="font-headline-lg text-headline-lg text-onyx mb-2">{product.name}</h1>
+            <h1 className="font-headline-lg text-2xl md:text-headline-lg text-onyx mb-2">{product.name}</h1>
             <div className="flex items-center gap-3">
               <span className="font-headline-md text-headline-md text-terracotta font-extrabold text-2xl">
                 {product.price} kr
@@ -268,7 +268,7 @@ export default function ProductDetails() {
               Se alle {product.category.toLowerCase()}
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-gutter">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
