@@ -55,7 +55,7 @@ export default function Home() {
         </div>
         <div className="relative z-10 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto w-full">
           <div className="max-w-2xl text-white">
-            <h1 className="font-headline-xl text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md">
+            <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md">
               Bær troen med stolthet
             </h1>
             <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed">

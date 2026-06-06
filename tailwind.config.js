@@ -75,14 +75,14 @@ export default {
         "max-width": "1280px"
       },
       fontFamily: {
-        "headline-xl": ["Poppins"],
-        "headline-lg-mobile": ["Poppins"],
-        "label-sm": ["Poppins"],
-        "headline-md": ["Poppins"],
-        "headline-lg": ["Poppins"],
-        "body-md": ["Poppins"],
-        "body-lg": ["Poppins"],
-        "label-md": ["Poppins"]
+        "headline-xl": ["Inter", "sans-serif"],
+        "headline-lg-mobile": ["Inter", "sans-serif"],
+        "label-sm": ["Inter", "sans-serif"],
+        "headline-md": ["Inter", "sans-serif"],
+        "headline-lg": ["Inter", "sans-serif"],
+        "body-md": ["Inter", "sans-serif"],
+        "body-lg": ["Inter", "sans-serif"],
+        "label-md": ["Inter", "sans-serif"]
       },
       fontSize: {
         "headline-xl": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
