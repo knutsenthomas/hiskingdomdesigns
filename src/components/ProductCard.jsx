@@ -48,13 +48,15 @@ export default function ProductCard({ product }) {
         {/* Quick Add Button */}
         <button 
           onClick={handleQuickAdd}
-          className="absolute bottom-4 right-4 bg-white/95 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-lg hover:bg-terracotta hover:text-white"
+          className={`absolute bottom-4 right-4 bg-white/95 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-lg hover:bg-terracotta hover:text-white ${
+            added ? 'text-green-500' : 'text-terracotta'
+          }`}
           title="Legg i handlekurv"
         >
           {added ? (
-            <Check size={18} className="text-green-500 group-hover:text-white" />
+            <Check size={18} />
           ) : (
-            <ShoppingCart size={18} className="text-terracotta group-hover:text-white" />
+            <ShoppingCart size={18} />
           )}
         </button>
       </Link>
