@@ -234,7 +234,7 @@ export default function HkmChatWidget() {
             {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
             <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0 p-1 shadow-inner">
+                <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
