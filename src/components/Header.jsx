@@ -71,7 +71,7 @@ export default function Header() {
               >
                 Alle Produkter
                 {location.pathname === '/products' && (
-                  <span className="absolute bottom-[-18px] left-0 right-0 h-0.5 bg-terracotta rounded" />
+                  <span className="absolute bottom-[-4px] left-0 right-0 h-0.5 bg-terracotta rounded" />
                 )}
               </Link>
 
@@ -82,11 +82,14 @@ export default function Header() {
                 onMouseLeave={() => setMegamenuOpen(false)}
               >
                 <button
-                  className={`font-label-md text-label-md py-6 transition-colors flex items-center gap-1 cursor-pointer focus:outline-none ${
+                  className={`font-label-md text-label-md py-6 transition-colors flex items-center gap-1 cursor-pointer focus:outline-none relative ${
                     megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx hover:text-terracotta'
                   }`}
                 >
                   Kategorier <ChevronDown size={14} className={`transition-transform duration-200 ${megamenuOpen ? 'rotate-180' : ''}`} />
+                  {location.pathname.startsWith('/category/') && (
+                    <span className="absolute bottom-[10px] left-0 right-0 h-0.5 bg-terracotta rounded" />
+                  )}
                 </button>
               </div>
 
@@ -99,7 +102,7 @@ export default function Header() {
               >
                 Salg
                 {location.pathname === '/category/Salg' && (
-                  <span className="absolute bottom-[-18px] left-0 right-0 h-0.5 bg-sale-red rounded" />
+                  <span className="absolute bottom-[-4px] left-0 right-0 h-0.5 bg-sale-red rounded" />
                 )}
               </Link>
             </nav>
