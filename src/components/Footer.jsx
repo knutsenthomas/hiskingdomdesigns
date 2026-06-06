@@ -112,7 +112,7 @@ export default function Footer() {
             />
             <button 
               type="submit"
-              className="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider font-bold"
+              className="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider font-bold shrink-0 whitespace-nowrap"
             >
               Bli med
             </button>
