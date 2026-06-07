@@ -286,7 +286,7 @@ export default function Profile() {
         setIsLoading(true);
         // Get member info
         try {
-          const res = await wixClient.members.getCurrentMember();
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           console.log("getCurrentMember response:", res);
           setDebugInfo({
             hasRes: !!res,

@@ -36,7 +36,7 @@ export default function ProductDetails() {
     async function checkLoggedInMember() {
       if (wixClient.auth.loggedIn()) {
         try {
-          const res = await wixClient.members.getCurrentMember();
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           const member = res?.member;
           if (member) {
             const email = member.loginEmail || 
@@ -76,7 +76,7 @@ export default function ProductDetails() {
     async function getMemberName() {
       if (wixClient.auth.loggedIn()) {
         try {
-          const res = await wixClient.members.getCurrentMember();
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           const member = res?.member;
           if (member) {
             const contact = member.contactDetails || member.contact;

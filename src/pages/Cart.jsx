@@ -44,7 +44,7 @@ export default function Cart() {
     async function loadMemberAddress() {
       if (wixClient.auth.loggedIn()) {
         try {
-          const res = await wixClient.members.getCurrentMember();
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           const member = res?.member;
           if (member) {
             const contact = member.contactDetails || member.contact;
