@@ -449,7 +449,7 @@ export default function Profile() {
               className="w-full border border-outline-variant rounded-xl py-3 text-xs font-semibold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-onyx"
             >
               <ShieldCheck size={16} className="text-terracotta" />
-              <span>Sikker innlogging (Vipps, Google, E-post)</span>
+              <span>Sikker innlogging (Google, E-post)</span>
             </button>
           </div>
         </div>
