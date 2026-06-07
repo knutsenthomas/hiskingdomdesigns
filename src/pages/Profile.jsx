@@ -153,8 +153,16 @@ export default function Profile() {
           setIsLoading(true);
           console.log('OAuth callback detected! Code:', code, 'State:', state);
           const savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
+          
+          // Clear query params and hash from URL immediately to prevent duplicate runs
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+
           if (savedOauthDataStr) {
             const savedOauthData = JSON.parse(savedOauthDataStr);
+            // Remove from localStorage immediately to block duplicate React StrictMode effect runs
+            localStorage.removeItem('hkd-oauth-data');
+            
             const memberTokens = await wixClient.auth.getMemberTokens(code, state, {
               ...savedOauthData,
               redirectUri: savedOauthData.redirectUri || (window.location.origin + '/profile')
@@ -162,16 +170,10 @@ export default function Profile() {
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
             console.log('Successfully completed Wix OAuth login!');
+            setRefreshKey(prev => prev + 1);
           } else {
-            console.warn('No OAuth data found in localStorage!');
-            setErrorMsg('Kunne ikke fullføre innlogging: Ingen lokalt lagret påloggingsøkt ble funnet.');
-            alert('Kunne ikke fullføre innlogging: Ingen påloggingsøkt ble funnet lokalt. Vennligst prøv igjen.');
+            console.warn('No OAuth data found in localStorage or already consumed!');
           }
-          localStorage.removeItem('hkd-oauth-data');
-          // Clear query params and hash from URL
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
-          setRefreshKey(prev => prev + 1);
         }
       } catch (err) {
         console.error('Error exchanging oauth tokens:', err);
