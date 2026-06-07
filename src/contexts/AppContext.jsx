@@ -261,8 +261,8 @@ export const AppProvider = ({ children }) => {
       try {
         console.log('Henter produkter fra Wix...');
         const [collectionsList, productList] = await Promise.all([
-          wixClient.collections.queryCollections().find(),
-          wixClient.products.queryProducts().limit(100).find()
+          wixClient.collections.queryCollections().limit(100).find(),
+          wixClient.products.queryProducts().limit(500).find()
         ]);
 
         const collectionsMap = {};
@@ -270,15 +270,20 @@ export const AppProvider = ({ children }) => {
           collectionsMap[c._id] = c.name;
         });
 
+        // Define lists of collection names belonging to each primary category
+        const klaerCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'];
+        const plakaterCollections = ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'];
+        const klistermerkerCollections = ['Klistermerker'];
+
         const mapped = productList.items.map(item => {
           const resolvedCollections = item.collectionIds?.map(id => collectionsMap[id]).filter(Boolean) || [];
           
           let category = 'Tilbehør';
-          if (resolvedCollections.includes('Klær')) {
+          if (resolvedCollections.some(c => klaerCollections.includes(c))) {
             category = 'Klær';
-          } else if (resolvedCollections.includes('Klistermerker')) {
+          } else if (resolvedCollections.some(c => klistermerkerCollections.includes(c))) {
             category = 'Klistermerker';
-          } else if (resolvedCollections.includes('Bilder og plakater') || resolvedCollections.includes('Plakater')) {
+          } else if (resolvedCollections.some(c => plakaterCollections.includes(c))) {
             category = 'Plakater';
           }
 
