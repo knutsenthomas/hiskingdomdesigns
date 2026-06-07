@@ -37,6 +37,29 @@ const MOCK_TESTIMONIALS = [
   }
 ];
 
+const FALLBACK_INSTAGRAM_FEED = [
+  {
+    id: 'static-1',
+    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLtrw2htgQN1zfVzg4whrup6DQAKIgwIMIDXOnBqjIb_uWyoDo7cvZSFG7RPfxA0EiNT-zxQlvXNeF_wF_ob4rS8zmsOQ5LjG3MFLos92W8pD3S_9JM7EYyv47SrZNaa5g-y8RGUtlnkEotsquLvK4r4MKjbWSzn7QX1I2SgvNZGLqpgg4Ej4uFhRydn8on9kF4jkL8VKypTr4JBriKZro3XG6oixkpA2hjyhExNEeywETxZIeEn4YfV',
+    permalink: 'https://www.instagram.com/hiskingdomdesigns/'
+  },
+  {
+    id: 'static-2',
+    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLsptlMOGRGL00xzeOWps4PZ6d3y2hNxGVPcWSpkA2sum7nGSw26JQewmdHmP1lK0kID5Gs8iWSfGqljy4-RkrPzRhy5WyHj0U1ZUj2qOm9f2lpEvt0ea1BHItnefXFXuz0D6izjf-RXOZ4_GqAbgdaDiaP1fN2b3dR__V65k9nrCiFUIdo-AKNNNX3JX92ViMu42X2K3rReZAbME2itysslGYsBk9ZXL1k_JpWhjKEBsLhkDq5ggLa9',
+    permalink: 'https://www.instagram.com/hiskingdomdesigns/'
+  },
+  {
+    id: 'static-3',
+    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR',
+    permalink: 'https://www.instagram.com/hiskingdomdesigns/'
+  },
+  {
+    id: 'static-4',
+    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLtxy7b2t4ReBQEpdU-xdZ2kCnl2UpDNkd8DehvIkXz3cNrFYRvwDKpbTuAW4dcRyZSowggzen0ojoy3ZSbWMEc30-dDmJXHPFz7Q_9uJ8Rvx8tD1tK6YJXJSjDOmPpoeBDD-FiVZLzdsF8MC4nZLkaCqmGCRqatvFOz49FgBg3SeJnqtzMPyDHDEFFM91Xw0g3cHi5q8mo9KW-l87GESrBKRkPPZmfqZm5hvFOzLlXnlH5RhESATdJBjw',
+    permalink: 'https://www.instagram.com/hiskingdomdesigns/'
+  }
+];
+
 export default function Home() {
   const { products } = useApp();
   const navigate = useNavigate();
@@ -51,6 +74,9 @@ export default function Home() {
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterError, setNewsletterError] = useState('');
+
+  // Instagram Feed State
+  const [instagramFeed, setInstagramFeed] = useState(FALLBACK_INSTAGRAM_FEED);
 
   useEffect(() => {
     async function fetchPlans() {
@@ -91,6 +117,28 @@ export default function Home() {
       }
     }
     fetchTestimonials();
+  }, []);
+
+  useEffect(() => {
+    async function fetchInstagramFeed() {
+      try {
+        const res = await fetch('https://feeds.behold.so/KiCxnETuzZIThlNXvTNW');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const mappedFeed = data.slice(0, 4).map(item => ({
+              id: item.id || Math.random().toString(),
+              mediaUrl: item.sizes?.medium?.mediaUrl || item.mediaUrl,
+              permalink: item.permalink || 'https://www.instagram.com/hiskingdomdesigns/'
+            }));
+            setInstagramFeed(mappedFeed);
+          }
+        }
+      } catch (err) {
+        console.warn('Klarte ikke å hente Instagram feed fra Behold.so. Bruker fallback-bilder.', err);
+      }
+    }
+    fetchInstagramFeed();
   }, []);
 
   const handleSubscribe = async (plan) => {
@@ -548,66 +596,24 @@ export default function Home() {
             <CmsText slug="home-instagram-desc" fallback="Se hvordan våre kunder bærer sin tro @hiskingdomdesigns" as="p" className="text-secondary font-body-md" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <a 
-              href="https://www.instagram.com/hiskingdomdesigns/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
-            >
-              <img 
-                alt="Instagram feed 1" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                src="https://lh3.googleusercontent.com/aida/AP1WRLtrw2htgQN1zfVzg4whrup6DQAKIgwIMIDXOnBqjIb_uWyoDo7cvZSFG7RPfxA0EiNT-zxQlvXNeF_wF_ob4rS8zmsOQ5LjG3MFLos92W8pD3S_9JM7EYyv47SrZNaa5g-y8RGUtlnkEotsquLvK4r4MKjbWSzn7QX1I2SgvNZGLqpgg4Ej4uFhRydn8on9kF4jkL8VKypTr4JBriKZro3XG6oixkpA2hjyhExNEeywETxZIeEn4YfV"
-              />
-              <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-3xl">favorite</span>
-              </div>
-            </a>
-            <a 
-              href="https://www.instagram.com/hiskingdomdesigns/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
-            >
-              <img 
-                alt="Instagram feed 2" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                src="https://lh3.googleusercontent.com/aida/AP1WRLsptlMOGRGL00xzeOWps4PZ6d3y2hNxGVPcWSpkA2sum7nGSw26JQewmdHmP1lK0kID5Gs8iWSfGqljy4-RkrPzRhy5WyHj0U1ZUj2qOm9f2lpEvt0ea1BHItnefXFXuz0D6izjf-RXOZ4_GqAbgdaDiaP1fN2b3dR__V65k9nrCiFUIdo-AKNNNX3JX92ViMu42X2K3rReZAbME2itysslGYsBk9ZXL1k_JpWhjKEBsLhkDq5ggLa9"
-              />
-              <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-3xl">favorite</span>
-              </div>
-            </a>
-            <a 
-              href="https://www.instagram.com/hiskingdomdesigns/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
-            >
-              <img 
-                alt="Instagram feed 3" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                src="https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR"
-              />
-              <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-3xl">favorite</span>
-              </div>
-            </a>
-            <a 
-              href="https://www.instagram.com/hiskingdomdesigns/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
-            >
-              <img 
-                alt="Instagram feed 4" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                src="https://lh3.googleusercontent.com/aida/AP1WRLtxy7b2t4ReBQEpdU-xdZ2kCnl2UpDNkd8DehvIkXz3cNrFYRvwDKpbTuAW4dcRyZSowggzen0ojoy3ZSbWMEc30-dDmJXHPFz7Q_9uJ8Rvx8tD1tK6YJXJSjDOmPpoeBDD-FiVZLzdsF8MC4nZLkaCqmGCRqatvFOz49FgBg3SeJnqtzMPyDHDEFFM91Xw0g3cHi5q8mo9KW-l87GESrBKRkPPZmfqZm5hvFOzLlXnlH5RhESATdJBjw"
-              />
-              <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-3xl">favorite</span>
-              </div>
-            </a>
+            {instagramFeed.map((item, index) => (
+              <a 
+                key={item.id}
+                href={item.permalink} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block animate-fade-in"
+              >
+                <img 
+                  alt={`Instagram feed ${index + 1}`} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                  src={item.mediaUrl}
+                />
+                <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white text-3xl">favorite</span>
+                </div>
+              </a>
+            ))}
           </div>
           <div className="text-center">
             <a 
