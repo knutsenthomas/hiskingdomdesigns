@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 
 export default function ProductDetails() {
-  const { products, isLoadingProducts, toggleWishlist, isInWishlist } = useApp();
+  const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -408,7 +408,7 @@ export default function ProductDetails() {
         <ChevronRight size={14} className="text-secondary/60" />
         <Link to="/products" className="hover:text-terracotta transition-colors">Produkter</Link>
         <ChevronRight size={14} className="text-secondary/60" />
-        <Link to={`/category/${encodeURIComponent(product.category)}`} className="hover:text-terracotta transition-colors">{product.category}</Link>
+        <Link to={`/category/${getSlugByCategoryName(product.category)}`} className="hover:text-terracotta transition-colors">{product.category}</Link>
         <ChevronRight size={14} className="text-secondary/60" />
         <span className="text-onyx font-bold line-clamp-1">{product.name}</span>
       </nav>
@@ -929,7 +929,7 @@ export default function ProductDetails() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-2">
             <h2 className="font-headline-lg text-2xl md:text-headline-lg text-onyx">Relaterte produkter</h2>
             <Link 
-              to={`/category/${encodeURIComponent(product.category)}`} 
+              to={`/category/${getSlugByCategoryName(product.category)}`} 
               className="text-terracotta font-label-md hover:underline underline-offset-4 font-bold"
             >
               Se alle {product.category.toLowerCase()}

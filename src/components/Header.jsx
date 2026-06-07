@@ -33,7 +33,7 @@ const getProfileImageUrl = (member) => {
 };
 
 export default function Header() {
-  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy } = useApp();
+  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName } = useApp();
   const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
@@ -279,7 +279,7 @@ export default function Header() {
                     {categoryTaxonomy['Klær & Bekledning']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${encodeURIComponent(sub)}`} 
+                          to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -296,7 +296,7 @@ export default function Header() {
                     {categoryTaxonomy['Bilder & Kunst']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${encodeURIComponent(sub)}`} 
+                          to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -313,7 +313,7 @@ export default function Header() {
                     {categoryTaxonomy['Tilbehør & Hjem']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${encodeURIComponent(sub)}`} 
+                          to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -330,7 +330,7 @@ export default function Header() {
                     {categoryTaxonomy['Barn & Familie']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${encodeURIComponent(sub)}`} 
+                          to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -347,7 +347,7 @@ export default function Header() {
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${encodeURIComponent(sub)}`} 
+                          to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block whitespace-nowrap"
                         >
                           {sub}
@@ -482,7 +482,7 @@ export default function Header() {
                         {cats?.map(sub => (
                           <li key={sub}>
                             <Link
-                              to={`/category/${encodeURIComponent(sub)}`}
+                              to={`/category/${getSlugByCategoryName(sub)}`}
                               onClick={() => setMobileMenuOpen(false)}
                               className="text-body-md text-secondary hover:text-terracotta transition-colors block py-0.5"
                             >

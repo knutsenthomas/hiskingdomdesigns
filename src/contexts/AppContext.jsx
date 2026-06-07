@@ -1084,6 +1084,71 @@ export const AppProvider = ({ children }) => {
     }, 1000);
   };
 
+  const getSlugByCategoryName = (name) => {
+    if (!name) return '';
+    if (name === 'Salg') return 'salg';
+    const found = wixCollections.find(c => c.name === name);
+    if (found && found.slug) return found.slug;
+    
+    // Fallback mapping for standard categories
+    const staticMap = {
+      'Hatter /caps': 'caps',
+      'Handlenett / Totebag': 'totebag',
+      'armbånd og smykker': 'smykker',
+      'Kopper og flasker': 'cups-bottles',
+      'Bilder og plakater': 'bilder-og-plakater',
+      'Klær': 'klær',
+      'Dameklær': 'dameklær',
+      'Genser': 'genser',
+      'Joggebukser': 'bukser',
+      'T-shirts': 't-shirts',
+      'Sport / Performance /Outdoor': 'sport-performance-outdoor',
+      'RUSS': 'russ',
+      'BABY': 'babyklær',
+      'BARN & UNGDOM': 'barneklær',
+      'Barnerom': 'barnerom'
+    };
+    if (staticMap[name]) return staticMap[name];
+    
+    return name.toLowerCase()
+      .replace(/\//g, '-')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9øæå-]/g, '')
+      .replace(/-+/g, '-');
+  };
+
+  const getCategoryNameBySlug = (slug) => {
+    if (!slug) return '';
+    if (slug === 'salg') return 'Salg';
+    const found = wixCollections.find(c => c.slug === slug);
+    if (found && found.name) return found.name;
+    
+    // Fallback mapping for standard categories
+    const staticMap = {
+      'caps': 'Hatter /caps',
+      'totebag': 'Handlenett / Totebag',
+      'smykker': 'armbånd og smykker',
+      'cups-bottles': 'Kopper og flasker',
+      'bilder-og-plakater': 'Bilder og plakater',
+      'klær': 'Klær',
+      'dameklær': 'Dameklær',
+      'genser': 'Genser',
+      'bukser': 'Joggebukser',
+      't-shirts': 'T-shirts',
+      'sport-performance-outdoor': 'Sport / Performance /Outdoor',
+      'russ': 'RUSS',
+      'babyklær': 'BABY',
+      'barneklær': 'BARN & UNGDOM',
+      'barnerom': 'Barnerom'
+    };
+    
+    for (const [keyName, valSlug] of Object.entries(staticMap)) {
+      if (valSlug === slug) return keyName;
+    }
+    
+    return slug;
+  };
+
   return (
     <AppContext.Provider value={{
       products,
@@ -1109,7 +1174,9 @@ export const AppProvider = ({ children }) => {
       showToast,
       wishlist,
       toggleWishlist,
-      isInWishlist
+      isInWishlist,
+      getSlugByCategoryName,
+      getCategoryNameBySlug
     }}>
       {children}
     </AppContext.Provider>

@@ -8,8 +8,9 @@ import { motion } from 'framer-motion';
 
 
 export default function Category() {
-  const { products, categoryTaxonomy } = useApp();
-  const { categoryName } = useParams();
+  const { products, categoryTaxonomy, getCategoryNameBySlug } = useApp();
+  const { categoryName: categorySlug } = useParams();
+  const categoryName = getCategoryNameBySlug(categorySlug);
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Read search URL param
