@@ -188,13 +188,118 @@ const INITIAL_MESSAGES = [
   }
 ];
 
+const FALLBACK_TAXONOMY = {
+  'Klær & Bekledning': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'],
+  'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
+  'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
+  'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
+  'Temaer, Kampanjer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
+};
+
 export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [wixCollections, setWixCollections] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
+  // Generate dynamic taxonomy from Wix collections with fallback
+  const categoryTaxonomy = React.useMemo(() => {
+    if (wixCollections.length === 0) {
+      return FALLBACK_TAXONOMY;
+    }
+
+    const taxonomy = {
+      'Klær & Bekledning': [],
+      'Bilder & Kunst': [],
+      'Tilbehør & Hjem': [],
+      'Barn & Familie': [],
+      'Temaer, Kampanjer & Språk': []
+    };
+
+    wixCollections.forEach(c => {
+      const name = c.name;
+      const lower = name.toLowerCase();
+
+      const isKidsFamily = lower.includes('baby') || 
+                           lower.includes('barn') || 
+                           lower.includes('ungdom') || 
+                           lower.includes('familie') || 
+                           lower.includes('kids') || 
+                           lower.includes('child') || 
+                           lower.includes('boy') || 
+                           lower.includes('girl');
+
+      const isClothing = lower.includes('klær') || 
+                         lower.includes('genser') || 
+                         lower.includes('joggebukse') || 
+                         lower.includes('t-shirt') || 
+                         lower.includes('hat') || 
+                         lower.includes('caps') || 
+                         lower.includes('sport') || 
+                         lower.includes('russ') || 
+                         lower.includes('clothing') || 
+                         lower.includes('shirt') || 
+                         lower.includes('hoodie') || 
+                         lower.includes('sweatshirt') || 
+                         lower.includes('jacket') || 
+                         lower.includes('socks');
+
+      const isArt = lower.includes('bilde') || 
+                    lower.includes('plakat') || 
+                    lower.includes('kunst') || 
+                    lower.includes('poster') || 
+                    lower.includes('maleri') || 
+                    lower.includes('foto') || 
+                    lower.includes('typografi') || 
+                    lower.includes('abstrakt') || 
+                    lower.includes('minimalistisk') || 
+                    lower.includes('fargerik') || 
+                    lower.includes('svart-hvit') || 
+                    lower.includes('retro') || 
+                    lower.includes('romantisk') || 
+                    lower.includes('whimsical') || 
+                    lower.includes('art') || 
+                    lower.includes('print');
+
+      const isAccessory = lower.includes('tilbehør') || 
+                          lower.includes('smykke') || 
+                          lower.includes('armbånd') || 
+                          lower.includes('bag') || 
+                          lower.includes('tote') || 
+                          lower.includes('kopp') || 
+                          lower.includes('flaske') || 
+                          lower.includes('deksel') || 
+                          lower.includes('klister') || 
+                          lower.includes('sticker') || 
+                          lower.includes('mug') || 
+                          lower.includes('accessory') || 
+                          lower.includes('accessories') || 
+                          lower.includes('home') || 
+                          lower.includes('barnerom');
+
+      if (isKidsFamily) {
+        taxonomy['Barn & Familie'].push(name);
+      } else if (isClothing) {
+        taxonomy['Klær & Bekledning'].push(name);
+      } else if (isArt) {
+        taxonomy['Bilder & Kunst'].push(name);
+      } else if (isAccessory) {
+        taxonomy['Tilbehør & Hjem'].push(name);
+      } else {
+        taxonomy['Temaer, Kampanjer & Språk'].push(name);
+      }
+    });
+
+    // Sort subcategories alphabetically
+    Object.keys(taxonomy).forEach(key => {
+      taxonomy[key].sort((a, b) => a.localeCompare(b, 'no'));
+    });
+
+    return taxonomy;
+  }, [wixCollections]);
+
   // CMS & Admin States
   const [isAdminEditing, setIsAdminEditing] = useState(false);
   const [cmsContent, setCmsContent] = useState(() => {
@@ -390,6 +495,13 @@ export const AppProvider = ({ children }) => {
         collectionsList.items.forEach(c => {
           collectionsMap[c._id] = c.name;
         });
+
+        const collectionsData = collectionsList.items.map(c => ({
+          id: c._id,
+          name: c.name,
+          slug: c.slug
+        })).filter(c => c.name !== 'All Products' && c.name !== 'all-products');
+        setWixCollections(collectionsData);
 
         let allItems = [];
         let response = await wixClient.products.queryProducts().limit(100).find();
@@ -961,6 +1073,8 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider value={{
       products,
       isLoadingProducts,
+      wixCollections,
+      categoryTaxonomy,
       mobileMenuOpen,
       setMobileMenuOpen,
       searchOpen,

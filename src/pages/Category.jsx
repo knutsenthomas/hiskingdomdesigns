@@ -5,18 +5,10 @@ import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 
-// natural category groupings
-export const CATEGORY_TAXONOMY = {
-  'Klær': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'],
-  'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
-  'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
-  'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
-  'Temaer & Budskap': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole'],
-  'Kampanjer & Formater': ['Høytider', 'CHRISTMAS', 'PÅSKE', 'SALG', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
-};
+
 
 export default function Category() {
-  const { products } = useApp();
+  const { products, categoryTaxonomy } = useApp();
   const { categoryName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -221,7 +213,7 @@ export default function Category() {
         <div>
           <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Kategorier</h3>
           <div className="space-y-3">
-            {Object.entries(CATEGORY_TAXONOMY).map(([group, cats]) => {
+            {Object.entries(categoryTaxonomy).map(([group, cats]) => {
               const isExpanded = expandedGroups[group];
               const selectedInGroup = cats.filter(c => selectedCategories.includes(c));
               return (

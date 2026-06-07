@@ -7,14 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import { media } from '@wix/sdk';
 
-// natural category groupings
-const CATEGORY_TAXONOMY = {
-  'Klær & Bekledning': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'],
-  'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
-  'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
-  'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
-  'Temaer, Kampanjer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
-};
+// Helper to safely extract and build profile image URL from Wix member object
 
 // Helper to safely extract and build profile image URL from Wix member object
 const getProfileImageUrl = (member) => {
@@ -40,7 +33,7 @@ const getProfileImageUrl = (member) => {
 };
 
 export default function Header() {
-  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist } = useApp();
+  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy } = useApp();
   const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
@@ -279,10 +272,10 @@ export default function Header() {
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Klær & Bekledning</h4>
                   <ul className="space-y-2.5">
-                    {CATEGORY_TAXONOMY['Klær & Bekledning'].map(sub => (
+                    {categoryTaxonomy['Klær & Bekledning']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${sub}`} 
+                           to={`/category/${sub}`} 
                           className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -291,15 +284,15 @@ export default function Header() {
                     ))}
                   </ul>
                 </div>
-
+ 
                 {/* Column 2: Bilder & Kunst */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Bilder & Kunst</h4>
                   <ul className="space-y-2.5">
-                    {CATEGORY_TAXONOMY['Bilder & Kunst'].map(sub => (
+                    {categoryTaxonomy['Bilder & Kunst']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${sub}`} 
+                           to={`/category/${sub}`} 
                           className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -308,15 +301,15 @@ export default function Header() {
                     ))}
                   </ul>
                 </div>
-
+ 
                 {/* Column 3: Tilbehør & Hjem */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Tilbehør & Hjem</h4>
                   <ul className="space-y-2.5">
-                    {CATEGORY_TAXONOMY['Tilbehør & Hjem'].map(sub => (
+                    {categoryTaxonomy['Tilbehør & Hjem']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                          to={`/category/${sub}`} 
+                           to={`/category/${sub}`} 
                           className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
@@ -325,7 +318,7 @@ export default function Header() {
                     ))}
                   </ul>
                 </div>
-
+ 
                 {/* Column 4: Temaer, Kampanjer & Språk */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
@@ -333,10 +326,10 @@ export default function Header() {
                     <div>
                       <h5 className="font-bold text-xs text-onyx mb-2">Barn & Familie</h5>
                       <ul className="space-y-2.5">
-                        {CATEGORY_TAXONOMY['Barn & Familie'].map(sub => (
+                        {categoryTaxonomy['Barn & Familie']?.map(sub => (
                           <li key={sub}>
                             <Link 
-                              to={`/category/${sub}`} 
+                               to={`/category/${sub}`} 
                               className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                             >
                               {sub}
@@ -346,40 +339,18 @@ export default function Header() {
                       </ul>
                     </div>
                     <div>
-                      <h5 className="font-bold text-xs text-onyx mb-2">Trosbudskap & Info</h5>
-                      <ul className="space-y-2.5">
-                        <li>
-                          <Link 
-                            to="/category/Jesus" 
-                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
-                          >
-                            Jesus
-                          </Link>
-                        </li>
-                        <li>
-                          <Link 
-                            to="/category/NORSKE produkter" 
-                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
-                          >
-                            Norske produkter
-                          </Link>
-                        </li>
-                        <li>
-                          <Link 
-                            to="/category/ENGLISH products" 
-                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
-                          >
-                            English products
-                          </Link>
-                        </li>
-                        <li>
-                          <Link 
-                            to="/category/Abonnement" 
-                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
-                          >
-                            Abonnementer
-                          </Link>
-                        </li>
+                      <h5 className="font-bold text-xs text-onyx mb-2">Andre Kategorier</h5>
+                      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 max-w-sm">
+                        {categoryTaxonomy['Temaer, Kampanjer & Språk']?.map(sub => (
+                          <li key={sub}>
+                            <Link 
+                              to={`/category/${sub}`} 
+                              className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
+                            >
+                              {sub}
+                            </Link>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   </div>
@@ -488,7 +459,7 @@ export default function Header() {
                 Alle Produkter
               </Link>
               
-              {Object.entries(CATEGORY_TAXONOMY).map(([group, cats]) => {
+              {Object.entries(categoryTaxonomy).map(([group, cats]) => {
                 const isExpanded = mobileExpandedGroup === group;
                 return (
                   <div key={group} className="border-b border-outline-variant/30 py-2">
@@ -507,7 +478,7 @@ export default function Header() {
                     
                     {isExpanded && (
                       <ul className="mt-2 pl-4 space-y-2.5">
-                        {cats.map(sub => (
+                        {cats?.map(sub => (
                           <li key={sub}>
                             <Link
                               to={`/category/${sub}`}
