@@ -156,7 +156,7 @@ export default function Profile() {
           if (savedOauthDataStr) {
             const savedOauthData = JSON.parse(savedOauthDataStr);
             const memberTokens = await wixClient.auth.getMemberTokens(code, state, {
-              codeVerifier: savedOauthData.codeVerifier,
+              ...savedOauthData,
               redirectUri: savedOauthData.redirectUri || (window.location.origin + '/profile')
             });
             await wixClient.auth.setTokens(memberTokens);
