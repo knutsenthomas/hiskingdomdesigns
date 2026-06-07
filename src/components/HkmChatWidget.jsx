@@ -155,6 +155,21 @@ export default function HkmChatWidget() {
     }
   }, [chatMode, conversationId, member]);
 
+  // Clear old conversationId from localStorage to migrate to contactId-based routing
+  useEffect(() => {
+    try {
+      const chatVersion = localStorage.getItem('hkd-chat-version');
+      if (chatVersion !== '2') {
+        console.log('Migrating chat to version 2 (contactId routing): clearing old conversationId');
+        localStorage.removeItem('hkd-inbox-conv-id');
+        localStorage.setItem('hkd-chat-version', '2');
+        setConversationId(null);
+      }
+    } catch (e) {
+      console.warn('Failed to migrate chat version in localStorage:', e);
+    }
+  }, []);
+
   const getMemberEmail = (m) => {
     if (m?.loginEmail) return m.loginEmail;
     const cdEmails = m?.contactDetails?.emails || [];
