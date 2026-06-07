@@ -336,7 +336,7 @@ export default function Profile() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -15 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop py-28"
+        className="max-w-lg mx-auto px-4 py-28"
       >
         <div className="bg-white rounded-3xl p-8 md:p-10 shadow-lg border border-outline-variant/30">
           {/* Tabs header */}
