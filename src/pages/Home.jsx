@@ -46,6 +46,12 @@ export default function Home() {
   const [testimonialsList, setTestimonialsList] = useState([]);
   const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(true);
 
+  // Newsletter States
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterError, setNewsletterError] = useState('');
+
   useEffect(() => {
     async function fetchPlans() {
       try {
@@ -109,6 +115,26 @@ export default function Home() {
     } catch (err) {
       console.error('Subscription redirect error:', err);
       alert('Det oppstod en feil ved opprettelse av abonnement. Vennligst prøv igjen.');
+    }
+  };
+
+  const handleNewsletterSubscribe = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterLoading(true);
+    setNewsletterError('');
+    try {
+      await wixClient.contacts.appendOrCreateContact({
+        emails: [{ email: newsletterEmail }]
+      });
+      setNewsletterSubscribed(true);
+      setNewsletterEmail('');
+      setTimeout(() => setNewsletterSubscribed(false), 5000);
+    } catch (err) {
+      console.error('Error subscribing email to Wix CRM from Home page:', err);
+      setNewsletterError('Det oppstod en feil. Vennligst prøv igjen.');
+    } finally {
+      setNewsletterLoading(false);
     }
   };
 
@@ -595,20 +621,30 @@ export default function Home() {
               as="p"
               className="font-body-md text-body-md text-parchment/70 mb-10"
             />
-            <form className="flex flex-col sm:flex-row gap-4 justify-center">
+            <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row gap-4 justify-center">
               <input 
-                className="bg-white/10 border border-white/20 text-white px-6 py-4 rounded-lg focus:outline-none focus:border-terracotta transition-colors placeholder:text-white/40 w-full sm:max-w-md" 
+                className="bg-white/10 border border-white/20 text-white px-6 py-4 rounded-lg focus:outline-none focus:border-terracotta transition-colors placeholder:text-white/40 w-full sm:max-w-md disabled:opacity-50" 
                 placeholder="Din e-postadresse" 
                 type="email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                disabled={newsletterLoading}
                 required
               />
               <button 
-                className="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap active:scale-95" 
+                className="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap active:scale-95 disabled:opacity-50" 
                 type="submit"
+                disabled={newsletterLoading}
               >
-                Meld meg på
+                {newsletterLoading ? 'Sender...' : 'Meld meg på'}
               </button>
             </form>
+            {newsletterSubscribed && (
+              <p className="text-green-400 text-xs mt-3 animate-pulse">Takk! Du er nå påmeldt nyhetsbrevet.</p>
+            )}
+            {newsletterError && (
+              <p className="text-red-400 text-xs mt-3">{newsletterError}</p>
+            )}
             <CmsText slug="home-newsletter-privacy" fallback="Vi respekterer ditt personvern. Avmeld deg når som helst." as="p" className="text-label-sm text-parchment/40 mt-4" />
           </div>
         </div>
