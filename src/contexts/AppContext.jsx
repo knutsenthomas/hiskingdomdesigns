@@ -289,10 +289,19 @@ export const AppProvider = ({ children }) => {
           if (item.productOptions) {
             const sizeOpt = item.productOptions.find(o => {
               const name = o.name?.toLowerCase();
-              return name === 'size' || name === 'størrelse' || name === 'choose your option';
+              return name.includes('size') || name.includes('størrelse') || name.includes('format');
             });
             if (sizeOpt) {
-              sizes = sizeOpt.choices?.map(c => c.value) || [];
+              const rawSizes = sizeOpt.choices?.map(c => c.value) || [];
+              sizes = rawSizes.filter(s => {
+                if (!s) return false;
+                if (s.length > 15) return false;
+                const lower = s.toLowerCase();
+                if (lower.includes('sticker') || lower.includes('mug') || lower.includes('kopp') || lower.includes('flaske') || lower.includes('valg') || lower.includes('option') || lower.includes('pega') || lower.includes('norsk') || lower.includes('english')) {
+                  return false;
+                }
+                return true;
+              });
             }
 
             const colorOpt = item.productOptions.find(o => {
