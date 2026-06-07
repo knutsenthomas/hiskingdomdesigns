@@ -148,6 +148,13 @@ export default function HkmChatWidget() {
     return () => window.removeEventListener('wix-auth-change', checkMember);
   }, []);
 
+  // Auto-start live chat once member is loaded if in live mode
+  useEffect(() => {
+    if (chatMode === 'live' && !conversationId && !isCreatingConv && wixClient.auth.loggedIn() && member) {
+      startLiveChat(getMemberEmail(member) || 'member@hiskingdom.no', displayName);
+    }
+  }, [chatMode, conversationId, member]);
+
   const getMemberEmail = (m) => {
     if (m?.loginEmail) return m.loginEmail;
     const cdEmails = m?.contactDetails?.emails || [];
@@ -387,10 +394,62 @@ export default function HkmChatWidget() {
 
   const handleLiveMessageSubmit = async (e) => {
     e.preventDefault();
-    if (!inputText.trim() || !conversationId) return;
+    if (!inputText.trim()) return;
 
     const textToSend = inputText.trim();
     setInputText('');
+
+    let activeConvId = conversationId;
+
+    if (!activeConvId) {
+      setIsCreatingConv(true);
+      setChatError('');
+      try {
+        const host = window.location.origin;
+        const payload = {};
+        if (wixClient.auth.loggedIn() && member) {
+          payload.memberId = member._id;
+        } else if (contactEmail && contactName) {
+          payload.email = contactEmail;
+          payload.name = contactName;
+        } else {
+          const anonId = localStorage.getItem('hkd-chat-anon-id') || crypto.randomUUID();
+          localStorage.setItem('hkd-chat-anon-id', anonId);
+          payload.anonymousVisitorId = anonId;
+        }
+
+        console.log('Auto-creating conversation on send with payload:', payload);
+        const apiRes = await fetchWithTimeout(
+          fetch(`${host}/api/get-or-create-conversation`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).then(async (r) => {
+            if (!r.ok) {
+              const errJson = await r.json().catch(() => ({}));
+              throw new Error(errJson.error || `HTTP error ${r.status}`);
+            }
+            return r.json();
+          }),
+          5000
+        );
+
+        if (apiRes && apiRes.conversation) {
+          activeConvId = apiRes.conversation._id;
+          setConversationId(activeConvId);
+          localStorage.setItem('hkd-inbox-conv-id', activeConvId);
+          setNeedsContactInfo(false);
+        } else {
+          throw new Error('Kunne ikke opprette samtale');
+        }
+      } catch (err) {
+        console.error('Failed to auto-create conversation on send:', err);
+        setChatError('Kunne ikke starte chat: ' + (err.message || 'Tilkoblingsfeil'));
+        setIsCreatingConv(false);
+        return;
+      }
+      setIsCreatingConv(false);
+    }
 
     const optMsg = {
       id: `msg-user-opt-${Date.now()}`,
@@ -419,7 +478,7 @@ export default function HkmChatWidget() {
         fetch(`${host}/api/send-message`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ conversationId, message: messagePayload })
+          body: JSON.stringify({ conversationId: activeConvId, message: messagePayload })
         }).then(async (r) => {
           if (!r.ok) {
             const errJson = await r.json().catch(() => ({}));
@@ -429,12 +488,12 @@ export default function HkmChatWidget() {
         }),
         5000
       );
-      fetchLiveMessages(conversationId);
+      fetchLiveMessages(activeConvId);
     } catch (err) {
       console.error('Failed to send message to Wix Inbox:', err);
       const errStr = err.message || '';
       if (errStr.includes('400') || errStr.includes('404') || errStr.includes('conversation_id')) {
-        console.warn('Resetting invalid Wix Inbox conversationId on send failure:', conversationId);
+        console.warn('Resetting invalid Wix Inbox conversationId on send failure:', activeConvId);
         setConversationId(null);
         localStorage.removeItem('hkd-inbox-conv-id');
       }
@@ -723,7 +782,7 @@ export default function HkmChatWidget() {
                     placeholder={chatMode === 'ai' ? "Skriv din melding her..." : "Skriv din melding til butikken..."}
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    disabled={chatMode === 'live' && !conversationId}
+                    disabled={isCreatingConv || (chatMode === 'live' && needsContactInfo)}
                     className="w-full bg-slate-50 border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta transition-all font-medium text-onyx"
                   />
                   <button
