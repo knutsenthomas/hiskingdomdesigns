@@ -608,7 +608,7 @@ export default function Profile() {
         </aside>
 
         {/* Right column - Dashboard Details */}
-        <div className="flex-grow w-full space-y-8">
+        <div className="flex-grow w-full min-w-0 space-y-8">
           
           {/* Tab selector */}
           <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1">
@@ -899,7 +899,7 @@ export default function Profile() {
           {debugInfo && (
             <div className="bg-slate-100 border border-slate-200 text-slate-800 text-[10px] p-4 rounded-xl mt-8 font-mono max-w-full overflow-x-auto">
               <p className="font-bold mb-1">🔍 Wix Headless Diagnostics:</p>
-              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+              <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo, null, 2)}</pre>
             </div>
           )}
         </div>
