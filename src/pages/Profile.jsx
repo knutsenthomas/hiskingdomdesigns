@@ -138,9 +138,16 @@ export default function Profile() {
   useEffect(() => {
     async function handleAuthCallback() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        const state = params.get('state');
+        const searchParams = new URLSearchParams(window.location.search);
+        
+        // Also check window.location.hash since OAuth callbacks can return params in hash fragment
+        const cleanHash = window.location.hash.startsWith('#') 
+          ? window.location.hash.substring(1) 
+          : window.location.hash;
+        const hashParams = new URLSearchParams(cleanHash);
+
+        const code = searchParams.get('code') || hashParams.get('code');
+        const state = searchParams.get('state') || hashParams.get('state');
         
         if (code && state) {
           setIsLoading(true);
@@ -158,8 +165,8 @@ export default function Profile() {
             alert('Kunne ikke fullføre innlogging: Ingen påloggingsøkt ble funnet lokalt. Vennligst prøv igjen.');
           }
           localStorage.removeItem('hkd-oauth-data');
-          // Clear query params from URL
-          const newUrl = window.location.pathname + window.location.hash;
+          // Clear query params and hash from URL
+          const newUrl = window.location.pathname;
           window.history.replaceState({}, document.title, newUrl);
           setRefreshKey(prev => prev + 1);
         }
