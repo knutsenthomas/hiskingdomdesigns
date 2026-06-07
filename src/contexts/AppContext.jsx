@@ -206,6 +206,41 @@ export const AppProvider = ({ children }) => {
   });
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Wishlist States
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hkd-wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hkd-wishlist', JSON.stringify(wishlist));
+    } catch (e) {
+      console.error('Failed to save wishlist to localStorage', e);
+    }
+  }, [wishlist]);
+
+  const toggleWishlist = (product) => {
+    setWishlist(prev => {
+      const exists = prev.some(p => p.id === product.id);
+      if (exists) {
+        showToast(`Fjernet "${product.name}" fra ønskelisten`);
+        return prev.filter(p => p.id !== product.id);
+      } else {
+        showToast(`Lagt til "${product.name}" i ønskelisten`);
+        return [...prev, product];
+      }
+    });
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlist.some(p => p.id === productId);
+  };
+
   const showToast = (message) => {
     setToastMessage(message);
     setTimeout(() => {
@@ -575,7 +610,10 @@ export const AppProvider = ({ children }) => {
       cmsContent,
       updateCmsContent,
       toastMessage,
-      showToast
+      showToast,
+      wishlist,
+      toggleWishlist,
+      isInWishlist
     }}>
       {children}
     </AppContext.Provider>

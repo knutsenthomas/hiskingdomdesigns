@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck } from 'lucide-react';
+import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck, Heart } from 'lucide-react';
 import { wixClient } from '@/lib/wix';
+import { useApp } from '@/contexts/AppContext';
+import { useCart } from '@/contexts/CartContext';
+import { Link } from 'react-router-dom';
 
 export default function Profile() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
   const [loginTab, setLoginTab] = useState('login'); // 'login' | 'register'
+  const [activeTab, setActiveTab] = useState('dashboard');
+  
+  const { wishlist, toggleWishlist } = useApp();
+  const { addToCart } = useCart();
   
   // Login form state
   const [email, setEmail] = useState('');
@@ -19,6 +26,81 @@ export default function Profile() {
   const [ordersList, setOrdersList] = useState([]);
   const [subscriptionsList, setSubscriptionsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Address book form state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [addressLine, setAddressLine] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [city, setCity] = useState('');
+  
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
+  const [addressSuccess, setAddressSuccess] = useState(false);
+  const [addressError, setAddressError] = useState('');
+
+  // Handle tab from URL search parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'wishlist') {
+      setActiveTab('wishlist');
+    } else if (tabParam === 'address') {
+      setActiveTab('address');
+    } else {
+      setActiveTab('dashboard');
+    }
+  }, [window.location.search]);
+
+  // Sync form states with member info
+  useEffect(() => {
+    if (member) {
+      setFirstName(member.contact?.firstName || '');
+      setLastName(member.contact?.lastName || '');
+      setPhone(member.contact?.phones?.[0] || '');
+      const addr = member.contact?.addresses?.[0];
+      setAddressLine(addr?.addressLine || '');
+      setPostalCode(addr?.postalCode || '');
+      setCity(addr?.city || '');
+    }
+  }, [member]);
+
+  const handleAddressSubmit = async (e) => {
+    e.preventDefault();
+    setIsUpdatingAddress(true);
+    setAddressSuccess(false);
+    setAddressError('');
+    try {
+      console.log('Updating member address book in Wix...');
+      const updated = await wixClient.members.updateMember(member._id, {
+        member: {
+          contact: {
+            firstName: firstName,
+            lastName: lastName,
+            phones: phone ? [phone] : [],
+            addresses: [
+              {
+                addressLine: addressLine,
+                postalCode: postalCode,
+                city: city,
+                country: 'NO'
+              }
+            ]
+          }
+        }
+      });
+      console.log('Successfully updated member address:', updated);
+      setMember(updated);
+      setAddressSuccess(true);
+      setTimeout(() => setAddressSuccess(false), 3000);
+      setRefreshKey(prev => prev + 1); // Refresh page data
+    } catch (err) {
+      console.error('Failed to update member address in Wix:', err);
+      setAddressError('Klarte ikke å lagre adresse. Prøv igjen.');
+    } finally {
+      setIsUpdatingAddress(false);
+    }
+  };
 
   const MOCK_ORDERS = [
     { 
@@ -422,90 +504,292 @@ export default function Profile() {
         {/* Right column - Dashboard Details */}
         <div className="flex-grow w-full space-y-8">
           
-          {/* Order history */}
-          <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6">
-            <div className="flex items-center gap-3 text-terracotta">
-              <ShoppingBag size={22} />
-              <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Ordrehistorikk</h3>
-            </div>
+          {/* Tab selector */}
+          <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
+                activeTab === 'dashboard' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+              }`}
+            >
+              Dashbord
+              {activeTab === 'dashboard' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('wishlist')}
+              className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
+                activeTab === 'wishlist' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+              }`}
+            >
+              Min Ønskeliste ({wishlist.length})
+              {activeTab === 'wishlist' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('address')}
+              className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
+                activeTab === 'address' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+              }`}
+            >
+              Adressebok
+              {activeTab === 'address' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
+              )}
+            </button>
+          </div>
 
-            {ordersList.length > 0 ? (
-              <div className="space-y-4">
-                {ordersList.map(order => {
-                  const dateStr = order._createdDate 
-                    ? new Date(order._createdDate).toLocaleDateString('no-NO') 
-                    : 'Ukjent dato';
-                  const itemsStr = order.lineItems 
-                    ? order.lineItems.map(item => `${item.name || item.productName?.translated} (x${item.quantity})`).join(', ')
-                    : 'Ingen varebeskrivelse';
-                  const totalStr = order.priceSummary?.total?.amount || '0';
+          {activeTab === 'dashboard' && (
+            <>
+              {/* Order history */}
+              <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
+                <div className="flex items-center gap-3 text-terracotta">
+                  <ShoppingBag size={22} />
+                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Ordrehistorikk</h3>
+                </div>
 
-                  return (
-                    <div key={order._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-outline transition-colors bg-slate-50/20">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <span className="font-label-md text-onyx font-bold text-sm">Ordre #{order._id?.substring(0, 8)}</span>
-                          <span className="text-xs text-secondary/60">• {dateStr}</span>
+                {ordersList.length > 0 ? (
+                  <div className="space-y-4">
+                    {ordersList.map(order => {
+                      const dateStr = order._createdDate 
+                        ? new Date(order._createdDate).toLocaleDateString('no-NO') 
+                        : 'Ukjent dato';
+                      const itemsStr = order.lineItems 
+                        ? order.lineItems.map(item => `${item.name || item.productName?.translated} (x${item.quantity})`).join(', ')
+                        : 'Ingen varebeskrivelse';
+                      const totalStr = order.priceSummary?.total?.amount || '0';
+
+                      return (
+                        <div key={order._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-outline transition-colors bg-slate-50/20">
+                          <div>
+                            <div className="flex items-center gap-3 mb-1">
+                              <span className="font-label-md text-onyx font-bold text-sm">Ordre #{order._id?.substring(0, 8)}</span>
+                              <span className="text-xs text-secondary/60">• {dateStr}</span>
+                            </div>
+                            <p className="font-body-sm text-secondary text-xs line-clamp-1">{itemsStr}</p>
+                          </div>
+                          <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
+                            <div>
+                              <span className="text-xs text-secondary block">Totalpris</span>
+                              <span className="font-label-md text-onyx font-bold">{totalStr} kr</span>
+                            </div>
+                            <span className="bg-green-100 text-green-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                              {translateStatus(order.status)}
+                            </span>
+                          </div>
                         </div>
-                        <p className="font-body-sm text-secondary text-xs line-clamp-1">{itemsStr}</p>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-secondary font-body-md text-sm">Du har ikke lagt inn noen bestillinger ennå.</p>
+                )}
+              </section>
+
+              {/* Subscriptions */}
+              <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 text-terracotta">
+                  <Package size={22} />
+                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Dine Månedspakker</h3>
+                </div>
+
+                {subscriptionsList.length > 0 ? (
+                  <div className="space-y-4">
+                    {subscriptionsList.map(sub => {
+                      const subPrice = sub.price?.amount || '0';
+                      const subNextDate = sub.nextShipmentDate 
+                        ? new Date(sub.nextShipmentDate).toLocaleDateString('no-NO') 
+                        : '10. mnd';
+                      return (
+                        <div key={sub._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/20">
+                          <div>
+                            <h4 className="font-label-md text-onyx font-bold text-sm mb-1">{sub.planName}</h4>
+                            <p className="text-xs text-secondary">
+                              Neste sending: <strong className="text-onyx">{subNextDate}</strong> (fraktes gratis)
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
+                            <div>
+                              <span className="text-xs text-secondary block">Månedspris</span>
+                              <span className="font-label-md text-terracotta font-bold">{subPrice} kr/mnd</span>
+                            </div>
+                            <span className="bg-emerald-100 text-emerald-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                              {translateStatus(sub.status)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-secondary font-body-md text-sm">Du abonnerer ikke på noen månedspakker for øyeblikket.</p>
+                )}
+              </section>
+            </>
+          )}
+
+          {activeTab === 'wishlist' && (
+            <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
+              <div className="flex items-center gap-3 text-terracotta">
+                <Heart size={22} className="fill-current" />
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Min Ønskeliste</h3>
+              </div>
+              
+              {wishlist.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {wishlist.map(item => (
+                    <div key={item.id} className="border border-outline-variant/30 rounded-xl p-4 flex gap-4 hover:border-outline transition-all bg-slate-50/10 relative group">
+                      <div className="w-20 h-20 bg-parchment rounded-lg overflow-hidden flex items-center justify-center p-2 border border-outline-variant/15 flex-shrink-0">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-contain rounded" />
                       </div>
-                      <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
+                      <div className="flex-grow flex flex-col justify-between">
                         <div>
-                          <span className="text-xs text-secondary block">Totalpris</span>
-                          <span className="font-label-md text-onyx font-bold">{totalStr} kr</span>
+                          <h4 className="font-headline-md text-onyx font-bold text-sm line-clamp-1">
+                            <Link to={`/product/${item.id}`} className="hover:text-terracotta transition-colors">{item.name}</Link>
+                          </h4>
+                          <span className="font-label-md text-terracotta font-semibold text-xs mt-1 block">{item.price} kr</span>
                         </div>
-                        <span className="bg-green-100 text-green-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
-                          {translateStatus(order.status)}
-                        </span>
+                        <div className="flex gap-3 mt-2">
+                          <button
+                            onClick={() => {
+                              const defaultSize = item.sizes?.[0] || 'M';
+                              const defaultColor = item.colorNames?.[0] || 'Hvit';
+                              addToCart(item, defaultSize, defaultColor, 1);
+                            }}
+                            className="bg-terracotta text-white font-label-md text-[11px] px-3 py-1.5 rounded-lg hover:opacity-95 active:scale-95 transition-all shadow-md font-semibold flex items-center gap-1 cursor-pointer"
+                          >
+                            <ShoppingBag size={12} />
+                            Legg i kurv
+                          </button>
+                          <button
+                            onClick={() => toggleWishlist(item)}
+                            className="text-secondary hover:text-red-500 font-label-md text-[11px] transition-colors cursor-pointer"
+                          >
+                            Fjern
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-secondary font-body-md text-sm">Du har ikke lagt inn noen bestillinger ennå.</p>
-            )}
-          </section>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <p className="text-secondary font-body-md text-sm mb-4">Ønskelisten din er tom.</p>
+                  <Link to="/products" className="inline-flex items-center gap-1 text-terracotta font-bold hover:underline text-xs">
+                    Utforsk produkter &rarr;
+                  </Link>
+                </div>
+              )}
+            </section>
+          )}
 
-          {/* Subscriptions */}
-          <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6">
-            <div className="flex items-center gap-3 text-terracotta">
-              <Package size={22} />
-              <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Dine Månedspakker</h3>
-            </div>
-
-            {subscriptionsList.length > 0 ? (
-              <div className="space-y-4">
-                {subscriptionsList.map(sub => {
-                  const subPrice = sub.price?.amount || '0';
-                  const subNextDate = sub.nextShipmentDate 
-                    ? new Date(sub.nextShipmentDate).toLocaleDateString('no-NO') 
-                    : '10. mnd';
-                  return (
-                    <div key={sub._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/20">
-                      <div>
-                        <h4 className="font-label-md text-onyx font-bold text-sm mb-1">{sub.planName}</h4>
-                        <p className="text-xs text-secondary">
-                          Neste sending: <strong className="text-onyx">{subNextDate}</strong> (fraktes gratis)
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
-                        <div>
-                          <span className="text-xs text-secondary block">Månedspris</span>
-                          <span className="font-label-md text-terracotta font-bold">{subPrice} kr/mnd</span>
-                        </div>
-                        <span className="bg-emerald-100 text-emerald-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
-                          {translateStatus(sub.status)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+          {activeTab === 'address' && (
+            <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
+              <div className="flex items-center gap-3 text-terracotta">
+                <User size={22} />
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Adressebok</h3>
               </div>
-            ) : (
-              <p className="text-secondary font-body-md text-sm">Du abonnerer ikke på noen månedspakker for øyeblikket.</p>
-            )}
-          </section>
+              <p className="text-xs text-secondary leading-relaxed">
+                Oppdater leveringsinformasjonen din. Denne informasjonen lagres direkte i Wix-medlemsprofilen din og vil automatisk fylles ut når du går til kassen.
+              </p>
+              
+              <form onSubmit={handleAddressSubmit} className="space-y-4">
+                {addressSuccess && (
+                  <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
+                    ✓ Endringene er lagret!
+                  </div>
+                )}
+                {addressError && (
+                  <div className="bg-red-50 text-red-600 text-xs p-3 rounded-lg border border-red-200 font-medium">
+                    {addressError}
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Fornavn</label>
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      disabled={isUpdatingAddress}
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Etternavn</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      disabled={isUpdatingAddress}
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Telefonnummer</label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      disabled={isUpdatingAddress}
+                      placeholder="F.eks. 98765432"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Gateadresse</label>
+                    <input
+                      type="text"
+                      value={addressLine}
+                      onChange={(e) => setAddressLine(e.target.value)}
+                      disabled={isUpdatingAddress}
+                      placeholder="Gate og nummer"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex flex-col sm:col-span-1">
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Postnummer</label>
+                    <input
+                      type="text"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      disabled={isUpdatingAddress}
+                      placeholder="4 sifre"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+                  <div className="flex flex-col sm:col-span-2">
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Poststed</label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      disabled={isUpdatingAddress}
+                      placeholder="Mandal"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isUpdatingAddress}
+                  className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                >
+                  {isUpdatingAddress ? 'Lagrer...' : 'Lagre endringer'}
+                </button>
+              </form>
+            </section>
+          )}
         </div>
       </div>
     </motion.main>

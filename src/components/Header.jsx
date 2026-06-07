@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,7 +15,7 @@ const CATEGORY_TAXONOMY = {
 };
 
 export default function Header() {
-  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery } = useApp();
+  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist } = useApp();
   const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
@@ -128,6 +128,19 @@ export default function Header() {
               aria-label="Profil"
             >
               <User size={20} />
+            </Link>
+
+            <Link 
+              to="/profile?tab=wishlist"
+              className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all relative"
+              aria-label="Ønskeliste"
+            >
+              <Heart size={20} />
+              {wishlist.length > 0 && (
+                <span className="absolute top-0 right-0 bg-terracotta text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
+                  {wishlist.length}
+                </span>
+              )}
             </Link>
 
             <Link 
@@ -440,6 +453,15 @@ export default function Header() {
               >
                 <User size={20} className="text-terracotta" />
                 <span>Min Profil</span>
+              </Link>
+
+              <Link 
+                to="/profile?tab=wishlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-body-lg font-bold py-2 border-b border-outline-variant/30 text-onyx flex items-center gap-2"
+              >
+                <Heart size={20} className="text-terracotta" />
+                <span>Min Ønskeliste ({wishlist.length})</span>
               </Link>
             </div>
           </nav>

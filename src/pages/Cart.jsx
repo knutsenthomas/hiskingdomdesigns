@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowLeft, ArrowRight, Truck, ShieldCheck, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
@@ -21,12 +21,46 @@ export default function Cart() {
     isApplyingCoupon,
     applyCouponCode,
     removeCoupon,
-    mapCartItemsToWixLineItems
+    appliedGiftCard,
+    giftCardError,
+    isApplyingGiftCard,
+    applyGiftCardCode,
+    removeGiftCard,
+    mapCartItemsToWixLineItems,
+    isEstimated,
+    isEstimating,
+    estimateError,
+    shippingAddress,
+    estimateShippingAndTotals,
+    clearEstimation
   } = useCart();
   const navigate = useNavigate();
   const [checkoutStep, setCheckoutStep] = useState(null); // 'billing' | 'success'
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Auto-prefill and calculate shipping from logged-in member's saved address on mount
+  useEffect(() => {
+    async function loadMemberAddress() {
+      if (wixClient.auth.loggedIn()) {
+        try {
+          const res = await wixClient.members.getCurrentMember();
+          const memberAddr = res?.member?.contact?.addresses?.[0];
+          if (memberAddr && memberAddr.address?.postalCode && memberAddr.address?.city) {
+            console.log('Auto-prefilling shipping address from member profile:', memberAddr.address);
+            estimateShippingAndTotals(
+              memberAddr.address.postalCode,
+              memberAddr.address.city,
+              memberAddr.address.country || 'NO'
+            );
+          }
+        } catch (err) {
+          console.warn('Could not auto-fill shipping estimate from profile:', err);
+        }
+      }
+    }
+    loadMemberAddress();
+  }, []);
 
   const handleCheckout = async () => {
     setIsRedirecting(true);
@@ -42,6 +76,7 @@ export default function Cart() {
 
       let checkoutId = checkoutResult._id;
 
+      // Apply coupon code if active
       if (appliedCoupon) {
         try {
           checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {
@@ -54,6 +89,18 @@ export default function Cart() {
           checkoutId = checkoutResult._id;
         } catch (couponErr) {
           console.warn('Could not apply coupon to checkout redirect:', couponErr);
+        }
+      }
+
+      // Apply gift card code if active
+      if (appliedGiftCard) {
+        try {
+          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {}, {
+            giftCardCode: appliedGiftCard.code
+          });
+          checkoutId = checkoutResult._id;
+        } catch (giftCardErr) {
+          console.warn('Could not apply gift card to checkout redirect:', giftCardErr);
         }
       }
 
@@ -340,13 +387,28 @@ export default function Cart() {
                     Rabatt ({appliedCoupon.code})
                     <button 
                       onClick={removeCoupon} 
-                      className="text-[10px] text-red-500 hover:underline hover:text-red-700 font-normal"
+                      className="text-[10px] text-red-500 hover:underline hover:text-red-700 font-normal cursor-pointer"
                       title="Fjern rabattkode"
                     >
                       (Fjern)
                     </button>
                   </span>
                   <span className="font-bold">-{appliedCoupon.discount} kr</span>
+                </div>
+              )}
+              {appliedGiftCard && (
+                <div className="flex justify-between font-body-md text-emerald-600">
+                  <span className="flex items-center gap-1">
+                    Gavekort ({appliedGiftCard.obfuscatedCode || appliedGiftCard.code})
+                    <button 
+                      onClick={removeGiftCard} 
+                      className="text-[10px] text-red-500 hover:underline hover:text-red-700 font-normal cursor-pointer"
+                      title="Fjern gavekort"
+                    >
+                      (Fjern)
+                    </button>
+                  </span>
+                  <span className="font-bold">-{appliedGiftCard.amount} kr</span>
                 </div>
               )}
               <div className="flex justify-between font-body-md text-secondary">
@@ -388,12 +450,12 @@ export default function Cart() {
                     name="couponInput"
                     placeholder="Skriv rabattkode..." 
                     disabled={isApplyingCoupon}
-                    className="flex-grow bg-slate-50 border border-outline-variant rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta disabled:opacity-50" 
+                    className="flex-grow bg-slate-50 border border-outline-variant rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta disabled:opacity-50 text-onyx" 
                   />
                   <button 
                     type="submit"
                     disabled={isApplyingCoupon}
-                    className="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 shrink-0"
+                    className="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
                   >
                     {isApplyingCoupon ? 'Sjekker...' : 'Bruk'}
                   </button>
@@ -406,6 +468,126 @@ export default function Cart() {
                     <span className="material-symbols-outlined text-[12px] font-bold">done</span>
                     Kupong aktivert! Du sparer {appliedCoupon.discount} kr.
                   </p>
+                )}
+              </div>
+            )}
+
+            {/* Gift Card Form */}
+            {checkoutStep !== 'billing' && (
+              <div className="mb-6 pt-4 border-t border-slate-100">
+                <span className="block text-xs font-semibold text-onyx uppercase mb-2">Gavekort</span>
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const code = e.currentTarget.giftCardInput.value;
+                    const success = await applyGiftCardCode(code);
+                    if (success) {
+                      e.currentTarget.reset();
+                    }
+                  }} 
+                  className="flex gap-2"
+                >
+                  <input 
+                    type="text" 
+                    name="giftCardInput"
+                    placeholder="Skriv gavekortkode..." 
+                    disabled={isApplyingGiftCard}
+                    className="flex-grow bg-slate-50 border border-outline-variant rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta disabled:opacity-50 text-onyx" 
+                  />
+                  <button 
+                    type="submit"
+                    disabled={isApplyingGiftCard}
+                    className="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
+                  >
+                    {isApplyingGiftCard ? 'Sjekker...' : 'Bruk'}
+                  </button>
+                </form>
+                {giftCardError && (
+                  <p className="text-[11px] text-red-600 font-semibold mt-1">{giftCardError}</p>
+                )}
+                {appliedGiftCard && (
+                  <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px] font-bold">done</span>
+                    Gavekort aktivert! Verdi: {appliedGiftCard.amount} kr.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Shipping & Tax Estimator */}
+            {checkoutStep !== 'billing' && (
+              <div className="mb-6 pt-4 border-t border-slate-100">
+                <span className="block text-xs font-semibold text-onyx uppercase mb-2">Beregn frakt & avgifter</span>
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const postalCode = e.currentTarget.postalInput.value;
+                    const city = e.currentTarget.cityInput.value;
+                    const country = e.currentTarget.countrySelect.value;
+                    await estimateShippingAndTotals(postalCode, city, country);
+                  }} 
+                  className="block space-y-2.5"
+                >
+                  <div className="block">
+                    <label className="block text-[10px] text-secondary font-medium mb-1">Land</label>
+                    <select 
+                      name="countrySelect"
+                      className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                    >
+                      <option value="NO">Norge</option>
+                      <option value="SE">Sverige</option>
+                      <option value="DK">Danmark</option>
+                    </select>
+                  </div>
+                  
+                  <div className="block">
+                    <label className="block text-[10px] text-secondary font-medium mb-1">Postnummer</label>
+                    <input 
+                      type="text" 
+                      name="postalInput"
+                      required
+                      placeholder="F.eks. 4515" 
+                      defaultValue={shippingAddress?.postalCode || ''}
+                      className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" 
+                    />
+                  </div>
+
+                  <div className="block">
+                    <label className="block text-[10px] text-secondary font-medium mb-1">Poststed</label>
+                    <input 
+                      type="text" 
+                      name="cityInput"
+                      required
+                      placeholder="F.eks. Mandal" 
+                      defaultValue={shippingAddress?.city || ''}
+                      className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" 
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    disabled={isEstimating}
+                    className="block w-full bg-slate-800 text-white font-bold py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {isEstimating ? 'Beregner...' : 'Beregn frakt'}
+                  </button>
+                </form>
+                {estimateError && (
+                  <p className="text-[11px] text-red-600 font-semibold mt-1.5">{estimateError}</p>
+                )}
+                {isEstimated && (
+                  <div className="mt-2.5 p-2.5 bg-emerald-50 rounded-lg border border-emerald-100 flex items-center justify-between text-xs">
+                    <div className="text-emerald-800 font-medium flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">done</span>
+                      <span>Frakt beregnet for {shippingAddress.postalCode} {shippingAddress.city}!</span>
+                    </div>
+                    <button 
+                      onClick={clearEstimation}
+                      className="text-[10px] text-secondary hover:text-red-500 hover:underline"
+                    >
+                      Nullstill
+                    </button>
+                  </div>
                 )}
               </div>
             )}

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Check } from 'lucide-react';
+import { ShoppingCart, Check, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useApp } from '@/contexts/AppContext';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useApp();
   const [added, setAdded] = useState(false);
+  const isWishlisted = isInWishlist(product.id);
 
   const handleQuickAdd = (e) => {
     e.preventDefault(); // Stop navigation to details page
@@ -23,6 +26,19 @@ export default function ProductCard({ product }) {
   return (
     <article className="group relative bg-white border border-outline-variant/50 hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden flex flex-col h-full">
       <Link to={`/product/${product.id}`} className="block relative aspect-[0.92] overflow-hidden bg-parchment flex-shrink-0">
+        {/* Wishlist Heart Button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist(product);
+          }}
+          className="absolute top-4 right-4 z-10 bg-white/95 p-2 rounded-full shadow-md hover:bg-slate-50 hover:scale-110 active:scale-95 transition-all text-terracotta"
+          title={isWishlisted ? "Fjern fra ønskelisten" : "Legg i ønskelisten"}
+        >
+          <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} className={isWishlisted ? "text-terracotta fill-terracotta scale-105" : "text-terracotta/75 hover:text-terracotta"} />
+        </button>
+
         {/* Badges */}
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
           {product.isSale && (

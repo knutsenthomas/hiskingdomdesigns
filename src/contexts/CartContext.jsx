@@ -122,6 +122,96 @@ export const CartProvider = ({ children }) => {
     }
   }, [appliedCoupon]);
 
+  // Sync local cart to Wix currentCart for Abandoned Cart recovery
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(async () => {
+      try {
+        console.log('Synchronizing local cart with Wix currentCart...');
+        const wixCartRes = await wixClient.currentCart.getCurrentCart();
+        if (!active) return;
+        
+        const wixLineItems = wixCartRes.lineItems || [];
+        const localMapped = mapCartItemsToWixLineItems(cartItems);
+        
+        // 1. Find items in Wix cart that are NOT in local cart and remove them
+        const itemsToRemove = [];
+        wixLineItems.forEach(wixItem => {
+          const localMatch = localMapped.find(loc => {
+            const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
+            const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
+            
+            // Check if variant or options match
+            const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
+            
+            // Safe option match comparison
+            const wixOptions = wixItem.catalogReference?.options?.options || {};
+            const locOptions = loc.catalogReference.options?.options || {};
+            const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
+            
+            return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
+          });
+          
+          if (!localMatch) {
+            itemsToRemove.push(wixItem._id);
+          }
+        });
+        
+        if (itemsToRemove.length > 0) {
+          console.log('Removing items from Wix cart:', itemsToRemove);
+          await wixClient.currentCart.removeLineItemsFromCurrentCart(itemsToRemove);
+        }
+        
+        // Re-fetch cart if we removed items to get updated IDs and revisions
+        let updatedWixCart = wixCartRes;
+        if (itemsToRemove.length > 0) {
+          updatedWixCart = await wixClient.currentCart.getCurrentCart();
+        }
+        const updatedWixLineItems = updatedWixCart.lineItems || [];
+        
+        // 2. Add or update remaining items
+        for (const loc of localMapped) {
+          const wixMatch = updatedWixLineItems.find(wixItem => {
+            const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
+            const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
+            const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
+            
+            const wixOptions = wixItem.catalogReference?.options?.options || {};
+            const locOptions = loc.catalogReference.options?.options || {};
+            const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
+            
+            return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
+          });
+          
+          if (wixMatch) {
+            if (wixMatch.quantity !== loc.quantity) {
+              console.log(`Updating quantity for Wix line item ${wixMatch._id} to ${loc.quantity}`);
+              await wixClient.currentCart.updateCurrentCartLineItemQuantity([
+                {
+                  _id: wixMatch._id,
+                  quantity: loc.quantity
+                }
+              ]);
+            }
+          } else {
+            console.log('Adding item to Wix cart:', loc);
+            await wixClient.currentCart.addToCurrentCart({
+              lineItems: [loc]
+            });
+          }
+        }
+        console.log('Wix cart synchronization complete.');
+      } catch (err) {
+        console.warn('Wix Cart sync warning (expected if client offline or not initialized):', err);
+      }
+    }, 1500); // 1.5s debounce to avoid rapid API requests
+    
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [cartItems]);
+
   const mapCartItemsToWixLineItems = (items) => {
     return items.map(item => {
       const catalogReference = {
@@ -284,9 +374,72 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponError('');
+  const [appliedGiftCard, setAppliedGiftCard] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hkd-applied-giftcard');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [giftCardError, setGiftCardError] = useState('');
+  const [isApplyingGiftCard, setIsApplyingGiftCard] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (appliedGiftCard) {
+        localStorage.setItem('hkd-applied-giftcard', JSON.stringify(appliedGiftCard));
+      } else {
+        localStorage.removeItem('hkd-applied-giftcard');
+      }
+    } catch (e) {
+      console.error('Failed to save applied giftcard to localStorage', e);
+    }
+  }, [appliedGiftCard]);
+
+  const applyGiftCardCode = async (code) => {
+    if (!code || code.trim() === '') return false;
+    setIsApplyingGiftCard(true);
+    setGiftCardError('');
+    try {
+      const lineItems = mapCartItemsToWixLineItems(cartItems);
+      
+      // Create a temporary checkout to validate gift card
+      const testCheckout = await wixClient.checkout.createCheckout({
+        lineItems,
+        channelType: 'WEB'
+      });
+
+      const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {}, {
+        giftCardCode: code.trim()
+      });
+
+      if (updatedCheckout.giftCard) {
+        const giftCardVal = parseFloat(updatedCheckout.giftCard.amount?.amount || '0');
+        setAppliedGiftCard({
+          code: code.trim(),
+          amount: giftCardVal,
+          obfuscatedCode: updatedCheckout.giftCard.obfuscatedCode
+        });
+        setIsApplyingGiftCard(false);
+        setGiftCardError('');
+        return true;
+      }
+      
+      setGiftCardError('Ugyldig gavekortkode');
+      setIsApplyingGiftCard(false);
+      return false;
+    } catch (err) {
+      console.error('Error validating gift card:', err);
+      setGiftCardError('Ugyldig gavekortkode eller tilkoblingsfeil');
+      setIsApplyingGiftCard(false);
+      return false;
+    }
+  };
+
+  const removeGiftCard = () => {
+    setAppliedGiftCard(null);
+    setGiftCardError('');
   };
 
   useEffect(() => {
@@ -297,7 +450,10 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
         setAppliedCoupon(null);
         setCouponError('');
+        setAppliedGiftCard(null);
+        setGiftCardError('');
         localStorage.removeItem('hkd-applied-coupon');
+        localStorage.removeItem('hkd-applied-giftcard');
         const newUrl = window.location.pathname + window.location.hash;
         window.history.replaceState({}, document.title, newUrl);
       }
@@ -306,16 +462,89 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
+  // Live shipping and tax estimation states
+  const [estimatedShipping, setEstimatedShipping] = useState(null);
+  const [estimatedTax, setEstimatedTax] = useState(null);
+  const [estimatedTotal, setEstimatedTotal] = useState(null);
+  const [isEstimated, setIsEstimated] = useState(false);
+  const [isEstimating, setIsEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState('');
+  const [shippingAddress, setShippingAddress] = useState(null);
+
+  const estimateShippingAndTotals = async (postalCode, city, countryCode = 'NO') => {
+    if (!postalCode) return false;
+    setIsEstimating(true);
+    setEstimateError('');
+    try {
+      const response = await wixClient.currentCart.estimateCurrentCartTotals({
+        shippingAddress: {
+          postalCode: postalCode.trim(),
+          city: city.trim(),
+          country: countryCode
+        }
+      });
+
+      if (response && response.priceSummary) {
+        const shipCost = parseFloat(response.priceSummary.shipping?.amount || '0');
+        const taxCost = parseFloat(response.priceSummary.tax?.amount || '0');
+        const totalCost = parseFloat(response.priceSummary.total?.amount || '0');
+
+        setEstimatedShipping(shipCost);
+        setEstimatedTax(taxCost);
+        setEstimatedTotal(totalCost);
+        setIsEstimated(true);
+        setShippingAddress({ postalCode, city, country: countryCode });
+        setIsEstimating(false);
+        setEstimateError('');
+        return true;
+      }
+      throw new Error('Mottok ingen prisoppsummering fra Wix.');
+    } catch (err) {
+      console.error('Error estimating cart totals:', err);
+      setEstimateError('Kunne ikke beregne frakt. Vennligst sjekk postnummeret og prøv igjen.');
+      setIsEstimating(false);
+      setIsEstimated(false);
+      return false;
+    }
+  };
+
+  const clearEstimation = () => {
+    setIsEstimated(false);
+    setEstimatedShipping(null);
+    setEstimatedTax(null);
+    setEstimatedTotal(null);
+    setShippingAddress(null);
+    setEstimateError('');
+  };
+
+  // Background recalculation when cart items or discounts change
+  useEffect(() => {
+    if (isEstimated && shippingAddress && cartItems.length > 0) {
+      const timer = setTimeout(() => {
+        estimateShippingAndTotals(shippingAddress.postalCode, shippingAddress.city, shippingAddress.country);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else if (cartItems.length === 0 && isEstimated) {
+      clearEstimation();
+    }
+  }, [cartItems.length, appliedCoupon, appliedGiftCard]);
+
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const shipping = subtotal === 0 ? 0 : (subtotal >= 800 ? 0 : 49);
   
   // Calculate discount and apply it to subtotal
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
+  const giftCardAmount = appliedGiftCard ? appliedGiftCard.amount : 0;
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
   
   // MVA (25%) included in price: if item is 125kr, MVA is 25kr (which is subtotal * 0.2)
-  const mva = subtotalAfterDiscount * 0.20;
-  const total = subtotalAfterDiscount + shipping;
+  // If estimated, use Wix calculated shipping
+  const shipping = isEstimated && estimatedShipping !== null 
+    ? estimatedShipping 
+    : (subtotal === 0 ? 0 : (subtotal >= 800 ? 0 : 49));
+
+  const mva = Math.max(0, subtotalAfterDiscount - giftCardAmount) * 0.20;
+  const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + shipping;
+
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -337,7 +566,21 @@ export const CartProvider = ({ children }) => {
       isApplyingCoupon,
       applyCouponCode,
       removeCoupon,
-      mapCartItemsToWixLineItems
+      appliedGiftCard,
+      giftCardError,
+      isApplyingGiftCard,
+      applyGiftCardCode,
+      removeGiftCard,
+      mapCartItemsToWixLineItems,
+      estimatedShipping,
+      estimatedTax,
+      estimatedTotal,
+      isEstimated,
+      isEstimating,
+      estimateError,
+      shippingAddress,
+      estimateShippingAndTotals,
+      clearEstimation
     }}>
       {children}
     </CartContext.Provider>

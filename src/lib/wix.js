@@ -1,9 +1,10 @@
 import { createClient, OAuthStrategy } from '@wix/sdk';
 import { products, collections } from '@wix/stores';
-import { currentCart, checkout, orders } from '@wix/ecom';
+import { currentCart, checkout, orders, backInStockNotifications } from '@wix/ecom';
 import { redirects } from '@wix/redirects';
 import { members } from '@wix/members';
 import { plans } from '@wix/pricing-plans';
+import { reviews } from '@wix/reviews';
 
 export const wixClient = createClient({
   modules: {
@@ -15,8 +16,11 @@ export const wixClient = createClient({
     members,
     plans,
     orders,
+    backInStockNotifications,
+    reviews,
   },
   auth: OAuthStrategy({
     clientId: '82b2b70d-fb70-4b76-abfd-a2a70f38ac06',
   }),
 });
+

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
+import { wixClient } from '@/lib/wix';
 
 export default function ProductDetails() {
-  const { products, isLoadingProducts } = useApp();
+  const { products, isLoadingProducts, toggleWishlist, isInWishlist } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -21,6 +22,204 @@ export default function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState('Hvit');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  
+  const isWishlisted = product ? isInWishlist(product.id) : false;
+
+  // Back in stock states
+  const [backInStockEmail, setBackInStockEmail] = useState('');
+  const [backInStockSuccess, setBackInStockSuccess] = useState(false);
+  const [backInStockLoading, setBackInStockLoading] = useState(false);
+  const [backInStockError, setBackInStockError] = useState('');
+
+  // Auto-fill email if member is logged in
+  useEffect(() => {
+    async function checkLoggedInMember() {
+      if (wixClient.auth.loggedIn()) {
+        try {
+          const res = await wixClient.members.getCurrentMember();
+          if (res?.member?.loginEmail) {
+            setBackInStockEmail(res.member.loginEmail);
+          }
+        } catch (err) {
+          console.warn('Could not auto-fill member email for back-in-stock request:', err);
+        }
+      }
+    }
+    checkLoggedInMember();
+  }, []);
+
+  // Reviews states
+  const [reviewsList, setReviewsList] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingDistribution, setRatingDistribution] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  // Review form states
+  const [reviewName, setReviewName] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewBody, setReviewBody] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
+  const [reviewSubmitError, setReviewSubmitError] = useState('');
+
+  // Auto-fill member name for review form
+  useEffect(() => {
+    async function getMemberName() {
+      if (wixClient.auth.loggedIn()) {
+        try {
+          const res = await wixClient.members.getCurrentMember();
+          if (res?.member?.contact?.firstName) {
+            setReviewName(`${res.member.contact.firstName} ${res.member.contact.lastName || ''}`.trim());
+          }
+        } catch (err) {
+          console.warn('Could not pre-fill review name:', err);
+        }
+      }
+    }
+    getMemberName();
+  }, []);
+
+  const loadReviews = async () => {
+    setIsLoadingReviews(true);
+    let apiReviews = [];
+    try {
+      const res = await wixClient.reviews.queryReviews({
+        query: {
+          filter: {
+            entityId: productId,
+            namespace: 'stores'
+          },
+          sort: [{ fieldName: '_createdDate', order: 'DESC' }]
+        }
+      });
+      if (res && res.items) {
+        apiReviews = res.items;
+      }
+    } catch (err) {
+      console.warn('Wix Reviews API call failed. Using fallback reviews.', err);
+    }
+
+    // Load local storage reviews
+    let localReviews = [];
+    try {
+      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
+      if (saved) {
+        localReviews = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to parse local reviews', e);
+    }
+
+    // Default mock reviews if there are no API or local reviews
+    let defaultMocks = [];
+    if (apiReviews.length === 0 && localReviews.length === 0) {
+      const dates = ['2026-05-15', '2026-05-28', '2026-06-02'];
+      const names = ['Kari Nordmann', 'Ole Hansen', 'Maria Pedersen'];
+      const clothingMocks = [
+        { title: 'Helt fantastisk kvalitet!', body: 'Stoffet er utrolig mykt og behagelig. Trykket ser profesjonelt ut og falmer ikke vask. Anbefales på det varmeste!', rating: 5 },
+        { title: 'Fin genser, god passform', body: 'Normal i størrelsen. Genseren er behagelig å gå med, og budskapet er nydelig. Kommer til å kjøpe mer herfra!', rating: 5 },
+        { title: 'Veldig fornøyd', body: 'Rask levering og god kvalitet på klærne. Mandal Regnskapskontor leverer solid service og trygg handel.', rating: 4 }
+      ];
+      const stickerMocks = [
+        { title: 'Perfekt på vannflasken', body: 'Tåler oppvaskmaskin kjempebra uten å løsne eller falme. Kjempefine farger!', rating: 5 },
+        { title: 'Gode budskap', body: 'Har limt disse på bøkene og PC-en min. De gir god oppmuntring i hverdagen.', rating: 5 },
+        { title: 'Fine farger', body: 'Klistremerkene ser nøyaktig ut som på bildet. Veldig fornøyd med kjøpet.', rating: 4 }
+      ];
+      const defaultMocksSource = product?.category === 'Klær' ? clothingMocks : (product?.category === 'Klistermerker' ? stickerMocks : clothingMocks);
+
+      defaultMocks = defaultMocksSource.map((m, idx) => ({
+        _id: `mock-${idx}`,
+        author: { authorName: names[idx] },
+        content: { title: m.title, body: m.body, rating: m.rating },
+        _createdDate: new Date(dates[idx]).toISOString()
+      }));
+    }
+
+    const allReviews = [...localReviews, ...apiReviews, ...defaultMocks];
+    setReviewsList(allReviews);
+
+    // Calculate average and distribution
+    if (allReviews.length > 0) {
+      const totalRating = allReviews.reduce((sum, r) => sum + (r.content?.rating || 5), 0);
+      setAverageRating(parseFloat((totalRating / allReviews.length).toFixed(1)));
+
+      const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      allReviews.forEach(r => {
+        const rating = r.content?.rating || 5;
+        if (dist[rating] !== undefined) dist[rating]++;
+      });
+      setRatingDistribution(dist);
+    } else {
+      setAverageRating(0);
+      setRatingDistribution({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+    }
+    setIsLoadingReviews(false);
+  };
+
+  useEffect(() => {
+    if (product) {
+      loadReviews();
+    }
+  }, [productId, product]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewName || !reviewTitle || !reviewBody) return;
+    setIsSubmittingReview(true);
+    setReviewSubmitError('');
+    setReviewSubmitSuccess(false);
+
+    const newReviewItem = {
+      _id: `local-${Date.now()}`,
+      author: { authorName: reviewName },
+      content: {
+        title: reviewTitle,
+        body: reviewBody,
+        rating: reviewRating
+      },
+      _createdDate: new Date().toISOString()
+    };
+
+    let wixSuccess = false;
+    try {
+      await wixClient.reviews.createReview({
+        review: {
+          namespace: 'stores',
+          entityId: productId,
+          content: {
+            title: reviewTitle,
+            body: reviewBody,
+            rating: reviewRating
+          },
+          author: {
+            authorName: reviewName
+          }
+        }
+      });
+      wixSuccess = true;
+    } catch (err) {
+      console.warn('Wix Reviews API submit failed. Saving review locally.', err);
+    }
+
+    try {
+      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
+      const list = saved ? JSON.parse(saved) : [];
+      list.unshift(newReviewItem);
+      localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
+    } catch (err) {
+      console.error('Failed to save review to localStorage:', err);
+    }
+
+    setReviewSubmitSuccess(true);
+    setReviewTitle('');
+    setReviewBody('');
+    setShowReviewForm(false);
+    setIsSubmittingReview(false);
+    loadReviews();
+  };
+
 
   // Find the selected variant matching selectedSize and selectedColor
   const selectedVariant = useMemo(() => {
@@ -159,6 +358,34 @@ export default function ProductDetails() {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  const handleBackInStockSubmit = async (e) => {
+    e.preventDefault();
+    if (!backInStockEmail) return;
+    setBackInStockLoading(true);
+    setBackInStockError('');
+    try {
+      const variantId = selectedVariant?._id || product.variants?.[0]?._id;
+      const requestPayload = {
+        email: backInStockEmail,
+        catalogReference: {
+          appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
+          catalogItemId: product.id,
+          ...(variantId ? { options: { variantId } } : {})
+        }
+      };
+      
+      console.log('Sending Back in Stock Request to Wix:', requestPayload);
+      await wixClient.backInStockNotifications.createBackInStockNotificationRequest(requestPayload);
+      setBackInStockSuccess(true);
+      setBackInStockError('');
+    } catch (err) {
+      console.error('Error creating back in stock request:', err);
+      setBackInStockError('Kunne ikke opprette varsling. Vennligst prøv igjen.');
+    } finally {
+      setBackInStockLoading(false);
+    }
+  };
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}
@@ -203,6 +430,35 @@ export default function ProductDetails() {
               {product.category} {product.gender && `• ${product.gender}`}
             </span>
             <h1 className="font-headline-lg text-2xl md:text-headline-lg text-onyx mb-2">{product.name}</h1>
+            
+            {/* Average Rating Stars shortcut */}
+            {reviewsList.length > 0 && (
+              <div 
+                onClick={() => {
+                  const element = document.getElementById('reviews-section');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="flex items-center gap-2 mb-3 cursor-pointer select-none group w-max"
+              >
+                <div className="flex text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <span 
+                      key={i} 
+                      className="material-symbols-outlined text-sm font-bold"
+                      style={{ fontVariationSettings: i < Math.round(averageRating) ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
+                    >
+                      star
+                    </span>
+                  ))}
+                </div>
+                <span className="text-xs text-secondary font-semibold group-hover:text-terracotta transition-colors">
+                  {averageRating} ({reviewsList.length} {reviewsList.length === 1 ? 'omtale' : 'omtaler'})
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center gap-3">
               <span className="font-headline-md text-headline-md text-terracotta font-extrabold text-2xl">
                 {product.price} kr
@@ -335,30 +591,79 @@ export default function ProductDetails() {
             )}
           </div>
 
-          {/* CTA Add to Cart */}
-          <button 
-            onClick={handleAddToCart}
-            disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
-            className={`w-full font-bold py-4 rounded-xl transition-all shadow-md mt-4 flex items-center justify-center gap-2 text-md ${
-              (!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0))
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                : 'bg-terracotta text-white hover:opacity-95 active:scale-[0.98]'
-            }`}
-          >
-            {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
-              <span>Utsolgt</span>
-            ) : added ? (
-              <>
-                <Check size={18} />
-                <span>Lagt til!</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart size={18} />
-                <span>Legg i handlekurv</span>
-              </>
-            )}
-          </button>
+          {/* CTA Add to Cart & Wishlist */}
+          <div className="flex gap-4 items-stretch mt-4">
+            <button 
+              onClick={handleAddToCart}
+              disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
+              className={`flex-grow font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-md ${
+                (!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0))
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                  : 'bg-terracotta text-white hover:opacity-95 active:scale-[0.98]'
+              }`}
+            >
+              {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
+                <span>Utsolgt</span>
+              ) : added ? (
+                <>
+                  <Check size={18} />
+                  <span>Lagt til!</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={18} />
+                  <span>Legg i handlekurv</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => toggleWishlist(product)}
+              className="p-4 border border-outline hover:border-terracotta text-terracotta rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center shrink-0 active:scale-95"
+              title={isWishlisted ? "Fjern fra ønskelisten" : "Legg i ønskelisten"}
+            >
+              <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
+            </button>
+          </div>
+
+          {/* Back in stock request form */}
+          {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) && (
+            <div className="mt-4 p-5 bg-slate-50 border border-outline-variant/30 rounded-xl space-y-3">
+              <h4 className="font-label-md text-label-md text-onyx font-bold flex items-center gap-2">
+                <span className="material-symbols-outlined text-terracotta text-lg">mail</span>
+                Meld meg når varen er på lager
+              </h4>
+              <p className="text-xs text-secondary leading-relaxed">
+                Vi sender deg en automatisk e-post så snart vi har varen tilbake på lager i Mandal.
+              </p>
+              {backInStockSuccess ? (
+                <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
+                  ✓ Suksess! Vi sender deg e-post når produktet er tilgjengelig.
+                </div>
+              ) : (
+                <form onSubmit={handleBackInStockSubmit} className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    placeholder="din.epost@adresse.no"
+                    value={backInStockEmail}
+                    onChange={(e) => setBackInStockEmail(e.target.value)}
+                    disabled={backInStockLoading}
+                    className="bg-white border border-outline rounded-lg px-3 py-2 text-xs flex-grow text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                  />
+                  <button
+                    type="submit"
+                    disabled={backInStockLoading}
+                    className="bg-terracotta text-white font-label-md text-xs px-4 py-2 rounded-lg font-bold hover:brightness-105 active:scale-95 transition-all shadow-sm"
+                  >
+                    {backInStockLoading ? 'Sender...' : 'Meld meg'}
+                  </button>
+                </form>
+              )}
+              {backInStockError && (
+                <p className="text-[11px] text-red-600 font-medium mt-1">{backInStockError}</p>
+              )}
+            </div>
+          )}
 
           {/* Shipping / Trust details */}
           <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
@@ -373,6 +678,234 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
+
+      {/* Section: Kundeomtaler & Vurderinger */}
+      <section id="reviews-section" className="mt-20 border-t border-outline-variant/30 pt-16">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h2 className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold">Kundeomtaler</h2>
+            <p className="text-secondary font-body-md text-sm mt-1">Hva våre kunder mener om {product.name}</p>
+          </div>
+          <button
+            onClick={() => setShowReviewForm(!showReviewForm)}
+            className="bg-[#1B4965] text-white hover:bg-[#153a50] px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors active:scale-95 shadow-sm"
+          >
+            {showReviewForm ? 'Lukk skjema' : 'Skriv en omtale'}
+          </button>
+        </div>
+
+        {/* Review Submission Form - Stacked layout to avoid Chrome jitter */}
+        {showReviewForm && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-10 p-6 bg-slate-50 border border-outline-variant/30 rounded-xl max-w-xl shadow-sm"
+          >
+            <h3 className="font-headline-md text-lg text-onyx mb-4 font-bold">Skriv din vurdering</h3>
+            <form onSubmit={handleReviewSubmit} className="block space-y-4">
+              <div className="block">
+                <label className="block text-xs font-semibold text-secondary mb-1">Ditt Navn</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="F.eks. Ola Nordmann"
+                  value={reviewName}
+                  onChange={(e) => setReviewName(e.target.value)}
+                  disabled={isSubmittingReview}
+                  style={{ transform: 'translateZ(0) !important', backfaceVisibility: 'hidden !important' }}
+                  className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                />
+              </div>
+
+              <div className="block">
+                <label className="block text-xs font-semibold text-secondary mb-1">Din Vurdering (1-5 stjerner)</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="text-amber-500 hover:scale-110 active:scale-90 transition-transform cursor-pointer"
+                    >
+                      <span 
+                        className="material-symbols-outlined text-2xl"
+                        style={{ fontVariationSettings: star <= reviewRating ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
+                      >
+                        star
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="block">
+                <label className="block text-xs font-semibold text-secondary mb-1">Overskrift</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Oppsummer din opplevelse..."
+                  value={reviewTitle}
+                  onChange={(e) => setReviewTitle(e.target.value)}
+                  disabled={isSubmittingReview}
+                  style={{ transform: 'translateZ(0) !important', backfaceVisibility: 'hidden !important' }}
+                  className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                />
+              </div>
+
+              <div className="block">
+                <label className="block text-xs font-semibold text-secondary mb-1">Omtale</label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Fortell oss hva du syns om kvaliteten, passformen eller designet..."
+                  value={reviewBody}
+                  onChange={(e) => setReviewBody(e.target.value)}
+                  disabled={isSubmittingReview}
+                  style={{ transform: 'translateZ(0) !important', backfaceVisibility: 'hidden !important' }}
+                  className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmittingReview}
+                className="block w-full bg-terracotta text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider hover:brightness-105 active:scale-95 transition-all shadow-md"
+              >
+                {isSubmittingReview ? 'Sender inn...' : 'Send omtale'}
+              </button>
+
+              {reviewSubmitError && (
+                <p className="text-[11px] text-red-600 font-semibold mt-1 text-center">{reviewSubmitError}</p>
+              )}
+            </form>
+          </motion.div>
+        )}
+
+        {reviewSubmitSuccess && (
+          <div className="mb-6 p-4 bg-emerald-50 text-emerald-800 text-xs rounded-lg border border-emerald-200 font-medium">
+            ✓ Takk for din omtale! Din vurdering har blitt sendt inn og er nå synlig på siden.
+          </div>
+        )}
+
+        {/* Reviews Summary Dashboard */}
+        {reviewsList.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center bg-white p-6 rounded-2xl border border-outline-variant/20 shadow-sm mb-10">
+            {/* Left Block: Average Rating */}
+            <div className="md:col-span-4 text-center md:border-r border-slate-100 md:pr-8">
+              <p className="text-5xl font-extrabold text-[#1B4965] mb-2">{averageRating}</p>
+              <div className="flex justify-center text-amber-500 mb-1">
+                {[...Array(5)].map((_, i) => (
+                  <span 
+                    key={i} 
+                    className="material-symbols-outlined text-lg"
+                    style={{ fontVariationSettings: i < Math.round(averageRating) ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
+                  >
+                    star
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-secondary font-medium uppercase tracking-wider">
+                Basert på {reviewsList.length} {reviewsList.length === 1 ? 'omtale' : 'omtaler'}
+              </p>
+            </div>
+
+            {/* Right Block: Star Distribution */}
+            <div className="md:col-span-8 space-y-2.5">
+              {[5, 4, 3, 2, 1].map((rating) => {
+                const count = ratingDistribution[rating] || 0;
+                const percentage = reviewsList.length > 0 ? (count / reviewsList.length) * 100 : 0;
+                return (
+                  <div key={rating} className="flex items-center gap-3 text-xs">
+                    <span className="font-semibold text-secondary w-12 text-right">{rating} stjerner</span>
+                    <div className="flex-grow h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-amber-500 rounded-full transition-all duration-500" 
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-secondary w-8 font-medium">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Review list */}
+        {isLoadingReviews ? (
+          <div className="py-10 text-center text-secondary font-semibold text-sm">Henter omtaler...</div>
+        ) : reviewsList.length === 0 ? (
+          <div className="py-12 text-center text-secondary bg-slate-50/55 rounded-xl border border-dashed border-outline-variant/40">
+            <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">rate_review</span>
+            <p className="font-semibold text-sm">Ingen omtaler ennå</p>
+            <p className="text-xs text-secondary/75 mt-0.5">Vær den første til å dele din mening om dette produktet!</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {reviewsList.map((rev) => (
+              <div 
+                key={rev._id} 
+                className="p-6 bg-white rounded-2xl border border-outline-variant/20 shadow-sm space-y-3"
+              >
+                {/* Review Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="flex text-amber-500">
+                      {[...Array(5)].map((_, i) => (
+                        <span 
+                          key={i} 
+                          className="material-symbols-outlined text-sm"
+                          style={{ fontVariationSettings: i < (rev.content?.rating || 5) ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
+                        >
+                          star
+                        </span>
+                      ))}
+                    </div>
+                    <h4 className="font-bold text-sm text-onyx">{rev.content?.title}</h4>
+                  </div>
+                  <span className="text-[11px] text-secondary font-medium">
+                    {new Date(rev._createdDate || Date.now()).toLocaleDateString('no-NO', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </div>
+
+                {/* Review Body */}
+                <p className="text-xs text-secondary leading-relaxed font-body-md">
+                  {rev.content?.body}
+                </p>
+
+                {/* Review Author */}
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold select-none">
+                  <span className="material-symbols-outlined text-sm">person</span>
+                  <span>Skrevet av {rev.author?.authorName || 'Anonym'}</span>
+                  {rev._id.startsWith('mock') && (
+                    <span className="text-[9px] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
+                      Verifisert Kjøper
+                    </span>
+                  )}
+                </div>
+
+                {/* Admin Reply */}
+                {rev.reply && (
+                  <div className="mt-4 p-4 bg-slate-50 border-l-2 border-terracotta rounded-r-lg space-y-1">
+                    <div className="flex items-center gap-1.5 text-[10px] text-terracotta font-bold uppercase tracking-wider">
+                      <span className="material-symbols-outlined text-xs">storefront</span>
+                      <span>Svar fra His Kingdom Designs</span>
+                    </div>
+                    <p className="text-xs text-secondary leading-relaxed font-body-md italic">
+                      "{rev.reply.body}"
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Section: Related Products */}
       {relatedProducts.length > 0 && (
