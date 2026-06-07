@@ -144,6 +144,7 @@ export default function Profile() {
         
         if (code && state) {
           setIsLoading(true);
+          console.log('OAuth callback detected! Code:', code, 'State:', state);
           const savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
           if (savedOauthDataStr) {
             const savedOauthData = JSON.parse(savedOauthDataStr);
@@ -151,6 +152,10 @@ export default function Profile() {
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
             console.log('Successfully completed Wix OAuth login!');
+          } else {
+            console.warn('No OAuth data found in localStorage!');
+            setErrorMsg('Kunne ikke fullføre innlogging: Ingen lokalt lagret påloggingsøkt ble funnet.');
+            alert('Kunne ikke fullføre innlogging: Ingen påloggingsøkt ble funnet lokalt. Vennligst prøv igjen.');
           }
           localStorage.removeItem('hkd-oauth-data');
           // Clear query params from URL
@@ -160,6 +165,8 @@ export default function Profile() {
         }
       } catch (err) {
         console.error('Error exchanging oauth tokens:', err);
+        setErrorMsg('Innloggingsfeil: ' + err.message);
+        alert('Det oppstod en feil under utveksling av innloggingstokener: ' + err.message);
       } finally {
         setIsLoading(false);
       }
