@@ -260,22 +260,30 @@ export const AppProvider = ({ children }) => {
     const fetchWixData = async () => {
       try {
         console.log('Henter produkter fra Wix...');
-        const [collectionsList, productList] = await Promise.all([
-          wixClient.collections.queryCollections().limit(100).find(),
-          wixClient.products.queryProducts().limit(500).find()
-        ]);
-
+        const collectionsList = await wixClient.collections.queryCollections().limit(100).find();
+        
         const collectionsMap = {};
         collectionsList.items.forEach(c => {
           collectionsMap[c._id] = c.name;
         });
+
+        let allItems = [];
+        let response = await wixClient.products.queryProducts().limit(100).find();
+        allItems = [...response.items];
+
+        while (response.hasNext()) {
+          response = await response.next();
+          allItems = [...allItems, ...response.items];
+        }
+
+        console.log(`Hentet totalt ${allItems.length} produkter fra Wix.`);
 
         // Define lists of collection names belonging to each primary category
         const klaerCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'];
         const plakaterCollections = ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'];
         const klistermerkerCollections = ['Klistermerker'];
 
-        const mapped = productList.items.map(item => {
+        const mapped = allItems.map(item => {
           const resolvedCollections = item.collectionIds?.map(id => collectionsMap[id]).filter(Boolean) || [];
           
           let category = 'Tilbehør';
