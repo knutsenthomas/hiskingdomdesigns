@@ -5,6 +5,8 @@ import { redirects } from '@wix/redirects';
 import { members } from '@wix/members';
 import { plans } from '@wix/pricing-plans';
 import { reviews } from '@wix/reviews';
+import { contacts } from '@wix/site-crm';
+import { headlessSite } from '@wix/headless-site';
 
 // Custom localStorage token storage to persist client OAuth session tokens across page reloads
 const customTokenStorage = {
@@ -27,6 +29,7 @@ const customTokenStorage = {
 };
 
 export const wixClient = createClient({
+  host: headlessSite.host(),
   modules: {
     products,
     collections,
@@ -38,6 +41,7 @@ export const wixClient = createClient({
     orders,
     backInStockNotifications,
     reviews,
+    contacts,
   },
   auth: OAuthStrategy({
     clientId: '82b2b70d-fb70-4b76-abfd-a2a70f38ac06',

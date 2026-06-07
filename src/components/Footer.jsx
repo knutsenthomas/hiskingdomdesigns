@@ -2,17 +2,32 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CreditCard, Heart, Mail, ShieldCheck } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import { wixClient } from '@/lib/wix';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!email) return;
-    setSubscribed(true);
-    setEmail('');
-    setTimeout(() => setSubscribed(false), 5000);
+    setLoading(true);
+    setError('');
+    try {
+      await wixClient.contacts.appendOrCreateContact({
+        emails: [{ email: email }]
+      });
+      setSubscribed(true);
+      setEmail('');
+      setTimeout(() => setSubscribed(false), 5000);
+    } catch (err) {
+      console.error('Error subscribing email to Wix CRM:', err);
+      setError('Det oppstod en feil. Vennligst prøv igjen.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -114,18 +129,23 @@ export default function Footer() {
               placeholder="Din e-post"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-white/5 border border-white/20 rounded px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-white placeholder:text-white/30"
+              disabled={loading}
+              className="flex-1 bg-white/5 border border-white/20 rounded px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-white placeholder:text-white/30 disabled:opacity-50"
               required
             />
             <button 
               type="submit"
-              className="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider font-bold shrink-0 whitespace-nowrap"
+              disabled={loading}
+              className="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider font-bold shrink-0 whitespace-nowrap disabled:opacity-50"
             >
-              Bli med
+              {loading ? 'Sender...' : 'Bli med'}
             </button>
           </form>
           {subscribed && (
             <p className="text-green-400 text-xs mt-2 animate-pulse">Takk! Du er nå påmeldt nyhetsbrevet.</p>
+          )}
+          {error && (
+            <p className="text-red-400 text-xs mt-2">{error}</p>
           )}
           
           <div className="mt-8">
