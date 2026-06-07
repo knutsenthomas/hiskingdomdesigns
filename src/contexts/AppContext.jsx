@@ -572,6 +572,133 @@ export const AppProvider = ({ children }) => {
     url: '/'
   });
 
+  const getProductRecommendations = (inputText) => {
+    const lower = inputText.toLowerCase().trim();
+    
+    // Check if the user is asking about products/sales/bestsellers/categories
+    const isAskingAboutProducts = 
+      lower.includes('produkt') || 
+      lower.includes('anbefal') || 
+      lower.includes('kjøpe') || 
+      lower.includes('butikk') || 
+      lower.includes('utvalg') || 
+      lower.includes('hva har dere') || 
+      lower.includes('vis meg') || 
+      lower.includes('søk') || 
+      lower.includes('leter etter') ||
+      lower.includes('finne') ||
+      lower.includes('salg') ||
+      lower.includes('tilbud') ||
+      lower.includes('rabatt') ||
+      lower.includes('bestselger') ||
+      lower.includes('populær') ||
+      lower.includes('klær') ||
+      lower.includes('t-skjorte') ||
+      lower.includes('tee') ||
+      lower.includes('genser') ||
+      lower.includes('plakat') ||
+      lower.includes('poster') ||
+      lower.includes('bilde') ||
+      lower.includes('klister') ||
+      lower.includes('sticker') ||
+      lower.includes('tilbehør') ||
+      lower.includes('lue') ||
+      lower.includes('deksel') ||
+      lower.includes('bag') ||
+      lower.includes('tote');
+
+    // Split input into keywords, removing common small words
+    const stopWords = new Set([
+      'jeg', 'og', 'i', 'på', 'en', 'et', 'er', 'det', 'har', 'dere', 'noen', 
+      'vis', 'meg', 'leter', 'etter', 'hva', 'koster', 'anbefale', 'anbefal',
+      'til', 'med', 'for', 'om', 'kan', 'du', 'søk', 'etter', 'produkter', 
+      'produkt', 'de', 'den', 'siste', 'nye', 'viser', 'gi', 'meg'
+    ]);
+    const words = lower
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "")
+      .split(/\s+/)
+      .filter(w => w.length > 1 && !stopWords.has(w));
+
+    if (words.length === 0 && !isAskingAboutProducts) {
+      return null;
+    }
+
+    let matches = [];
+    const isBestsellerQuery = lower.includes('bestselger') || lower.includes('populær') || lower.includes('topp');
+    const isSaleQuery = lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt');
+
+    products.forEach(prod => {
+      let score = 0;
+      const prodNameLower = prod.name.toLowerCase();
+      const prodDescLower = prod.description?.toLowerCase() || '';
+      const prodCatLower = prod.category.toLowerCase();
+      const prodSubcats = prod.subcategories?.map(s => s.toLowerCase()) || [];
+
+      // Flag matching
+      if (isBestsellerQuery && prod.isBestseller) score += 8;
+      if (isSaleQuery && prod.isSale) score += 8;
+
+      // Word matching
+      words.forEach(word => {
+        if (prodNameLower === word) {
+          score += 15;
+        } else if (prodNameLower.includes(word)) {
+          score += 8;
+        }
+        
+        if (prodCatLower.includes(word)) {
+          score += 6;
+        }
+        
+        prodSubcats.forEach(sub => {
+          if (sub.includes(word)) {
+            score += 4;
+          }
+        });
+
+        if (prodDescLower.includes(word)) {
+          score += 2;
+        }
+      });
+
+      if (score > 0) {
+        matches.push({ product: prod, score });
+      }
+    });
+
+    if (matches.length === 0 && isAskingAboutProducts) {
+      let fallbackProducts = [];
+      if (isSaleQuery) {
+        fallbackProducts = products.filter(p => p.isSale);
+      } else if (isBestsellerQuery) {
+        fallbackProducts = products.filter(p => p.isBestseller);
+      } else {
+        fallbackProducts = products.filter(p => p.isBestseller || p.isSale);
+      }
+
+      if (fallbackProducts.length === 0) {
+        fallbackProducts = products.slice(0, 3);
+      }
+
+      fallbackProducts.forEach(prod => {
+        matches.push({ product: prod, score: 5 });
+      });
+    }
+
+    matches.sort((a, b) => b.score - a.score);
+
+    const uniqueMatches = [];
+    const seenIds = new Set();
+    matches.forEach(m => {
+      if (!seenIds.has(m.product.id)) {
+        seenIds.add(m.product.id);
+        uniqueMatches.push(m.product);
+      }
+    });
+
+    return uniqueMatches.slice(0, 3);
+  };
+
   const sendAssistantMessage = (text) => {
     const userMsg = {
       id: `msg-user-${Date.now()}`,
@@ -588,7 +715,38 @@ export const AppProvider = ({ children }) => {
       let reply = '';
       const lower = text.toLowerCase().trim();
 
-      if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
+      const recommendations = getProductRecommendations(text);
+
+      if (recommendations && recommendations.length > 0) {
+        let titleText = '### 🛍️ Her er produkter jeg fant basert på ditt søk:';
+        if (lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt')) {
+          titleText = '### 🏷️ Her er våre produkter på tilbud akkurat nå:';
+        } else if (lower.includes('bestselger') || lower.includes('populær') || lower.includes('topp')) {
+          titleText = '### 🌟 Her er våre mest populære bestselgere:';
+        } else if (lower.includes('anbefal') || lower.includes('anbefaling') || lower.includes('tips')) {
+          titleText = '### ✨ Her er mine anbefalinger til deg:';
+        }
+
+        const itemsText = recommendations.map((prod, idx) => {
+          const priceStr = prod.originalPrice 
+            ? `**${prod.price} kr** *(Salg! før ${prod.originalPrice} kr)*` 
+            : `**${prod.price} kr**`;
+          
+          const badge = prod.isBestseller ? ' ⭐ *Bestselger!*' : '';
+          
+          return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${prod.description ? prod.description.substring(0, 110) + '...' : prod.category}*`;
+        }).join('\n\n');
+
+        reply = `${titleText}\n\n${itemsText}\n\n💡 Klikk på produktlenkene over for å se produktdetaljene, velge farger/størrelser og legge dem i handlekurven!`;
+
+        // If they also asked about shipping/return, append a helpful tip
+        if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
+          reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 800 kr** (ellers 49 kr) med Bring/Posten.';
+        } else if (lower.includes('retur') || lower.includes('bytte')) {
+          reply += '\n\n**PS:** Vi tilbyr **30 dagers åpent kjøp** og enkel retur/bytte.';
+        }
+      }
+      else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
         reply = '### 🚚 Frakt og Levering\n\n' +
           '- Vi har **gratis frakt på alle bestillinger over 800 kr**!\n' +
           '- For bestillinger under 800 kr koster frakten **49 kr**.\n' +
@@ -623,28 +781,6 @@ export const AppProvider = ({ children }) => {
           '- **Vipps** (enkel betaling med mobilen)\n' +
           '- **Kortbetaling** (Visa og Mastercard via kryptert betalingsløsning)\n\n' +
           '💡 MVA (25%) er inkludert i alle oppgitte priser.';
-      }
-      else if (lower.includes('t-skjorte') || lower.includes('klær') || lower.includes('kles') || lower.includes('genser') || lower.includes('hoodie')) {
-        reply = '### 👕 Våre Klær & T-skjorter\n\n' +
-          'Vi har et flott utvalg av kvalitetsklær:\n' +
-          '- **Herren velsigne deg T-skjorte** (Vår mest populære signatur-t-skjorte, 299 kr)\n' +
-          '- **Kingdom Life T-skjorte** (Salg akkurat nå til 299 kr, før 399 kr)\n' +
-          '- **Faithful Floral Tee** (Nydelig dame-tee med blomsterdetaljer, 349 kr)\n' +
-          '- **Grace Oversized Tee** (Oversized unisex tee, 449 kr)\n' +
-          '- **Little Disciple T-skjorte** (Til barna, 199 kr)\n\n' +
-          '💡 Du finner alle under menyen **Klær**! Klikk gjerne dit for å filtrere på farge og størrelse.';
-      }
-      else if (lower.includes('plakat') || lower.includes('poster') || lower.includes('salme') || lower.includes('bilde')) {
-        reply = '### 🖼️ Plakater & Kunsttrykk\n\n' +
-          'Pryd veggene hjemme med oppmuntring:\n' +
-          '- **Salme 23 Plakat** (Vakkert kunsttrykk med hele hyrdesalmen, 249 kr)\n' +
-          '- **Guds Fred Plakat (A3)** (Minimalistisk design på salg til 199 kr, før 299 kr)\n\n' +
-          '💡 Plakatene er trykket på tykt, matt kvalitetspapir for et premium uttrykk.';
-      }
-      else if (lower.includes('sticker') || lower.includes('klister')) {
-        reply = '### 🏷️ Klistermerker\n\n' +
-          '- Vår populære **Velsignelse Klistermerkepakke** koster **149 kr** og inneholder 8 slitesterke vinyl-klistermerker.\n' +
-          '- Perfekt til å dekorere laptopen, vannflasken, bibelen eller mobilen med oppmuntrende budskap.';
       }
       else if (lower.includes('kontakt') || lower.includes('kundeservice') || lower.includes('e-post') || lower.includes('adresse') || lower.includes('telefon')) {
         reply = '### 📞 Kontakt Kundeservice\n\n' +

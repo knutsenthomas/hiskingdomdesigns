@@ -5,12 +5,51 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import { wixClient } from '@/lib/wix';
 
-// Helper to parse bold (**) and italic (*) syntax into React nodes
+// Helper to parse bold (**), italic (*), and markdown links ([text](url)) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
   if (!text) return '';
-  const regex = /(\*\*.*?\*\*|\*.*?\*)/g;
+  const regex = /(\[.*?\]\(.*?\)\*?|\*\*.*?\*\*|\*.*?\*)/g;
   const tokens = text.split(regex);
   return tokens.map((token, index) => {
+    if (token.startsWith('[') && token.includes('](')) {
+      const match = token.match(/\[(.*?)\]\((.*?)\)/);
+      if (match) {
+        const linkText = match[1];
+        const linkUrl = match[2];
+        const isExternal = linkUrl.startsWith('http');
+        if (isExternal) {
+          return (
+            <a
+              key={index}
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`underline font-semibold transition-colors ${
+                isAssistant 
+                  ? 'text-terracotta hover:text-terracotta/80' 
+                  : 'text-white hover:text-white/80'
+              } pointer-events-auto`}
+            >
+              {linkText}
+            </a>
+          );
+        } else {
+          return (
+            <a
+              key={index}
+              href={linkUrl}
+              className={`underline font-semibold transition-colors ${
+                isAssistant 
+                  ? 'text-terracotta hover:text-terracotta/80' 
+                  : 'text-white hover:text-white/80'
+              } pointer-events-auto`}
+            >
+              {linkText}
+            </a>
+          );
+        }
+      }
+    }
     if (token.startsWith('**') && token.endsWith('**')) {
       const content = token.slice(2, -2);
       return (
