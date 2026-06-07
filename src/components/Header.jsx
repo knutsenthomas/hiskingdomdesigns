@@ -127,10 +127,12 @@ export default function Header() {
                   location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                 }`}
               >
-                <span>Alle Produkter</span>
-                <span className={`absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                  location.pathname === '/products' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                }`} />
+                <span className="relative py-1">
+                  Alle Produkter
+                  <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                    location.pathname === '/products' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  }`} />
+                </span>
               </Link>
 
               {/* Collapsible Megamenu Link */}
@@ -144,11 +146,13 @@ export default function Header() {
                     megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                   }`}
                 >
-                  <span>Kategorier</span>
+                  <span className="relative py-1">
+                    Kategorier
+                    <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                      megamenuOpen || location.pathname.startsWith('/category/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                    }`} />
+                  </span>
                   <ChevronDown size={14} className={`transition-transform duration-300 ${megamenuOpen ? 'rotate-180' : ''}`} />
-                  <span className={`absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                    megamenuOpen || location.pathname.startsWith('/category/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                  }`} />
                 </button>
               </div>
 
@@ -161,13 +165,13 @@ export default function Header() {
                     : 'text-terracotta/90 hover:text-terracotta font-semibold'
                 }`}
               >
-                <span className="flex items-center gap-1">
+                <span className="relative py-1 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-terracotta rounded-full animate-pulse" />
                   Salg
+                  <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                    location.pathname === '/category/Salg' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  }`} />
                 </span>
-                <span className={`absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                  location.pathname === '/category/Salg' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                }`} />
               </Link>
             </nav>
           </div>
