@@ -3,8 +3,14 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Shield, Compass } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 export default function About() {
+  useMeta(
+    "Om oss",
+    "Lær mer om His Kingdom Ministry og His Kingdom Designs. Vi driver med undervisning, bønn og misjon med base i Lyngdal, og tilbyr kristne produkter."
+  );
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}

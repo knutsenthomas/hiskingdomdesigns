@@ -4,13 +4,18 @@ import { ChevronRight, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
-
-
+import useMeta from '@/hooks/useMeta';
 
 export default function Category() {
   const { products, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName } = useApp();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
+  
+  useMeta(
+    categoryName || 'Kategorier',
+    `Utforsk vårt utvalg av produkter i kategorien ${categoryName || 'kategorier'} hos His Kingdom Designs. Finn bibelvers på klær, plakater og tilbehør.`
+  );
+
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Read search URL param

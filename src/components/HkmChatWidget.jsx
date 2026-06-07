@@ -147,6 +147,13 @@ const renderRichText = (text, isAssistant) => {
   return <div className="space-y-1">{renderedElements}</div>;
 };
 
+const QUICK_REPLIES = [
+  { text: "Hva er leveringstiden?", label: "🚚 Leveringstid" },
+  { text: "Hvordan gjør jeg en retur?", label: "🔄 Retur & Bytte" },
+  { text: "Har dere gratis frakt?", label: "🎁 Gratis frakt" },
+  { text: "Hvilke størrelser tilbyr dere?", label: "📏 Størrelsesguide" }
+];
+
 export default function HkmChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
@@ -593,6 +600,13 @@ export default function HkmChatWidget() {
         .hkm-chat-toggle:active {
           transform: translateZ(0) scale(0.95) !important;
         }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none !important;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
       `}} />
 
       <AnimatePresence>
@@ -832,6 +846,28 @@ export default function HkmChatWidget() {
                 </>
               )}
             </div>
+
+            {/* Quick Replies chips bar (Byrå-UX feature) */}
+            {(!needsContactInfo || chatMode === 'ai') && !chatError && (
+              <div className="px-3 pt-2 pb-1 bg-slate-50 flex gap-2 overflow-x-auto select-none no-scrollbar shrink-0 scrollbar-none border-t border-outline-variant/30">
+                {QUICK_REPLIES.map((reply, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      if (chatMode === 'ai') {
+                        sendAssistantMessage(reply.text);
+                      } else {
+                        setInputText(reply.text);
+                      }
+                    }}
+                    className="flex-shrink-0 bg-white border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer flex items-center gap-1"
+                  >
+                    {reply.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Input Form - Strict block to prevent jitter */}
             {(!needsContactInfo || chatMode === 'ai') && !chatError && (

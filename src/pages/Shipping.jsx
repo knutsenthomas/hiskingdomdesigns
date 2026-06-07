@@ -3,8 +3,14 @@ import { motion } from 'framer-motion';
 import { Truck, RotateCcw, AlertCircle, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 export default function Shipping() {
+  useMeta(
+    "Frakt og retur",
+    "Få all informasjon om leveringstider, fraktpriser (gratis frakt over 1500 kr) og den enkle returprosessen vår hos His Kingdom Designs."
+  );
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}

@@ -6,6 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import { media } from '@wix/sdk';
+import CartDrawer from '@/components/CartDrawer';
 
 // Helper to safely extract and build profile image URL from Wix member object
 
@@ -34,7 +35,7 @@ const getProfileImageUrl = (member) => {
 
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName } = useApp();
-  const { cartCount } = useCart();
+  const { cartCount, setIsCartDrawerOpen } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
@@ -227,9 +228,9 @@ export default function Header() {
               )}
             </Link>
 
-            <Link 
-              to="/cart"
-              className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center"
+            <button 
+              onClick={() => setIsCartDrawerOpen(true)}
+              className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center cursor-pointer"
               aria-label="Handlekurv"
             >
               <ShoppingCart size={20} />
@@ -246,7 +247,7 @@ export default function Header() {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </Link>
+            </button>
 
             <button 
               onClick={() => setMobileMenuOpen(true)}
@@ -549,6 +550,7 @@ export default function Header() {
           </nav>
         </div>
       )}
+      <CartDrawer />
     </>
   );
 }

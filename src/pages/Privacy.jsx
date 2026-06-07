@@ -2,8 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Eye, Lock, FileText } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 export default function Privacy() {
+  useMeta(
+    "Personvernerklæring",
+    "Les personvernerklæringen for His Kingdom Designs. Vi tar ditt personvern på alvor og sikrer dine personopplysninger."
+  );
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}

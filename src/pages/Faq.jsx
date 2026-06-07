@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Search, HelpCircle } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 const FAQ_ITEMS = [
   {
@@ -91,6 +92,11 @@ const FAQ_ITEMS = [
 ];
 
 export default function Faq() {
+  useMeta(
+    "Ofte stilte spørsmål (FAQ)",
+    "Finn svar på ofte stilte spørsmål om frakt, leveringstider, betaling, størrelser og retur hos His Kingdom Designs."
+  );
+
   const [searchQuery, setSearchQuery] = useState('');
   const [openItems, setOpenItems] = useState({});
 

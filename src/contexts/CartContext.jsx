@@ -23,6 +23,8 @@ export const CartProvider = ({ children }) => {
     }
   });
 
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+
   useEffect(() => {
     try {
       localStorage.setItem('hkd-cart-items', JSON.stringify(cartItems));
@@ -32,6 +34,7 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product, selectedSize = 'M', selectedColor = 'Hvit', qty = 1) => {
+    setIsCartDrawerOpen(true); // Open the drawer immediately on add
     setCartItems(prev => {
       const existingIndex = prev.findIndex(item => 
         item.id === product.id && 
@@ -585,7 +588,9 @@ export const CartProvider = ({ children }) => {
       estimateError,
       shippingAddress,
       estimateShippingAndTotals,
-      clearEstimation
+      clearEstimation,
+      isCartDrawerOpen,
+      setIsCartDrawerOpen
     }}>
       {children}
     </CartContext.Provider>

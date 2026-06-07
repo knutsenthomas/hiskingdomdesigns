@@ -6,6 +6,7 @@ import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 const MOCK_TESTIMONIALS = [
   {
@@ -61,6 +62,11 @@ const FALLBACK_INSTAGRAM_FEED = [
 ];
 
 export default function Home() {
+  useMeta(
+    "Hjem",
+    "His Kingdom Designs tilbyr lekre kristne motiver på t-skjorter, hoodies, caps og plakater. Finn dine favorittbibelvers trykket på premium materialer."
+  );
+
   const { products } = useApp();
   const navigate = useNavigate();
 

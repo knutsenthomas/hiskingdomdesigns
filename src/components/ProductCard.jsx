@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, Check, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useApp } from '@/contexts/AppContext';
+import { getOptimizedWixImageUrl } from '@/lib/media';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -57,7 +58,7 @@ export default function ProductCard({ product }) {
         <img 
           alt={product.name} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-          src={product.image}
+          src={getOptimizedWixImageUrl(product.image, 400, 400)}
           loading="lazy"
         />
 

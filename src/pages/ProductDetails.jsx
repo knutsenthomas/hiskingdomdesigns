@@ -1,11 +1,169 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart } from 'lucide-react';
+import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import ProductCard from '@/components/ProductCard';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
+import { getOptimizedWixImageUrl } from '@/lib/media';
+import useMeta from '@/hooks/useMeta';
+
+function SizeGuideContent({ defaultTab = 'clothing' }) {
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  return (
+    <div className="flex flex-col flex-1 overflow-hidden">
+      {/* Tabs list */}
+      <div className="flex border-b border-outline-variant/30 text-xs font-semibold select-none bg-slate-50">
+        <button
+          onClick={() => setActiveTab('clothing')}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            activeTab === 'clothing' 
+              ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+              : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+          }`}
+        >
+          👚 Klær (T-skjorte / Hoodie)
+        </button>
+        <button
+          onClick={() => setActiveTab('caps')}
+          className={`flex-1 py-3.5 text-center transition-all border-x border-outline-variant/20 ${
+            activeTab === 'caps' 
+              ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+              : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+          }`}
+        >
+          🧢 Hatter & Caps
+        </button>
+        <button
+          onClick={() => setActiveTab('posters')}
+          className={`flex-1 py-3.5 text-center transition-all ${
+            activeTab === 'posters' 
+              ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+              : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+          }`}
+        >
+          🖼️ Plakat-formater
+        </button>
+      </div>
+
+      {/* Tab Panels */}
+      <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed text-secondary custom-scrollbar flex-1">
+        {activeTab === 'clothing' && (
+          <div className="space-y-4">
+            <p className="italic">Våre klær er laget av 100% organisk bomull og har en behagelig, normal skandinavisk passform (true to size). Vi anbefaler å vaske på 30 grader med vrangen ut for at motivet skal holde seg best mulig.</p>
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-2.5 px-3">Størrelse</th>
+                  <th className="py-2.5 px-3">Bredde (A)</th>
+                  <th className="py-2.5 px-3">Lengde (B)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">S</td>
+                  <td className="py-2.5 px-3">48 cm</td>
+                  <td className="py-2.5 px-3">69 cm</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">M</td>
+                  <td className="py-2.5 px-3">51 cm</td>
+                  <td className="py-2.5 px-3">71 cm</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">L</td>
+                  <td className="py-2.5 px-3">54 cm</td>
+                  <td className="py-2.5 px-3">73 cm</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">XL</td>
+                  <td className="py-2.5 px-3">57 cm</td>
+                  <td className="py-2.5 px-3">75 cm</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">XXL</td>
+                  <td className="py-2.5 px-3">60 cm</td>
+                  <td className="py-2.5 px-3">77 cm</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mt-2">
+              <p className="font-semibold text-onyx mb-1 text-[10px] uppercase">Hvordan måle?</p>
+              <p><strong>Bredde (A):</strong> Mål på tvers av brystet, 2 cm under armhulene, mens plagget ligger flatt.</p>
+              <p><strong>Lengde (B):</strong> Mål fra det høyeste punktet på skulderen og helt ned til nederste kant.</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'caps' && (
+          <div className="space-y-4">
+            <p className="italic">Våre hatter og caps er utstyrt med en justerbar stropp eller snapback-spenne bak, noe som gjør at de passer de aller fleste hodeformer og størrelser perfekt.</p>
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-2.5 px-3">Type</th>
+                  <th className="py-2.5 px-3">Hodeomkrets</th>
+                  <th className="py-2.5 px-3">Justerbarhet</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">Caps (Snapback / Justerbar)</td>
+                  <td className="py-2.5 px-3">54 – 60 cm</td>
+                  <td className="py-2.5 px-3">Spenne bak (Plast eller metall)</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">Bøttehatt (Bucket hat)</td>
+                  <td className="py-2.5 px-3">56 – 58 cm</td>
+                  <td className="py-2.5 px-3">Fast omkrets (Fleksibelt bomullsstoff)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === 'posters' && (
+          <div className="space-y-4">
+            <p className="italic">Våre motiver og kunstplakater trykkes på matt, syrefritt premiumpapir av museumskvalitet. De leveres i standardformater som gjør det svært enkelt å finne matchende rammer i din lokale butikk.</p>
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-2.5 px-3">Format</th>
+                  <th className="py-2.5 px-3">Dimensjoner (i cm)</th>
+                  <th className="py-2.5 px-3">Papirtype</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">A4</td>
+                  <td className="py-2.5 px-3">21.0 x 29.7 cm</td>
+                  <td className="py-2.5 px-3">230g Matte Premium</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">A3</td>
+                  <td className="py-2.5 px-3">29.7 x 42.0 cm</td>
+                  <td className="py-2.5 px-3">230g Matte Premium</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">30x40 cm</td>
+                  <td className="py-2.5 px-3">30.0 x 40.0 cm</td>
+                  <td className="py-2.5 px-3">230g Matte Premium</td>
+                </tr>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2.5 px-3 font-semibold text-onyx">50x70 cm</td>
+                  <td className="py-2.5 px-3">50.0 x 70.0 cm</td>
+                  <td className="py-2.5 px-3">230g Matte Premium</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function ProductDetails() {
   const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
@@ -22,6 +180,22 @@ export default function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState('Hvit');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(null);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+
+  // Sync activeImage when product loads/changes
+  useEffect(() => {
+    if (product?.image) {
+      setActiveImage(product.image);
+    }
+  }, [product]);
+
+  // Set SEO metadata dynamically using our custom hook
+  useMeta(
+    product ? product.name : 'Produktdetaljer',
+    product ? product.description.substring(0, 155) : 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
+    product ? { type: 'product', image: product.image, price: `${product.price} NOK` } : null
+  );
   
   const isWishlisted = product ? isInWishlist(product.id) : false;
 
@@ -419,16 +593,37 @@ export default function ProductDetails() {
           <div className="bg-white rounded-xl overflow-hidden shadow-sm aspect-square md:aspect-[4/5] flex items-center justify-center p-8 border border-outline-variant/35">
             <img 
               alt={product.name} 
-              className="max-w-full max-h-full object-contain rounded-lg hover:scale-105 transition-transform duration-500" 
-              src={product.image}
+              className="max-w-full max-h-full object-contain rounded-lg hover:scale-[1.03] transition-transform duration-500" 
+              src={getOptimizedWixImageUrl(activeImage || product.image, 600, 750)}
             />
           </div>
-          {/* Thumbnails (for visual complete design look) */}
-          <div className="flex gap-4 overflow-x-auto pb-2">
-            <div className="w-20 h-20 bg-white rounded-lg border-2 border-terracotta p-1.5 flex-shrink-0 cursor-pointer shadow-sm">
-              <img alt="Thumbnail" className="w-full h-full object-contain rounded" src={product.image} />
+          {/* Thumbnails (for visual complete design look and active image switching) */}
+          {product.images && product.images.length > 0 && (
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin select-none">
+              {product.images.map((imgUrl, idx) => {
+                const isActive = (activeImage || product.image) === imgUrl;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImage(imgUrl)}
+                    className={`w-20 h-20 rounded-lg p-1.5 flex-shrink-0 cursor-pointer shadow-sm border-2 transition-all outline-none ${
+                      isActive 
+                        ? 'border-terracotta bg-white scale-[1.02]' 
+                        : 'border-outline-variant/50 hover:border-terracotta/40 bg-white'
+                    }`}
+                  >
+                    <img 
+                      alt={`Produktbilde thumbnail ${idx + 1}`} 
+                      className="w-full h-full object-contain rounded" 
+                      src={getOptimizedWixImageUrl(imgUrl, 100, 100)} 
+                      loading="lazy"
+                    />
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Info Column */}
@@ -531,7 +726,14 @@ export default function ProductDetails() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="font-label-md text-label-md text-onyx">Størrelse</span>
-                <button className="text-label-sm text-terracotta hover:underline">Størrelsesguide</button>
+                <button 
+                  type="button" 
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  className="text-label-sm text-terracotta hover:underline flex items-center gap-1 cursor-pointer font-semibold"
+                >
+                  <Ruler size={14} />
+                  Størrelsesguide
+                </button>
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {product.sizes.map(size => {
@@ -942,6 +1144,53 @@ export default function ProductDetails() {
           </div>
         </section>
       )}
+
+      {/* Size Guide Modal (Byrå-UX modal) */}
+      <AnimatePresence>
+        {isSizeGuideOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSizeGuideOpen(false)}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-onyx/40 backdrop-blur-sm pointer-events-auto cursor-pointer"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-outline-variant/30 flex flex-col max-h-[85vh] cursor-default"
+            >
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-outline-variant/20 flex justify-between items-center bg-slate-50 shrink-0">
+                <div className="flex items-center gap-2.5 text-terracotta">
+                  <Ruler size={18} />
+                  <h3 className="font-bold text-sm text-onyx">Størrelsesguide</h3>
+                </div>
+                <button
+                  onClick={() => setIsSizeGuideOpen(false)}
+                  className="p-1.5 hover:bg-slate-200 rounded-full text-secondary hover:text-onyx transition-all active:scale-95 cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Size Guide Content with intelligent default tab */}
+              <SizeGuideContent 
+                defaultTab={
+                  (product?.category?.toLowerCase() || '').includes('hat') || (product?.category?.toLowerCase() || '').includes('caps') 
+                    ? 'caps' 
+                    : (product?.category?.toLowerCase() || '').includes('bilder') || (product?.category?.toLowerCase() || '').includes('plakat') 
+                      ? 'posters' 
+                      : 'clothing'
+                } 
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.main>
   );
 }

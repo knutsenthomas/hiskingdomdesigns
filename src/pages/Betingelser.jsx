@@ -2,8 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, CreditCard, ShoppingBag, Truck, RefreshCw, AlertCircle } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 export default function Betingelser() {
+  useMeta(
+    "Kjøpsbetingelser",
+    "Les kjøpsbetingelsene for His Kingdom Designs. Her finner du informasjon om angrerett, levering, betaling og reklamasjon."
+  );
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}
