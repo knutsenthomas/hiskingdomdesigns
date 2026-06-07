@@ -7,12 +7,44 @@ import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 import CmsText from '@/components/CmsText';
 
+const MOCK_TESTIMONIALS = [
+  {
+    _id: 'mock-1',
+    author: { authorName: 'Maria H.' },
+    content: {
+      rating: 5,
+      title: 'Fantastisk kvalitet',
+      body: 'Fantastisk kvalitet på t-skjortene! De holder formen vask etter vask, og budskapet starter alltid gode samtaler.'
+    }
+  },
+  {
+    _id: 'mock-2',
+    author: { authorName: 'Andreas T.' },
+    content: {
+      rating: 5,
+      title: 'Kjempefine plakater',
+      body: 'Plakatene er så fine! De gir stuen min en helt egen ro og påminnelse om Guds fred hver eneste dag.'
+    }
+  },
+  {
+    _id: 'mock-3',
+    author: { authorName: 'Karoline S.' },
+    content: {
+      rating: 5,
+      title: 'Lynrask levering',
+      body: 'Lynrask levering! Bestilte på mandag og pakken var i postkassen allerede onsdag. Veldig fornøyd.'
+    }
+  }
+];
+
 export default function Home() {
   const { products } = useApp();
   const navigate = useNavigate();
 
   const [plansList, setPlansList] = useState([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
+  const [testimonialsList, setTestimonialsList] = useState([]);
+  const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(true);
 
   useEffect(() => {
     async function fetchPlans() {
@@ -28,6 +60,31 @@ export default function Home() {
       }
     }
     fetchPlans();
+  }, []);
+
+  useEffect(() => {
+    async function fetchTestimonials() {
+      setIsLoadingTestimonials(true);
+      try {
+        const response = await wixClient.reviews.queryReviews({
+          query: {
+            filter: {
+              namespace: 'stores'
+            },
+            sort: [{ fieldName: '_createdDate', order: 'DESC' }],
+            paging: { limit: 3 }
+          }
+        });
+        if (response && response.items && response.items.length > 0) {
+          setTestimonialsList(response.items);
+        }
+      } catch (err) {
+        console.warn('Wix Reviews API call failed in Home. Using fallback testimonials.', err);
+      } finally {
+        setIsLoadingTestimonials(false);
+      }
+    }
+    fetchTestimonials();
   }, []);
 
   const handleSubscribe = async (plan) => {
@@ -286,65 +343,29 @@ export default function Home() {
             className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 text-onyx block"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
-              <div>
-                <div className="flex text-terracotta mb-4">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+            {(testimonialsList.length > 0 ? testimonialsList : MOCK_TESTIMONIALS).map((item) => (
+              <div 
+                key={item._id} 
+                className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between hover:shadow-md transition-all duration-300"
+              >
+                <div>
+                  <div className="flex text-terracotta mb-4">
+                    {[...Array(item.content?.rating || 5)].map((_, i) => (
+                      <Star key={i} size={18} fill="currentColor" />
+                    ))}
+                  </div>
+                  {item.content?.title && (
+                    <h4 className="font-bold text-sm text-onyx mb-2">{item.content.title}</h4>
+                  )}
+                  <p className="font-body-md text-body-md italic mb-6 text-onyx/80 leading-relaxed">
+                    {item.content?.body}
+                  </p>
                 </div>
-                <CmsText
-                  slug="home-testimonial-quote-1"
-                  fallback='"Fantastisk kvalitet på t-skjortene! De holder formen vask etter vask, og budskapet starter alltid gode samtaler."'
-                  as="p"
-                  className="font-body-md text-body-md italic mb-6 text-onyx/80"
-                />
+                <p className="font-label-md text-label-md text-onyx font-bold">
+                  - {item.author?.authorName || 'Anonym'}
+                </p>
               </div>
-              <CmsText
-                slug="home-testimonial-author-1"
-                fallback="- Maria H."
-                as="p"
-                className="font-label-md text-label-md text-onyx font-bold"
-              />
-            </div>
-            
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
-              <div>
-                <div className="flex text-terracotta mb-4">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                </div>
-                <CmsText
-                  slug="home-testimonial-quote-2"
-                  fallback='"Plakatene er så fine! De gir stuen min en helt egen ro og påminnelse om Guds fred hver eneste dag."'
-                  as="p"
-                  className="font-body-md text-body-md italic mb-6 text-onyx/80"
-                />
-              </div>
-              <CmsText
-                slug="home-testimonial-author-2"
-                fallback="- Andreas T."
-                as="p"
-                className="font-label-md text-label-md text-onyx font-bold"
-              />
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
-              <div>
-                <div className="flex text-terracotta mb-4">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                </div>
-                <CmsText
-                  slug="home-testimonial-quote-3"
-                  fallback='"Lynrask levering! Bestilte på mandag og pakken var i postkassen allerede onsdag. Veldig fornøyd."'
-                  as="p"
-                  className="font-body-md text-body-md italic mb-6 text-onyx/80"
-                />
-              </div>
-              <CmsText
-                slug="home-testimonial-author-3"
-                fallback="- Karoline S."
-                as="p"
-                className="font-label-md text-label-md text-onyx font-bold"
-              />
-            </div>
+            ))}
           </div>
         </div>
       </section>
