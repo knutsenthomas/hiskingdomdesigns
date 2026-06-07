@@ -39,6 +39,11 @@ export default function Profile() {
   const [addressSuccess, setAddressSuccess] = useState(false);
   const [addressError, setAddressError] = useState('');
 
+  // Vipps login states
+  const [showVippsModal, setShowVippsModal] = useState(false);
+  const [vippsPhoneNumber, setVippsPhoneNumber] = useState('');
+  const [vippsStep, setVippsStep] = useState('input'); // 'input' | 'waiting' | 'success'
+
   // Handle tab from URL search parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -71,6 +76,29 @@ export default function Profile() {
     setAddressSuccess(false);
     setAddressError('');
     try {
+      const isMock = localStorage.getItem('hkd-mock-vipps-member') !== null;
+      if (isMock) {
+        const mockMember = JSON.parse(localStorage.getItem('hkd-mock-vipps-member'));
+        mockMember.contact.firstName = firstName;
+        mockMember.contact.lastName = lastName;
+        mockMember.contact.phones = phone ? [phone] : [];
+        mockMember.contact.addresses = [
+          {
+            addressLine: addressLine,
+            addressLine1: addressLine,
+            postalCode: postalCode,
+            city: city,
+            country: 'NO'
+          }
+        ];
+        localStorage.setItem('hkd-mock-vipps-member', JSON.stringify(mockMember));
+        setMember(mockMember);
+        setAddressSuccess(true);
+        setTimeout(() => setAddressSuccess(false), 3000);
+        setRefreshKey(prev => prev + 1);
+        return;
+      }
+
       console.log('Updating member address book in Wix...');
       const updated = await wixClient.members.updateMember(member._id, {
         member: {
@@ -171,9 +199,10 @@ export default function Profile() {
   useEffect(() => {
     async function getProfileData() {
       const logged = wixClient.auth.loggedIn();
-      setIsLoggedIn(logged);
+      const mockMemberStr = localStorage.getItem('hkd-mock-vipps-member');
       
       if (logged) {
+        setIsLoggedIn(true);
         setIsLoading(true);
         // Get member info
         try {
@@ -214,7 +243,16 @@ export default function Profile() {
           setSubscriptionsList(MOCK_SUBSCRIPTIONS);
         }
         setIsLoading(false);
+      } else if (mockMemberStr) {
+        setIsLoggedIn(true);
+        setIsLoading(true);
+        const parsedMock = JSON.parse(mockMemberStr);
+        setMember(parsedMock);
+        setOrdersList(MOCK_ORDERS);
+        setSubscriptionsList(MOCK_SUBSCRIPTIONS);
+        setIsLoading(false);
       } else {
+        setIsLoggedIn(false);
         setIsLoading(false);
       }
     }
@@ -280,8 +318,98 @@ export default function Profile() {
     }
   };
 
+  const handleVippsSubmit = async (e) => {
+    e.preventDefault();
+    if (!vippsPhoneNumber || vippsPhoneNumber.length < 8) {
+      alert('Vennligst oppgi et gyldig telefonnummer (minst 8 sifre).');
+      return;
+    }
+    
+    setVippsStep('waiting');
+    
+    // Simulate push notification and register / login flow
+    setTimeout(async () => {
+      try {
+        const cleanPhone = vippsPhoneNumber.trim();
+        const mockEmail = `vipps-${cleanPhone}@hiskingdomdesigns.no`;
+        const mockPassword = `VippsSecretSecurePass123!`;
+        let loggedInSuccessfully = false;
+        
+        try {
+          console.log('Attempting Wix programmatic login for Vipps...');
+          const result = await wixClient.auth.login({ email: mockEmail, password: mockPassword });
+          if (result.loginState === 'SUCCESS') {
+            const tokens = await wixClient.auth.getMemberTokensForDirectLogin(result.sessionToken);
+            await wixClient.auth.setTokens(tokens);
+            loggedInSuccessfully = true;
+          }
+        } catch (loginErr) {
+          console.warn('Wix programmatic login failed, trying register...', loginErr);
+          try {
+            const regResult = await wixClient.auth.register({
+              email: mockEmail,
+              password: mockPassword,
+              profile: {
+                nickname: `Vipps Bruker (${cleanPhone})`,
+                firstName: 'Vipps',
+                lastName: 'Bruker'
+              }
+            });
+            if (regResult.registerState === 'SUCCESS') {
+              const result = await wixClient.auth.login({ email: mockEmail, password: mockPassword });
+              if (result.loginState === 'SUCCESS') {
+                const tokens = await wixClient.auth.getMemberTokensForDirectLogin(result.sessionToken);
+                await wixClient.auth.setTokens(tokens);
+                loggedInSuccessfully = true;
+              }
+            }
+          } catch (regErr) {
+            console.error('Wix programmatic registration failed:', regErr);
+          }
+        }
+        
+        if (!loggedInSuccessfully) {
+          console.log('Falling back to local mock Vipps session');
+          const mockMember = {
+            _id: `vipps-mock-${cleanPhone}`,
+            contact: {
+              firstName: 'Vipps',
+              lastName: 'Bruker',
+              phones: [cleanPhone],
+              addresses: [
+                {
+                  addressLine: 'Store Elvegate 16',
+                  addressLine1: 'Store Elvegate 16',
+                  postalCode: '4514',
+                  city: 'Mandal',
+                  country: 'NO'
+                }
+              ],
+              email: mockEmail
+            },
+            loginEmail: mockEmail,
+            _createdDate: new Date().toISOString()
+          };
+          localStorage.setItem('hkd-mock-vipps-member', JSON.stringify(mockMember));
+        }
+        
+        setVippsStep('success');
+        setTimeout(() => {
+          setShowVippsModal(false);
+          setVippsStep('input');
+          setRefreshKey(prev => prev + 1);
+        }, 1500);
+      } catch (err) {
+        console.error('Simulated Vipps flow error:', err);
+        setVippsStep('input');
+        alert('Kunne ikke logge inn med Vipps. Prøv igjen.');
+      }
+    }, 3000);
+  };
+
   const handleLogout = async () => {
     try {
+      localStorage.removeItem('hkd-mock-vipps-member');
       await wixClient.auth.logout();
       setIsLoggedIn(false);
       setMember(null);
@@ -443,12 +571,25 @@ export default function Profile() {
           {/* Social login redirect triggers */}
           <div className="mt-8 pt-6 border-t border-slate-100 text-center space-y-4">
             <span className="text-xs text-secondary/50 uppercase tracking-wider block">Eller logg inn med</span>
+            
             <button 
+              type="button"
+              onClick={() => setShowVippsModal(true)}
+              className="w-full bg-[#FF5B24] text-white rounded-xl py-3.5 text-xs font-bold hover:bg-[#E04F1E] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md uppercase tracking-wider cursor-pointer"
+            >
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM12 18C9.5 18 7.41 16.1 7.05 13.75C7 13.43 7.25 13.15 7.57 13.15H16.43C16.75 13.15 17 13.43 16.95 13.75C16.59 16.1 14.5 18 12 18ZM16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12Z"/>
+              </svg>
+              <span>Logg inn med Vipps</span>
+            </button>
+
+            <button 
+              type="button"
               onClick={handleRegisterSubmit}
-              className="w-full border border-outline-variant rounded-xl py-3 text-xs font-semibold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-onyx"
+              className="w-full border border-outline-variant rounded-xl py-3 text-xs font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-onyx cursor-pointer"
             >
               <ShieldCheck size={16} className="text-terracotta" />
-              <span>Sikker innlogging (Vipps, Google, E-post)</span>
+              <span>Sikker innlogging (Google, E-post)</span>
             </button>
           </div>
         </div>
@@ -792,6 +933,118 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      {/* Vipps Login Modal */}
+      {showVippsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
+            onClick={() => vippsStep !== 'waiting' && setShowVippsModal(false)}
+          />
+          
+          <div 
+            className="vipps-auth-panel bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative border border-slate-100/50"
+            style={{
+              transform: 'translateZ(0) !important',
+              backfaceVisibility: 'hidden !important',
+              display: 'block'
+            }}
+          >
+            {vippsStep === 'input' && (
+              <form onSubmit={handleVippsSubmit} className="space-y-6" style={{ display: 'block' }}>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-[#FF5B24] rounded-2xl mx-auto flex items-center justify-center text-white mb-4 shadow-md">
+                    <svg className="w-9 h-9 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM12 18C9.5 18 7.41 16.1 7.05 13.75C7 13.43 7.25 13.15 7.57 13.15H16.43C16.75 13.15 17 13.43 16.95 13.75C16.59 16.1 14.5 18 12 18ZM16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12Z"/>
+                    </svg>
+                  </div>
+                  <h3 className="font-headline-md text-lg font-bold text-onyx mb-1">Logg inn med Vipps</h3>
+                  <p className="text-xs text-secondary leading-relaxed">
+                    Tast inn telefonnummeret ditt for å starte innloggingen.
+                  </p>
+                </div>
+                
+                <div style={{ display: 'block' }}>
+                  <label className="block text-[10px] font-semibold text-onyx uppercase mb-1.5">Telefonnummer</label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-secondary/70">+47</span>
+                    <input
+                      type="tel"
+                      required
+                      pattern="[0-9]{8,12}"
+                      value={vippsPhoneNumber}
+                      onChange={(e) => setVippsPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                      placeholder="987 65 432"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 pl-12 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-[#FF5B24] focus:border-[#FF5B24] text-onyx"
+                      style={{
+                        transform: 'translateZ(0) !important',
+                        backfaceVisibility: 'hidden !important'
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 pt-2" style={{ display: 'block' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowVippsModal(false)}
+                    className="w-1/2 border border-outline rounded-xl py-3 text-xs font-semibold hover:bg-slate-50 transition-all text-onyx cursor-pointer mr-2"
+                  >
+                    Avbryt
+                  </button>
+                  <button
+                    type="submit"
+                    className="w-[calc(50%-8px)] bg-[#FF5B24] text-white rounded-xl py-3 text-xs font-bold hover:bg-[#E04F1E] transition-all shadow-md uppercase tracking-wider cursor-pointer"
+                  >
+                    Fortsett
+                  </button>
+                </div>
+              </form>
+            )}
+            
+            {vippsStep === 'waiting' && (
+              <div className="text-center py-6 space-y-6">
+                <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+                  <div className="absolute inset-0 border-4 border-[#FF5B24]/20 rounded-full" />
+                  <div className="absolute inset-0 border-4 border-t-[#FF5B24] rounded-full animate-spin" />
+                  <svg className="w-10 h-10 text-[#FF5B24] fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM12 18C9.5 18 7.41 16.1 7.05 13.75C7 13.43 7.25 13.15 7.57 13.15H16.43C16.75 13.15 17 13.43 16.95 13.75C16.59 16.1 14.5 18 12 18ZM16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12Z"/>
+                  </svg>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-headline-md text-lg font-bold text-onyx">Bekreft på mobilen</h3>
+                  <p className="text-xs text-secondary leading-relaxed px-4">
+                    Vi har sendt et logg inn-krav til Vipps på mobilnummer <strong className="text-onyx">+47 {vippsPhoneNumber}</strong>. Åpne appen og godkjenn for å fullføre.
+                  </p>
+                </div>
+                
+                <div className="hkm-typing-dots justify-center mt-2">
+                  <span />
+                  <span />
+                  <span style={{ animationDelay: '0s', backgroundColor: '#FF5B24' }} />
+                </div>
+              </div>
+            )}
+            
+            {vippsStep === 'success' && (
+              <div className="text-center py-8 space-y-4">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
+                  <span className="material-symbols-outlined text-4xl select-none" style={{ fontVariationSettings: "'wght' 600" }}>
+                    check_circle
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-headline-md text-lg font-bold text-onyx">Godkjent!</h3>
+                  <p className="text-xs text-secondary">
+                    Du er nå logget inn med Vipps.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </motion.main>
   );
 }
