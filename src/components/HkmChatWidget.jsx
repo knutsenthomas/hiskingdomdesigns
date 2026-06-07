@@ -288,7 +288,7 @@ export default function HkmChatWidget() {
         };
 
         const mapped = res.messages.map(msg => {
-          const isUser = msg.direction === 'VISITOR_TO_BUSINESS';
+          const isUser = msg.direction === 'VISITOR_TO_BUSINESS' || msg.direction === 'PARTICIPANT_TO_BUSINESS';
           let timeStr = msg._createdDate ? safeFormatTime(msg._createdDate) : '';
           if (!timeStr) {
             timeStr = safeFormatTime(new Date());

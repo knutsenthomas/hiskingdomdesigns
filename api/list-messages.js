@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     }
 
     console.log('Backend calling listMessages for conversationId:', conversationId);
-    const result = await wixClient.inboxMessages.listMessages({ conversationId });
+    const result = await wixClient.inboxMessages.listMessages(conversationId, 'BUSINESS_AND_PARTICIPANT');
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in list-messages serverless function:', error);

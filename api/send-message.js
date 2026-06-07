@@ -1,8 +1,9 @@
 import { createClient, ApiKeyStrategy } from '@wix/sdk';
-import { messages } from '@wix/inbox';
+import { conversations, messages } from '@wix/inbox';
 
 const wixClient = createClient({
   modules: {
+    inboxConversations: conversations,
     inboxMessages: messages,
   },
   auth: ApiKeyStrategy({
@@ -44,11 +45,26 @@ export default async function handler(req, res) {
 
     console.log('Backend sending message to conversation:', conversationId);
     
-    // Ensure direction and visibility are correctly set for visitor messages
+    let sender = message.sender;
+    if (!sender) {
+      try {
+        console.log('Backend resolving participant/sender for conversation:', conversationId);
+        const convDetails = await wixClient.inboxConversations.getConversation(conversationId);
+        if (convDetails && convDetails.participant) {
+          sender = convDetails.participant;
+          console.log('Backend resolved sender to:', JSON.stringify(sender));
+        }
+      } catch (err) {
+        console.warn('Backend failed to resolve sender from conversation:', err);
+      }
+    }
+
+    // Ensure direction, visibility and sender are correctly set
     const formattedMessage = {
       ...message,
       direction: message.direction || 'PARTICIPANT_TO_BUSINESS',
-      visibility: message.visibility || 'BUSINESS_AND_PARTICIPANT'
+      visibility: message.visibility || 'BUSINESS_AND_PARTICIPANT',
+      ...(sender ? { sender } : {})
     };
 
     const result = await wixClient.inboxMessages.sendMessage(conversationId, formattedMessage);
