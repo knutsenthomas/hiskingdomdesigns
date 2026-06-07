@@ -15,6 +15,7 @@ import Team from '@/pages/Team';
 import Shipping from '@/pages/Shipping';
 import Faq from '@/pages/Faq';
 import Privacy from '@/pages/Privacy';
+import Betingelser from '@/pages/Betingelser';
 import Profile from '@/pages/Profile';
 import { AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
@@ -54,6 +55,7 @@ function MainLayout() {
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/faq" element={<Faq />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/betingelser" element={<Betingelser />} />
             <Route path="/profile" element={<Profile />} />
             {/* Fallback to home */}
             <Route path="*" element={<Home />} />

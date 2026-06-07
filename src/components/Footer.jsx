@@ -113,6 +113,9 @@ export default function Footer() {
             <li>
               <Link to="/privacy" className="text-parchment/80 hover:text-terracotta transition-colors">Personvernerklæring</Link>
             </li>
+            <li>
+              <Link to="/betingelser" className="text-parchment/80 hover:text-terracotta transition-colors">Kjøpsbetingelser</Link>
+            </li>
           </ul>
         </div>
 
