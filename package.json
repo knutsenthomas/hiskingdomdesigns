@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@wix/ecom": "^1.0.2103",
+    "@wix/members": "^1.0.459",
+    "@wix/pricing-plans": "^1.0.327",
     "@wix/redirects": "^1.0.115",
     "@wix/sdk": "^1.21.12",
     "@wix/stores": "^1.0.799",

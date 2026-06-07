@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { wixClient } from '@/lib/wix';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
@@ -9,6 +10,80 @@ import CmsText from '@/components/CmsText';
 export default function Home() {
   const { products } = useApp();
   const navigate = useNavigate();
+
+  const [plansList, setPlansList] = useState([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        const response = await wixClient.plans.queryPublicPlans().limit(10).find();
+        if (response.items && response.items.length > 0) {
+          setPlansList(response.items);
+        }
+      } catch (err) {
+        console.warn('Wix Pricing Plans API not available or app not installed. Using mock fallback plans.', err);
+      } finally {
+        setIsLoadingPlans(false);
+      }
+    }
+    fetchPlans();
+  }, []);
+
+  const handleSubscribe = async (plan) => {
+    if (plan._id.startsWith('mock-')) {
+      alert(`Takk for din interesse i abonnementsplanen "${plan.name}"! Siden dette er en testbutikk, er denne abonnementsfunksjonen for øyeblikket i demomodus.`);
+      return;
+    }
+    
+    try {
+      const redirectSession = await wixClient.redirects.createRedirectSession({
+        pricingPlanCheckout: {
+          planId: plan._id,
+        },
+        callbacks: {
+          postFlowUrl: window.location.origin,
+          thankYouPageUrl: window.location.origin + '/profile'
+        }
+      });
+      if (redirectSession && redirectSession.fullUrl) {
+        window.location.href = redirectSession.fullUrl;
+      }
+    } catch (err) {
+      console.error('Subscription redirect error:', err);
+      alert('Det oppstod en feil ved opprettelse av abonnement. Vennligst prøv igjen.');
+    }
+  };
+
+  const MOCK_PLANS = [
+    {
+      _id: 'mock-plan-1',
+      name: 'Klistermerkeklubben',
+      description: 'Få 5 unike og oppmuntrende klistermerker rett i postkassen hver måned.',
+      price: { amount: '49', currency: 'kr' },
+      recurring: true,
+      benefits: [
+        '5 unike klistermerker/mnd',
+        'Gratis frakt inkludert',
+        'Eksklusive design',
+        'Avslutt når som helst'
+      ]
+    },
+    {
+      _id: 'mock-plan-2',
+      name: 'Kopp & Kos',
+      description: 'Hver måned sender vi deg en splitter ny kopp med tro-budskap og kaffe/te.',
+      price: { amount: '199', currency: 'kr' },
+      recurring: true,
+      benefits: [
+        '1 premium kopp/mnd',
+        'Utvalgt kaffe eller te',
+        'Gratis frakt inkludert',
+        'Avslutt når som helst'
+      ],
+      popular: true
+    }
+  ];
 
   // Filter out bestsellers
   const bestsellers = products.filter(p => p.isBestseller);
@@ -296,32 +371,78 @@ export default function Home() {
               slug="home-subscription-title" 
               fallback="Litt hverdagskos rett i postkassen" 
               as="h2" 
-              className="font-headline-xl text-2xl md:text-3xl lg:text-[48px] mb-6 text-onyx"
+              className="font-headline-xl text-2xl md:text-3xl lg:text-[40px] mb-4 text-onyx font-extrabold"
               style={{ lineHeight: '1.2' }}
             />
             <CmsText
               slug="home-subscription-desc"
-              fallback='Velg mellom våre populære abonnementsløsninger som "Kopp &amp; Kos" eller "Klistermerkepakken". Perfekt som en gave til deg selv eller en du er glad i.'
+              fallback="Velg mellom våre populære abonnementsløsninger som Kopp & Kos eller Klistermerkeklubben. Perfekt som en gave."
               as="p"
-              className="font-body-lg text-body-lg mb-8 text-secondary leading-relaxed"
+              className="font-body-md text-body-md mb-8 text-secondary leading-relaxed"
             />
-            <ul className="space-y-4 mb-10">
-              <li className="flex items-center gap-3">
-                <CheckCircle size={20} className="text-terracotta shrink-0" />
-                <CmsText slug="home-subscription-feature-1" fallback="Ingen bindingstid – avslutt når du vil" as="span" className="font-body-md text-onyx/80" />
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle size={20} className="text-terracotta shrink-0" />
-                <CmsText slug="home-subscription-feature-2" fallback="Eksklusive design kun for abonnenter" as="span" className="font-body-md text-onyx/80" />
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle size={20} className="text-terracotta shrink-0" />
-                <CmsText slug="home-subscription-feature-3" fallback="Gratis frakt på alle pakker" as="span" className="font-body-md text-onyx/80" />
-              </li>
-            </ul>
-            <button className="bg-onyx text-white px-10 py-4 rounded-lg font-label-md text-label-md hover:bg-terracotta hover:scale-[1.02] transition-all shadow-lg active:scale-[0.98]">
-              Se pakkene
-            </button>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+              {(plansList.length > 0 ? plansList : MOCK_PLANS).map((plan) => {
+                const planId = plan._id;
+                const priceVal = plan.price?.amount || plan.pricing?.price?.value || '0';
+                const currencyVal = plan.price?.currency || plan.pricing?.price?.currency || 'kr';
+                const isRecurring = plan.recurring || plan.pricing?.planProductType === 'RECURRING' || planId.startsWith('mock-');
+                const planBenefits = plan.benefits || plan.perks?.values || [];
+                
+                return (
+                  <div 
+                    key={planId}
+                    className={`bg-white rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between shadow-sm relative ${
+                      plan.popular ? 'border-terracotta ring-2 ring-terracotta/25' : 'border-outline-variant/60 hover:border-terracotta/35'
+                    }`}
+                  >
+                    {plan.popular && (
+                      <span className="absolute -top-3 left-4 bg-terracotta text-white text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
+                        Populær
+                      </span>
+                    )}
+                    <div>
+                      <h3 className="font-bold text-onyx text-base mb-1">
+                        {plan.name}
+                      </h3>
+                      <p className="text-secondary text-xs mb-4 leading-relaxed line-clamp-3">
+                        {plan.description}
+                      </p>
+                      <div className="flex items-baseline gap-0.5 mb-4">
+                        <span className="text-lg font-black text-terracotta">
+                          {priceVal} {currencyVal}
+                        </span>
+                        <span className="text-secondary text-[10px]">
+                          /{isRecurring ? 'mnd' : 'engang'}
+                        </span>
+                      </div>
+                      
+                      {planBenefits.length > 0 && (
+                        <ul className="space-y-2 mb-6">
+                          {planBenefits.map((b, idx) => (
+                            <li key={idx} className="flex items-start gap-1.5 text-[11px] text-onyx/90">
+                              <span className="material-symbols-outlined text-emerald-600 text-xs shrink-0 select-none">check_circle</span>
+                              <span>{typeof b === 'string' ? b : (b.text || '')}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleSubscribe(plan)}
+                      className={`w-full py-2.5 rounded-lg font-bold transition-all active:scale-[0.98] shadow-sm text-center text-xs ${
+                        plan.popular 
+                          ? 'bg-terracotta text-white hover:opacity-95' 
+                          : 'bg-onyx text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      Abonner nå
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

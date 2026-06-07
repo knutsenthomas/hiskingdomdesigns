@@ -22,6 +22,78 @@ export default function ProductDetails() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
+  // Find the selected variant matching selectedSize and selectedColor
+  const selectedVariant = useMemo(() => {
+    if (!product || !product.manageVariants || !product.variants || product.variants.length === 0) return null;
+    
+    const sizeOpt = product.productOptions?.find(o => {
+      const name = o.name?.trim().toLowerCase();
+      return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
+    });
+    const colorOpt = product.productOptions?.find(o => {
+      const name = o.name?.trim().toLowerCase();
+      return name === 'color' || name === 'farge';
+    });
+
+    const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
+    const colorChoice = colorOpt?.choices?.find(c => {
+      const lower = c.value?.toLowerCase() || '';
+      let mappedName = 'Sort';
+      if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
+      else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
+      else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
+      else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
+      else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
+      else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
+      else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
+      else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
+      else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
+      else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
+      else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
+      else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
+      else if (lower.startsWith('#') || lower.startsWith('rgb')) {
+        if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
+        else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
+        else mappedName = 'Grå';
+      }
+      return mappedName === selectedColor;
+    });
+
+    const targetChoices = {};
+    if (sizeOpt && sizeChoice) targetChoices[sizeOpt.name] = sizeChoice.value;
+    if (colorOpt && colorChoice) targetChoices[colorOpt.name] = colorChoice.value;
+
+    return product.variants.find(v => {
+      return Object.entries(v.choices).every(([optName, optVal]) => {
+        return targetChoices[optName] === optVal;
+      });
+    });
+  }, [product, selectedSize, selectedColor]);
+
+  // Aggregate stock information from wix client structures
+  const stockStatus = useMemo(() => {
+    if (!product) return { inStock: false, trackQuantity: false, quantity: 0 };
+    
+    if (product.manageVariants && selectedVariant) {
+      return {
+        inStock: selectedVariant.stock?.inStock ?? false,
+        trackQuantity: selectedVariant.stock?.trackQuantity ?? false,
+        quantity: selectedVariant.stock?.quantity ?? 0
+      };
+    }
+    
+    if (product.variants && product.variants.length > 0) {
+      const defaultVariant = product.variants[0];
+      return {
+        inStock: defaultVariant.stock?.inStock ?? false,
+        trackQuantity: defaultVariant.stock?.trackQuantity ?? false,
+        quantity: defaultVariant.stock?.quantity ?? 0
+      };
+    }
+
+    return { inStock: true, trackQuantity: false, quantity: 999 };
+  }, [product, selectedVariant]);
+
   // Reset local state on product change
   useEffect(() => {
     if (product) {
@@ -34,6 +106,13 @@ export default function ProductDetails() {
       setQty(1);
     }
   }, [product]);
+
+  // Ensure selected quantity is not higher than available stock
+  useEffect(() => {
+    if (stockStatus.trackQuantity && qty > stockStatus.quantity) {
+      setQty(Math.max(1, stockStatus.quantity));
+    }
+  }, [stockStatus, qty]);
 
   if (!product) {
     if (isLoadingProducts) {
@@ -216,31 +295,59 @@ export default function ProductDetails() {
           {/* Quantity Selector */}
           <div className="space-y-3">
             <span className="font-label-md text-label-md text-onyx">Antall</span>
-            <div className="flex items-center border border-outline rounded-lg w-max overflow-hidden">
+            <div className="flex items-center border border-outline rounded-lg w-max overflow-hidden bg-white">
               <button 
                 onClick={() => setQty(prev => Math.max(1, prev - 1))}
-                className="px-4 py-2 hover:bg-slate-100 transition-colors font-bold text-lg"
+                disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
+                className="px-4 py-2 hover:bg-slate-100 transition-colors font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 -
               </button>
               <span className="px-6 py-2 border-x border-outline font-bold select-none text-center min-w-[50px]">
-                {qty}
+                {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? 0 : qty}
               </span>
               <button 
-                onClick={() => setQty(prev => prev + 1)}
-                className="px-4 py-2 hover:bg-slate-100 transition-colors font-bold text-lg"
+                onClick={() => setQty(prev => (stockStatus.trackQuantity && prev >= stockStatus.quantity) ? prev : prev + 1)}
+                disabled={!stockStatus.inStock || (stockStatus.trackQuantity && (stockStatus.quantity === 0 || qty >= stockStatus.quantity))}
+                className="px-4 py-2 hover:bg-slate-100 transition-colors font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 +
               </button>
             </div>
+            
+            {/* Real Stock Indicators */}
+            {stockStatus.trackQuantity && stockStatus.quantity > 0 && stockStatus.quantity <= 5 && (
+              <p className="text-xs font-semibold text-orange-600 flex items-center gap-1.5 mt-1 select-none">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse"></span>
+                Kun {stockStatus.quantity} igjen på lager!
+              </p>
+            )}
+            {!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0) ? (
+              <p className="text-xs font-semibold text-red-600 flex items-center gap-1.5 mt-1 select-none">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                Utsolgt i denne fargen/størrelsen.
+              </p>
+            ) : (
+              <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5 mt-1 select-none">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                På lager - klar til sending innen 24t
+              </p>
+            )}
           </div>
 
           {/* CTA Add to Cart */}
           <button 
             onClick={handleAddToCart}
-            className="w-full bg-terracotta text-white font-bold py-4 rounded-xl hover:opacity-95 active:scale-[0.98] transition-all shadow-md mt-4 flex items-center justify-center gap-2 text-md"
+            disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
+            className={`w-full font-bold py-4 rounded-xl transition-all shadow-md mt-4 flex items-center justify-center gap-2 text-md ${
+              (!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0))
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                : 'bg-terracotta text-white hover:opacity-95 active:scale-[0.98]'
+            }`}
           >
-            {added ? (
+            {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
+              <span>Utsolgt</span>
+            ) : added ? (
               <>
                 <Check size={18} />
                 <span>Lagt til!</span>

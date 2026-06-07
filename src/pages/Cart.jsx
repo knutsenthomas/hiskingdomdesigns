@@ -15,7 +15,13 @@ export default function Cart() {
     subtotal,
     shipping,
     mva,
-    total
+    total,
+    appliedCoupon,
+    couponError,
+    isApplyingCoupon,
+    applyCouponCode,
+    removeCoupon,
+    mapCartItemsToWixLineItems
   } = useCart();
   const navigate = useNavigate();
   const [checkoutStep, setCheckoutStep] = useState(null); // 'billing' | 'success'
@@ -27,129 +33,33 @@ export default function Cart() {
     setErrorMessage('');
 
     try {
-      const lineItems = cartItems.map(item => {
-        const catalogReference = {
-          appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
-          catalogItemId: item.id
-        };
+      const lineItems = mapCartItemsToWixLineItems(cartItems);
 
-        if (item.productOptions && item.productOptions.length > 0) {
-          if (item.manageVariants && item.variants && item.variants.length > 0) {
-            const selectedOptions = {};
-            
-            const sizeOpt = item.productOptions.find(o => {
-              const name = o.name?.trim().toLowerCase();
-              return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
-            });
-            const colorOpt = item.productOptions.find(o => {
-              const name = o.name?.trim().toLowerCase();
-              return name === 'color' || name === 'farge';
-            });
-
-            const sizeChoice = sizeOpt?.choices?.find(c => c.value === item.selectedSize || c.description === item.selectedSize);
-            const colorChoice = colorOpt?.choices?.find(c => {
-              const lower = c.value?.toLowerCase() || '';
-              let mappedName = 'Sort';
-              if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
-              else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
-              else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
-              else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
-              else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
-              else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
-              else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
-              else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
-              else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
-              else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
-              else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
-              else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
-              else if (lower.startsWith('#') || lower.startsWith('rgb')) {
-                if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
-                else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
-                else mappedName = 'Grå';
-              }
-              return mappedName === item.selectedColor;
-            });
-
-            if (sizeOpt && sizeChoice) {
-              selectedOptions[sizeOpt.name] = sizeChoice.value;
-            }
-            if (colorOpt && colorChoice) {
-              selectedOptions[colorOpt.name] = colorChoice.value;
-            }
-
-            const match = item.variants.find(v => {
-              return Object.entries(v.choices).every(([optName, optVal]) => {
-                return selectedOptions[optName] === optVal;
-              });
-            });
-
-            if (match) {
-              catalogReference.options = {
-                variantId: match._id
-              };
-            }
-          } else {
-            const selectedOptions = {};
-            const sizeOpt = item.productOptions.find(o => {
-              const name = o.name?.trim().toLowerCase();
-              return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
-            });
-            const colorOpt = item.productOptions.find(o => {
-              const name = o.name?.trim().toLowerCase();
-              return name === 'color' || name === 'farge';
-            });
-
-            const sizeChoice = sizeOpt?.choices?.find(c => c.value === item.selectedSize || c.description === item.selectedSize);
-            const colorChoice = colorOpt?.choices?.find(c => {
-              const lower = c.value?.toLowerCase() || '';
-              let mappedName = 'Sort';
-              if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
-              else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
-              else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
-              else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
-              else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
-              else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
-              else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
-              else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
-              else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
-              else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
-              else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
-              else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
-              else if (lower.startsWith('#') || lower.startsWith('rgb')) {
-                if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
-                else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
-                else mappedName = 'Grå';
-              }
-              return mappedName === item.selectedColor;
-            });
-
-            if (sizeOpt && sizeChoice) {
-              selectedOptions[sizeOpt.name] = sizeChoice.value;
-            }
-            if (colorOpt && colorChoice) {
-              selectedOptions[colorOpt.name] = colorChoice.value;
-            }
-
-            catalogReference.options = {
-              options: selectedOptions
-            };
-          }
-        }
-
-        return {
-          catalogReference,
-          quantity: item.quantity
-        };
-      });
-
-      const checkoutResult = await wixClient.checkout.createCheckout({
+      let checkoutResult = await wixClient.checkout.createCheckout({
         lineItems,
         channelType: 'WEB'
       });
 
+      let checkoutId = checkoutResult._id;
+
+      if (appliedCoupon) {
+        try {
+          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {
+            appliedDiscounts: [{
+              coupon: {
+                code: appliedCoupon.code
+              }
+            }]
+          });
+          checkoutId = checkoutResult._id;
+        } catch (couponErr) {
+          console.warn('Could not apply coupon to checkout redirect:', couponErr);
+        }
+      }
+
       const redirectSession = await wixClient.redirects.createRedirectSession({
         ecomCheckout: {
-          checkoutId: checkoutResult._id
+          checkoutId: checkoutId
         },
         callbacks: {
           postFlowUrl: window.location.origin + '/cart',
@@ -424,6 +334,21 @@ export default function Cart() {
                 <span>Subtotal</span>
                 <span className="font-bold text-onyx">{subtotal} kr</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between font-body-md text-emerald-600">
+                  <span className="flex items-center gap-1">
+                    Rabatt ({appliedCoupon.code})
+                    <button 
+                      onClick={removeCoupon} 
+                      className="text-[10px] text-red-500 hover:underline hover:text-red-700 font-normal"
+                      title="Fjern rabattkode"
+                    >
+                      (Fjern)
+                    </button>
+                  </span>
+                  <span className="font-bold">-{appliedCoupon.discount} kr</span>
+                </div>
+              )}
               <div className="flex justify-between font-body-md text-secondary">
                 <span>Frakt</span>
                 <span className="font-bold text-onyx">
@@ -442,6 +367,48 @@ export default function Cart() {
                 <span className="text-terracotta font-extrabold">{total} kr</span>
               </div>
             </div>
+
+            {/* Coupon Code Form */}
+            {checkoutStep !== 'billing' && (
+              <div className="mb-6 pt-4 border-t border-slate-100">
+                <span className="block text-xs font-semibold text-onyx uppercase mb-2">Rabattkode</span>
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const code = e.currentTarget.couponInput.value;
+                    const success = await applyCouponCode(code);
+                    if (success) {
+                      e.currentTarget.reset();
+                    }
+                  }} 
+                  className="flex gap-2"
+                >
+                  <input 
+                    type="text" 
+                    name="couponInput"
+                    placeholder="Skriv rabattkode..." 
+                    disabled={isApplyingCoupon}
+                    className="flex-grow bg-slate-50 border border-outline-variant rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta disabled:opacity-50" 
+                  />
+                  <button 
+                    type="submit"
+                    disabled={isApplyingCoupon}
+                    className="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 shrink-0"
+                  >
+                    {isApplyingCoupon ? 'Sjekker...' : 'Bruk'}
+                  </button>
+                </form>
+                {couponError && (
+                  <p className="text-[11px] text-red-600 font-semibold mt-1">{couponError}</p>
+                )}
+                {appliedCoupon && (
+                  <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px] font-bold">done</span>
+                    Kupong aktivert! Du sparer {appliedCoupon.discount} kr.
+                  </p>
+                )}
+              </div>
+            )}
 
             {errorMessage && (
               <div className="bg-red-50 text-red-600 text-xs p-3 rounded-lg mb-4 text-center font-medium border border-red-200">
