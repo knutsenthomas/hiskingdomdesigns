@@ -263,6 +263,7 @@ export default function Profile() {
             });
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
+            window.dispatchEvent(new Event('wix-auth-change'));
             console.log('Successfully completed Wix OAuth login!');
             setRefreshKey(prev => prev + 1);
           } else {
@@ -362,6 +363,7 @@ export default function Profile() {
         const tokens = await wixClient.auth.getMemberTokensForDirectLogin(result.sessionToken);
         await wixClient.auth.setTokens(tokens);
         setIsLoggedIn(true);
+        window.dispatchEvent(new Event('wix-auth-change'));
         setRefreshKey(prev => prev + 1);
       } else {
         if (result.errorCode === 'invalidEmail' || result.errorCode === 'invalidPassword') {
@@ -413,6 +415,7 @@ export default function Profile() {
         console.warn('Wix auth logout callback warning:', logoutErr);
       }
       setIsLoggedIn(false);
+      window.dispatchEvent(new Event('wix-auth-change'));
       setMember(null);
       setOrdersList([]);
       setRefreshKey(prev => prev + 1);

@@ -4,6 +4,8 @@ import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart } from 'lucide-
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { wixClient } from '@/lib/wix';
+import { media } from '@wix/sdk';
 
 // natural category groupings
 const CATEGORY_TAXONOMY = {
@@ -14,6 +16,29 @@ const CATEGORY_TAXONOMY = {
   'Temaer, Kampanjer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
 };
 
+// Helper to safely extract and build profile image URL from Wix member object
+const getProfileImageUrl = (member) => {
+  const photo = member?.profile?.photo;
+  if (!photo) return null;
+
+  const url = photo.url || photo;
+  if (!url || typeof url !== 'string') return null;
+
+  if (url.startsWith('wix:image://')) {
+    try {
+      return media.getScaledToFillImageUrl(url, 60, 60) || media.getImageUrl(url).url;
+    } catch (e) {
+      console.warn('Failed to parse Wix image URI using SDK:', e);
+      const match = url.match(/wix:image:\/\/v1\/([^\/]+)/);
+      if (match && match[1]) {
+        return `https://static.wixstatic.com/media/${match[1]}`;
+      }
+    }
+  }
+
+  return url;
+};
+
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist } = useApp();
   const { cartCount } = useCart();
@@ -21,6 +46,39 @@ export default function Header() {
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
   const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
+  const [member, setMember] = useState(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const logged = wixClient.auth.loggedIn();
+      setIsLoggedIn(logged);
+      if (logged) {
+        try {
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
+          if (res?.member) {
+            setMember(res.member);
+          } else {
+            setMember(null);
+          }
+        } catch (e) {
+          console.warn('Failed to fetch member details in Header:', e);
+          setMember(null);
+        }
+      } else {
+        setMember(null);
+      }
+    };
+    
+    checkLoginStatus();
+    
+    window.addEventListener('wix-auth-change', checkLoginStatus);
+    window.addEventListener('storage', checkLoginStatus);
+    return () => {
+      window.removeEventListener('wix-auth-change', checkLoginStatus);
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,10 +182,31 @@ export default function Header() {
             
             <Link 
               to="/profile"
-              className="hidden sm:inline-flex p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all"
+              className="hidden sm:inline-flex items-center justify-center hover:scale-105 active:scale-95 transition-all relative p-2"
               aria-label="Profil"
             >
-              <User size={20} />
+              {isLoggedIn ? (
+                getProfileImageUrl(member) ? (
+                  <div className="w-6 h-6 rounded-full overflow-hidden border border-terracotta/40 shadow-sm flex-shrink-0">
+                    <img 
+                      src={getProfileImageUrl(member)} 
+                      alt="Profil" 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center text-[10px] font-bold border border-terracotta/30 flex-shrink-0">
+                    {member?.contactDetails?.firstName ? member.contactDetails.firstName[0].toUpperCase() : 'U'}
+                  </div>
+                )
+              ) : (
+                <div className="text-onyx hover:text-terracotta flex items-center justify-center">
+                  <User size={20} />
+                </div>
+              )}
+              {isLoggedIn && (
+                <span className="absolute bottom-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white ring-1 ring-emerald-500/20" />
+              )}
             </Link>
 
             <Link 
@@ -449,10 +528,34 @@ export default function Header() {
               <Link 
                 to="/profile"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-body-lg font-bold py-2 border-t border-outline-variant/30 text-onyx flex items-center gap-2 mt-4 pt-4"
+                className="text-body-lg font-bold py-2 border-t border-outline-variant/30 text-onyx flex items-center justify-between mt-4 pt-4"
               >
-                <User size={20} className="text-terracotta" />
-                <span>Min Profil</span>
+                <div className="flex items-center gap-2">
+                  {isLoggedIn ? (
+                    getProfileImageUrl(member) ? (
+                      <div className="w-6 h-6 rounded-full overflow-hidden border border-terracotta/40">
+                        <img 
+                          src={getProfileImageUrl(member)} 
+                          alt="Profil" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center text-[10px] font-bold border border-terracotta/30">
+                        {member?.contactDetails?.firstName ? member.contactDetails.firstName[0].toUpperCase() : 'U'}
+                      </div>
+                    )
+                  ) : (
+                    <User size={20} className="text-terracotta" />
+                  )}
+                  <span>Min Profil</span>
+                </div>
+                {isLoggedIn && (
+                  <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    Innlogget
+                  </span>
+                )}
               </Link>
 
               <Link 
