@@ -16,7 +16,11 @@ const customTokenStorage = {
   getTokens: () => {
     try {
       const stored = localStorage.getItem('wix_oauth_tokens');
-      return stored ? JSON.parse(stored) : EMPTY_TOKENS;
+      if (!stored || stored === 'null' || stored === 'undefined') {
+        return EMPTY_TOKENS;
+      }
+      const parsed = JSON.parse(stored);
+      return (parsed && typeof parsed === 'object') ? parsed : EMPTY_TOKENS;
     } catch (e) {
       console.error('Failed to read Wix tokens from localStorage:', e);
       return EMPTY_TOKENS;
@@ -24,7 +28,11 @@ const customTokenStorage = {
   },
   setTokens: (tokens) => {
     try {
-      localStorage.setItem('wix_oauth_tokens', JSON.stringify(tokens));
+      if (!tokens) {
+        localStorage.removeItem('wix_oauth_tokens');
+      } else {
+        localStorage.setItem('wix_oauth_tokens', JSON.stringify(tokens));
+      }
     } catch (e) {
       console.error('Failed to write Wix tokens to localStorage:', e);
     }

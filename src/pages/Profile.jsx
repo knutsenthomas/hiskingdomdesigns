@@ -265,20 +265,45 @@ export default function Profile() {
           isExchangingTokens = true;
           setIsLoading(true);
           console.log('OAuth callback detected! Code:', code, 'State:', state);
-          const savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
+          
+          let savedOauthDataStr = null;
+          try {
+            savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
+          } catch (storageErr) {
+            console.error('Failed to read OAuth data from localStorage:', storageErr);
+          }
           
           // Clear query params and hash from URL immediately to prevent duplicate runs
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
+          try {
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+          } catch (historyErr) {
+            console.error('Failed to clear OAuth params from URL history:', historyErr);
+          }
 
-          if (savedOauthDataStr) {
-            const savedOauthData = JSON.parse(savedOauthDataStr);
+          let savedOauthData = null;
+          if (savedOauthDataStr && savedOauthDataStr !== 'null' && savedOauthDataStr !== 'undefined') {
+            try {
+              savedOauthData = JSON.parse(savedOauthDataStr);
+            } catch (parseErr) {
+              console.error('Failed to parse OAuth data:', parseErr);
+            }
+          }
+
+          if (savedOauthData && typeof savedOauthData === 'object') {
             // Remove from localStorage immediately to block duplicate React StrictMode effect runs
-            localStorage.removeItem('hkd-oauth-data');
+            try {
+              localStorage.removeItem('hkd-oauth-data');
+            } catch (storageErr) {
+              console.error('Failed to remove OAuth data from localStorage:', storageErr);
+            }
+            
+            const redirectUri = savedOauthData.redirectUri || (window.location.origin + '/profile');
+            console.log('Exchanging Wix auth code for tokens with redirectUri:', redirectUri);
             
             const memberTokens = await wixClient.auth.getMemberTokens(code, state, {
               ...savedOauthData,
-              redirectUri: savedOauthData.redirectUri || (window.location.origin + '/profile')
+              redirectUri
             });
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
@@ -286,15 +311,18 @@ export default function Profile() {
             console.log('Successfully completed Wix OAuth login!');
             setRefreshKey(prev => prev + 1);
           } else {
-            console.warn('No OAuth data found in localStorage or already consumed!');
+            console.warn('No valid OAuth data found in localStorage or already consumed!');
             isExchangingTokens = false;
           }
         }
       } catch (err) {
         isExchangingTokens = false;
         console.error('Error exchanging oauth tokens:', err);
-        setErrorMsg('Innloggingsfeil: ' + err.message);
-        alert('Det oppstod en feil under utveksling av innloggingstokener: ' + err.message);
+        const errMsg = err && typeof err === 'object' && 'message' in err 
+          ? err.message 
+          : (typeof err === 'string' ? err : 'Ukjent tilkoblingsfeil');
+        setErrorMsg('Innloggingsfeil: ' + errMsg);
+        alert('Det oppstod en feil under utveksling av innloggingstokener: ' + errMsg);
       } finally {
         setIsLoading(false);
       }
@@ -751,7 +779,7 @@ export default function Profile() {
                 className="w-full h-full object-cover" 
               />
             ) : (
-              displayName.split(' ').map(n => n[0]).join('')
+              (displayName || '').split(' ').map(n => n ? n[0] : '').join('')
             )}
           </div>
           <h2 className="font-headline-md text-headline-md text-onyx mb-1">{displayName}</h2>

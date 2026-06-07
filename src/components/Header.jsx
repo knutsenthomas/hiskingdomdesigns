@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
+import { getOptimizedWixImageUrl } from '@/lib/media';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import { media } from '@wix/sdk';
@@ -34,10 +35,21 @@ const getProfileImageUrl = (member) => {
 };
 
 export default function Header() {
-  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName } = useApp();
+  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products } = useApp();
   const { cartCount, setIsCartDrawerOpen } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery || searchQuery.trim().length < 2) return [];
+    const query = searchQuery.toLowerCase().trim();
+    return (products || []).filter(p => 
+      p.name.toLowerCase().includes(query) ||
+      p.category.toLowerCase().includes(query) ||
+      (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
+      (p.description && p.description.toLowerCase().includes(query))
+    ).slice(0, 5);
+  }, [searchQuery, products]);
   const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
@@ -416,14 +428,66 @@ export default function Header() {
               />
               <Search size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-onyx/40" />
             </div>
+            {searchQuery && searchQuery.trim().length >= 2 && (
+              <div className="mt-4 border-t border-outline-variant/40 pt-4 max-h-[360px] overflow-y-auto custom-scrollbar space-y-3">
+                {searchResults.length > 0 ? (
+                  <>
+                    <p className="text-[10px] font-bold text-secondary uppercase tracking-wider mb-2">Produkter</p>
+                    <div className="space-y-2">
+                      {searchResults.map(product => (
+                        <Link
+                          key={product.id}
+                          to={`/product/${product.id}`}
+                          onClick={() => {
+                            setSearchOpen(false);
+                            setSearchQuery('');
+                          }}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 active:scale-[0.99] transition-all group"
+                        >
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-parchment flex-shrink-0 border border-outline-variant/30">
+                            <img
+                              src={getOptimizedWixImageUrl(product.image, 60, 60)}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm text-onyx group-hover:text-terracotta transition-colors truncate">
+                              {product.name}
+                            </h4>
+                            <p className="text-xs text-secondary truncate">
+                              {product.category} {product.gender && `• ${product.gender}`}
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <span className="font-bold text-sm text-terracotta">
+                              {product.price} kr
+                            </span>
+                            {product.originalPrice && (
+                              <p className="text-[10px] text-onyx/40 line-through">
+                                {product.originalPrice} kr
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="py-6 text-center text-secondary font-medium text-sm">
+                    Ingen produkter funnet for "{searchQuery}"
+                  </div>
+                )}
+              </div>
+            )}
             {searchQuery && (
-              <div className="mt-4">
+              <div className="mt-4 border-t border-outline-variant/40 pt-4 flex justify-end">
                 <Link 
                   to={`/products?search=${encodeURIComponent(searchQuery)}`}
                   onClick={() => setSearchOpen(false)}
-                  className="inline-flex items-center gap-2 text-terracotta font-semibold hover:underline"
+                  className="inline-flex items-center gap-2 text-terracotta font-semibold hover:underline text-sm"
                 >
-                  Vis resultater for "{searchQuery}" &rarr;
+                  Vis alle resultater for "{searchQuery}" &rarr;
                 </Link>
               </div>
             )}

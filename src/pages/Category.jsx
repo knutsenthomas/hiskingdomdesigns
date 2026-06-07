@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import useMeta from '@/hooks/useMeta';
 
 export default function Category() {
-  const { products, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName } = useApp();
+  const { products, isLoadingProducts, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName } = useApp();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
   
@@ -313,7 +313,7 @@ export default function Category() {
                 className={`w-8 h-8 rounded-full border ring-offset-2 transition-all ${color.border} ${
                   isSelected ? 'ring-2 ring-terracotta scale-110 shadow-md' : 'hover:ring-1 hover:ring-terracotta'
                 }`}
-                style={{ backgroundColor: color.hex }}
+                style={{ background: color.hex }}
                 title={color.name}
               />
             );
@@ -371,82 +371,91 @@ export default function Category() {
         </p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-gutter items-start">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28">
-          {filterSidebar}
-        </aside>
-
-        {/* Mobile Filter Trigger Button */}
-        <div className="lg:hidden w-full flex items-center justify-between gap-4 mb-6 border-b border-outline-variant/30 pb-4">
-          <button 
-            onClick={() => setMobileFiltersOpen(true)}
-            className="flex items-center gap-2 bg-white border border-outline-variant px-4 py-2.5 rounded-lg text-sm font-semibold text-onyx hover:border-terracotta"
-          >
-            <SlidersHorizontal size={16} />
-            <span>Filtrer produkter</span>
-          </button>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-secondary">Sorter:</span>
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent border-none text-xs text-terracotta font-bold focus:ring-0 p-0 pr-6 cursor-pointer"
-            >
-              <option value="Nyeste">Nyeste først</option>
-              <option value="LavHøy">Pris: Lav til Høy</option>
-              <option value="HøyLav">Pris: Høy til Lav</option>
-              <option value="MestPopulær">Mest populære</option>
-            </select>
+      <div className="flex flex-col lg:flex-row gap-gutter items-start w-full">
+        {isLoadingProducts ? (
+          <div className="flex flex-col items-center justify-center py-32 w-full">
+            <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-secondary font-semibold font-body-md">Henter produkter fra Wix...</p>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28">
+              {filterSidebar}
+            </aside>
 
-        {/* Product Grid Container */}
-        <div className="flex-1 w-full">
-          {/* Desktop Toolbar */}
-          <div className="hidden lg:flex justify-between items-center mb-8 pb-4 border-b border-outline-variant/30">
-            <span className="font-label-sm text-label-sm text-secondary">
-              Viser {filteredProducts.length} av {products.length} produkter
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="font-label-sm text-label-sm text-secondary">Sorter etter:</span>
-              <select 
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent border-none font-label-md text-label-md text-terracotta focus:ring-0 cursor-pointer"
-              >
-                <option value="Nyeste">Nyeste først</option>
-                <option value="LavHøy">Pris: Lav til Høy</option>
-                <option value="HøyLav">Pris: Høy til Lav</option>
-                <option value="MestPopulær">Mest populære</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Grid */}
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-gutter">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl border border-outline-variant/50 p-16 text-center max-w-xl mx-auto mt-12">
-              <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">info</span>
-              <h3 className="font-headline-md text-headline-md text-onyx mb-2">Ingen treff</h3>
-              <p className="text-secondary font-body-md mb-8">
-                Vi fant ingen produkter som matcher dine filtervalg eller søk. Prøv å nullstille filtrene eller søke etter noe annet.
-              </p>
+            {/* Mobile Filter Trigger Button */}
+            <div className="lg:hidden w-full flex items-center justify-between gap-4 mb-6 border-b border-outline-variant/30 pb-4">
               <button 
-                onClick={handleClearFilters}
-                className="bg-terracotta text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all"
+                onClick={() => setMobileFiltersOpen(true)}
+                className="flex items-center gap-2 bg-white border border-outline-variant px-4 py-2.5 rounded-lg text-sm font-semibold text-onyx hover:border-terracotta"
               >
-                Vis alle produkter
+                <SlidersHorizontal size={16} />
+                <span>Filtrer produkter</span>
               </button>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-secondary">Sorter:</span>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent border-none text-xs text-terracotta font-bold focus:ring-0 p-0 pr-6 cursor-pointer"
+                >
+                  <option value="Nyeste">Nyeste først</option>
+                  <option value="LavHøy">Pris: Lav til Høy</option>
+                  <option value="HøyLav">Pris: Høy til Lav</option>
+                  <option value="MestPopulær">Mest populære</option>
+                </select>
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Product Grid Container */}
+            <div className="flex-1 w-full">
+              {/* Desktop Toolbar */}
+              <div className="hidden lg:flex justify-between items-center mb-8 pb-4 border-b border-outline-variant/30">
+                <span className="font-label-sm text-label-sm text-secondary">
+                  Viser {filteredProducts.length} av {products.length} produkter
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-label-sm text-label-sm text-secondary">Sorter etter:</span>
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="bg-transparent border-none font-label-md text-label-md text-terracotta focus:ring-0 cursor-pointer"
+                  >
+                    <option value="Nyeste">Nyeste først</option>
+                    <option value="LavHøy">Pris: Lav til Høy</option>
+                    <option value="HøyLav">Pris: Høy til Lav</option>
+                    <option value="MestPopulær">Mest populære</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Grid */}
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-gutter">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-outline-variant/50 p-16 text-center max-w-xl mx-auto mt-12">
+                  <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">info</span>
+                  <h3 className="font-headline-md text-headline-md text-onyx mb-2">Ingen treff</h3>
+                  <p className="text-secondary font-body-md mb-8">
+                    Vi fant ingen produkter som matcher dine filtervalg eller søk. Prøv å nullstille filtrene eller søke etter noe annet.
+                  </p>
+                  <button 
+                    onClick={handleClearFilters}
+                    className="bg-terracotta text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all"
+                  >
+                    Vis alle produkter
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Mobile Filters Drawer */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler } from 'lucide-react';
+import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler, X } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import ProductCard from '@/components/ProductCard';
@@ -8,6 +8,141 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import useMeta from '@/hooks/useMeta';
+
+const parseHex = (hexStr) => {
+  let hex = hexStr.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return { r, g, b };
+};
+
+const parseRgb = (rgbStr) => {
+  const match = rgbStr.match(/\d+/g);
+  if (match && match.length >= 3) {
+    return { r: parseInt(match[0]), g: parseInt(match[1]), b: parseInt(match[2]) };
+  }
+  return { r: 128, g: 128, b: 128 };
+};
+
+const getClosestColor = (r, g, b) => {
+  const standards = [
+    { name: 'Sort', r: 21, g: 26, b: 33, hex: '#151A21' },
+    { name: 'Hvit', r: 255, g: 255, b: 255, hex: '#FFFFFF' },
+    { name: 'Grå', r: 229, g: 231, b: 235, hex: '#E5E7EB' },
+    { name: 'Blå', r: 59, g: 130, b: 246, hex: '#3b82f6' },
+    { name: 'Mørkeblå', r: 27, g: 73, b: 101, hex: '#1B4965' },
+    { name: 'Rød', r: 239, g: 68, b: 68, hex: '#ef4444' },
+    { name: 'Grønn', r: 22, g: 163, b: 74, hex: '#16a34a' },
+    { name: 'Gul', r: 234, g: 179, b: 8, hex: '#eab308' },
+    { name: 'Rosa', r: 219, g: 39, b: 119, hex: '#db2777' },
+    { name: 'Beige', r: 212, g: 196, b: 181, hex: '#d4c4b5' },
+    { name: 'Terrakotta', r: 204, g: 113, b: 43, hex: '#CC712B' },
+    { name: 'Orange', r: 249, g: 115, b: 22, hex: '#f97316' },
+    { name: 'Lilla', r: 168, g: 85, b: 247, hex: '#a855f7' }
+  ];
+
+  let minDistance = Infinity;
+  let closest = standards[0];
+
+  standards.forEach(std => {
+    const dist = Math.sqrt(
+      Math.pow(r - std.r, 2) +
+      Math.pow(g - std.g, 2) +
+      Math.pow(b - std.b, 2)
+    );
+    if (dist < minDistance) {
+      minDistance = dist;
+      closest = std;
+    }
+  });
+
+  return closest;
+};
+
+export const resolveColor = (rawName) => {
+  if (!rawName) return { name: 'Sort', hex: '#151A21' };
+  
+  let trimName = rawName.trim();
+  
+  const capitalize = (str) => {
+    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
+  // If it's a dual color split by /
+  if (trimName.includes('/')) {
+    const parts = trimName.split('/');
+    const res1 = resolveColor(parts[0]);
+    const res2 = resolveColor(parts[1]);
+    const formattedName = [res1.name, res2.name].join('/');
+    const gradient = `linear-gradient(135deg, ${res1.hex} 50%, ${res2.hex} 50%)`;
+    return { name: formattedName, hex: gradient };
+  }
+
+  const lower = trimName.toLowerCase();
+  
+  // 1. Check if it's an rgb or hex code and classify using RGB distance
+  if (lower.startsWith('rgb') || lower.startsWith('#')) {
+    const { r, g, b } = lower.startsWith('#') ? parseHex(lower) : parseRgb(lower);
+    const closest = getClosestColor(r, g, b);
+    return { name: closest.name, hex: closest.hex };
+  }
+
+  // 2. Friendly name matching with expanded dictionary
+  let displayName = capitalize(trimName);
+  let hexCode = '#888888';
+
+  if (lower.includes('sort') || lower.includes('svart') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('dark grey') || lower.includes('night')) {
+    displayName = 'Sort';
+    hexCode = '#151A21';
+  } else if (lower.includes('hvit') || lower.includes('white') || lower.includes('off-white') || lower.includes('weiß') || lower.includes('ivory') || lower.includes('bone') || lower.includes('soft cream')) {
+    displayName = 'Hvit';
+    hexCode = '#FFFFFF';
+  } else if (lower.includes('navy') || lower.includes('marine') || lower.includes('mørkeblå') || lower.includes('deep teal') || lower.includes('teal') || lower.includes('sapphire') || lower.includes('storm')) {
+    displayName = 'Mørkeblå';
+    hexCode = '#1B4965';
+  } else if (lower.includes('royalblue') || lower.includes('royal') || lower.includes('carolina blue') || lower.includes('blue') || lower.includes('blå') || lower.includes('denim') || lower.includes('cornflower') || lower.includes('aqua') || lower.includes('caribbean') || lower.includes('chambray') || lower.includes('sky') || lower.includes('ocean') || lower.includes('chill')) {
+    displayName = 'Blå';
+    hexCode = '#3b82f6';
+  } else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('burgundy') || lower.includes('garnet') || lower.includes('cherry') || lower.includes('cardinal') || lower.includes('bright salmon') || lower.includes('watermelon')) {
+    displayName = 'Rød';
+    hexCode = '#ef4444';
+  } else if (lower.includes('grønn') || lower.includes('green') || lower.includes('forest') || lower.includes('olive') || lower.includes('oliven') || lower.includes('military') || lower.includes('kelly') || lower.includes('irish') || lower.includes('army') || lower.includes('mint') || lower.includes('dusty sage') || lower.includes('fern') || lower.includes('kiwi') || lower.includes('neo mint') || lower.includes('cool mint') || lower.includes('chalky mint') || lower.includes('pistachio')) {
+    displayName = 'Grønn';
+    hexCode = '#16a34a';
+  } else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('butter') || lower.includes('citron') || lower.includes('daisy') || lower.includes('mustard')) {
+    displayName = 'Gul';
+    hexCode = '#eab308';
+  } else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('azalea') || lower.includes('heliconia') || lower.includes('orchid') || lower.includes('fuchsia') || lower.includes('cotton candy') || lower.includes('peach') || lower.includes('coral') || lower.includes('coral silk') || lower.includes('tangerine') || lower.includes('berry') || lower.includes('mauve') || lower.includes('hibiscus')) {
+    displayName = 'Rosa';
+    hexCode = '#db2777';
+  } else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('stone') || lower.includes('khaki') || lower.includes('tan') || lower.includes('rope') || lower.includes('toast') || lower.includes('saddle') || lower.includes('cocoa') || lower.includes('umber') || lower.includes('dark chocolate') || lower.includes('triblend brown') || lower.includes('natur')) {
+    displayName = 'Beige';
+    hexCode = '#d4c4b5';
+  } else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('clay')) {
+    displayName = 'Terrakotta';
+    hexCode = '#CC712B';
+  } else if (lower.includes('orange') || lower.includes('tangerine')) {
+    displayName = 'Orange';
+    hexCode = '#f97316';
+  } else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('lavender') || lower.includes('amethyst') || lower.includes('lilak') || lower.includes('future lavender')) {
+    displayName = 'Lilla';
+    hexCode = '#a855f7';
+  } else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('sport grey') || lower.includes('heather') || lower.includes('gravel') || lower.includes('smoke') || lower.includes('paragon')) {
+    displayName = 'Grå';
+    hexCode = '#E5E7EB';
+  }
+
+  // Fallback to closest color if we resolved to standard gray fallback but have a specific name
+  if (hexCode === '#888888') {
+    return { name: 'Grå', hex: '#E5E7EB' };
+  }
+
+  return { name: displayName, hex: hexCode };
+};
 
 function SizeGuideContent({ defaultTab = 'clothing' }) {
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -18,33 +153,36 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
       <div className="flex border-b border-outline-variant/30 text-xs font-semibold select-none bg-slate-50">
         <button
           onClick={() => setActiveTab('clothing')}
-          className={`flex-1 py-3.5 text-center transition-all ${
+          className={`flex-1 py-3.5 px-2 text-center transition-all text-[11px] sm:text-xs ${
             activeTab === 'clothing' 
               ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
               : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
           }`}
         >
-          👚 Klær (T-skjorte / Hoodie)
+          <span className="hidden sm:inline">👚 Klær (T-skjorte / Hoodie)</span>
+          <span className="inline sm:hidden">👚 Klær</span>
         </button>
         <button
           onClick={() => setActiveTab('caps')}
-          className={`flex-1 py-3.5 text-center transition-all border-x border-outline-variant/20 ${
+          className={`flex-1 py-3.5 px-2 text-center transition-all border-x border-outline-variant/20 text-[11px] sm:text-xs ${
             activeTab === 'caps' 
               ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
               : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
           }`}
         >
-          🧢 Hatter & Caps
+          <span className="hidden sm:inline">🧢 Hatter & Caps</span>
+          <span className="inline sm:hidden">🧢 Hatter/Caps</span>
         </button>
         <button
           onClick={() => setActiveTab('posters')}
-          className={`flex-1 py-3.5 text-center transition-all ${
+          className={`flex-1 py-3.5 px-2 text-center transition-all text-[11px] sm:text-xs ${
             activeTab === 'posters' 
               ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
               : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
           }`}
         >
-          🖼️ Plakat-formater
+          <span className="hidden sm:inline">🖼️ Plakat-formater</span>
+          <span className="inline sm:hidden">🖼️ Plakater</span>
         </button>
       </div>
 
@@ -172,9 +310,17 @@ export default function ProductDetails() {
   const navigate = useNavigate();
 
   // Find product by id
-  const product = useMemo(() => {
+  // Find product by id from app context
+  const contextProduct = useMemo(() => {
     return products.find(p => p.id === productId);
   }, [products, productId]);
+
+  const [fetchedProduct, setFetchedProduct] = useState(null);
+  const [isFetchingProduct, setIsFetchingProduct] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+
+  // Use contextProduct if available, otherwise fallback to fetchedProduct
+  const product = contextProduct || fetchedProduct;
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Hvit');
@@ -183,6 +329,128 @@ export default function ProductDetails() {
   const [activeImage, setActiveImage] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
+  // Fetch product directly from Wix if not found in preloaded context products
+  useEffect(() => {
+    async function fetchSingleProduct() {
+      if (!contextProduct && productId) {
+        setIsFetchingProduct(true);
+        setFetchError(false);
+        try {
+          console.log(`Product not found in preloaded list. Fetching product ${productId} directly from Wix...`);
+          const res = await wixClient.products.getProduct(productId);
+          if (res && res.product) {
+            const item = res.product;
+            const nameLower = item.name?.toLowerCase() || '';
+            
+            const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker)\b/i;
+            const stickerRegex = /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
+            const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas)\b/i;
+
+            let category = 'Tilbehør';
+            if (clothingRegex.test(nameLower)) {
+              category = 'Klær';
+            } else if (stickerRegex.test(nameLower)) {
+              category = 'Klistermerker';
+            } else if (posterRegex.test(nameLower)) {
+              category = 'Plakater';
+            }
+
+            let sizes = [];
+            let colors = [];
+            let colorNames = [];
+            
+            if (item.productOptions) {
+              const sizeOpt = item.productOptions.find(o => {
+                const name = o.name?.trim().toLowerCase();
+                return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+              });
+              if (sizeOpt) {
+                const rawSizes = sizeOpt.choices?.map(c => c.value) || [];
+                sizes = rawSizes.filter(s => {
+                  if (!s) return false;
+                  if (s.length > 15) return false;
+                  const lower = s.toLowerCase();
+                  if (lower.includes('sticker') || lower.includes('mug') || lower.includes('kopp') || lower.includes('flaske') || lower.includes('valg') || lower.includes('option') || lower.includes('pega') || lower.includes('norsk') || lower.includes('english')) {
+                    return false;
+                  }
+                  return true;
+                });
+              }
+
+              const colorOpt = item.productOptions.find(o => {
+                const name = o.name?.trim().toLowerCase();
+                return name === 'color' || name === 'farge';
+              });
+              if (colorOpt) {
+                const rawColorNames = colorOpt.choices?.map(c => c.value) || [];
+                const resolved = rawColorNames.map(name => resolveColor(name));
+                colorNames = resolved.map(r => r.name);
+                colors = resolved.map(r => r.hex);
+
+                // Filter to unique color names and align colors array
+                const uniqueNames = [];
+                const uniqueHexes = [];
+                colorNames.forEach((name, idx) => {
+                  if (!uniqueNames.includes(name)) {
+                    uniqueNames.push(name);
+                    uniqueHexes.push(colors[idx]);
+                  }
+                });
+                colorNames = uniqueNames;
+                colors = uniqueHexes;
+              }
+            }
+
+            // Deduplicate sizes
+            sizes = Array.from(new Set(sizes));
+
+            if (colors.length === 0) {
+              colors = ['#CC712B'];
+              colorNames = ['Terracotta'];
+            }
+            if (sizes.length === 0) {
+              sizes = ['One Size'];
+            }
+
+            const price = item.price?.discountedPrice || item.price?.price || 0;
+            const originalPrice = item.price?.price || 0;
+            const isSale = price < originalPrice || item.discount?.type !== 'NONE';
+
+            const mapped = {
+              id: item._id,
+              name: item.name,
+              price: price,
+              originalPrice: isSale ? originalPrice : undefined,
+              category: category,
+              colors: colors,
+              colorNames: colorNames,
+              sizes: sizes,
+              image: item.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
+              images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
+              isBestseller: false,
+              isSale: isSale,
+              description: item.description?.replace(/<[^>]*>/g, '') || '',
+              subcategories: [],
+              productOptions: item.productOptions,
+              manageVariants: item.manageVariants,
+              variants: item.variants
+            };
+
+            setFetchedProduct(mapped);
+          } else {
+            setFetchError(true);
+          }
+        } catch (err) {
+          console.error('Failed to fetch single product directly from Wix:', err);
+          setFetchError(true);
+        } finally {
+          setIsFetchingProduct(false);
+        }
+      }
+    }
+    fetchSingleProduct();
+  }, [contextProduct, productId]);
+
   // Sync activeImage when product loads/changes
   useEffect(() => {
     if (product?.image) {
@@ -190,10 +458,33 @@ export default function ProductDetails() {
     }
   }, [product]);
 
-  // Set SEO metadata dynamically using our custom hook
+  // Sync activeImage with selected color variant image if available
+  useEffect(() => {
+    if (!product || !selectedColor) return;
+
+    const colorOpt = product.productOptions?.find(o => {
+      const name = o.name?.trim().toLowerCase();
+      return name === 'color' || name === 'farge';
+    });
+
+    if (colorOpt) {
+      const colorChoice = colorOpt.choices?.find(c => {
+        const resolved = resolveColor(c.value);
+        return resolved.name === selectedColor;
+      });
+
+      const choiceImageUrl = colorChoice?.media?.mainMedia?.image?.url;
+      if (choiceImageUrl) {
+        setActiveImage(choiceImageUrl);
+      }
+    }
+  }, [selectedColor, product]);
+
   useMeta(
     product ? product.name : 'Produktdetaljer',
-    product ? product.description.substring(0, 155) : 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
+    product && typeof product.description === 'string' 
+      ? product.description.substring(0, 155) 
+      : 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
     product ? { type: 'product', image: product.image, price: `${product.price} NOK` } : null
   );
   
@@ -409,35 +700,17 @@ export default function ProductDetails() {
     
     const sizeOpt = product.productOptions?.find(o => {
       const name = o.name?.trim().toLowerCase();
-      return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
+      return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
     });
     const colorOpt = product.productOptions?.find(o => {
       const name = o.name?.trim().toLowerCase();
-      return name === 'color' || name === 'farge';
+      return name && (name === 'color' || name === 'farge');
     });
 
     const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
     const colorChoice = colorOpt?.choices?.find(c => {
-      const lower = c.value?.toLowerCase() || '';
-      let mappedName = 'Sort';
-      if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
-      else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
-      else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
-      else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
-      else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
-      else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
-      else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
-      else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
-      else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
-      else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
-      else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
-      else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
-      else if (lower.startsWith('#') || lower.startsWith('rgb')) {
-        if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
-        else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
-        else mappedName = 'Grå';
-      }
-      return mappedName === selectedColor;
+      const resolved = resolveColor(c.value);
+      return resolved.name === selectedColor;
     });
 
     const targetChoices = {};
@@ -445,6 +718,7 @@ export default function ProductDetails() {
     if (colorOpt && colorChoice) targetChoices[colorOpt.name] = colorChoice.value;
 
     return product.variants.find(v => {
+      if (!v || !v.choices) return false;
       return Object.entries(v.choices).every(([optName, optVal]) => {
         return targetChoices[optName] === optVal;
       });
@@ -495,16 +769,18 @@ export default function ProductDetails() {
     }
   }, [stockStatus, qty]);
 
-  if (!product) {
-    if (isLoadingProducts) {
-      return (
-        <div className="flex flex-col items-center justify-center py-56">
-          <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-secondary font-semibold font-body-md">Henter produkt fra Wix...</p>
-        </div>
-      );
-    }
+  const isCurrentlyLoading = isLoadingProducts || (isFetchingProduct && !fetchedProduct);
 
+  if (isCurrentlyLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-56">
+        <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-secondary font-semibold font-body-md">Henter produkt fra Wix...</p>
+      </div>
+    );
+  }
+
+  if (fetchError || !product) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 15 }}
@@ -698,7 +974,7 @@ export default function ProductDetails() {
           )}
 
           {/* Color Selector */}
-          {product.colorNames && product.colorNames.length > 0 && (
+          {product.colorNames && product.colorNames.length > 0 && product.colors && product.colors.length > 0 && (
             <div className="space-y-3">
               <span className="font-label-md text-label-md text-onyx">Farge: <strong className="text-terracotta">{selectedColor}</strong></span>
               <div className="flex gap-3">
@@ -712,7 +988,7 @@ export default function ProductDetails() {
                       className={`w-8 h-8 rounded-full border ring-offset-2 transition-all ${
                         isSelected ? 'ring-2 ring-terracotta scale-105 shadow-md' : 'hover:ring-1 hover:ring-terracotta'
                       }`}
-                      style={{ backgroundColor: colorHex }}
+                      style={{ background: colorHex }}
                       title={colorName}
                     />
                   );
@@ -1156,9 +1432,9 @@ export default function ProductDetails() {
             className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-onyx/40 backdrop-blur-sm pointer-events-auto cursor-pointer"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 15 }}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 15 }}
               transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
               className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-outline-variant/30 flex flex-col max-h-[85vh] cursor-default"
