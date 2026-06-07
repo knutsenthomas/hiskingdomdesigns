@@ -98,15 +98,10 @@ export default function ProductDetails() {
     setIsLoadingReviews(true);
     let apiReviews = [];
     try {
-      const res = await wixClient.reviews.queryReviews({
-        query: {
-          filter: {
-            entityId: productId,
-            namespace: 'stores'
-          },
-          sort: [{ fieldName: '_createdDate', order: 'DESC' }]
-        }
-      });
+      const res = await wixClient.reviews.queryReviews()
+        .eq('entityId', productId)
+        .descending('_createdDate')
+        .find();
       if (res && res.items) {
         apiReviews = res.items;
       }

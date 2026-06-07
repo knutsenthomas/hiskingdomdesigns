@@ -67,12 +67,10 @@ export default function Home() {
       setIsLoadingTestimonials(true);
       try {
         console.log("HKD Debug: Henter omtaler fra Wix Reviews API...");
-        const response = await wixClient.reviews.queryReviews({
-          query: {
-            sort: [{ fieldName: '_createdDate', order: 'DESC' }],
-            paging: { limit: 10 }
-          }
-        });
+        const response = await wixClient.reviews.queryReviews()
+          .descending('_createdDate')
+          .limit(10)
+          .find();
         console.log("HKD Debug: Wix API respons:", response);
         if (response && response.items && response.items.length > 0) {
           console.log(`HKD Debug: Fant ${response.items.length} godkjente omtaler:`, response.items);
