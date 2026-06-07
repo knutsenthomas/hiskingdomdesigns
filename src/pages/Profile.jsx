@@ -155,7 +155,10 @@ export default function Profile() {
           const savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
           if (savedOauthDataStr) {
             const savedOauthData = JSON.parse(savedOauthDataStr);
-            const memberTokens = await wixClient.auth.getMemberTokens(code, state, savedOauthData);
+            const memberTokens = await wixClient.auth.getMemberTokens(code, state, {
+              codeVerifier: savedOauthData.codeVerifier,
+              redirectUri: savedOauthData.redirectUri || (window.location.origin + '/profile')
+            });
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
             console.log('Successfully completed Wix OAuth login!');
@@ -255,9 +258,11 @@ export default function Profile() {
         } else if (result.errorCode === 'missingCaptchaToken') {
           // If captcha is needed, redirect to Wix OAuth portal to complete safely
           const oauthData = wixClient.auth.generateOAuthData();
+          const redirectUri = window.location.origin + '/profile';
+          oauthData.redirectUri = redirectUri;
           localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
           const { authUrl } = await wixClient.auth.getAuthUrl({
-            redirectUri: window.location.origin + '/profile',
+            redirectUri,
             state: oauthData.state,
             codeChallenge: oauthData.codeChallenge
           });
@@ -280,9 +285,11 @@ export default function Profile() {
     setIsLoggingIn(true);
     try {
       const oauthData = wixClient.auth.generateOAuthData();
+      const redirectUri = window.location.origin + '/profile';
+      oauthData.redirectUri = redirectUri;
       localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
       const { authUrl } = await wixClient.auth.getAuthUrl({
-        redirectUri: window.location.origin + '/profile',
+        redirectUri,
         state: oauthData.state,
         codeChallenge: oauthData.codeChallenge
       });
