@@ -504,12 +504,16 @@ export const AppProvider = ({ children }) => {
         setWixCollections(collectionsData);
 
         let allItems = [];
-        let response = await wixClient.products.queryProducts().limit(100).find();
-        allItems = [...response.items];
+        try {
+          let response = await wixClient.products.queryProducts().limit(100).find();
+          allItems = [...response.items];
 
-        while (response.hasNext()) {
-          response = await response.next();
-          allItems = [...allItems, ...response.items];
+          while (response.hasNext()) {
+            response = await response.next();
+            allItems = [...allItems, ...response.items];
+          }
+        } catch (paginationError) {
+          console.warn('Feil under paginering av Wix-produkter, fortsetter med allerede hentede produkter:', paginationError);
         }
 
         console.log(`Hentet totalt ${allItems.length} produkter fra Wix.`);
@@ -570,6 +574,7 @@ export const AppProvider = ({ children }) => {
             if (colorOpt) {
               const rawColorNames = colorOpt.choices?.map(c => c.value) || [];
               colorNames = rawColorNames.map(name => {
+                if (!name) return 'Sort';
                 const lower = name.toLowerCase();
                 
                 // 1. Sort / Mørk
