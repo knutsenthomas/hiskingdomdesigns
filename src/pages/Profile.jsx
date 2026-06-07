@@ -6,6 +6,64 @@ import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
 
+// Helper to safely extract email from Wix member object across various schema versions
+const getMemberEmail = (member) => {
+  if (member?.loginEmail) return member.loginEmail;
+  
+  const cdEmails = member?.contactDetails?.emails || [];
+  if (cdEmails[0]) {
+    return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
+  }
+  
+  const cEmails = member?.contact?.emails || [];
+  if (cEmails[0]) {
+    return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
+  }
+  
+  return member?.contact?.email || member?.contactDetails?.email || null;
+};
+
+// Helper to safely extract phone from Wix member object across various schema versions
+const getMemberPhone = (member) => {
+  const cdPhones = member?.contactDetails?.phones || [];
+  if (cdPhones[0]) {
+    return typeof cdPhones[0] === 'object' ? cdPhones[0].phone : cdPhones[0];
+  }
+  
+  const cPhones = member?.contact?.phones || [];
+  if (cPhones[0]) {
+    return typeof cPhones[0] === 'object' ? cPhones[0].phone : cPhones[0];
+  }
+  
+  return member?.contact?.phone || member?.contactDetails?.phone || null;
+};
+
+// Helper to safely extract address details from Wix member object across various schema versions
+const getMemberAddress = (member) => {
+  const contact = member?.contactDetails || member?.contact;
+  const addrObj = contact?.addresses?.[0];
+  if (!addrObj) return null;
+
+  const address = addrObj.address || addrObj;
+
+  let addressLine = address.addressLine || address.addressLine1 || address.formatted || '';
+  if (!addressLine && address.streetAddress) {
+    if (typeof address.streetAddress === 'object') {
+      const name = address.streetAddress.name || '';
+      const number = address.streetAddress.number || '';
+      addressLine = `${name} ${number}`.trim();
+    } else if (typeof address.streetAddress === 'string') {
+      addressLine = address.streetAddress;
+    }
+  }
+
+  const postalCode = address.postalCode || address.zipCode || '';
+  const city = address.city || '';
+  const country = address.country || 'NO';
+
+  return { addressLine, postalCode, city, country };
+};
+
 export default function Profile() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
   const [loginTab, setLoginTab] = useState('login'); // 'login' | 'register'
@@ -55,10 +113,12 @@ export default function Profile() {
   // Sync form states with member info
   useEffect(() => {
     if (member) {
-      setFirstName(member.contact?.firstName || '');
-      setLastName(member.contact?.lastName || '');
-      setPhone(member.contact?.phones?.[0] || '');
-      const addr = member.contact?.addresses?.[0];
+      const contact = member.contactDetails || member.contact;
+      setFirstName(contact?.firstName || '');
+      setLastName(contact?.lastName || '');
+      setPhone(getMemberPhone(member) || '');
+      
+      const addr = getMemberAddress(member);
       setAddressLine(addr?.addressLine || '');
       setPostalCode(addr?.postalCode || '');
       setCity(addr?.city || '');
@@ -72,20 +132,39 @@ export default function Profile() {
     setAddressError('');
     try {
       console.log('Updating member address book in Wix...');
+      const phonePayload = phone ? [
+        {
+          phone: phone,
+          tag: 'MOBILE'
+        }
+      ] : [];
+      
+      const addressPayload = [
+        {
+          tag: 'HOME',
+          address: {
+            addressLine: addressLine,
+            formatted: `${addressLine}, ${postalCode} ${city}`,
+            postalCode: postalCode,
+            city: city,
+            country: 'NO'
+          }
+        }
+      ];
+
       const updated = await wixClient.members.updateMember(member._id, {
         member: {
           contact: {
             firstName: firstName,
             lastName: lastName,
-            phones: phone ? [phone] : [],
-            addresses: [
-              {
-                addressLine: addressLine,
-                postalCode: postalCode,
-                city: city,
-                country: 'NO'
-              }
-            ]
+            phones: phonePayload,
+            addresses: addressPayload
+          },
+          contactDetails: {
+            firstName: firstName,
+            lastName: lastName,
+            phones: phonePayload,
+            addresses: addressPayload
           }
         }
       });
@@ -328,16 +407,19 @@ export default function Profile() {
   };
 
   // Helper values destructured defensively
-  const displayName = member?.contact?.firstName 
-    ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
-    : (member?.profile?.nickname || 'Christian Mandal');
+  const displayName = member?.contactDetails?.firstName 
+    ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ''}`.trim() 
+    : member?.contact?.firstName 
+      ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
+      : (member?.profile?.nickname || 'Christian Mandal');
 
-  const displayEmail = member?.loginEmail || member?.contact?.email || 'christian@mandalregnskap.no';
+  const displayEmail = getMemberEmail(member) || 'christian@mandalregnskap.no';
   
-  const displayPhone = member?.contact?.phones?.[0] || '987 65 432';
+  const displayPhone = getMemberPhone(member) || '987 65 432';
   
-  const displayAddress = member?.contact?.addresses?.[0]
-    ? `${member.contact.addresses[0].addressLine1 || ''}, ${member.contact.addresses[0].postalCode || ''} ${member.contact.addresses[0].city || ''}`
+  const addrDetails = getMemberAddress(member);
+  const displayAddress = (addrDetails && (addrDetails.addressLine || addrDetails.postalCode || addrDetails.city))
+    ? `${addrDetails.addressLine || ''}, ${addrDetails.postalCode || ''} ${addrDetails.city || ''}`.trim().replace(/^,\s*/, '')
     : 'Store Elvegate 16, 4514 Mandal';
 
   const memberSinceStr = member?._createdDate 

@@ -37,8 +37,15 @@ export default function ProductDetails() {
       if (wixClient.auth.loggedIn()) {
         try {
           const res = await wixClient.members.getCurrentMember();
-          if (res?.member?.loginEmail) {
-            setBackInStockEmail(res.member.loginEmail);
+          const member = res?.member;
+          if (member) {
+            const email = member.loginEmail || 
+              (member.contactDetails?.emails?.[0] && (typeof member.contactDetails.emails[0] === 'object' ? member.contactDetails.emails[0].email : member.contactDetails.emails[0])) ||
+              (member.contact?.emails?.[0] && (typeof member.contact.emails[0] === 'object' ? member.contact.emails[0].email : member.contact.emails[0])) ||
+              member.contact?.email || member.contactDetails?.email;
+            if (email) {
+              setBackInStockEmail(email);
+            }
           }
         } catch (err) {
           console.warn('Could not auto-fill member email for back-in-stock request:', err);
@@ -70,8 +77,14 @@ export default function ProductDetails() {
       if (wixClient.auth.loggedIn()) {
         try {
           const res = await wixClient.members.getCurrentMember();
-          if (res?.member?.contact?.firstName) {
-            setReviewName(`${res.member.contact.firstName} ${res.member.contact.lastName || ''}`.trim());
+          const member = res?.member;
+          if (member) {
+            const contact = member.contactDetails || member.contact;
+            if (contact?.firstName) {
+              setReviewName(`${contact.firstName} ${contact.lastName || ''}`.trim());
+            } else if (member.profile?.nickname) {
+              setReviewName(member.profile.nickname);
+            }
           }
         } catch (err) {
           console.warn('Could not pre-fill review name:', err);

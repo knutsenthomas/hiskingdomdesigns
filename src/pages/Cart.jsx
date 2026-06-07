@@ -45,14 +45,24 @@ export default function Cart() {
       if (wixClient.auth.loggedIn()) {
         try {
           const res = await wixClient.members.getCurrentMember();
-          const memberAddr = res?.member?.contact?.addresses?.[0];
-          if (memberAddr && memberAddr.address?.postalCode && memberAddr.address?.city) {
-            console.log('Auto-prefilling shipping address from member profile:', memberAddr.address);
-            estimateShippingAndTotals(
-              memberAddr.address.postalCode,
-              memberAddr.address.city,
-              memberAddr.address.country || 'NO'
-            );
+          const member = res?.member;
+          if (member) {
+            const contact = member.contactDetails || member.contact;
+            const addrObj = contact?.addresses?.[0];
+            if (addrObj) {
+              const address = addrObj.address || addrObj;
+              const postalCode = address.postalCode || address.zipCode;
+              const city = address.city;
+              const country = address.country || 'NO';
+              if (postalCode && city) {
+                console.log('Auto-prefilling shipping address from member profile:', address);
+                estimateShippingAndTotals(
+                  postalCode,
+                  city,
+                  country
+                );
+              }
+            }
           }
         } catch (err) {
           console.warn('Could not auto-fill shipping estimate from profile:', err);
