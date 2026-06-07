@@ -667,8 +667,16 @@ export const AppProvider = ({ children }) => {
           prod.gender === 'Barn' || 
           prod.category?.toLowerCase().includes('barn') || 
           prodNameLower.includes('barn') || 
+          prodNameLower.includes('barne') || 
+          prodNameLower.includes('baby') || 
+          prodNameLower.includes('body') || 
+          prodNameLower.includes('år') || 
+          prodNameLower.includes('mnd') || 
           prodDescLower.includes('barn') || 
-          prodSubcats.some(s => s.includes('barn') || s.includes('ungdom') || s.includes('kids'));
+          prodDescLower.includes('barne') || 
+          prodDescLower.includes('baby') || 
+          prodDescLower.includes('body') || 
+          prodSubcats.some(s => s.includes('barn') || s.includes('ungdom') || s.includes('kids') || s.includes('baby'));
         
         if (hasKidsTag) {
           score += 35; // Massive boost for child products
