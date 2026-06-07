@@ -364,7 +364,7 @@ export default function Category() {
           <span className="text-onyx font-bold">{displayTitle}</span>
         </nav>
         <h1 className="font-headline-xl text-3xl md:text-[48px] text-onyx mb-2 capitalize">{displayTitle}</h1>
-        <p className="text-body-lg font-body-lg text-secondary max-w-2xl">
+        <p className="text-body-lg font-body-lg text-secondary w-full">
           Utforsk vår kolleksjon av trosbaserte produkter designet for å inspirere og spre Guds ord i hverdagen.
         </p>
       </div>
