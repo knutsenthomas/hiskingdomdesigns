@@ -301,8 +301,8 @@ export const AppProvider = ({ children }) => {
           
           if (item.productOptions) {
             const sizeOpt = item.productOptions.find(o => {
-              const name = o.name?.toLowerCase();
-              return name.includes('size') || name.includes('størrelse') || name.includes('format');
+              const name = o.name?.trim().toLowerCase();
+              return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
             });
             if (sizeOpt) {
               const rawSizes = sizeOpt.choices?.map(c => c.value) || [];
@@ -318,25 +318,60 @@ export const AppProvider = ({ children }) => {
             }
 
             const colorOpt = item.productOptions.find(o => {
-              const name = o.name?.toLowerCase();
+              const name = o.name?.trim().toLowerCase();
               return name === 'color' || name === 'farge';
             });
             if (colorOpt) {
               const rawColorNames = colorOpt.choices?.map(c => c.value) || [];
               colorNames = rawColorNames.map(name => {
                 const lower = name.toLowerCase();
-                if (lower.includes('sort') || lower.includes('black')) return 'Sort';
-                if (lower.includes('hvit') || lower.includes('white')) return 'Hvit';
-                if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray')) return 'Grå';
-                if (lower.includes('rød') || lower.includes('red')) return 'Rød';
-                if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy')) return 'Blå';
-                if (lower.includes('grønn') || lower.includes('green')) return 'Grønn';
-                if (lower.includes('gul') || lower.includes('yellow')) return 'Gul';
-                if (lower.includes('rosa') || lower.includes('pink')) return 'Rosa';
-                if (lower.includes('beige')) return 'Beige';
-                if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown')) return 'Terracotta';
-                return name;
+                
+                // 1. Sort / Mørk
+                if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) return 'Sort';
+                
+                // 2. Hvit / Lys
+                if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) return 'Hvit';
+                
+                // 3. Grå
+                if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) return 'Grå';
+                
+                // 4. Blå / Marine
+                if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) return 'Blå';
+                
+                // 5. Rød / Vinrød
+                if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) return 'Rød';
+                
+                // 6. Grønn
+                if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) return 'Grønn';
+                
+                // 7. Gul / Gull
+                if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) return 'Gul';
+                
+                // 8. Rosa
+                if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) return 'Rosa';
+                
+                // 9. Beige / Sand
+                if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) return 'Beige';
+                
+                // 10. Terracotta / Brun
+                if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) return 'Terracotta';
+                
+                // 11. Orange
+                if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) return 'Orange';
+                
+                // 12. Lilla
+                if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) return 'Lilla';
+                
+                // Parse color codes
+                if (lower.startsWith('#') || lower.startsWith('rgb')) {
+                  if (lower.includes('255,255,255') || lower === '#ffffff') return 'Hvit';
+                  if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') return 'Sort';
+                  return 'Grå';
+                }
+
+                return 'Sort'; // default fallback
               });
+
               colors = colorNames.map(name => {
                 if (name === 'Sort') return '#151A21';
                 if (name === 'Hvit') return '#FFFFFF';
@@ -348,6 +383,8 @@ export const AppProvider = ({ children }) => {
                 if (name === 'Rosa') return '#db2777';
                 if (name === 'Beige') return '#d4c4b5';
                 if (name === 'Terracotta') return '#CC712B';
+                if (name === 'Orange') return '#f97316';
+                if (name === 'Lilla') return '#a855f7';
                 return '#888888';
               });
             }
