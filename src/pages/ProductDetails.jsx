@@ -197,7 +197,9 @@ export default function ProductDetails() {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`h-12 border rounded-lg font-label-md transition-all flex items-center justify-center ${
+                      className={`min-h-12 py-2 px-1 border rounded-lg transition-all flex items-center justify-center text-center ${
+                        size.length > 3 ? 'text-[11px] leading-tight font-semibold' : 'font-label-md text-label-md'
+                      } ${
                         isSelected 
                           ? 'border-terracotta bg-terracotta text-white font-bold' 
                           : 'border-outline text-onyx hover:border-terracotta hover:text-terracotta'

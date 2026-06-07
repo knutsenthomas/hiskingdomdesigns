@@ -283,7 +283,9 @@ export default function Category() {
               <button
                 key={size}
                 onClick={() => handleSizeToggle(size)}
-                className={`h-10 border rounded flex items-center justify-center font-label-sm text-label-sm transition-all ${
+                className={`min-h-10 py-2 px-1 border rounded flex items-center justify-center text-center transition-all ${
+                  size.length > 3 ? 'text-[10px] leading-tight font-medium' : 'font-label-sm text-label-sm'
+                } ${
                   isSelected 
                     ? 'border-terracotta bg-terracotta/5 text-terracotta font-bold' 
                     : 'border-outline-variant text-onyx hover:border-terracotta hover:text-terracotta'
