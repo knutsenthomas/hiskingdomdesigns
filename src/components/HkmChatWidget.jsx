@@ -787,7 +787,7 @@ export default function HkmChatWidget() {
                   />
                   <button
                     type="submit"
-                    disabled={!inputText.trim() || (chatMode === 'live' && !conversationId)}
+                    disabled={!inputText.trim() || isCreatingConv}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-terracotta hover:text-primary-container disabled:text-secondary/40 transition-colors"
                   >
                     <Send size={16} />
