@@ -42,41 +42,20 @@ export default function Cart() {
   // Auto-prefill and calculate shipping from logged-in member's saved address on mount
   useEffect(() => {
     async function loadMemberAddress() {
-      const logged = wixClient.auth.loggedIn();
-      const mockMemberStr = localStorage.getItem('hkd-mock-vipps-member');
-      
-      if (logged) {
+      if (wixClient.auth.loggedIn()) {
         try {
           const res = await wixClient.members.getCurrentMember();
           const memberAddr = res?.member?.contact?.addresses?.[0];
-          // Support both Wix Address model and flat model
-          const addressObj = memberAddr?.address || memberAddr;
-          if (addressObj && addressObj.postalCode && addressObj.city) {
-            console.log('Auto-prefilling shipping address from member profile:', addressObj);
+          if (memberAddr && memberAddr.address?.postalCode && memberAddr.address?.city) {
+            console.log('Auto-prefilling shipping address from member profile:', memberAddr.address);
             estimateShippingAndTotals(
-              addressObj.postalCode,
-              addressObj.city,
-              addressObj.country || 'NO'
+              memberAddr.address.postalCode,
+              memberAddr.address.city,
+              memberAddr.address.country || 'NO'
             );
           }
         } catch (err) {
           console.warn('Could not auto-fill shipping estimate from profile:', err);
-        }
-      } else if (mockMemberStr) {
-        try {
-          const mockMember = JSON.parse(mockMemberStr);
-          const memberAddr = mockMember?.contact?.addresses?.[0];
-          const addressObj = memberAddr?.address || memberAddr;
-          if (addressObj && addressObj.postalCode && addressObj.city) {
-            console.log('Auto-prefilling shipping address from mock Vipps profile:', addressObj);
-            estimateShippingAndTotals(
-              addressObj.postalCode,
-              addressObj.city,
-              addressObj.country || 'NO'
-            );
-          }
-        } catch (err) {
-          console.warn('Could not auto-fill shipping estimate from mock Vipps profile:', err);
         }
       }
     }
