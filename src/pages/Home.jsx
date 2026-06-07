@@ -66,20 +66,22 @@ export default function Home() {
     async function fetchTestimonials() {
       setIsLoadingTestimonials(true);
       try {
+        console.log("HKD Debug: Henter omtaler fra Wix Reviews API...");
         const response = await wixClient.reviews.queryReviews({
           query: {
-            filter: {
-              namespace: 'stores'
-            },
             sort: [{ fieldName: '_createdDate', order: 'DESC' }],
-            paging: { limit: 3 }
+            paging: { limit: 10 }
           }
         });
+        console.log("HKD Debug: Wix API respons:", response);
         if (response && response.items && response.items.length > 0) {
-          setTestimonialsList(response.items);
+          console.log(`HKD Debug: Fant ${response.items.length} godkjente omtaler:`, response.items);
+          setTestimonialsList(response.items.slice(0, 3));
+        } else {
+          console.log("HKD Debug: API-et returnerte 0 godkjente omtaler. Sjekk om de må godkjennes i Wix-dashbordet.");
         }
       } catch (err) {
-        console.warn('Wix Reviews API call failed in Home. Using fallback testimonials.', err);
+        console.warn('HKD Debug: Wix Reviews API feilet. Bruker mock-data.', err);
       } finally {
         setIsLoadingTestimonials(false);
       }
