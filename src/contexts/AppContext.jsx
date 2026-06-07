@@ -627,6 +627,29 @@ export const AppProvider = ({ children }) => {
     const isBestsellerQuery = lower.includes('bestselger') || lower.includes('populær') || lower.includes('topp');
     const isSaleQuery = lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt');
 
+    const isKidsQuery = 
+      lower.includes('barn') || 
+      lower.includes('kids') || 
+      lower.includes('junior') || 
+      lower.includes('gutt') || 
+      lower.includes('jente') || 
+      lower.includes('ungdom') || 
+      lower.includes('baby') || 
+      lower.includes('åring') || 
+      /\b\d+\s*år\b/.test(lower);
+
+    const isWomenQuery =
+      lower.includes('dame') ||
+      lower.includes('kvinne') ||
+      lower.includes('women') ||
+      lower.includes('damer');
+
+    const isMenQuery =
+      lower.includes('herre') ||
+      lower.includes('mann') ||
+      lower.includes('men') ||
+      lower.includes('herrer');
+
     products.forEach(prod => {
       let score = 0;
       const prodNameLower = prod.name.toLowerCase();
@@ -637,6 +660,44 @@ export const AppProvider = ({ children }) => {
       // Flag matching
       if (isBestsellerQuery && prod.isBestseller) score += 8;
       if (isSaleQuery && prod.isSale) score += 8;
+
+      // Target audience boosts
+      if (isKidsQuery) {
+        const hasKidsTag = 
+          prod.gender === 'Barn' || 
+          prod.category?.toLowerCase().includes('barn') || 
+          prodNameLower.includes('barn') || 
+          prodDescLower.includes('barn') || 
+          prodSubcats.some(s => s.includes('barn') || s.includes('ungdom') || s.includes('kids'));
+        
+        if (hasKidsTag) {
+          score += 35; // Massive boost for child products
+        }
+      }
+
+      if (isWomenQuery) {
+        const hasWomenTag =
+          prod.gender === 'Dame' ||
+          prod.category?.toLowerCase().includes('dame') ||
+          prodNameLower.includes('dame') ||
+          prodSubcats.some(s => s.includes('dame') || s.includes('women'));
+        
+        if (hasWomenTag) {
+          score += 25;
+        }
+      }
+
+      if (isMenQuery) {
+        const hasMenTag =
+          prod.gender === 'Herre' ||
+          prod.category?.toLowerCase().includes('herre') ||
+          prodNameLower.includes('herre') ||
+          prodSubcats.some(s => s.includes('herre') || s.includes('men'));
+        
+        if (hasMenTag) {
+          score += 25;
+        }
+      }
 
       // Word matching
       words.forEach(word => {

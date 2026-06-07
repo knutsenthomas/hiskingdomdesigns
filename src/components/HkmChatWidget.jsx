@@ -8,7 +8,7 @@ import { wixClient } from '@/lib/wix';
 // Helper to parse bold (**), italic (*), and markdown links ([text](url)) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
   if (!text) return '';
-  const regex = /(\[.*?\]\(.*?\)\*?|\*\*.*?\*\*|\*.*?\*)/g;
+  const regex = /(\[[^\]]*\]\([^)]*\)|\*\*.*?\*\*|\*.*?\*)/g;
   const tokens = text.split(regex);
   return tokens.map((token, index) => {
     if (token.startsWith('[') && token.includes('](')) {
