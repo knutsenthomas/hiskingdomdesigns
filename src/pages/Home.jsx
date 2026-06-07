@@ -125,8 +125,9 @@ export default function Home() {
         const res = await fetch('https://feeds.behold.so/KiCxnETuzZIThlNXvTNW');
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const mappedFeed = data.slice(0, 4).map(item => ({
+          const posts = Array.isArray(data) ? data : (data && Array.isArray(data.posts) ? data.posts : []);
+          if (posts.length > 0) {
+            const mappedFeed = posts.slice(0, 4).map(item => ({
               id: item.id || Math.random().toString(),
               mediaUrl: item.sizes?.medium?.mediaUrl || item.mediaUrl,
               permalink: item.permalink || 'https://www.instagram.com/hiskingdomdesigns/'
