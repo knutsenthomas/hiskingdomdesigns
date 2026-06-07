@@ -193,7 +193,7 @@ const FALLBACK_TAXONOMY = {
   'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
   'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
   'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
-  'Temaer, Kampanjer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
+  'Temaer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
 };
 
 export const AppProvider = ({ children }) => {
@@ -215,17 +215,18 @@ export const AppProvider = ({ children }) => {
       'Bilder & Kunst': [],
       'Tilbehør & Hjem': [],
       'Barn & Familie': [],
-      'Temaer, Kampanjer & Språk': []
+      'Temaer & Språk': []
     };
 
     wixCollections.forEach(c => {
       const name = c.name;
       const lower = name.toLowerCase();
 
-      const isKidsFamily = lower.includes('baby') || 
+           const isKidsFamily = lower.includes('baby') || 
                            lower.includes('barn') || 
                            lower.includes('ungdom') || 
                            lower.includes('familie') || 
+                           lower.includes('family') || 
                            lower.includes('kids') || 
                            lower.includes('child') || 
                            lower.includes('boy') || 
@@ -244,7 +245,10 @@ export const AppProvider = ({ children }) => {
                          lower.includes('hoodie') || 
                          lower.includes('sweatshirt') || 
                          lower.includes('jacket') || 
-                         lower.includes('socks');
+                         lower.includes('socks') || 
+                         lower.includes('sweater') || 
+                         lower.includes('sweatpants') || 
+                         lower.includes('pants');
 
       const isArt = lower.includes('bilde') || 
                     lower.includes('plakat') || 
@@ -265,19 +269,25 @@ export const AppProvider = ({ children }) => {
 
       const isAccessory = lower.includes('tilbehør') || 
                           lower.includes('smykke') || 
+                          lower.includes('jewelry') || 
                           lower.includes('armbånd') || 
+                          lower.includes('bracelet') || 
                           lower.includes('bag') || 
                           lower.includes('tote') || 
                           lower.includes('kopp') || 
                           lower.includes('flaske') || 
+                          lower.includes('cups') || 
+                          lower.includes('bottle') || 
                           lower.includes('deksel') || 
+                          lower.includes('cover') || 
                           lower.includes('klister') || 
                           lower.includes('sticker') || 
                           lower.includes('mug') || 
                           lower.includes('accessory') || 
                           lower.includes('accessories') || 
                           lower.includes('home') || 
-                          lower.includes('barnerom');
+                          lower.includes('barnerom') || 
+                          lower.includes('book');
 
       if (isKidsFamily) {
         taxonomy['Barn & Familie'].push(name);
@@ -288,7 +298,7 @@ export const AppProvider = ({ children }) => {
       } else if (isAccessory) {
         taxonomy['Tilbehør & Hjem'].push(name);
       } else {
-        taxonomy['Temaer, Kampanjer & Språk'].push(name);
+        taxonomy['Temaer & Språk'].push(name);
       }
     });
 

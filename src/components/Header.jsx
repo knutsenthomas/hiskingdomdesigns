@@ -267,16 +267,16 @@ export default function Header() {
               onMouseEnter={() => setMegamenuOpen(true)}
               onMouseLeave={() => setMegamenuOpen(false)}
             >
-              <div className="max-w-max-width mx-auto grid grid-cols-5 gap-8">
+              <div className="max-w-max-width mx-auto grid grid-cols-7 gap-6">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Klær & Bekledning</h4>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-2">
                     {categoryTaxonomy['Klær & Bekledning']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                           to={`/category/${sub}`} 
-                          className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
+                          to={`/category/${sub}`} 
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -288,12 +288,12 @@ export default function Header() {
                 {/* Column 2: Bilder & Kunst */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Bilder & Kunst</h4>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-2">
                     {categoryTaxonomy['Bilder & Kunst']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                           to={`/category/${sub}`} 
-                          className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
+                          to={`/category/${sub}`} 
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -305,12 +305,12 @@ export default function Header() {
                 {/* Column 3: Tilbehør & Hjem */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Tilbehør & Hjem</h4>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-2">
                     {categoryTaxonomy['Tilbehør & Hjem']?.map(sub => (
                       <li key={sub}>
                         <Link 
-                           to={`/category/${sub}`} 
-                          className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
+                          to={`/category/${sub}`} 
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -319,45 +319,42 @@ export default function Header() {
                   </ul>
                 </div>
  
-                {/* Column 4: Temaer, Kampanjer & Språk */}
+                {/* Column 4: Barn & Familie */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <h5 className="font-bold text-xs text-onyx mb-2">Barn & Familie</h5>
-                      <ul className="space-y-2.5">
-                        {categoryTaxonomy['Barn & Familie']?.map(sub => (
-                          <li key={sub}>
-                            <Link 
-                               to={`/category/${sub}`} 
-                              className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
-                            >
-                              {sub}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-xs text-onyx mb-2">Andre Kategorier</h5>
-                      <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 max-w-sm">
-                        {categoryTaxonomy['Temaer, Kampanjer & Språk']?.map(sub => (
-                          <li key={sub}>
-                            <Link 
-                              to={`/category/${sub}`} 
-                              className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
-                            >
-                              {sub}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Barn & Familie</h4>
+                  <ul className="space-y-2">
+                    {categoryTaxonomy['Barn & Familie']?.map(sub => (
+                      <li key={sub}>
+                        <Link 
+                          to={`/category/${sub}`} 
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
+                        >
+                          {sub}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                {/* Column 5: Featured Promo Box */}
-                <div className="bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
+                {/* Column 5 & 6: Temaer & Språk */}
+                <div className="col-span-2">
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
+                  <ul className="grid grid-cols-2 gap-x-6 gap-y-2 w-full">
+                    {categoryTaxonomy['Temaer & Språk']?.map(sub => (
+                      <li key={sub}>
+                        <Link 
+                          to={`/category/${sub}`} 
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block whitespace-nowrap"
+                        >
+                          {sub}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Column 7: Featured Promo Box */}
+                <div className="col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
                     <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-3">
                       Fremhevet
