@@ -159,10 +159,10 @@ export default function HkmChatWidget() {
   useEffect(() => {
     try {
       const chatVersion = localStorage.getItem('hkd-chat-version');
-      if (chatVersion !== '2') {
-        console.log('Migrating chat to version 2 (contactId routing): clearing old conversationId');
+      if (chatVersion !== '3') {
+        console.log('Migrating chat to version 3 (REST contactId resolution): clearing old conversationId');
         localStorage.removeItem('hkd-inbox-conv-id');
-        localStorage.setItem('hkd-chat-version', '2');
+        localStorage.setItem('hkd-chat-version', '3');
         setConversationId(null);
       }
     } catch (e) {
