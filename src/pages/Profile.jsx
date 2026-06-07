@@ -64,6 +64,8 @@ const getMemberAddress = (member) => {
   return { addressLine, postalCode, city, country };
 };
 
+let isExchangingTokens = false;
+
 export default function Profile() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
   const [loginTab, setLoginTab] = useState('login'); // 'login' | 'register'
@@ -229,6 +231,11 @@ export default function Profile() {
         const state = searchParams.get('state') || hashParams.get('state');
         
         if (code && state) {
+          if (isExchangingTokens) {
+            console.warn('OAuth token exchange already in progress, blocking duplicate execution.');
+            return;
+          }
+          isExchangingTokens = true;
           setIsLoading(true);
           console.log('OAuth callback detected! Code:', code, 'State:', state);
           const savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
@@ -252,9 +259,11 @@ export default function Profile() {
             setRefreshKey(prev => prev + 1);
           } else {
             console.warn('No OAuth data found in localStorage or already consumed!');
+            isExchangingTokens = false;
           }
         }
       } catch (err) {
+        isExchangingTokens = false;
         console.error('Error exchanging oauth tokens:', err);
         setErrorMsg('Innloggingsfeil: ' + err.message);
         alert('Det oppstod en feil under utveksling av innloggingstokener: ' + err.message);
@@ -338,15 +347,10 @@ export default function Profile() {
           setErrorMsg('Feil e-postadresse eller passord.');
         } else if (result.errorCode === 'missingCaptchaToken') {
           // If captcha is needed, redirect to Wix OAuth portal to complete safely
-          const oauthData = wixClient.auth.generateOAuthData();
           const redirectUri = window.location.origin + '/profile';
-          oauthData.redirectUri = redirectUri;
+          const oauthData = wixClient.auth.generateOAuthData(redirectUri);
           localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
-          const { authUrl } = await wixClient.auth.getAuthUrl({
-            redirectUri,
-            state: oauthData.state,
-            codeChallenge: oauthData.codeChallenge
-          });
+          const { authUrl } = await wixClient.auth.getAuthUrl(oauthData);
           window.location.href = authUrl;
         } else {
           setErrorMsg('Feil ved pålogging. Vennligst prøv igjen.');
@@ -365,15 +369,10 @@ export default function Profile() {
     e.preventDefault();
     setIsLoggingIn(true);
     try {
-      const oauthData = wixClient.auth.generateOAuthData();
       const redirectUri = window.location.origin + '/profile';
-      oauthData.redirectUri = redirectUri;
+      const oauthData = wixClient.auth.generateOAuthData(redirectUri);
       localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
-      const { authUrl } = await wixClient.auth.getAuthUrl({
-        redirectUri,
-        state: oauthData.state,
-        codeChallenge: oauthData.codeChallenge
-      });
+      const { authUrl } = await wixClient.auth.getAuthUrl(oauthData);
       window.location.href = authUrl;
     } catch (err) {
       console.error(err);
