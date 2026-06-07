@@ -105,15 +105,45 @@ export default function Category() {
     setSearchParams({});
   };
 
-  const availableSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL'];
-  const availableColors = [
-    { name: 'Hvit', hex: '#FFFFFF', border: 'border-outline-variant' },
-    { name: 'Sort', hex: '#151A21', border: 'border-onyx' },
-    { name: 'Grå', hex: '#E5E7EB', border: 'border-slate-300' },
-    { name: 'Mørk Grønn', hex: '#2F4F4F', border: 'border-[#2F4F4F]' },
-    { name: 'Terracotta', hex: '#CC712B', border: 'border-terracotta' },
-    { name: 'Beige', hex: '#D4C4B5', border: 'border-[#D4C4B5]' }
-  ];
+  const availableSizes = useMemo(() => {
+    const sizesSet = new Set();
+    products.forEach(p => {
+      if (p.sizes) {
+        p.sizes.forEach(s => sizesSet.add(s));
+      }
+    });
+    const order = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+    return Array.from(sizesSet).sort((a, b) => {
+      const idxA = order.indexOf(a);
+      const idxB = order.indexOf(b);
+      if (idxA > -1 && idxB > -1) return idxA - idxB;
+      if (idxA > -1) return -1;
+      if (idxB > -1) return 1;
+      return a.localeCompare(b);
+    });
+  }, [products]);
+
+  const availableColors = useMemo(() => {
+    const colorMap = {};
+    products.forEach(p => {
+      if (p.colorNames && p.colors) {
+        p.colorNames.forEach((name, idx) => {
+          const hex = p.colors[idx] || '#888888';
+          if (!colorMap[name]) {
+            colorMap[name] = hex;
+          }
+        });
+      }
+    });
+    
+    return Object.entries(colorMap).map(([name, hex]) => {
+      let border = 'border-slate-200';
+      if (hex === '#FFFFFF') border = 'border-outline-variant';
+      else if (hex === '#151A21') border = 'border-onyx';
+      else if (hex === '#CC712B') border = 'border-terracotta';
+      return { name, hex, border };
+    });
+  }, [products]);
 
   // Filter and Sort Logic
   const filteredProducts = useMemo(() => {

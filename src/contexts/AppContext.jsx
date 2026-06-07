@@ -300,19 +300,32 @@ export const AppProvider = ({ children }) => {
               return name === 'color' || name === 'farge';
             });
             if (colorOpt) {
-              colorNames = colorOpt.choices?.map(c => c.value) || [];
-              colors = colorNames.map(name => {
+              const rawColorNames = colorOpt.choices?.map(c => c.value) || [];
+              colorNames = rawColorNames.map(name => {
                 const lower = name.toLowerCase();
-                if (lower.includes('sort') || lower.includes('black')) return '#151A21';
-                if (lower.includes('hvit') || lower.includes('white')) return '#FFFFFF';
-                if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray')) return '#E5E7EB';
-                if (lower.includes('rød') || lower.includes('red')) return '#ef4444';
-                if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy')) return '#1e293b';
-                if (lower.includes('grønn') || lower.includes('green')) return '#16a34a';
-                if (lower.includes('gul') || lower.includes('yellow')) return '#eab308';
-                if (lower.includes('rosa') || lower.includes('pink')) return '#db2777';
-                if (lower.includes('beige')) return '#d4c4b5';
-                if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown')) return '#CC712B';
+                if (lower.includes('sort') || lower.includes('black')) return 'Sort';
+                if (lower.includes('hvit') || lower.includes('white')) return 'Hvit';
+                if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray')) return 'Grå';
+                if (lower.includes('rød') || lower.includes('red')) return 'Rød';
+                if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy')) return 'Blå';
+                if (lower.includes('grønn') || lower.includes('green')) return 'Grønn';
+                if (lower.includes('gul') || lower.includes('yellow')) return 'Gul';
+                if (lower.includes('rosa') || lower.includes('pink')) return 'Rosa';
+                if (lower.includes('beige')) return 'Beige';
+                if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown')) return 'Terracotta';
+                return name;
+              });
+              colors = colorNames.map(name => {
+                if (name === 'Sort') return '#151A21';
+                if (name === 'Hvit') return '#FFFFFF';
+                if (name === 'Grå') return '#E5E7EB';
+                if (name === 'Rød') return '#ef4444';
+                if (name === 'Blå') return '#1e293b';
+                if (name === 'Grønn') return '#16a34a';
+                if (name === 'Gul') return '#eab308';
+                if (name === 'Rosa') return '#db2777';
+                if (name === 'Beige') return '#d4c4b5';
+                if (name === 'Terracotta') return '#CC712B';
                 return '#888888';
               });
             }
@@ -329,7 +342,7 @@ export const AppProvider = ({ children }) => {
 
           const price = item.price?.discountedPrice || item.price?.price || 0;
           const originalPrice = item.price?.price || 0;
-          const isSale = price < originalPrice || item.discount?.type !== 'NONE';
+          const isSale = price < originalPrice || item.discount?.type !== 'NONE' || resolvedCollections.some(c => c.toUpperCase() === 'SALG');
           const isBestseller = resolvedCollections.includes('Bestselgere') || resolvedCollections.includes('Populære produkter');
 
           return {
