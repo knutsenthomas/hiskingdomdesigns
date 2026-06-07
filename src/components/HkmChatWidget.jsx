@@ -134,7 +134,7 @@ export default function HkmChatWidget() {
     async function checkMember() {
       if (wixClient.auth.loggedIn()) {
         try {
-          const res = await wixClient.members.getCurrentMember();
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           if (res && res.member) {
             setMember(res.member);
           }
@@ -189,6 +189,11 @@ export default function HkmChatWidget() {
       const payload = {};
       if (wixClient.auth.loggedIn() && member) {
         payload.memberId = member._id;
+        if (member.contactId) {
+          payload.contactId = member.contactId;
+        } else if (member.contact?._id) {
+          payload.contactId = member.contact._id;
+        }
       } else if (emailToUse && nameToUse) {
         payload.email = emailToUse;
         payload.name = nameToUse;
@@ -409,6 +414,11 @@ export default function HkmChatWidget() {
         const payload = {};
         if (wixClient.auth.loggedIn() && member) {
           payload.memberId = member._id;
+          if (member.contactId) {
+            payload.contactId = member.contactId;
+          } else if (member.contact?._id) {
+            payload.contactId = member.contact._id;
+          }
         } else if (contactEmail && contactName) {
           payload.email = contactEmail;
           payload.name = contactName;

@@ -1,6 +1,7 @@
 import { createClient, ApiKeyStrategy } from '@wix/sdk';
 import { conversations } from '@wix/inbox';
 import { contacts } from '@wix/site-crm';
+import { members } from '@wix/members';
 import { headlessSite } from '@wix/headless-site';
 
 const wixClient = createClient({
@@ -8,6 +9,7 @@ const wixClient = createClient({
   modules: {
     inboxConversations: conversations,
     contacts,
+    members,
   },
   auth: ApiKeyStrategy({
     siteId: process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7',
@@ -36,12 +38,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { memberId, email, name, anonymousVisitorId } = req.body;
+    const { memberId, contactId, email, name, anonymousVisitorId } = req.body;
     
     let participantId = {};
     
-    if (memberId) {
-      participantId = { memberId };
+    if (contactId) {
+      participantId = { contactId };
+    } else if (memberId) {
+      try {
+        console.log('Backend fetching member details to retrieve contactId for memberId:', memberId);
+        const memberRes = await wixClient.members.getMember(memberId);
+        const cId = memberRes.member?.contactId || memberRes.member?.contact?._id;
+        if (cId) {
+          participantId = { contactId: cId };
+          console.log('Resolved contactId via backend lookup:', cId);
+        } else {
+          participantId = { memberId };
+        }
+      } catch (mErr) {
+        console.warn('Failed to fetch member details on backend, falling back to memberId:', mErr);
+        participantId = { memberId };
+      }
     } else if (email && name) {
       console.log('Backend creating/appending CRM contact for:', email, name);
       try {
@@ -66,7 +83,7 @@ export default async function handler(req, res) {
     } else if (anonymousVisitorId) {
       participantId = { anonymousVisitorId };
     } else {
-      res.status(400).json({ error: 'Missing memberId, contact details, or anonymousVisitorId in request body.' });
+      res.status(400).json({ error: 'Missing memberId, contactId, contact details, or anonymousVisitorId in request body.' });
       return;
     }
 
