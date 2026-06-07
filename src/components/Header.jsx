@@ -106,8 +106,10 @@ export default function Header() {
   return (
     <>
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 bg-parchment border-b border-outline-variant transition-all duration-300 ${
-          isScrolled ? 'h-16 shadow-md' : 'h-20'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 backdrop-blur-md ${
+          isScrolled 
+            ? 'h-16 bg-parchment/90 border-b border-onyx/5 shadow-[0_2px_20px_-10px_rgba(0,0,0,0.08)]' 
+            : 'h-20 bg-parchment/95 border-b border-outline-variant/10'
         }`}
       >
         <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto h-full">
@@ -124,18 +126,18 @@ export default function Header() {
               </span>
             </Link>
             
-            <nav className="hidden lg:flex items-center gap-6 h-full">
+            <nav className="hidden lg:flex items-center gap-8 h-full">
               {/* Alle produkter Link */}
               <Link
                 to="/products"
-                className={`font-label-md text-label-md py-2 transition-colors relative ${
-                  location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx hover:text-terracotta'
+                className={`font-label-md text-label-md py-6 transition-all relative group flex items-center ${
+                  location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                 }`}
               >
-                Alle Produkter
-                {location.pathname === '/products' && (
-                  <span className="absolute bottom-[-4px] left-0 right-0 h-0.5 bg-terracotta rounded" />
-                )}
+                <span>Alle Produkter</span>
+                <span className={`absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                  location.pathname === '/products' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                }`} />
               </Link>
 
               {/* Collapsible Megamenu Link */}
@@ -145,36 +147,42 @@ export default function Header() {
                 onMouseLeave={() => setMegamenuOpen(false)}
               >
                 <button
-                  className={`font-label-md text-label-md py-6 transition-colors flex items-center gap-1 cursor-pointer focus:outline-none relative ${
-                    megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx hover:text-terracotta'
+                  className={`font-label-md text-label-md py-6 transition-all flex items-center gap-1 cursor-pointer focus:outline-none relative group ${
+                    megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                   }`}
                 >
-                  Kategorier <ChevronDown size={14} className={`transition-transform duration-200 ${megamenuOpen ? 'rotate-180' : ''}`} />
-                  {location.pathname.startsWith('/category/') && (
-                    <span className="absolute bottom-[10px] left-0 right-0 h-0.5 bg-terracotta rounded" />
-                  )}
+                  <span>Kategorier</span>
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${megamenuOpen ? 'rotate-180' : ''}`} />
+                  <span className={`absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                    megamenuOpen || location.pathname.startsWith('/category/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  }`} />
                 </button>
               </div>
 
               {/* Salg Link */}
               <Link
                 to="/category/Salg"
-                className={`font-label-md text-label-md py-2 transition-colors relative ${
-                  location.pathname === '/category/Salg' ? 'text-sale-red font-bold animate-pulse' : 'text-sale-red/90 hover:text-sale-red font-semibold'
+                className={`font-label-md text-label-md py-6 transition-all relative group flex items-center ${
+                  location.pathname === '/category/Salg' 
+                    ? 'text-terracotta font-bold' 
+                    : 'text-terracotta/90 hover:text-terracotta font-semibold'
                 }`}
               >
-                Salg
-                {location.pathname === '/category/Salg' && (
-                  <span className="absolute bottom-[-4px] left-0 right-0 h-0.5 bg-sale-red rounded" />
-                )}
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-terracotta rounded-full animate-pulse" />
+                  Salg
+                </span>
+                <span className={`absolute bottom-0 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                  location.pathname === '/category/Salg' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                }`} />
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3">
             <button 
               onClick={() => setSearchOpen(true)}
-              className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all"
+              className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer"
               aria-label="Søk"
             >
               <Search size={20} />
@@ -182,12 +190,12 @@ export default function Header() {
             
             <Link 
               to="/profile"
-              className="hidden sm:inline-flex items-center justify-center hover:scale-105 active:scale-95 transition-all relative p-2"
+              className="hidden sm:inline-flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 relative p-2.5 hover:bg-terracotta/5 rounded-full"
               aria-label="Profil"
             >
               {isLoggedIn ? (
                 getProfileImageUrl(member) ? (
-                  <div className="w-6 h-6 rounded-full overflow-hidden border border-terracotta/40 shadow-sm flex-shrink-0">
+                  <div className="w-5 h-5 rounded-full overflow-hidden border border-terracotta/40 shadow-sm flex-shrink-0">
                     <img 
                       src={getProfileImageUrl(member)} 
                       alt="Profil" 
@@ -195,28 +203,28 @@ export default function Header() {
                     />
                   </div>
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center text-[10px] font-bold border border-terracotta/30 flex-shrink-0">
+                  <div className="w-5 h-5 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center text-[10px] font-bold border border-terracotta/30 flex-shrink-0">
                     {member?.contactDetails?.firstName ? member.contactDetails.firstName[0].toUpperCase() : 'U'}
                   </div>
                 )
               ) : (
-                <div className="text-onyx hover:text-terracotta flex items-center justify-center">
+                <div className="text-onyx/75 hover:text-terracotta flex items-center justify-center">
                   <User size={20} />
                 </div>
               )}
               {isLoggedIn && (
-                <span className="absolute bottom-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white ring-1 ring-emerald-500/20" />
+                <span className="absolute bottom-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full border border-white ring-1 ring-emerald-500/20" />
               )}
             </Link>
 
             <Link 
               to="/profile?tab=wishlist"
-              className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all relative"
+              className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center"
               aria-label="Ønskeliste"
             >
               <Heart size={20} />
               {wishlist.length > 0 && (
-                <span className="absolute top-0 right-0 bg-terracotta text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute top-1 right-1 bg-terracotta text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold border border-parchment">
                   {wishlist.length}
                 </span>
               )}
@@ -224,7 +232,7 @@ export default function Header() {
 
             <Link 
               to="/cart"
-              className="p-2 text-onyx hover:text-terracotta hover:scale-105 active:scale-95 transition-all relative"
+              className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center"
               aria-label="Handlekurv"
             >
               <ShoppingCart size={20} />
@@ -233,10 +241,9 @@ export default function Header() {
                   <motion.span
                     key={cartCount}
                     initial={{ scale: 0.6, opacity: 0 }}
-                    animate={{ scale: [1.3, 0.9, 1], opacity: 1 }}
+                    animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.6, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="absolute top-0 right-0 bg-terracotta text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold"
+                    className="absolute top-1 right-1 bg-terracotta text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold border border-parchment"
                   >
                     {cartCount}
                   </motion.span>
@@ -261,8 +268,8 @@ export default function Header() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="absolute left-0 right-0 w-full bg-white border-b border-outline-variant shadow-2xl z-40 py-8 px-margin-mobile md:px-margin-desktop"
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="absolute left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-onyx/5 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.06)] z-40 py-8 px-margin-mobile md:px-margin-desktop"
               style={{ top: isScrolled ? '64px' : '80px' }}
               onMouseEnter={() => setMegamenuOpen(true)}
               onMouseLeave={() => setMegamenuOpen(false)}
@@ -276,7 +283,7 @@ export default function Header() {
                       <li key={sub}>
                         <Link 
                           to={`/category/${sub}`} 
-                          className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                          className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -293,7 +300,7 @@ export default function Header() {
                       <li key={sub}>
                         <Link 
                           to={`/category/${sub}`} 
-                          className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                          className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -310,7 +317,7 @@ export default function Header() {
                       <li key={sub}>
                         <Link 
                           to={`/category/${sub}`} 
-                          className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                          className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -330,7 +337,7 @@ export default function Header() {
                           <li key={sub}>
                             <Link 
                               to={`/category/${sub}`} 
-                              className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                              className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                             >
                               {sub}
                             </Link>
@@ -344,7 +351,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/Jesus" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                           >
                             Jesus
                           </Link>
@@ -352,7 +359,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/NORSKE produkter" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                           >
                             Norske produkter
                           </Link>
@@ -360,7 +367,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/ENGLISH products" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                           >
                             English products
                           </Link>
@@ -368,7 +375,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/Abonnement" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
+                            className="text-body-md font-body-md text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                           >
                             Abonnementer
                           </Link>
