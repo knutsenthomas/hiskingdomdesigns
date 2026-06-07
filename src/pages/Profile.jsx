@@ -379,7 +379,13 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      await wixClient.auth.logout();
+      localStorage.removeItem('wix_oauth_tokens');
+      localStorage.removeItem('hkd-mock-vipps-member');
+      try {
+        await wixClient.auth.logout();
+      } catch (logoutErr) {
+        console.warn('Wix auth logout callback warning:', logoutErr);
+      }
       setIsLoggedIn(false);
       setMember(null);
       setOrdersList([]);
