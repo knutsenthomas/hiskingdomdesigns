@@ -246,12 +246,12 @@ export default function Header() {
                   <div className="space-y-4">
                     <div>
                       <h5 className="font-bold text-xs text-onyx mb-2">Barn & Familie</h5>
-                      <ul className="space-y-2">
+                      <ul className="space-y-2.5">
                         {CATEGORY_TAXONOMY['Barn & Familie'].map(sub => (
                           <li key={sub}>
                             <Link 
                               to={`/category/${sub}`} 
-                              className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block text-xs origin-center"
+                              className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
                             >
                               {sub}
                             </Link>
@@ -261,11 +261,11 @@ export default function Header() {
                     </div>
                     <div>
                       <h5 className="font-bold text-xs text-onyx mb-2">Trosbudskap & Info</h5>
-                      <ul className="space-y-2">
+                      <ul className="space-y-2.5">
                         <li>
                           <Link 
                             to="/category/Jesus" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block text-xs origin-center"
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
                           >
                             Jesus
                           </Link>
@@ -273,7 +273,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/NORSKE produkter" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block text-xs origin-center"
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
                           >
                             Norske produkter
                           </Link>
@@ -281,7 +281,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/ENGLISH products" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block text-xs origin-center"
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
                           >
                             English products
                           </Link>
@@ -289,7 +289,7 @@ export default function Header() {
                         <li>
                           <Link 
                             to="/category/Abonnement" 
-                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block text-xs origin-center"
+                            className="text-body-md font-body-md text-onyx/80 hover:text-terracotta hover:scale-105 transition-all inline-block origin-center"
                           >
                             Abonnementer
                           </Link>
