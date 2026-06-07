@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck, Heart } from 'lucide-react';
 import { wixClient } from '@/lib/wix';
+import { media } from '@wix/sdk';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
@@ -62,6 +63,29 @@ const getMemberAddress = (member) => {
   const country = address.country || 'NO';
 
   return { addressLine, postalCode, city, country };
+};
+
+// Helper to safely extract and build profile image URL from Wix member object
+const getProfileImageUrl = (member) => {
+  const photo = member?.profile?.photo;
+  if (!photo) return null;
+
+  const url = photo.url || photo;
+  if (!url || typeof url !== 'string') return null;
+
+  if (url.startsWith('wix:image://')) {
+    try {
+      return media.getScaledToFillImageUrl(url, 160, 160) || media.getImageUrl(url).url;
+    } catch (e) {
+      console.warn('Failed to parse Wix image URI using SDK:', e);
+      const match = url.match(/wix:image:\/\/v1\/([^\/]+)/);
+      if (match && match[1]) {
+        return `https://static.wixstatic.com/media/${match[1]}`;
+      }
+    }
+  }
+
+  return url;
 };
 
 let isExchangingTokens = false;
@@ -575,8 +599,16 @@ export default function Profile() {
       <div className="flex flex-col lg:flex-row gap-12 items-start">
         {/* Left column - Account overview */}
         <aside className="w-full lg:w-80 bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm flex flex-col items-center text-center lg:text-left lg:items-start shrink-0">
-          <div className="w-20 h-20 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center font-bold text-2xl mb-4 uppercase">
-            {displayName.split(' ').map(n => n[0]).join('')}
+          <div className="w-20 h-20 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center font-bold text-2xl mb-4 uppercase overflow-hidden border border-outline-variant/15">
+            {getProfileImageUrl(member) ? (
+              <img 
+                src={getProfileImageUrl(member)} 
+                alt={displayName} 
+                className="w-full h-full object-cover" 
+              />
+            ) : (
+              displayName.split(' ').map(n => n[0]).join('')
+            )}
           </div>
           <h2 className="font-headline-md text-headline-md text-onyx mb-1">{displayName}</h2>
           <p className="text-secondary font-body-sm mb-6">{displayEmail}</p>
