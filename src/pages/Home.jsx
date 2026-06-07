@@ -548,7 +548,12 @@ export default function Home() {
             <CmsText slug="home-instagram-desc" fallback="Se hvordan våre kunder bærer sin tro @hiskingdomdesigns" as="p" className="text-secondary font-body-md" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <div className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer">
+            <a 
+              href="https://www.instagram.com/hiskingdomdesigns/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
+            >
               <img 
                 alt="Instagram feed 1" 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
@@ -557,8 +562,13 @@ export default function Home() {
               <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-3xl">favorite</span>
               </div>
-            </div>
-            <div className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer">
+            </a>
+            <a 
+              href="https://www.instagram.com/hiskingdomdesigns/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
+            >
               <img 
                 alt="Instagram feed 2" 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
@@ -567,8 +577,13 @@ export default function Home() {
               <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-3xl">favorite</span>
               </div>
-            </div>
-            <div className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer">
+            </a>
+            <a 
+              href="https://www.instagram.com/hiskingdomdesigns/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
+            >
               <img 
                 alt="Instagram feed 3" 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
@@ -577,8 +592,13 @@ export default function Home() {
               <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-3xl">favorite</span>
               </div>
-            </div>
-            <div className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer">
+            </a>
+            <a 
+              href="https://www.instagram.com/hiskingdomdesigns/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="aspect-square relative group overflow-hidden rounded-lg cursor-pointer block"
+            >
               <img 
                 alt="Instagram feed 4" 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
@@ -587,7 +607,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-3xl">favorite</span>
               </div>
-            </div>
+            </a>
           </div>
           <div className="text-center">
             <a 
