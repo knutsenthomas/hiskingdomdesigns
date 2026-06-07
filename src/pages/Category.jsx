@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 
 
 export default function Category() {
-  const { products, categoryTaxonomy, getCategoryNameBySlug } = useApp();
+  const { products, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName } = useApp();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -106,15 +106,19 @@ export default function Category() {
     if (categoryName === 'Salg') {
       result = result.filter(p => p.isSale);
     } else if (categoryName) {
-      result = result.filter(p => 
-        p.category === categoryName ||
-        (p.subcategories && p.subcategories.some(sub => sub === categoryName))
-      );
+      const targetSlug = getSlugByCategoryName(categoryName);
+      result = result.filter(p => {
+        const pCatSlug = getSlugByCategoryName(p.category);
+        const hasMatchingSub = p.subcategories && p.subcategories.some(sub => getSlugByCategoryName(sub) === targetSlug);
+        return pCatSlug === targetSlug || hasMatchingSub;
+      });
     } else if (selectedCategories.length > 0) {
-      result = result.filter(p => 
-        selectedCategories.includes(p.category) ||
-        (p.subcategories && p.subcategories.some(sub => selectedCategories.includes(sub)))
-      );
+      const targetSlugs = selectedCategories.map(c => getSlugByCategoryName(c));
+      result = result.filter(p => {
+        const pCatSlug = getSlugByCategoryName(p.category);
+        const hasMatchingSub = p.subcategories && p.subcategories.some(sub => targetSlugs.includes(getSlugByCategoryName(sub)));
+        return targetSlugs.includes(pCatSlug) || hasMatchingSub;
+      });
     }
 
     // Filter by search query

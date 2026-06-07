@@ -133,7 +133,7 @@ const INITIAL_PRODUCTS = [
     isBestseller: false,
     isSale: false,
     description: 'En varm og lun lue med brodert krone-detalj. Laget i myk, elastisk strikk.',
-    subcategories: ['Tilbehør', 'Hatter /caps', 'ENGLISH products']
+    subcategories: ['Tilbehør', 'Hatter /caps', 'Hats/Caps', 'Hats/caps', 'caps', 'ENGLISH products']
   },
   {
     id: 'prod-9',
@@ -161,7 +161,7 @@ const INITIAL_PRODUCTS = [
     isBestseller: false,
     isSale: false,
     description: 'Et romslig og slitesterkt handlenett vevd av økologisk bomull. Perfekt til bibel, notatbok eller dagligvarehandel.',
-    subcategories: ['Tilbehør', 'Handlenett / Totebag', 'ENGLISH products', 'Jesus']
+    subcategories: ['Tilbehør', 'Handlenett / Totebag', 'Handlenett/Totebag', 'totebag', 'ENGLISH products', 'Jesus']
   },
   {
     id: 'prod-11',
@@ -522,8 +522,33 @@ export const AppProvider = ({ children }) => {
             response = await response.next();
             allItems = [...allItems, ...response.items];
           }
-        } catch (paginationError) {
-          console.warn('Feil under paginering av Wix-produkter, fortsetter med allerede hentede produkter:', paginationError);
+        } catch (productError) {
+          console.warn('Wix product fetch failed, trying token recovery...', productError);
+          try {
+            localStorage.removeItem('wix_oauth_tokens');
+            // Re-fetch collections list to ensure clean OAuth state
+            const collectionsListRetry = await wixClient.collections.queryCollections().limit(100).find();
+            const collectionsMapRetry = {};
+            collectionsListRetry.items.forEach(c => {
+              collectionsMapRetry[c._id] = c.name;
+            });
+            const collectionsDataRetry = collectionsListRetry.items.map(c => ({
+              id: c._id,
+              name: c.name,
+              slug: c.slug
+            })).filter(c => c.name !== 'All Products' && c.name !== 'all-products');
+            setWixCollections(collectionsDataRetry);
+
+            let responseRetry = await wixClient.products.queryProducts().limit(100).find();
+            allItems = [...responseRetry.items];
+            while (responseRetry.hasNext()) {
+              responseRetry = await responseRetry.next();
+              allItems = [...allItems, ...responseRetry.items];
+            }
+          } catch (retryError) {
+            console.error('Wix product fetch retry failed:', retryError);
+            throw retryError;
+          }
         }
 
         console.log(`Hentet totalt ${allItems.length} produkter fra Wix.`);
@@ -1093,7 +1118,15 @@ export const AppProvider = ({ children }) => {
     // Fallback mapping for standard categories
     const staticMap = {
       'Hatter /caps': 'caps',
+      'Hatter/caps': 'caps',
+      'Hats/Caps': 'caps',
+      'Hats/caps': 'caps',
+      'caps': 'caps',
       'Handlenett / Totebag': 'totebag',
+      'Handlenett/Totebag': 'totebag',
+      'Tote Bag': 'totebag',
+      'Tote bag': 'totebag',
+      'totebag': 'totebag',
       'armbånd og smykker': 'smykker',
       'Kopper og flasker': 'cups-bottles',
       'Bilder og plakater': 'bilder-og-plakater',
