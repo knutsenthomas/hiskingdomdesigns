@@ -646,7 +646,7 @@ export default function Cart() {
           <div className="mt-6 flex flex-col gap-4 px-4">
             <div className="flex items-center gap-3 text-secondary">
               <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">Gratis frakt over 800 kr</span>
+              <span className="text-label-sm font-label-sm">Gratis frakt over 1500 kr</span>
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />

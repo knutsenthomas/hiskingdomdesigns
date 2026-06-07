@@ -1035,15 +1035,15 @@ export const AppProvider = ({ children }) => {
 
         // If they also asked about shipping/return, append a helpful tip
         if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
-          reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 800 kr** (ellers 49 kr) med Bring/Posten.';
+          reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers 49 kr) med Bring/Posten.';
         } else if (lower.includes('retur') || lower.includes('bytte')) {
           reply += '\n\n**PS:** Vi tilbyr **30 dagers åpent kjøp** og enkel retur/bytte.';
         }
       }
       else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
         reply = '### 🚚 Frakt og Levering\n\n' +
-          '- Vi har **gratis frakt på alle bestillinger over 800 kr**!\n' +
-          '- For bestillinger under 800 kr koster frakten **49 kr**.\n' +
+          '- Vi har **gratis frakt på alle bestillinger over 1500 kr**!\n' +
+          '- For bestillinger under 1500 kr koster frakten **49 kr**.\n' +
           '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Mandal.\n' +
           '- Leveringstid er normalt **2-4 virkedager** med Posten/Bring.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';

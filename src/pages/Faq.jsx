@@ -16,7 +16,7 @@ const FAQ_ITEMS = [
       },
       {
         q: 'Hva koster frakten?',
-        a: 'Vi tilbyr gratis standardfrakt på alle bestillinger over 800 kr. For bestillinger under dette beløpet er standard fraktpris 49 kr.',
+        a: 'Vi tilbyr gratis standardfrakt på alle bestillinger over 1500 kr. For bestillinger under dette beløpet er standard fraktpris 49 kr.',
         qSlug: 'faq-shipping-q2',
         aSlug: 'faq-shipping-a2'
       },

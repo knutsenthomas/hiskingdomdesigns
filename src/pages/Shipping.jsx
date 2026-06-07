@@ -62,7 +62,7 @@ export default function Shipping() {
             <div className="flex justify-between border-b border-slate-100 pb-2">
               <CmsText
                 slug="shipping-row-title-1"
-                fallback="Fraktpris (Ordre over 800 kr)"
+                fallback="Fraktpris (Ordre over 1500 kr)"
                 as="span"
                 className="font-label-md text-onyx font-bold"
               />
@@ -76,7 +76,7 @@ export default function Shipping() {
             <div className="flex justify-between border-b border-slate-100 pb-2">
               <CmsText
                 slug="shipping-row-title-2"
-                fallback="Standardfrakt (Ordre under 800 kr)"
+                fallback="Standardfrakt (Ordre under 1500 kr)"
                 as="span"
                 className="font-body-md text-secondary"
               />

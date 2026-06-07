@@ -299,7 +299,7 @@ export default function Home() {
           <div className="flex items-center justify-center gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl">local_shipping</span>
             <div>
-              <CmsText slug="home-benefits-title-1" fallback="Gratis frakt over 800 kr" as="p" className="font-label-md text-label-md text-onyx" />
+              <CmsText slug="home-benefits-title-1" fallback="Gratis frakt over 1500 kr" as="p" className="font-label-md text-label-md text-onyx" />
               <CmsText slug="home-benefits-desc-1" fallback="Rask levering til hele landet" as="p" className="text-label-sm text-secondary" />
             </div>
           </div>
