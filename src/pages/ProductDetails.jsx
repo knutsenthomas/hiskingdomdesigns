@@ -873,11 +873,19 @@ export default function ProductDetails() {
                     <h4 className="font-bold text-sm text-onyx">{rev.content?.title}</h4>
                   </div>
                   <span className="text-[11px] text-secondary font-medium">
-                    {new Date(rev._createdDate || Date.now()).toLocaleDateString('no-NO', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
+                    {(() => {
+                      try {
+                        const d = new Date(rev._createdDate || Date.now());
+                        if (!isNaN(d.getTime())) {
+                          return d.toLocaleDateString('no-NO', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          });
+                        }
+                      } catch (e) {}
+                      return 'Nylig omtale';
+                    })()}
                   </span>
                 </div>
 

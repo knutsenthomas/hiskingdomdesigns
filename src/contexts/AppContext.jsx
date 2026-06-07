@@ -206,6 +206,33 @@ export const AppProvider = ({ children }) => {
   });
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Wix Auth & Member States
+  const [member, setMember] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
+
+  useEffect(() => {
+    const handleAuthChange = async () => {
+      const logged = wixClient.auth.loggedIn();
+      setIsLoggedIn(logged);
+      if (logged) {
+        try {
+          const res = await wixClient.members.getCurrentMember();
+          if (res && res.member) {
+            setMember(res.member);
+          }
+        } catch (e) {
+          console.error('Failed to get current member in AppContext:', e);
+        }
+      } else {
+        setMember(null);
+      }
+    };
+
+    handleAuthChange();
+    window.addEventListener('wix-auth-change', handleAuthChange);
+    return () => window.removeEventListener('wix-auth-change', handleAuthChange);
+  }, []);
+
   // Wishlist States
   const [wishlist, setWishlist] = useState(() => {
     try {
@@ -224,17 +251,79 @@ export const AppProvider = ({ children }) => {
     }
   }, [wishlist]);
 
-  const toggleWishlist = (product) => {
-    setWishlist(prev => {
-      const exists = prev.some(p => p.id === product.id);
-      if (exists) {
-        showToast(`Fjernet "${product.name}" fra ønskelisten`);
-        return prev.filter(p => p.id !== product.id);
-      } else {
-        showToast(`Lagt til "${product.name}" i ønskelisten`);
-        return [...prev, product];
+  // Live sync wishlist from Firestore if logged in
+  useEffect(() => {
+    if (isLoggedIn && member?._id) {
+      const docRef = doc(db, 'wishlists', member._id);
+      const unsubscribe = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const dbWishlist = docSnap.data().items || [];
+          setWishlist(dbWishlist);
+        }
+      }, (err) => {
+        console.warn('Error listening to wishlist in Firestore:', err);
+      });
+      return () => unsubscribe();
+    }
+  }, [isLoggedIn, member?._id]);
+
+  // Merge local wishlist with cloud wishlist upon login
+  useEffect(() => {
+    const mergeWishlists = async () => {
+      if (isLoggedIn && member?._id) {
+        const docRef = doc(db, 'wishlists', member._id);
+        try {
+          const docSnap = await getDoc(docRef);
+          let cloudItems = [];
+          if (docSnap.exists()) {
+            cloudItems = docSnap.data().items || [];
+          }
+          
+          // Get local items
+          const localSaved = localStorage.getItem('hkd-wishlist');
+          const localItems = localSaved ? JSON.parse(localSaved) : [];
+          
+          if (localItems.length > 0) {
+            const merged = [...cloudItems];
+            localItems.forEach(localItem => {
+              if (!merged.some(cloudItem => cloudItem.id === localItem.id)) {
+                merged.push(localItem);
+              }
+            });
+            await setDoc(docRef, { items: merged }, { merge: true });
+            setWishlist(merged);
+            localStorage.setItem('hkd-wishlist', JSON.stringify([]));
+          } else {
+            setWishlist(cloudItems);
+          }
+        } catch (err) {
+          console.warn('Failed to merge wishlists:', err);
+        }
       }
-    });
+    };
+    mergeWishlists();
+  }, [isLoggedIn, member?._id]);
+
+  const toggleWishlist = async (product) => {
+    let newWishlist;
+    const exists = wishlist.some(p => p.id === product.id);
+    if (exists) {
+      showToast(`Fjernet "${product.name}" fra ønskelisten`);
+      newWishlist = wishlist.filter(p => p.id !== product.id);
+    } else {
+      showToast(`Lagt til "${product.name}" i ønskelisten`);
+      newWishlist = [...wishlist, product];
+    }
+    setWishlist(newWishlist);
+    
+    if (isLoggedIn && member?._id) {
+      try {
+        const docRef = doc(db, 'wishlists', member._id);
+        await setDoc(docRef, { items: newWishlist }, { merge: true });
+      } catch (err) {
+        console.error('Failed to save wishlist to Firestore:', err);
+      }
+    }
   };
 
   const isInWishlist = (productId) => {

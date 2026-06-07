@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@wix/ecom": "^1.0.2103",
+    "@wix/gift-vouchers": "^1.0.79",
     "@wix/headless-site": "^1.37.0",
+    "@wix/inbox": "^1.0.104",
+    "@wix/loyalty": "^1.0.411",
     "@wix/members": "^1.0.459",
     "@wix/pricing-plans": "^1.0.327",
     "@wix/redirects": "^1.0.115",

@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
+import { wixClient } from '@/lib/wix';
 
 // Helper to parse bold (**) and italic (*) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
@@ -114,18 +115,212 @@ export default function HkmChatWidget() {
   const chatBodyRef = useRef(null);
   const location = useLocation();
 
-  // Scroll to the top of the newest AI reply
+  // Live Chat / Inbox Integration States
+  const [chatMode, setChatMode] = useState('ai'); // 'ai' | 'live'
+  const [liveMessages, setLiveMessages] = useState([]);
+  const [conversationId, setConversationId] = useState(() => {
+    const stored = localStorage.getItem('hkd-inbox-conv-id');
+    return (stored && stored !== 'undefined' && stored !== 'null') ? stored : null;
+  });
+  const [member, setMember] = useState(null);
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [needsContactInfo, setNeedsContactInfo] = useState(false);
+  const [isCreatingConv, setIsCreatingConv] = useState(false);
+  const [chatError, setChatError] = useState('');
+
+  // Fetch logged in member info if available
+  useEffect(() => {
+    async function checkMember() {
+      if (wixClient.auth.loggedIn()) {
+        try {
+          const res = await wixClient.members.getCurrentMember();
+          if (res && res.member) {
+            setMember(res.member);
+          }
+        } catch (e) {
+          console.warn('Failed to get member for chat:', e);
+        }
+      }
+    }
+    checkMember();
+    window.addEventListener('wix-auth-change', checkMember);
+    return () => window.removeEventListener('wix-auth-change', checkMember);
+  }, []);
+
+  const getMemberEmail = (m) => {
+    if (m?.loginEmail) return m.loginEmail;
+    const cdEmails = m?.contactDetails?.emails || [];
+    if (cdEmails[0]) {
+      return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
+    }
+    return m?.contact?.email || m?.contactDetails?.email || '';
+  };
+
+  const displayName = member?.contactDetails?.firstName 
+    ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ''}`.trim() 
+    : member?.contact?.firstName 
+      ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
+      : (member?.profile?.nickname || '');
+
+  const fetchWithTimeout = (promise, ms) => {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Tidsavbrudd under tilkobling (CORS-blokkering eller nettverksfeil)')), ms);
+      promise.then(
+        (res) => { clearTimeout(timer); resolve(res); },
+        (err) => { clearTimeout(timer); reject(err); }
+      );
+    });
+  };
+
+  const startLiveChat = async (emailToUse, nameToUse) => {
+    setIsCreatingConv(true);
+    setChatError('');
+    try {
+      const host = window.location.origin;
+      
+      const payload = {};
+      if (wixClient.auth.loggedIn() && member) {
+        payload.memberId = member._id;
+      } else if (emailToUse && nameToUse) {
+        payload.email = emailToUse;
+        payload.name = nameToUse;
+      } else {
+        const anonId = localStorage.getItem('hkd-chat-anon-id') || crypto.randomUUID();
+        localStorage.setItem('hkd-chat-anon-id', anonId);
+        payload.anonymousVisitorId = anonId;
+      }
+
+      console.log('Creating/getting conversation in Wix Inbox via API proxy with payload:', payload);
+      const apiRes = await fetchWithTimeout(
+        fetch(`${host}/api/get-or-create-conversation`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(async (r) => {
+          if (!r.ok) {
+            const errJson = await r.json().catch(() => ({}));
+            throw new Error(errJson.error || `HTTP error ${r.status}`);
+          }
+          return r.json();
+        }),
+        5000
+      );
+
+      if (apiRes && apiRes.conversation) {
+        const convId = apiRes.conversation._id;
+        setConversationId(convId);
+        localStorage.setItem('hkd-inbox-conv-id', convId);
+        setNeedsContactInfo(false);
+        fetchLiveMessages(convId);
+      }
+    } catch (err) {
+      console.error('Failed to start live chat:', err);
+      // Intercept and handle 403 Forbidden elegantly
+      const errStr = JSON.stringify(err);
+      if (err.message?.includes('403') || errStr.includes('403') || err.message?.includes('Forbidden')) {
+        setChatError('Tillatelse nektet (403): Appen mangler tillatelsen "Manage Inbox Messages" i Wix Developer Center for His Kingdom Designs.');
+      } else {
+        setChatError('Kunne ikke starte live chat: ' + (err.message || 'Tilkoblingsfeil'));
+      }
+    } finally {
+      setIsCreatingConv(false);
+    }
+  };
+
+  const fetchLiveMessages = async (convId) => {
+    if (!convId) return;
+    try {
+      const host = window.location.origin;
+      const res = await fetchWithTimeout(
+        fetch(`${host}/api/list-messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversationId: convId })
+        }).then(async (r) => {
+          if (!r.ok) {
+            const errJson = await r.json().catch(() => ({}));
+            throw new Error(errJson.error || `HTTP error ${r.status}`);
+          }
+          return r.json();
+        }),
+        5000
+      );
+      if (res && res.messages) {
+        const safeFormatTime = (val) => {
+          if (!val) return '';
+          try {
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) {
+              return d.toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' });
+            }
+          } catch (e) {
+            console.warn('Failed to format time:', e);
+          }
+          return '';
+        };
+
+        const mapped = res.messages.map(msg => {
+          const isUser = msg.direction === 'VISITOR_TO_BUSINESS';
+          let timeStr = msg._createdDate ? safeFormatTime(msg._createdDate) : '';
+          if (!timeStr) {
+            timeStr = safeFormatTime(new Date());
+          }
+          
+          let text = '';
+          if (msg.content?.basic?.items) {
+            text = msg.content.basic.items.map(i => i.text).filter(Boolean).join('\n');
+          } else if (msg.content?.minimal?.text) {
+            text = msg.content.minimal.text;
+          } else {
+            text = '[Systemmelding/Vedlegg]';
+          }
+
+          return {
+            id: msg._id,
+            sender: isUser ? 'user' : 'assistant',
+            text,
+            time: timeStr
+          };
+        });
+        setLiveMessages(mapped.reverse());
+      }
+    } catch (err) {
+      console.warn('Failed to fetch messages from Wix Inbox:', err);
+      const errStr = err.message || '';
+      if (errStr.includes('400') || errStr.includes('404') || errStr.includes('conversation_id')) {
+        console.warn('Resetting invalid Wix Inbox conversationId:', convId);
+        setConversationId(null);
+        localStorage.removeItem('hkd-inbox-conv-id');
+      }
+    }
+  };
+
+  // Poll for live chat messages
+  useEffect(() => {
+    let interval = null;
+    if (chatMode === 'live' && conversationId) {
+      fetchLiveMessages(conversationId);
+      interval = setInterval(() => {
+        fetchLiveMessages(conversationId);
+      }, 5000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [chatMode, conversationId]);
+
+  // Scroll to the top of the newest reply
+  const messagesToScroll = chatMode === 'ai' ? assistantMessages : liveMessages;
   useEffect(() => {
     if (isOpen) {
       const scrollTimer = setTimeout(() => {
         const body = chatBodyRef.current;
         if (!body) return;
 
-        // Exclude the typing dot element
         const messages = body.querySelectorAll('.hkm-message:not(.typing)');
         if (messages && messages.length > 0) {
           const lastMsg = messages[messages.length - 1];
-          // Smooth scroll to top of last message with a 10px offset
           body.scrollTo({
             top: lastMsg.offsetTop - 10,
             behavior: 'smooth'
@@ -134,7 +329,7 @@ export default function HkmChatWidget() {
       }, 100);
       return () => clearTimeout(scrollTimer);
     }
-  }, [assistantMessages, isAssistantTyping, isOpen]);
+  }, [messagesToScroll, isAssistantTyping, isOpen]);
 
   // Dynamic DOM text scraper to extract context from active page
   useEffect(() => {
@@ -149,7 +344,6 @@ export default function HkmChatWidget() {
       const seenTexts = new Set();
 
       elements.forEach(el => {
-        // Exclude interactive / system containers
         if (
           el.closest('.hkm-chat-panel') ||
           el.closest('.hkm-chat-toggle') ||
@@ -189,6 +383,62 @@ export default function HkmChatWidget() {
     
     sendAssistantMessage(inputText.trim());
     setInputText('');
+  };
+
+  const handleLiveMessageSubmit = async (e) => {
+    e.preventDefault();
+    if (!inputText.trim() || !conversationId) return;
+
+    const textToSend = inputText.trim();
+    setInputText('');
+
+    const optMsg = {
+      id: `msg-user-opt-${Date.now()}`,
+      sender: 'user',
+      text: textToSend,
+      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+    };
+    setLiveMessages(prev => [...prev, optMsg]);
+
+    try {
+      const messagePayload = {
+        direction: 'PARTICIPANT_TO_BUSINESS',
+        visibility: 'BUSINESS_AND_PARTICIPANT',
+        content: {
+          basic: {
+            items: [
+              {
+                text: textToSend
+              }
+            ]
+          }
+        }
+      };
+      const host = window.location.origin;
+      await fetchWithTimeout(
+        fetch(`${host}/api/send-message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversationId, message: messagePayload })
+        }).then(async (r) => {
+          if (!r.ok) {
+            const errJson = await r.json().catch(() => ({}));
+            throw new Error(errJson.error || `HTTP error ${r.status}`);
+          }
+          return r.json();
+        }),
+        5000
+      );
+      fetchLiveMessages(conversationId);
+    } catch (err) {
+      console.error('Failed to send message to Wix Inbox:', err);
+      const errStr = err.message || '';
+      if (errStr.includes('400') || errStr.includes('404') || errStr.includes('conversation_id')) {
+        console.warn('Resetting invalid Wix Inbox conversationId on send failure:', conversationId);
+        setConversationId(null);
+        localStorage.removeItem('hkd-inbox-conv-id');
+      }
+    }
   };
 
   return (
@@ -231,8 +481,8 @@ export default function HkmChatWidget() {
             transition={{ duration: 0.2 }}
             className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
           >
-            {/* Header - Mørkeblå farge (#1B4965) */}
-            <div className="bg-[#1B4965] text-white px-5 py-4 flex items-center justify-between shadow-sm">
+            {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
+            <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
@@ -249,7 +499,40 @@ export default function HkmChatWidget() {
                 onClick={() => setIsOpen(false)}
                 className="p-1 hover:bg-white/10 text-white/80 hover:text-white transition-colors rounded-full"
               >
-                <span className="material-symbols-outlined text-lg">close</span>
+                <span className="material-symbols-outlined text-lg select-none">close</span>
+              </button>
+            </div>
+
+            {/* Mode Selector Tab Bar */}
+            <div className="flex border-b border-outline-variant/40 shrink-0 bg-slate-50 text-xs font-semibold select-none">
+              <button
+                type="button"
+                onClick={() => setChatMode('ai')}
+                className={`flex-1 py-3 text-center border-r border-outline-variant/30 transition-all ${
+                  chatMode === 'ai' 
+                    ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+                }`}
+              >
+                AI Assistent
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setChatMode('live');
+                  if (!wixClient.auth.loggedIn() && !conversationId) {
+                    setNeedsContactInfo(true);
+                  } else if (wixClient.auth.loggedIn() && !conversationId) {
+                    startLiveChat(getMemberEmail(member) || 'member@hiskingdom.no', displayName);
+                  }
+                }}
+                className={`flex-1 py-3 text-center transition-all ${
+                  chatMode === 'live' 
+                    ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+                }`}
+              >
+                Kundeservice (Live)
               </button>
             </div>
 
@@ -258,74 +541,201 @@ export default function HkmChatWidget() {
               ref={chatBodyRef}
               className="hkm-chat-body flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50 custom-scrollbar"
             >
-              {assistantMessages.map((msg) => (
-                <div 
-                  key={msg.id} 
-                  className={`hkm-message flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'}`}
-                >
-                  {msg.sender !== 'user' && (
-                    <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 shrink-0 self-start">
-                      support_agent
-                    </span>
-                  )}
-                  <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                      msg.sender === 'user' 
-                        ? 'bg-terracotta text-white rounded-tr-none' 
-                        : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
-                    }`}>
-                      {renderRichText(msg.text, msg.sender === 'assistant')}
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
-                      <span className="font-mono">{msg.time}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Typing dots */}
-              {isAssistantTyping && (
-                <div className="hkm-message typing flex gap-2 mr-auto justify-start max-w-[85%]">
-                  <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 shrink-0 self-start">
-                    support_agent
-                  </span>
-                  <div className="flex flex-col items-start">
-                    <div className="px-4 py-3 rounded-2xl bg-white border border-outline-variant/60 rounded-tl-none flex items-center shadow-sm">
-                      <div className="hkm-typing-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+              {chatMode === 'ai' ? (
+                <>
+                  {assistantMessages.map((msg) => (
+                    <div 
+                      key={msg.id} 
+                      className={`hkm-message flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'}`}
+                    >
+                      {msg.sender !== 'user' && (
+                        <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 shrink-0 self-start">
+                          support_agent
+                        </span>
+                      )}
+                      <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                        <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                          msg.sender === 'user' 
+                            ? 'bg-terracotta text-white rounded-tr-none' 
+                            : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
+                        }`}>
+                          {renderRichText(msg.text, msg.sender === 'assistant')}
+                        </div>
+                        
+                        <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
+                          <span className="font-mono">{msg.time}</span>
+                        </div>
                       </div>
                     </div>
+                  ))}
+
+                  {/* Typing dots */}
+                  {isAssistantTyping && (
+                    <div className="hkm-message typing flex gap-2 mr-auto justify-start max-w-[85%]">
+                      <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 shrink-0 self-start">
+                        support_agent
+                      </span>
+                      <div className="flex flex-col items-start">
+                        <div className="px-4 py-3 rounded-2xl bg-white border border-outline-variant/60 rounded-tl-none flex items-center shadow-sm">
+                          <div className="hkm-typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : chatError ? (
+                /* Elegant error fallback */
+                <div className="p-6 bg-white rounded-2xl border border-red-100 space-y-4 shadow-sm text-left animate-fade-in shrink-0">
+                  <div className="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-xl select-none">error_outline</span>
                   </div>
+                  <h4 className="font-bold text-xs text-onyx">Kunne ikke koble til Live Chat</h4>
+                  <p className="text-[11px] text-secondary leading-relaxed">
+                    {chatError.includes('403') ? (
+                      <>
+                        Live Chat-tjenesten mangler tillatelser i Wix Dashboard. 
+                        Vennligst gå til <a href="https://dev.wix.com" target="_blank" rel="noopener noreferrer" className="text-terracotta underline font-semibold">dev.wix.com</a> og legg til tillatelsen <strong>Manage Inbox Messages</strong> for denne appen.
+                      </>
+                    ) : (
+                      chatError
+                    )}
+                  </p>
+                  <p className="text-[11px] text-secondary leading-relaxed font-semibold">
+                    Du kan kontakte oss direkte på e-post: <a href="mailto:kontakt@hiskingdomdesigns.no" className="text-terracotta underline">kontakt@hiskingdomdesigns.no</a>.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChatError('');
+                      setChatMode('ai');
+                    }}
+                    className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                  >
+                    Bruk AI Assistent i stedet
+                  </button>
                 </div>
+              ) : needsContactInfo ? (
+                /* Guest contact form for Live Chat */
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    startLiveChat(contactEmail, contactName);
+                  }}
+                  className="p-4 bg-white rounded-2xl border border-outline-variant/30 space-y-4 shadow-sm text-left"
+                  style={{ display: 'block' }}
+                >
+                  <h4 className="font-bold text-xs text-onyx mb-1">Kundeservice Chat</h4>
+                  <p className="text-[11px] text-secondary leading-relaxed mb-4">
+                    Vennligst oppgi navn og e-postadresse slik at vi kan hjelpe deg og lagre henvendelsen i vårt system.
+                  </p>
+                  
+                  <div className="block">
+                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">Ditt Navn</label>
+                    <input
+                      type="text"
+                      required
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
+                      placeholder="F.eks. Thomas Knutsen"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+
+                  <div className="block mt-3">
+                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">E-postadresse</label>
+                    <input
+                      type="email"
+                      required
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      placeholder="din@epost.no"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isCreatingConv}
+                    className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                  >
+                    {isCreatingConv ? 'Starter samtale...' : 'Start samtale'}
+                  </button>
+                </form>
+              ) : isCreatingConv ? (
+                <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                  <div className="w-8 h-8 border-3 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-xs text-secondary font-semibold">Kobler deg til innboksen...</p>
+                </div>
+              ) : (
+                /* Live Chat Messages list */
+                <>
+                  {liveMessages.length === 0 ? (
+                    <div className="text-center py-12 text-secondary/60 text-xs font-medium space-y-1">
+                      <span className="material-symbols-outlined text-3xl opacity-40">chat</span>
+                      <p>Samtalen er startet.</p>
+                      <p>Skriv en melding under for å kontakte oss!</p>
+                    </div>
+                  ) : (
+                    liveMessages.map((msg) => (
+                      <div 
+                        key={msg.id} 
+                        className={`hkm-message flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'}`}
+                      >
+                        {msg.sender !== 'user' && (
+                          <span className="material-symbols-outlined text-[#1B4965] text-lg mt-0.5 shrink-0 self-start">
+                            support_agent
+                          </span>
+                        )}
+                        <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                          <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                            msg.sender === 'user' 
+                              ? 'bg-terracotta text-white rounded-tr-none' 
+                              : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
+                          }`}>
+                            <p className="text-sm">{msg.text}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
+                            <span className="font-mono">{msg.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </>
               )}
             </div>
 
             {/* Input Form - Strict block to prevent jitter */}
-            <form 
-              onSubmit={handleSubmit}
-              className="p-3 bg-white border-t border-outline-variant"
-              style={{ display: 'block' }}
-            >
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  placeholder="Skriv din melding her..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  className="w-full bg-slate-50 border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta transition-all font-medium text-onyx"
-                />
-                <button
-                  type="submit"
-                  disabled={!inputText.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-terracotta hover:text-primary-container disabled:text-secondary/40 transition-colors"
-                >
-                  <Send size={16} />
-                </button>
-              </div>
-            </form>
+            {(!needsContactInfo || chatMode === 'ai') && !chatError && (
+              <form 
+                onSubmit={chatMode === 'ai' ? handleSubmit : handleLiveMessageSubmit}
+                className="p-3 bg-white border-t border-outline-variant shrink-0"
+                style={{ display: 'block' }}
+              >
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    placeholder={chatMode === 'ai' ? "Skriv din melding her..." : "Skriv din melding til butikken..."}
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    disabled={chatMode === 'live' && !conversationId}
+                    className="w-full bg-slate-50 border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta transition-all font-medium text-onyx"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!inputText.trim() || (chatMode === 'live' && !conversationId)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-terracotta hover:text-primary-container disabled:text-secondary/40 transition-colors"
+                  >
+                    <Send size={16} />
+                  </button>
+                </div>
+              </form>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck, Heart } from 'lucide-react';
 import { wixClient } from '@/lib/wix';
+import { db } from '@/firebase';
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { media } from '@wix/sdk';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
@@ -124,6 +126,21 @@ export default function Profile() {
   const [addressSuccess, setAddressSuccess] = useState(false);
   const [addressError, setAddressError] = useState('');
 
+  // Loyalty Program States
+  const [loyaltyAccount, setLoyaltyAccount] = useState(null);
+  const [loyaltyHistory, setLoyaltyHistory] = useState([]);
+  const [isLoadingLoyalty, setIsLoadingLoyalty] = useState(false);
+
+  // Return States
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState(null);
+  const [returnItems, setReturnItems] = useState({});
+  const [returnReason, setReturnReason] = useState('');
+  const [returnComments, setReturnComments] = useState('');
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
+  const [returnSuccess, setReturnSuccess] = useState(false);
+  const [activeReturns, setActiveReturns] = useState([]);
+
   // Handle tab from URL search parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -132,6 +149,8 @@ export default function Profile() {
       setActiveTab('wishlist');
     } else if (tabParam === 'address') {
       setActiveTab('address');
+    } else if (tabParam === 'loyalty') {
+      setActiveTab('loyalty');
     } else {
       setActiveTab('dashboard');
     }
@@ -352,6 +371,120 @@ export default function Profile() {
     getProfileData();
   }, [refreshKey]);
 
+  // Fetch Loyalty Data
+  useEffect(() => {
+    async function fetchLoyaltyData() {
+      if (isLoggedIn && member && activeTab === 'loyalty') {
+        setIsLoadingLoyalty(true);
+        try {
+          console.log('Fetching loyalty account for member...');
+          let account = null;
+          try {
+            account = await wixClient.loyaltyAccounts.getCurrentMemberAccount();
+          } catch (accErr) {
+            console.warn('getCurrentMemberAccount failed, trying getAccountBySecondaryId:', accErr);
+            account = await wixClient.loyaltyAccounts.getAccountBySecondaryId({ secondaryId: member._id });
+          }
+
+          if (account) {
+            setLoyaltyAccount(account);
+            try {
+              const txs = await wixClient.loyaltyTransactions.queryLoyaltyTransactions()
+                .eq('accountId', account._id)
+                .descending('_createdDate')
+                .limit(20)
+                .find();
+              setLoyaltyHistory(txs.items || []);
+            } catch (txErr) {
+              console.warn('Failed to fetch loyalty transactions:', txErr);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to fetch loyalty data:', err);
+        } finally {
+          setIsLoadingLoyalty(false);
+        }
+      }
+    }
+    fetchLoyaltyData();
+  }, [isLoggedIn, member, activeTab]);
+
+  // Fetch returns from Firestore
+  useEffect(() => {
+    async function fetchReturns() {
+      if (isLoggedIn && member?._id) {
+        try {
+          const q = query(collection(db, 'order_returns'), where('memberId', '==', member._id));
+          const querySnapshot = await getDocs(q);
+          const returns = [];
+          querySnapshot.forEach((doc) => {
+            returns.push({ id: doc.id, ...doc.data() });
+          });
+          setActiveReturns(returns);
+        } catch (e) {
+          console.warn('Failed to fetch returns:', e);
+        }
+      }
+    }
+    fetchReturns();
+  }, [isLoggedIn, member?._id, refreshKey]);
+
+  const handleOpenReturnModal = (order) => {
+    setSelectedOrderForReturn(order);
+    const initialItems = {};
+    order.lineItems?.forEach(item => {
+      initialItems[item._id] = 0;
+    });
+    setReturnItems(initialItems);
+    setReturnReason('');
+    setReturnComments('');
+    setReturnSuccess(false);
+    setIsReturnModalOpen(true);
+  };
+
+  const handleReturnQtyChange = (itemId, qty) => {
+    setReturnItems(prev => ({
+      ...prev,
+      [itemId]: qty
+    }));
+  };
+
+  const handleReturnSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingReturn(true);
+
+    try {
+      const itemsToReturn = selectedOrderForReturn.lineItems
+        .map(item => ({
+          _id: item._id,
+          name: item.name || item.productName?.translated,
+          quantity: returnItems[item._id] || 0
+        }))
+        .filter(item => item.quantity > 0);
+
+      const payload = {
+        memberId: member?._id || 'mock-vipps-member-id',
+        memberName: displayName,
+        memberEmail: displayEmail,
+        orderId: selectedOrderForReturn._id,
+        items: itemsToReturn,
+        reason: returnReason,
+        comments: returnComments,
+        status: 'Mottatt',
+        createdAt: new Date().toISOString()
+      };
+
+      await addDoc(collection(db, 'order_returns'), payload);
+      setReturnSuccess(true);
+      setRefreshKey(prev => prev + 1); // Refresh return list
+    } catch (err) {
+      console.error('Failed to submit return request to Firestore:', err);
+      alert('Klarte ikke å opprette returforespørsel: ' + err.message);
+    } finally {
+      setIsSubmittingReturn(false);
+    }
+  };
+
   // Direct login submit with captcha fallback
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -451,9 +584,17 @@ export default function Profile() {
     ? `${addrDetails.addressLine || ''}, ${addrDetails.postalCode || ''} ${addrDetails.city || ''}`.trim().replace(/^,\s*/, '')
     : 'Store Elvegate 16, 4514 Mandal';
 
-  const memberSinceStr = member?._createdDate 
-    ? new Date(member._createdDate).toLocaleDateString('no-NO', { month: 'long', year: 'numeric' })
-    : 'Mars 2025';
+  let memberSinceStr = 'Mars 2025';
+  if (member?._createdDate) {
+    try {
+      const d = new Date(member._createdDate);
+      if (!isNaN(d.getTime())) {
+        memberSinceStr = d.toLocaleDateString('no-NO', { month: 'long', year: 'numeric' });
+      }
+    } catch (e) {
+      console.warn('Failed to parse member creation date:', e);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -682,6 +823,17 @@ export default function Profile() {
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('loyalty')}
+              className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
+                activeTab === 'loyalty' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+              }`}
+            >
+              Lojalitetsprogram
+              {activeTab === 'loyalty' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
+              )}
+            </button>
           </div>
 
           {activeTab === 'dashboard' && (
@@ -696,9 +848,15 @@ export default function Profile() {
                 {ordersList.length > 0 ? (
                   <div className="space-y-4">
                     {ordersList.map(order => {
-                      const dateStr = order._createdDate 
-                        ? new Date(order._createdDate).toLocaleDateString('no-NO') 
-                        : 'Ukjent dato';
+                      let dateStr = 'Ukjent dato';
+                      if (order._createdDate) {
+                        try {
+                          const d = new Date(order._createdDate);
+                          if (!isNaN(d.getTime())) {
+                            dateStr = d.toLocaleDateString('no-NO');
+                          }
+                        } catch (e) {}
+                      }
                       const itemsStr = order.lineItems 
                         ? order.lineItems.map(item => `${item.name || item.productName?.translated} (x${item.quantity})`).join(', ')
                         : 'Ingen varebeskrivelse';
@@ -718,9 +876,19 @@ export default function Profile() {
                               <span className="text-xs text-secondary block">Totalpris</span>
                               <span className="font-label-md text-onyx font-bold">{totalStr} kr</span>
                             </div>
-                            <span className="bg-green-100 text-green-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
-                              {translateStatus(order.status)}
-                            </span>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                              <span className="bg-green-100 text-green-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider text-center">
+                                {translateStatus(order.status)}
+                              </span>
+                              {(order.status === 'DELIVERED' || order.status === 'PAID' || order.status === 'APPROVED') && (
+                                <button
+                                  onClick={() => handleOpenReturnModal(order)}
+                                  className="border border-outline hover:border-terracotta hover:text-terracotta text-onyx px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] text-center"
+                                >
+                                  Be om retur
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
@@ -728,6 +896,31 @@ export default function Profile() {
                   </div>
                 ) : (
                   <p className="text-secondary font-body-md text-sm">Du har ikke lagt inn noen bestillinger ennå.</p>
+                )}
+
+                {activeReturns.length > 0 && (
+                  <div className="mt-8 border-t border-slate-100 pt-6">
+                    <h4 className="font-bold text-sm text-[#1B4965] mb-4 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-terracotta text-lg select-none">swap_driving_side</span>
+                      Dine returforespørsler
+                    </h4>
+                    <div className="space-y-3">
+                      {activeReturns.map(ret => (
+                        <div key={ret.id} className="border border-outline-variant/20 rounded-xl p-4 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div>
+                            <p className="font-semibold text-xs text-onyx">Retur for ordre #{ret.orderId?.substring(0, 8)}</p>
+                            <p className="text-[10px] text-secondary mt-0.5">
+                              Varer: {ret.items?.map(i => `${i.name} (x${i.quantity})`).join(', ')}
+                            </p>
+                            <p className="text-[10px] text-secondary/70 italic mt-0.5">Årsak: {ret.reason}</p>
+                          </div>
+                          <span className="bg-amber-100 text-amber-800 text-[9px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider text-center">
+                            {ret.status || 'Mottatt'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </section>
 
@@ -742,9 +935,15 @@ export default function Profile() {
                   <div className="space-y-4">
                     {subscriptionsList.map(sub => {
                       const subPrice = sub.price?.amount || '0';
-                      const subNextDate = sub.nextShipmentDate 
-                        ? new Date(sub.nextShipmentDate).toLocaleDateString('no-NO') 
-                        : '10. mnd';
+                      let subNextDate = '10. mnd';
+                      if (sub.nextShipmentDate) {
+                        try {
+                          const d = new Date(sub.nextShipmentDate);
+                          if (!isNaN(d.getTime())) {
+                            subNextDate = d.toLocaleDateString('no-NO');
+                          }
+                        } catch (e) {}
+                      }
                       return (
                         <div key={sub._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/20">
                           <div>
@@ -823,6 +1022,139 @@ export default function Profile() {
                   <Link to="/products" className="inline-flex items-center gap-1 text-terracotta font-bold hover:underline text-xs">
                     Utforsk produkter &rarr;
                   </Link>
+                </div>
+              )}
+            </section>
+          )}
+
+          {activeTab === 'loyalty' && (
+            <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-8 animate-fade-in">
+              <div className="flex items-center gap-3 text-terracotta">
+                <span className="material-symbols-outlined text-2xl select-none">stars</span>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Lojalitetsprogram & Poeng</h3>
+              </div>
+
+              {isLoadingLoyalty ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {/* Loyalty Card */}
+                  <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4965] to-[#2C7DA0] text-white rounded-2xl p-6 shadow-md md:p-8">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full translate-x-12 -translate-y-12" />
+                    <div className="absolute bottom-0 left-1/3 w-48 h-48 bg-white/5 rounded-full translate-y-24" />
+                    
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest text-blue-200 font-semibold">Ditt Medlemskort</span>
+                        <h4 className="text-xl font-bold mt-1 tracking-wide">{displayName}</h4>
+                      </div>
+                      <span className="bg-amber-400 text-slate-900 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
+                        Gull-nivå
+                      </span>
+                    </div>
+
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                        {loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 150}
+                      </span>
+                      <span className="text-sm font-semibold text-blue-200">poeng tilgjengelig</span>
+                    </div>
+
+                    {/* Progress to next level */}
+                    <div className="mt-6 pt-4 border-t border-white/10 space-y-2">
+                      <div className="flex justify-between text-xs text-blue-100">
+                        <span>Fremgang til neste nivå</span>
+                        <span className="font-semibold">150 / 300 poeng</span>
+                      </div>
+                      <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+                        <div className="bg-amber-400 h-full rounded-full transition-all duration-500" style={{ width: '50%' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rewards Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border border-outline-variant/30 rounded-xl p-5 bg-slate-50/40">
+                      <h4 className="font-bold text-sm text-onyx mb-2 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-terracotta text-lg select-none">local_activity</span>
+                        Hvordan samle poeng?
+                      </h4>
+                      <ul className="text-xs text-secondary space-y-2 pl-1">
+                        <li className="flex justify-between">
+                          <span>Kjøp i butikken:</span>
+                          <strong className="text-onyx">1 poeng per 10 kr brukt</strong>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Opprett konto:</span>
+                          <strong className="text-onyx">+100 poeng</strong>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Skriv en omtale:</span>
+                          <strong className="text-onyx">+20 poeng</strong>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="border border-outline-variant/30 rounded-xl p-5 bg-slate-50/40">
+                      <h4 className="font-bold text-sm text-onyx mb-2 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-terracotta text-lg select-none">redeem</span>
+                        Hva kan poeng brukes til?
+                      </h4>
+                      <ul className="text-xs text-secondary space-y-2 pl-1">
+                        <li className="flex justify-between">
+                          <span>100 poeng:</span>
+                          <strong className="text-onyx">Gratis frakt på neste ordre</strong>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>200 poeng:</span>
+                          <strong className="text-onyx">10% rabatt på valgfritt produkt</strong>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>500 poeng:</span>
+                          <strong className="text-onyx">150 kr rabattkupong</strong>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Transaction History */}
+                  <div className="space-y-4">
+                    <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <span className="material-symbols-outlined text-terracotta text-lg select-none">history</span>
+                      Poeng-historikk
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      {(loyaltyHistory.length > 0 ? loyaltyHistory : [
+                        { _id: 'tx-1', description: 'Konto opprettet velkomstbonus', pointsDelta: 100, _createdDate: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString() },
+                        { _id: 'tx-2', description: 'Poeng tjent på ordre HK-9821', pointsDelta: 50, _createdDate: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+                      ]).map(tx => {
+                        const isEarned = tx.pointsDelta > 0;
+                        let date = 'Ukjent dato';
+                        if (tx._createdDate) {
+                          try {
+                            const d = new Date(tx._createdDate);
+                            if (!isNaN(d.getTime())) {
+                              date = d.toLocaleDateString('no-NO');
+                            }
+                          } catch (e) {}
+                        }
+                        return (
+                          <div key={tx._id} className="flex justify-between items-center p-4 border border-outline-variant/15 rounded-xl bg-slate-50/10">
+                            <div>
+                              <p className="font-semibold text-sm text-onyx">{tx.description || (isEarned ? 'Poeng tjent' : 'Poeng brukt')}</p>
+                              <span className="text-[10px] text-secondary/60">{date}</span>
+                            </div>
+                            <span className={`font-bold text-sm ${isEarned ? 'text-green-600' : 'text-red-500'}`}>
+                              {isEarned ? `+${tx.pointsDelta}` : tx.pointsDelta} poeng
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </section>
@@ -941,6 +1273,149 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      {/* Return Request Modal */}
+      <AnimatePresence>
+        {isReturnModalOpen && selectedOrderForReturn && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsReturnModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl shadow-2xl border border-outline-variant/30 w-full max-w-lg overflow-hidden z-[10000] relative flex flex-col max-h-[90vh]"
+            >
+              {/* Header */}
+              <div className="bg-[#1B4965] text-white px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
+                <div>
+                  <h3 className="font-bold text-base">Opprett returforespørsel</h3>
+                  <span className="text-[10px] text-blue-200">Ordre #{selectedOrderForReturn._id?.substring(0, 8)}</span>
+                </div>
+                <button
+                  onClick={() => setIsReturnModalOpen(false)}
+                  className="p-1 hover:bg-white/10 text-white/80 hover:text-white transition-colors rounded-full"
+                >
+                  <span className="material-symbols-outlined text-lg select-none">close</span>
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleReturnSubmit} className="p-6 overflow-y-auto space-y-6 flex-grow custom-scrollbar" style={{ display: 'block' }}>
+                {returnSuccess ? (
+                  <div className="text-center py-6 space-y-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto">
+                      <span className="material-symbols-outlined text-2xl select-none">check_circle</span>
+                    </div>
+                    <h4 className="font-bold text-onyx">Forespørsel sendt!</h4>
+                    <p className="text-xs text-secondary leading-relaxed">
+                      Vi har registrert din returforespørsel. Du vil motta en e-post med returetikett og videre instruksjoner innen kort tid.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsReturnModalOpen(false)}
+                      className="bg-terracotta text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 active:scale-95 transition-all shadow-md mx-auto"
+                    >
+                      Lukk vindu
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs text-secondary leading-relaxed">
+                      Velg varene du ønsker å returnere fra denne bestillingen og angi årsaken. Vi godkjenner forespørselen manuelt og sender deg en fraktetikett.
+                    </p>
+
+                    {/* Line Items Selection */}
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Velg varer å returnere *</label>
+                      <div className="border border-outline-variant/30 rounded-xl overflow-hidden divide-y divide-slate-100">
+                        {selectedOrderForReturn.lineItems?.map(item => {
+                          const maxQty = item.quantity || 1;
+                          const currentQty = returnItems[item._id] || 0;
+                          return (
+                            <div key={item._id} className="p-4 flex justify-between items-center gap-4 bg-slate-50/20">
+                              <div className="flex-grow">
+                                <p className="font-semibold text-xs text-onyx">{item.name || item.productName?.translated}</p>
+                                <p className="text-[10px] text-secondary mt-0.5">Kjøpt antall: {maxQty}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={currentQty === 0}
+                                  onClick={() => handleReturnQtyChange(item._id, currentQty - 1)}
+                                  className="w-7 h-7 bg-white border border-outline-variant rounded-full flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all font-bold text-xs"
+                                >
+                                  -
+                                </button>
+                                <span className="text-xs font-bold w-4 text-center">{currentQty}</span>
+                                <button
+                                  type="button"
+                                  disabled={currentQty >= maxQty}
+                                  onClick={() => handleReturnQtyChange(item._id, currentQty + 1)}
+                                  className="w-7 h-7 bg-white border border-outline-variant rounded-full flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all font-bold text-xs"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Reason */}
+                    <div className="flex flex-col">
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Årsak til retur *</label>
+                      <select
+                        required
+                        value={returnReason}
+                        onChange={(e) => setReturnReason(e.target.value)}
+                        className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                      >
+                        <option value="">Velg en årsak...</option>
+                        <option value="Feil størrelse">Feil størrelse</option>
+                        <option value="Passet ikke / Misfornøyd">Passet ikke / Misfornøyd</option>
+                        <option value="Skadet eller defekt vare">Skadet eller defekt vare</option>
+                        <option value="Mottok feil vare">Mottok feil vare</option>
+                        <option value="Annet (spesifiser under)">Annet (spesifiser under)</option>
+                      </select>
+                    </div>
+
+                    {/* Additional Comments */}
+                    <div className="flex flex-col">
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Ytterligere kommentarer (valgfritt)</label>
+                      <textarea
+                        rows={3}
+                        value={returnComments}
+                        onChange={(e) => setReturnComments(e.target.value)}
+                        placeholder="Skriv kommentar her..."
+                        className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx resize-none"
+                      />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReturn || !Object.values(returnItems).some(qty => qty > 0)}
+                      className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isSubmittingReturn ? 'Sender forespørsel...' : 'Send returforespørsel'}
+                    </button>
+                  </>
+                )}
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.main>
   );
 }

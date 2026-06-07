@@ -6,6 +6,9 @@ import { members } from '@wix/members';
 import { plans } from '@wix/pricing-plans';
 import { reviews } from '@wix/reviews';
 import { contacts } from '@wix/site-crm';
+import { accounts as loyaltyAccounts, transactions as loyaltyTransactions } from '@wix/loyalty';
+import { giftVouchers } from '@wix/gift-vouchers';
+import { conversations as inboxConversations, messages as inboxMessages } from '@wix/inbox';
 import { headlessSite } from '@wix/headless-site';
 
 // Custom localStorage token storage to persist client OAuth session tokens across page reloads
@@ -42,10 +45,16 @@ export const wixClient = createClient({
     backInStockNotifications,
     reviews,
     contacts,
+    loyaltyAccounts,
+    loyaltyTransactions,
+    giftVouchers,
+    inboxConversations,
+    inboxMessages,
   },
   auth: OAuthStrategy({
     clientId: '82b2b70d-fb70-4b76-abfd-a2a70f38ac06',
     tokenStorage: customTokenStorage
   }),
 });
+
 
