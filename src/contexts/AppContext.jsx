@@ -552,7 +552,7 @@ export const AppProvider = ({ children }) => {
           if (item.productOptions) {
             const sizeOpt = item.productOptions.find(o => {
               const name = o.name?.trim().toLowerCase();
-              return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
+              return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
             });
             if (sizeOpt) {
               const rawSizes = sizeOpt.choices?.map(c => c.value) || [];
