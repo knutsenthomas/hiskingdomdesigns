@@ -135,40 +135,23 @@ export default function Profile() {
     setAddressError('');
     try {
       console.log('Updating member address book in Wix...');
-      const phonePayload = phone ? [
-        {
-          phone: phone,
-          tag: 'MOBILE'
-        }
-      ] : [];
+      const phonePayload = phone ? [phone] : [];
       
       const addressPayload = [
         {
-          tag: 'HOME',
-          address: {
-            addressLine: addressLine,
-            formatted: `${addressLine}, ${postalCode} ${city}`,
-            postalCode: postalCode,
-            city: city,
-            country: 'NO'
-          }
+          addressLine: addressLine,
+          postalCode: postalCode,
+          city: city,
+          country: 'NO'
         }
       ];
 
       const updated = await wixClient.members.updateMember(member._id, {
-        member: {
-          contact: {
-            firstName: firstName,
-            lastName: lastName,
-            phones: phonePayload,
-            addresses: addressPayload
-          },
-          contactDetails: {
-            firstName: firstName,
-            lastName: lastName,
-            phones: phonePayload,
-            addresses: addressPayload
-          }
+        contact: {
+          firstName: firstName,
+          lastName: lastName,
+          phones: phonePayload,
+          addresses: addressPayload
         }
       });
       console.log('Successfully updated member address:', updated);
@@ -178,7 +161,7 @@ export default function Profile() {
       setRefreshKey(prev => prev + 1); // Refresh page data
     } catch (err) {
       console.error('Failed to update member address in Wix:', err);
-      setAddressError('Klarte ikke å lagre adresse. Prøv igjen.');
+      setAddressError('Klarte ikke å lagre adresse: ' + (err.message || err));
     } finally {
       setIsUpdatingAddress(false);
     }
