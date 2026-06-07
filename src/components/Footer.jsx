@@ -63,7 +63,7 @@ export default function Footer() {
               <Heart size={16} />
             </a>
             <a 
-              href="mailto:kontakt@hiskingdomdesigns.no" 
+              href="mailto:post@hiskingdomministry.no" 
               className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta hover:text-white transition-colors text-parchment/60"
               aria-label="E-post"
             >

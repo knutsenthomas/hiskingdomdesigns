@@ -728,7 +728,7 @@ export default function HkmChatWidget() {
                     )}
                   </p>
                   <p className="text-[11px] text-secondary leading-relaxed font-semibold">
-                    Du kan kontakte oss direkte på e-post: <a href="mailto:kontakt@hiskingdomdesigns.no" className="text-terracotta underline">kontakt@hiskingdomdesigns.no</a>.
+                    Du kan kontakte oss direkte på e-post: <a href="mailto:post@hiskingdomministry.no" className="text-terracotta underline">post@hiskingdomministry.no</a>.
                   </p>
                   <button
                     type="button"

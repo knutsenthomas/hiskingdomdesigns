@@ -104,7 +104,7 @@ export default function Team() {
             </div>
             {/* Social triggers */}
             <div className="flex gap-4 border-t border-slate-100 pt-4">
-              <a href="mailto:kontakt@hiskingdom.no" className="text-secondary hover:text-terracotta transition-colors" aria-label="E-post">
+              <a href="mailto:post@hiskingdomministry.no" className="text-secondary hover:text-terracotta transition-colors" aria-label="E-post">
                 <Mail size={16} />
               </a>
               {member.socials.map((soc) => (
@@ -155,7 +155,7 @@ export default function Team() {
               <strong>E-post: </strong>
               <CmsText
                 slug="team-base-email"
-                fallback="kontakt@hiskingdom.no"
+                fallback="post@hiskingdomministry.no"
                 as="span"
               />
             </p>

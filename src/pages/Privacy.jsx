@@ -136,7 +136,7 @@ export default function Privacy() {
             as="p"
           />
           <p className="pt-2">
-            For spørsmål angående ditt personvern eller innsynsbegjæringer, ta kontakt med oss på <CmsText slug="privacy-section-support" fallback="kontakt@hiskingdom.no" as="strong" className="text-terracotta" />.
+            For spørsmål angående ditt personvern eller innsynsbegjæringer, ta kontakt med oss på <CmsText slug="privacy-section-support" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />.
           </p>
         </section>
       </div>

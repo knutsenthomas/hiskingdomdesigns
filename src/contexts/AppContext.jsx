@@ -1052,7 +1052,7 @@ export const AppProvider = ({ children }) => {
         reply = '### 🔄 Enkel Retur & Bytte\n\n' +
           '- Hos oss har du alltid **30 dagers åpent kjøp** fra du mottar varen.\n' +
           '- Produktet må være ubrukt og i originalemballasjen.\n' +
-          '- Du kan enkelt kontakte vår kundeservice på **kontakt@hiskingdomdesigns.no** for å motta en returetikett.\n\n' +
+          '- Du kan enkelt kontakte vår kundeservice på **post@hiskingdomministry.no** for å motta en returetikett.\n\n' +
           '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
       } 
       else if (lower.includes('størrelse') || lower.includes('size') || lower.includes('passform')) {
@@ -1079,7 +1079,7 @@ export const AppProvider = ({ children }) => {
       else if (lower.includes('kontakt') || lower.includes('kundeservice') || lower.includes('e-post') || lower.includes('adresse') || lower.includes('telefon')) {
         reply = '### 📞 Kontakt Kundeservice\n\n' +
           'Vi vil gjerne høre fra deg! Du kan kontakte oss på:\n' +
-          '- **E-post:** kontakt@hiskingdomdesigns.no\n' +
+          '- **E-post:** post@hiskingdomministry.no\n' +
           '- **Adresse:** Mandal Regnskapskontor / HKD, 4515 Mandal\n\n' +
           '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
       }

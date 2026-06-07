@@ -219,7 +219,7 @@ export default function Shipping() {
           />
           <CmsText
             slug="shipping-support-desc"
-            fallback="Vårt kundeserviceteam hjelper deg gjerne. Ta kontakt på kontakt@hiskingdom.no, eller start en samtale med vår AI-assistent nede i høyre hjørne."
+            fallback="Vårt kundeserviceteam hjelper deg gjerne. Ta kontakt på post@hiskingdomministry.no, eller start en samtale med vår AI-assistent nede i høyre hjørne."
             as="p"
             className="font-body-md text-parchment/70 animate-none"
           />

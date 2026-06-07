@@ -144,7 +144,7 @@ export default function Betingelser() {
             as="p"
           />
           <p className="pt-2">
-            Ved returer, feil eller spørsmål knyttet til bestillinger, ta kontakt på <CmsText slug="terms-support-email" fallback="kontakt@hiskingdomdesigns.no" as="strong" className="text-terracotta" />.
+            Ved returer, feil eller spørsmål knyttet til bestillinger, ta kontakt på <CmsText slug="terms-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />.
           </p>
         </section>
       </div>

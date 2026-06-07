@@ -64,7 +64,7 @@ const FAQ_ITEMS = [
       },
       {
         q: 'Tilbyr dere spesialdesignede plakater eller motiver?',
-        a: 'Ja! Vi gjør regelmessig tilpasninger og tar imot forespørsler om egne bibelvers eller formater. Send oss en e-post på kontakt@hiskingdom.no med dine tanker, så hjelper vi deg.',
+        a: 'Ja! Vi gjør regelmessig tilpasninger og tar imot forespørsler om egne bibelvers eller formater. Send oss en e-post på post@hiskingdomministry.no med dine tanker, så hjelper vi deg.',
         qSlug: 'faq-products-q3',
         aSlug: 'faq-products-a3'
       }
@@ -229,7 +229,7 @@ export default function Faq() {
           className="font-headline-md text-headline-md text-onyx font-bold"
         />
         <p className="font-body-md text-secondary leading-relaxed">
-          Send oss gjerne en e-post direkte på <CmsText slug="faq-support-email" fallback="kontakt@hiskingdom.no" as="strong" className="text-terracotta" />. Vi svarer vanligvis innen få timer på virkedager!
+          Send oss gjerne en e-post direkte på <CmsText slug="faq-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />. Vi svarer vanligvis innen få timer på virkedager!
         </p>
       </div>
     </motion.main>
