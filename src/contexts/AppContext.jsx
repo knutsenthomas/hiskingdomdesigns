@@ -418,7 +418,10 @@ export const AppProvider = ({ children }) => {
             isBestseller: isBestseller,
             isSale: isSale,
             description: item.description?.replace(/<[^>]*>/g, '') || '',
-            subcategories: resolvedCollections
+            subcategories: resolvedCollections,
+            productOptions: item.productOptions,
+            manageVariants: item.manageVariants,
+            variants: item.variants
           };
         });
 

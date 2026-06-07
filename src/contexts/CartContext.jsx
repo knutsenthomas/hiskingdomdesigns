@@ -96,6 +96,20 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
   };
 
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('orderId') || params.has('checkoutId')) {
+        console.log('Detected return from successful checkout. Clearing cart.');
+        setCartItems([]);
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    } catch (e) {
+      console.warn('Failed to parse checkout return parameters', e);
+    }
+  }, []);
+
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const shipping = subtotal === 0 ? 0 : (subtotal >= 800 ? 0 : 49);
   // MVA (25%) included in price: if item is 125kr, MVA is 25kr (which is subtotal * 0.2)

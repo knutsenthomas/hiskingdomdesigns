@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowLeft, ArrowRight, Truck, ShieldCheck, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { motion } from 'framer-motion';
+import { wixClient } from '@/lib/wix';
 
 export default function Cart() {
   const {
@@ -18,6 +19,155 @@ export default function Cart() {
   } = useCart();
   const navigate = useNavigate();
   const [checkoutStep, setCheckoutStep] = useState(null); // 'billing' | 'success'
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleCheckout = async () => {
+    setIsRedirecting(true);
+    setErrorMessage('');
+
+    try {
+      const lineItems = cartItems.map(item => {
+        const catalogReference = {
+          appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
+          catalogItemId: item.id
+        };
+
+        if (item.productOptions && item.productOptions.length > 0) {
+          if (item.manageVariants && item.variants && item.variants.length > 0) {
+            const selectedOptions = {};
+            
+            const sizeOpt = item.productOptions.find(o => {
+              const name = o.name?.trim().toLowerCase();
+              return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
+            });
+            const colorOpt = item.productOptions.find(o => {
+              const name = o.name?.trim().toLowerCase();
+              return name === 'color' || name === 'farge';
+            });
+
+            const sizeChoice = sizeOpt?.choices?.find(c => c.value === item.selectedSize || c.description === item.selectedSize);
+            const colorChoice = colorOpt?.choices?.find(c => {
+              const lower = c.value?.toLowerCase() || '';
+              let mappedName = 'Sort';
+              if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
+              else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
+              else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
+              else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
+              else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
+              else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
+              else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
+              else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
+              else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
+              else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
+              else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
+              else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
+              else if (lower.startsWith('#') || lower.startsWith('rgb')) {
+                if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
+                else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
+                else mappedName = 'Grå';
+              }
+              return mappedName === item.selectedColor;
+            });
+
+            if (sizeOpt && sizeChoice) {
+              selectedOptions[sizeOpt.name] = sizeChoice.value;
+            }
+            if (colorOpt && colorChoice) {
+              selectedOptions[colorOpt.name] = colorChoice.value;
+            }
+
+            const match = item.variants.find(v => {
+              return Object.entries(v.choices).every(([optName, optVal]) => {
+                return selectedOptions[optName] === optVal;
+              });
+            });
+
+            if (match) {
+              catalogReference.options = {
+                variantId: match._id
+              };
+            }
+          } else {
+            const selectedOptions = {};
+            const sizeOpt = item.productOptions.find(o => {
+              const name = o.name?.trim().toLowerCase();
+              return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
+            });
+            const colorOpt = item.productOptions.find(o => {
+              const name = o.name?.trim().toLowerCase();
+              return name === 'color' || name === 'farge';
+            });
+
+            const sizeChoice = sizeOpt?.choices?.find(c => c.value === item.selectedSize || c.description === item.selectedSize);
+            const colorChoice = colorOpt?.choices?.find(c => {
+              const lower = c.value?.toLowerCase() || '';
+              let mappedName = 'Sort';
+              if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
+              else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
+              else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
+              else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
+              else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
+              else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
+              else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
+              else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
+              else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
+              else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
+              else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
+              else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
+              else if (lower.startsWith('#') || lower.startsWith('rgb')) {
+                if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
+                else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
+                else mappedName = 'Grå';
+              }
+              return mappedName === item.selectedColor;
+            });
+
+            if (sizeOpt && sizeChoice) {
+              selectedOptions[sizeOpt.name] = sizeChoice.value;
+            }
+            if (colorOpt && colorChoice) {
+              selectedOptions[colorOpt.name] = colorChoice.value;
+            }
+
+            catalogReference.options = {
+              options: selectedOptions
+            };
+          }
+        }
+
+        return {
+          catalogReference,
+          quantity: item.quantity
+        };
+      });
+
+      const checkoutResult = await wixClient.checkout.createCheckout({
+        lineItems,
+        channelType: 'WEB'
+      });
+
+      const redirectSession = await wixClient.redirects.createRedirectSession({
+        ecomCheckout: {
+          checkoutId: checkoutResult._id
+        },
+        callbacks: {
+          postFlowUrl: window.location.origin + '/cart',
+          thankYouPageUrl: window.location.origin + '/profile'
+        }
+      });
+
+      if (redirectSession && redirectSession.fullUrl) {
+        window.location.href = redirectSession.fullUrl;
+      } else {
+        throw new Error('Kunne ikke hente betalings-lenke.');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setErrorMessage('Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.');
+      setIsRedirecting(false);
+    }
+  };
 
   const handleCheckoutSubmit = (e) => {
     e.preventDefault();
@@ -293,13 +443,31 @@ export default function Cart() {
               </div>
             </div>
 
+            {errorMessage && (
+              <div className="bg-red-50 text-red-600 text-xs p-3 rounded-lg mb-4 text-center font-medium border border-red-200">
+                {errorMessage}
+              </div>
+            )}
+
             {checkoutStep !== 'billing' && (
               <button 
-                onClick={() => setCheckoutStep('billing')}
-                className="w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2"
+                onClick={handleCheckout}
+                disabled={isRedirecting}
+                className={`w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 ${
+                  isRedirecting ? 'opacity-75 cursor-not-allowed' : ''
+                }`}
               >
-                <span>Gå til kassen</span>
-                <ArrowRight size={16} />
+                {isRedirecting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Oppretter kasse...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Gå til kassen</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
               </button>
             )}
 
