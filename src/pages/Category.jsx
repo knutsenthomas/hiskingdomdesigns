@@ -105,9 +105,42 @@ export default function Category() {
     setSearchParams({});
   };
 
+  // Get products belonging to current category context (before applying size/color/price filters)
+  const categoryProducts = useMemo(() => {
+    let result = [...products];
+
+    // Filter by category parameter or selection
+    if (categoryName === 'Salg') {
+      result = result.filter(p => p.isSale);
+    } else if (categoryName) {
+      result = result.filter(p => 
+        p.category === categoryName ||
+        (p.subcategories && p.subcategories.some(sub => sub === categoryName))
+      );
+    } else if (selectedCategories.length > 0) {
+      result = result.filter(p => 
+        selectedCategories.includes(p.category) ||
+        (p.subcategories && p.subcategories.some(sub => selectedCategories.includes(sub)))
+      );
+    }
+
+    // Filter by search query
+    if (urlSearch) {
+      const query = urlSearch.toLowerCase();
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.category.toLowerCase().includes(query) ||
+        (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
+        (p.description && p.description.toLowerCase().includes(query))
+      );
+    }
+
+    return result;
+  }, [products, categoryName, selectedCategories, urlSearch]);
+
   const availableSizes = useMemo(() => {
     const sizesSet = new Set();
-    products.forEach(p => {
+    categoryProducts.forEach(p => {
       if (p.sizes) {
         p.sizes.forEach(s => sizesSet.add(s));
       }
@@ -121,11 +154,11 @@ export default function Category() {
       if (idxB > -1) return 1;
       return a.localeCompare(b);
     });
-  }, [products]);
+  }, [categoryProducts]);
 
   const availableColors = useMemo(() => {
     const colorMap = {};
-    products.forEach(p => {
+    categoryProducts.forEach(p => {
       if (p.colorNames && p.colors) {
         p.colorNames.forEach((name, idx) => {
           const hex = p.colors[idx] || '#888888';
@@ -143,34 +176,13 @@ export default function Category() {
       else if (hex === '#CC712B') border = 'border-terracotta';
       return { name, hex, border };
     });
-  }, [products]);
+  }, [categoryProducts]);
 
   // Filter and Sort Logic
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...categoryProducts];
 
-    // 1. Filter by category parameter or selection
-    if (categoryName === 'Salg') {
-      result = result.filter(p => p.isSale);
-    } else if (selectedCategories.length > 0) {
-      result = result.filter(p => 
-        selectedCategories.includes(p.category) ||
-        (p.subcategories && p.subcategories.some(sub => selectedCategories.includes(sub)))
-      );
-    }
-
-    // 2. Filter by search query
-    if (urlSearch) {
-      const query = urlSearch.toLowerCase();
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.category.toLowerCase().includes(query) ||
-        (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
-        (p.description && p.description.toLowerCase().includes(query))
-      );
-    }
-
-    // 3. Filter by size
+    // Filter by size
     if (selectedSizes.length > 0) {
       result = result.filter(p => 
         p.sizes && p.sizes.some(s => selectedSizes.includes(s))
