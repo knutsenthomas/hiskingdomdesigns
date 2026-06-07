@@ -155,7 +155,7 @@ export default function Profile() {
         }
       });
       console.log('Successfully updated member address:', updated);
-      setMember(updated);
+      setMember(updated?.member || updated);
       setAddressSuccess(true);
       setTimeout(() => setAddressSuccess(false), 3000);
       setRefreshKey(prev => prev + 1); // Refresh page data
@@ -266,7 +266,9 @@ export default function Profile() {
       
       if (logged) {
         setIsLoggedIn(true);
-        setIsLoading(true);
+        if (!member) {
+          setIsLoading(true);
+        }
         // Get member info
         try {
           const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
