@@ -99,6 +99,11 @@ export const CartProvider = ({ children }) => {
     setCouponError('');
   };
 
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError('');
+  };
+
   const [appliedCoupon, setAppliedCoupon] = useState(() => {
     try {
       const saved = localStorage.getItem('hkd-applied-coupon');
