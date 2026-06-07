@@ -575,6 +575,60 @@ export const AppProvider = ({ children }) => {
   const getProductRecommendations = (inputText) => {
     const lower = inputText.toLowerCase().trim();
     
+    // Check if the user is asking about recommendations for all / families / all ages
+    const isAllAgesQuery = 
+      lower.includes('for alle') || 
+      lower.includes('alle aldre') || 
+      lower.includes('hele familien') || 
+      (lower.includes('alle') && (lower.includes('aldre') || lower.includes('anbefal') || lower.includes('produkt') || lower.includes('kategori') || lower.includes('alder')));
+
+    if (isAllAgesQuery) {
+      console.log('Backend getProductRecommendations matched all ages / family query');
+      // Find kids/baby products
+      const kidProds = products.filter(prod => {
+        const prodNameLower = prod.name.toLowerCase();
+        const prodDescLower = prod.description?.toLowerCase() || '';
+        const prodSubcats = prod.subcategories?.map(s => s.toLowerCase()) || [];
+        return prod.gender === 'Barn' || 
+               prod.category?.toLowerCase().includes('barn') || 
+               prodNameLower.includes('barn') || 
+               prodNameLower.includes('barne') || 
+               prodNameLower.includes('baby') || 
+               prodNameLower.includes('body') || 
+               prodNameLower.includes('år') || 
+               prodNameLower.includes('mnd') || 
+               prodDescLower.includes('barn') || 
+               prodDescLower.includes('barne') || 
+               prodSubcats.some(s => s.includes('barn') || s.includes('ungdom') || s.includes('kids') || s.includes('baby'));
+      });
+
+      // Find adult clothing products
+      const adultProds = products.filter(prod => {
+        const prodNameLower = prod.name.toLowerCase();
+        return prod.category === 'Klær' && 
+               prod.gender !== 'Barn' && 
+               !prodNameLower.includes('barn') && 
+               !prodNameLower.includes('barne') && 
+               !prodNameLower.includes('baby') && 
+               !prodNameLower.includes('body') && 
+               !prodNameLower.includes('år');
+      });
+
+      // Find posters, stickers or accessories
+      const miscProds = products.filter(prod => {
+        return prod.category === 'Plakater' || prod.category === 'Klistermerker' || prod.category === 'Tilbehør';
+      });
+
+      const selected = [];
+      if (kidProds.length > 0) selected.push(kidProds[0]);
+      if (adultProds.length > 0) selected.push(adultProds[0]);
+      if (miscProds.length > 0) selected.push(miscProds[0]);
+
+      if (selected.length > 0) {
+        return selected;
+      }
+    }
+
     // Check if the user is asking about products/sales/bestsellers/categories
     const isAskingAboutProducts = 
       lower.includes('produkt') || 
@@ -788,7 +842,16 @@ export const AppProvider = ({ children }) => {
 
       if (recommendations && recommendations.length > 0) {
         let titleText = '### 🛍️ Her er produkter jeg fant basert på ditt søk:';
-        if (lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt')) {
+        
+        const isAllAgesQuery = 
+          lower.includes('for alle') || 
+          lower.includes('alle aldre') || 
+          lower.includes('hele familien') || 
+          (lower.includes('alle') && (lower.includes('aldre') || lower.includes('anbefal') || lower.includes('produkt') || lower.includes('kategori') || lower.includes('alder')));
+
+        if (isAllAgesQuery) {
+          titleText = '### 👨‍👩‍👧‍👦 Her er våre anbefalinger for hele familien og alle aldre:';
+        } else if (lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt')) {
           titleText = '### 🏷️ Her er våre produkter på tilbud akkurat nå:';
         } else if (lower.includes('bestselger') || lower.includes('populær') || lower.includes('topp')) {
           titleText = '### 🌟 Her er våre mest populære bestselgere:';

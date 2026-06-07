@@ -54,14 +54,16 @@ export default function Footer() {
           />
           <div className="flex gap-4">
             <a 
-              href="#" 
+              href="https://www.instagram.com/hiskingdomdesigns/" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta hover:text-white transition-colors text-parchment/60"
               aria-label="Instagram"
             >
               <Heart size={16} />
             </a>
             <a 
-              href="#" 
+              href="mailto:kontakt@hiskingdomdesigns.no" 
               className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta hover:text-white transition-colors text-parchment/60"
               aria-label="E-post"
             >

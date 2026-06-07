@@ -565,7 +565,9 @@ export default function Home() {
           </div>
           <div className="text-center">
             <a 
-              href="#" 
+              href="https://www.instagram.com/hiskingdomdesigns/" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-onyx text-white px-8 py-4 rounded font-label-md text-label-md hover:bg-terracotta hover:scale-[1.02] transition-all"
             >
               @hiskingdomdesigns
