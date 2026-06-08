@@ -663,7 +663,10 @@ export default function Profile() {
     try {
       const d = new Date(member._createdDate);
       if (!isNaN(d.getTime())) {
-        memberSinceStr = d.toLocaleDateString('no-NO', { month: 'long', year: 'numeric' });
+        const dateStr = d.toLocaleDateString('no-NO', { month: 'long', year: 'numeric' });
+        if (dateStr) {
+          memberSinceStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        }
       }
     } catch (e) {
       console.warn('Failed to parse member creation date:', e);
