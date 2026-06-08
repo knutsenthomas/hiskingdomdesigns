@@ -74,7 +74,7 @@ export default function Betingelser() {
           </div>
           <CmsText
             slug="terms-section-desc-2"
-            fallback="Alle oppgitte priser i nettbutikken er inkludert merverdiavgift (MVA). Eventuelle fraktkostnader vil fremkomme i handlekurven før bestillingen fullføres. Du kan betale trygt med Vipps eller betalingskort (Visa, Mastercard) via vår integrerte og sikre Wix betalingsløsning."
+            fallback="Alle oppgitte priser i nettbutikken er fritatt for merverdiavgift (MVA) da His Kingdom Designs drives av en frivillig organisasjon. Eventuelle fraktkostnader vil fremkomme i handlekurven før bestillingen fullføres. Du kan betale trygt med Vipps eller betalingskort (Visa, Mastercard) via vår integrerte og sikre Wix betalingsløsning."
             as="p"
           />
         </section>

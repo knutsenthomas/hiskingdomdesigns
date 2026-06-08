@@ -20,7 +20,6 @@ export default function Cart() {
     clearCart,
     subtotal,
     shipping,
-    mva,
     total,
     appliedCoupon,
     couponError,
@@ -490,10 +489,6 @@ export default function Cart() {
                 <span className="font-bold text-onyx">
                   {shipping === 0 ? 'Gratis' : `${shipping} kr`}
                 </span>
-              </div>
-              <div className="flex justify-between font-body-md text-secondary">
-                <span>MVA (25%)</span>
-                <span className="font-bold text-onyx">{mva.toFixed(2)} kr</span>
               </div>
               
               <div className="h-px bg-parchment w-full my-4" />

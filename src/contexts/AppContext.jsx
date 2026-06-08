@@ -1177,7 +1177,7 @@ export const AppProvider = ({ children }) => {
           'Vi tilbyr trygge og raske betalingsløsninger i kassen:\n' +
           '- **Vipps** (enkel betaling med mobilen)\n' +
           '- **Kortbetaling** (Visa og Mastercard via kryptert betalingsløsning)\n\n' +
-          '💡 MVA (25%) er inkludert i alle oppgitte priser.';
+          '💡 Vi er fritatt for MVA da His Kingdom Designs drives av en frivillig organisasjon.';
       }
       else if (lower.includes('kontakt') || lower.includes('kundeservice') || lower.includes('e-post') || lower.includes('adresse') || lower.includes('telefon')) {
         reply = '### 📞 Kontakt Kundeservice\n\n' +
