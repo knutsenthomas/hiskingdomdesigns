@@ -1036,9 +1036,19 @@ export default function Profile() {
 
           <div className="w-full h-px bg-slate-100 my-6" />
 
+          {isAdminUser && (
+            <Link 
+              to="/admin"
+              className="w-full flex items-center justify-center gap-2 bg-[#1B4965] hover:bg-opacity-95 text-white py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 mb-3 shadow-md font-bold cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+              <span>Gå til Admin-panel</span>
+            </Link>
+          )}
+
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 border border-outline hover:border-terracotta hover:text-terracotta text-onyx py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 border border-outline hover:border-terracotta hover:text-terracotta text-onyx py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 cursor-pointer"
           >
             <LogOut size={16} />
             <span>Logg ut</span>

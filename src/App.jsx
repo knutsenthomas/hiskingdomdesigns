@@ -17,6 +17,7 @@ import Faq from '@/pages/Faq';
 import Privacy from '@/pages/Privacy';
 import Betingelser from '@/pages/Betingelser';
 import Profile from '@/pages/Profile';
+import Admin from '@/pages/Admin';
 import { AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import CmsVisualToggle from '@/components/CmsVisualToggle';
@@ -130,6 +131,7 @@ function MainLayout() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/betingelser" element={<Betingelser />} />
             <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+            <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
             {/* Fallback to home */}
             <Route path="*" element={<Home />} />
           </Routes>
