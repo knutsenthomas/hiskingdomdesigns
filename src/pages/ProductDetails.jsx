@@ -1355,11 +1355,16 @@ export default function ProductDetails() {
                       try {
                         const d = new Date(rev._createdDate || Date.now());
                         if (!isNaN(d.getTime())) {
-                          return d.toLocaleDateString('no-NO', {
+                          const rawDate = d.toLocaleDateString('no-NO', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
                           });
+                          const parts = rawDate.split(' ');
+                          if (parts.length >= 2) {
+                            parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+                          }
+                          return parts.join(' ');
                         }
                       } catch (e) {}
                       return 'Nylig omtale';
