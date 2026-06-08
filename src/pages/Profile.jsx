@@ -898,7 +898,7 @@ export default function Profile() {
                 activeTab === 'wishlist' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Min Ønskeliste ({wishlist.length})
+              Min ønskeliste ({wishlist.length})
               {activeTab === 'wishlist' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1078,7 +1078,7 @@ export default function Profile() {
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
               <div className="flex items-center gap-3 text-terracotta">
                 <Heart size={22} className="fill-current" />
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Min Ønskeliste</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Min ønskeliste</h3>
               </div>
               
               {wishlist.length > 0 ? (

@@ -675,7 +675,7 @@ export default function Header() {
                 className="text-body-lg font-bold py-2 border-b border-outline-variant/30 text-onyx flex items-center gap-2"
               >
                 <Heart size={20} className="text-terracotta" />
-                <span>Min Ønskeliste ({wishlist.length})</span>
+                <span>Min ønskeliste ({wishlist.length})</span>
               </Link>
             </div>
           </nav>
