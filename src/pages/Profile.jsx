@@ -93,7 +93,14 @@ const getProfileImageUrl = (member) => {
 let isExchangingTokens = false;
 
 export default function Profile() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    try {
+      return wixClient.auth.loggedIn();
+    } catch (e) {
+      console.error('Failed to initialize login status:', e);
+      return false;
+    }
+  });
   const [loginTab, setLoginTab] = useState('login'); // 'login' | 'register'
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -307,6 +314,7 @@ export default function Profile() {
             });
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
+            isExchangingTokens = false; // Reset lock on success
             window.dispatchEvent(new Event('wix-auth-change'));
             console.log('Successfully completed Wix OAuth login!');
             setRefreshKey(prev => prev + 1);
@@ -330,11 +338,42 @@ export default function Profile() {
     handleAuthCallback();
   }, []);
 
+  // Listen to window auth changes to keep profile state in sync with AppContext/Header
+  useEffect(() => {
+    const handleAuthChange = () => {
+      try {
+        const logged = wixClient.auth.loggedIn();
+        setIsLoggedIn(logged);
+        if (!logged) {
+          setMember(null);
+          setOrdersList([]);
+        } else {
+          setRefreshKey(prev => prev + 1);
+        }
+      } catch (e) {
+        console.error('Failed to handle auth change in Profile page:', e);
+      }
+    };
+    window.addEventListener('wix-auth-change', handleAuthChange);
+    return () => window.removeEventListener('wix-auth-change', handleAuthChange);
+  }, []);
+
   // 2. Fetch current member, order history, and subscription status
   useEffect(() => {
     async function getProfileData() {
-      const logged = wixClient.auth.loggedIn();
-      const mockMemberStr = localStorage.getItem('hkd-mock-vipps-member');
+      let logged = false;
+      try {
+        logged = wixClient.auth.loggedIn();
+      } catch (e) {
+        console.warn('Failed to check if logged in:', e);
+      }
+      
+      let mockMemberStr = null;
+      try {
+        mockMemberStr = localStorage.getItem('hkd-mock-vipps-member');
+      } catch (e) {
+        console.warn('Failed to get mock member from localStorage:', e);
+      }
       
       if (logged) {
         setIsLoggedIn(true);
@@ -533,7 +572,11 @@ export default function Profile() {
           // If captcha is needed, redirect to Wix OAuth portal to complete safely
           const redirectUri = window.location.origin + '/profile';
           const oauthData = wixClient.auth.generateOAuthData(redirectUri);
-          localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
+          try {
+            localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
+          } catch (storageErr) {
+            console.error('Failed to save OAuth data to localStorage:', storageErr);
+          }
           const { authUrl } = await wixClient.auth.getAuthUrl(oauthData);
           window.location.href = authUrl;
         } else {
@@ -555,7 +598,11 @@ export default function Profile() {
     try {
       const redirectUri = window.location.origin + '/profile';
       const oauthData = wixClient.auth.generateOAuthData(redirectUri);
-      localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
+      try {
+        localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
+      } catch (storageErr) {
+        console.error('Failed to save OAuth data to localStorage:', storageErr);
+      }
       const { authUrl } = await wixClient.auth.getAuthUrl(oauthData);
       window.location.href = authUrl;
     } catch (err) {
@@ -568,8 +615,12 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem('wix_oauth_tokens');
-      localStorage.removeItem('hkd-mock-vipps-member');
+      try {
+        localStorage.removeItem('wix_oauth_tokens');
+        localStorage.removeItem('hkd-mock-vipps-member');
+      } catch (storageErr) {
+        console.error('Failed to remove tokens from localStorage:', storageErr);
+      }
       try {
         await wixClient.auth.logout();
       } catch (logoutErr) {
@@ -602,6 +653,12 @@ export default function Profile() {
     : member?.contact?.firstName 
       ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
       : (member?.profile?.nickname || 'Christian Mandal');
+
+  const displayInitials = String(displayName || '')
+    .split(' ')
+    .map(n => n ? n[0] : '')
+    .join('')
+    .toUpperCase();
 
   const displayEmail = getMemberEmail(member) || 'christian@mandalregnskap.no';
   
@@ -779,7 +836,7 @@ export default function Profile() {
                 className="w-full h-full object-cover" 
               />
             ) : (
-              (displayName || '').split(' ').map(n => n ? n[0] : '').join('')
+              displayInitials
             )}
           </div>
           <h2 className="font-headline-md text-headline-md text-onyx mb-1">{displayName}</h2>

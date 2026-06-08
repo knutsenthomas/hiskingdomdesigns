@@ -658,9 +658,28 @@ export const AppProvider = ({ children }) => {
             allItems = [...allItems, ...response.items];
           }
         } catch (productError) {
-          console.warn('Wix product fetch failed, trying token recovery...', productError);
+          console.warn('Wix product fetch failed, checking token validity...', productError);
+          
+          const isAuthError = productError?.status === 401 || 
+                              productError?.message?.includes('401') || 
+                              productError?.message?.includes('Unauthorized') || 
+                              productError?.message?.includes('Invalid token') ||
+                              productError?.message?.includes('invalid_grant') ||
+                              productError?.message?.includes('403') ||
+                              productError?.message?.includes('Forbidden');
+
+          if (isAuthError && localStorage.getItem('wix_oauth_tokens')) {
+            console.warn('Wix auth token invalid or expired. Performing token recovery (logout)...');
+            try {
+              localStorage.removeItem('wix_oauth_tokens');
+              await wixClient.auth.logout();
+              window.dispatchEvent(new Event('wix-auth-change'));
+            } catch (logoutErr) {
+              console.warn('Failed to logout during token recovery:', logoutErr);
+            }
+          }
+
           try {
-            localStorage.removeItem('wix_oauth_tokens');
             // Re-fetch collections list to ensure clean OAuth state
             const collectionsListRetry = await wixClient.collections.queryCollections().limit(100).find();
             const collectionsMapRetry = {};

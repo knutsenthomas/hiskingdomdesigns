@@ -111,7 +111,7 @@ function MainLayout() {
             <Route path="/faq" element={<Faq />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/betingelser" element={<Betingelser />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
             {/* Fallback to home */}
             <Route path="*" element={<Home />} />
           </Routes>
