@@ -167,13 +167,15 @@ function MainLayout() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <CartProvider>
-        <Router>
-          <ScrollToTop />
-          <MainLayout />
-        </Router>
-      </CartProvider>
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <CartProvider>
+          <Router>
+            <ScrollToTop />
+            <MainLayout />
+          </Router>
+        </CartProvider>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

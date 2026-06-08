@@ -32,13 +32,36 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Fetch event - Stale-While-Revalidate caching strategy
+// Fetch event - Caching strategy
 self.addEventListener('fetch', (e) => {
   // Only handle GET requests and local/same-origin assets
   if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
     return;
   }
 
+  // Use Network-First strategy for HTML navigation requests (page reloads)
+  // to avoid loading a stale cached index.html referencing obsolete JS/CSS assets.
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then((networkResponse) => {
+          if (networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(e.request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(e.request).then((cachedResponse) => {
+            return cachedResponse || caches.match('/index.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate caching strategy for other assets
   e.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(e.request).then((cachedResponse) => {
