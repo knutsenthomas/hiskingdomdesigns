@@ -1253,7 +1253,9 @@ export const AppProvider = ({ children }) => {
       'RUSS': 'russ',
       'BABY': 'babyklær',
       'BARN & UNGDOM': 'barneklær',
-      'Barnerom': 'barnerom'
+      'Barnerom': 'barnerom',
+      'Varna - Evangeliesenteret Bibelskole': 'evangeliesenteret-bibelskole-varna',
+      'Varne evangliesenter - Bible school': 'evangeliesenteret-bibelskole-varna'
     };
     if (staticMap[name]) return staticMap[name];
     
@@ -1286,7 +1288,8 @@ export const AppProvider = ({ children }) => {
       'russ': 'RUSS',
       'babyklær': 'BABY',
       'barneklær': 'BARN & UNGDOM',
-      'barnerom': 'Barnerom'
+      'barnerom': 'Barnerom',
+      'evangeliesenteret-bibelskole-varna': 'Varna - Evangeliesenteret Bibelskole'
     };
     
     for (const [keyName, valSlug] of Object.entries(staticMap)) {

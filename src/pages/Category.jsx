@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import useMeta from '@/hooks/useMeta';
 
 export default function Category() {
-  const { products, isLoadingProducts, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName } = useApp();
+  const { products, isLoadingProducts, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName, wixCollections } = useApp();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
   
@@ -31,12 +31,11 @@ export default function Category() {
   
   // Collapsible category groups state
   const [expandedGroups, setExpandedGroups] = useState({
-    'Klær': true,
+    'Klær & Bekledning': true,
     'Bilder & Kunst': false,
     'Tilbehør & Hjem': false,
     'Barn & Familie': false,
-    'Temaer & Budskap': false,
-    'Kampanjer & Formater': false
+    'Temaer & Språk': false
   });
 
   // Sync category route param to state
@@ -138,7 +137,7 @@ export default function Category() {
     }
 
     return result;
-  }, [products, categoryName, selectedCategories, urlSearch]);
+  }, [products, categoryName, selectedCategories, urlSearch, wixCollections]);
 
   const availableSizes = useMemo(() => {
     const sizesSet = new Set();
