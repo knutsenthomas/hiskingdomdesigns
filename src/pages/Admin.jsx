@@ -63,7 +63,7 @@ export default function Admin() {
 
   useEffect(() => {
     // If not admin, redirect to profile page after 3 seconds or show Forbidden
-    if (!isAuthLoading && !isLoading && !isAdminUser) {
+    if (!isAuthLoading && !isLoading && !isAdminUser && !window.location.search.includes('debug=true')) {
       showToast("Adgang nektet: Du må være administrator");
       const timer = setTimeout(() => {
         navigate('/profile');
@@ -164,21 +164,53 @@ export default function Admin() {
   // Forbidden layout
   if (!isAdminUser) {
     return (
-      <div className="max-w-md mx-auto my-28 p-8 bg-white border border-outline-variant/30 rounded-3xl shadow-lg text-center space-y-6">
+      <div className="max-w-xl mx-auto my-20 p-8 bg-white border border-outline-variant/30 rounded-3xl shadow-lg text-center space-y-6">
         <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
           <ShieldAlert size={32} />
         </div>
         <h2 className="font-headline-md text-headline-md text-onyx font-bold">403 Adgang Nektet</h2>
         <p className="text-sm text-secondary leading-relaxed">
-          Du har ikke administratorrettigheter til å se denne siden. Du vil bli videresendt til din profilside om noen sekunder...
+          {window.location.search.includes('debug=true') 
+            ? "Feilsøkingsmodus aktivert. Sjekk detaljene nedenfor."
+            : "Du har ikke administratorrettigheter til å se denne siden. Du vil bli videresendt til din profilside om noen sekunder..."
+          }
         </p>
-        <div className="pt-2">
+
+        {window.location.search.includes('debug=true') && (
+          <div className="text-left bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono text-[11px] text-slate-600 space-y-2 overflow-auto max-h-96">
+            <p className="font-bold border-b pb-1 text-slate-700">DIAGNOSEDATA (Ta skjermbilde):</p>
+            <p><strong>Is Logged In (Wix):</strong> {String(isLoggedIn)}</p>
+            <p><strong>Has Member Object:</strong> {String(!!member)}</p>
+            <p><strong>Resolved wixEmail:</strong> "{wixEmail}"</p>
+            <p><strong>User Role (localStorage):</strong> "{localRole}"</p>
+            <p><strong>Member ID:</strong> "{member?._id || ''}"</p>
+            <p><strong>Member raw structure:</strong></p>
+            <pre className="bg-slate-100 p-2 rounded text-[10px] overflow-x-auto">
+              {member ? JSON.stringify({
+                loginEmail: member.loginEmail,
+                contactDetails: member.contactDetails,
+                contact: member.contact,
+                profile: member.profile
+              }, null, 2) : 'null'}
+            </pre>
+          </div>
+        )}
+
+        <div className="pt-2 flex justify-center gap-4">
           <Link 
             to="/profile" 
             className="bg-[#1B4965] hover:bg-opacity-95 text-white px-6 py-3 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider inline-block shadow-sm transition-all"
           >
             Gå til Min Profil
           </Link>
+          {!window.location.search.includes('debug=true') && (
+            <Link
+              to="/admin?debug=true"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider inline-block shadow-sm transition-all"
+            >
+              Feilsøk
+            </Link>
+          )}
         </div>
       </div>
     );
