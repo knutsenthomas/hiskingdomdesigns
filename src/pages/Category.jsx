@@ -293,25 +293,27 @@ export default function Category() {
       {/* Size Filter */}
       <div>
         <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Størrelse</h3>
-        <div className="grid grid-cols-4 gap-2">
-          {availableSizes.map(size => {
-            const isSelected = selectedSizes.includes(size);
-            return (
-              <button
-                key={size}
-                onClick={() => handleSizeToggle(size)}
-                className={`min-h-10 py-2 px-1 border rounded flex items-center justify-center text-center transition-all ${
-                  size.length > 3 ? 'text-[10px] leading-tight font-medium' : 'font-label-sm text-label-sm'
-                } ${
-                  isSelected 
-                    ? 'border-terracotta bg-terracotta/5 text-terracotta font-bold' 
-                    : 'border-outline-variant text-onyx hover:border-terracotta hover:text-terracotta'
-                }`}
-              >
-                {size}
-              </button>
-            );
-          })}
+        <div className="max-h-48 overflow-y-auto pr-1 custom-scrollbar border border-outline-variant/30 rounded-lg p-3 bg-white/40">
+          <div className="grid grid-cols-4 gap-2">
+            {availableSizes.map(size => {
+              const isSelected = selectedSizes.includes(size);
+              return (
+                <button
+                  key={size}
+                  onClick={() => handleSizeToggle(size)}
+                  className={`min-h-10 py-2 px-1 border rounded flex items-center justify-center text-center transition-all ${
+                    size.length > 3 ? 'text-[10px] leading-tight font-medium' : 'font-label-sm text-label-sm'
+                  } ${
+                    isSelected 
+                      ? 'border-terracotta bg-terracotta/5 text-terracotta font-bold' 
+                      : 'border-outline-variant text-onyx hover:border-terracotta hover:text-terracotta'
+                  }`}
+                >
+                  {size}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
