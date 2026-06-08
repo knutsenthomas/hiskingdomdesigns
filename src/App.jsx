@@ -94,6 +94,14 @@ function MainLayout() {
   const location = useLocation();
   const { toastMessage } = useApp();
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('hkm_referral_id', ref);
+    }
+  }, [location]);
+
   return (
     <div className="flex flex-col min-h-screen bg-parchment text-onyx selection:bg-terracotta selection:text-white relative">
       <Header />

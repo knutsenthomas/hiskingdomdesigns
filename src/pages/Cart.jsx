@@ -38,6 +38,16 @@ export default function Cart() {
   const [checkoutStep, setCheckoutStep] = useState(null); // 'billing' | 'success'
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [hasReferral, setHasReferral] = useState(false);
+
+  useEffect(() => {
+    try {
+      const ref = localStorage.getItem('hkm_referral_id');
+      if (ref) {
+        setHasReferral(true);
+      }
+    } catch (e) {}
+  }, []);
 
   // Auto-prefill and calculate shipping from logged-in member's saved address on mount
   useEffect(() => {
@@ -443,6 +453,26 @@ export default function Cart() {
             {/* Coupon Code Form */}
             {checkoutStep !== 'billing' && (
               <div className="mb-6 pt-4 border-t border-slate-100">
+                {hasReferral && !appliedCoupon && (
+                  <div className="mb-4 p-4 rounded-xl border border-[#1B4965]/20 bg-[#1B4965]/5 text-left space-y-2">
+                    <div className="flex items-center gap-2 text-[#1B4965] font-bold text-xs">
+                      <span className="material-symbols-outlined text-sm">redeem</span>
+                      <span>Venn-rabatt tilgjengelig!</span>
+                    </div>
+                    <p className="text-[11px] text-secondary leading-relaxed">
+                      Du ble invitert av en venn og får 10% rabatt på din første bestilling.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await applyCouponCode('VERV10');
+                      }}
+                      className="bg-[#1B4965] text-white hover:opacity-95 active:scale-95 transition-all text-[10px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-lg shadow-sm w-full cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <span>Aktiver 10% rabatt</span>
+                    </button>
+                  </div>
+                )}
                 <span className="block text-xs font-semibold text-onyx uppercase mb-2">Rabattkode</span>
                 <form 
                   onSubmit={async (e) => {

@@ -146,6 +146,14 @@ export default function Profile() {
   const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
   const [returnSuccess, setReturnSuccess] = useState(false);
   const [activeReturns, setActiveReturns] = useState([]);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    const link = `https://hiskingdom.no/?ref=${member?._id || 'medlem'}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Handle tab from URL search parameters
   useEffect(() => {
@@ -911,6 +919,17 @@ export default function Profile() {
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('referral')}
+              className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
+                activeTab === 'referral' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+              }`}
+            >
+              Verv en venn
+              {activeTab === 'referral' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
+              )}
+            </button>
           </div>
 
           {activeTab === 'dashboard' && (
@@ -1340,6 +1359,164 @@ export default function Profile() {
                   {isUpdatingAddress ? 'Lagrer...' : 'Lagre endringer'}
                 </button>
               </form>
+            </section>
+          )}
+
+          {activeTab === 'referral' && (
+            <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-8 animate-fade-in">
+              <div className="flex items-center gap-3 text-terracotta">
+                <span className="material-symbols-outlined text-2xl select-none">diversity_3</span>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Verv en venn & Tjen poeng</h3>
+              </div>
+              <p className="text-xs text-secondary leading-relaxed">
+                Del gleden ved tro, håp og kjærlighet! Inviter vennene dine til His Kingdom Designs. 
+                Når de registrerer seg og fullfører sitt første kjøp, får de 10% rabatt, og du belønnes med 100 bonuspoeng i lojalitetsprogrammet.
+              </p>
+
+              {/* Step Flow */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                <div className="p-5 rounded-2xl bg-slate-50 border border-outline-variant/20 flex flex-col items-center text-center space-y-3 shadow-sm hover:border-[#1B4965]/20 transition-all">
+                  <div className="w-10 h-10 rounded-full bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center font-bold text-sm">1</div>
+                  <h5 className="font-bold text-xs text-onyx">Del din lenke</h5>
+                  <p className="text-[10px] text-secondary leading-relaxed">Kopier din unike vervekobling nedenfor og del den med venner på sosiale medier eller e-post.</p>
+                </div>
+                <div className="p-5 rounded-2xl bg-slate-50 border border-outline-variant/20 flex flex-col items-center text-center space-y-3 shadow-sm hover:border-[#1B4965]/20 transition-all">
+                  <div className="w-10 h-10 rounded-full bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center font-bold text-sm">2</div>
+                  <h5 className="font-bold text-xs text-onyx">Vennen din handler</h5>
+                  <p className="text-[10px] text-secondary leading-relaxed">Vennen din bruker vervekoblingen og mottar automatisk 10% rabatt (bruk koden <strong className="text-terracotta">VERV10</strong>) på sitt første kjøp.</p>
+                </div>
+                <div className="p-5 rounded-2xl bg-slate-50 border border-outline-variant/20 flex flex-col items-center text-center space-y-3 shadow-sm hover:border-[#1B4965]/20 transition-all">
+                  <div className="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center font-bold text-sm">
+                    <span className="material-symbols-outlined text-base">check</span>
+                  </div>
+                  <h5 className="font-bold text-xs text-onyx">Du belønnes</h5>
+                  <p className="text-[10px] text-secondary leading-relaxed">Når kjøpet er fullført, overføres 100 lojalitetspoeng (verdi 100 kr) direkte til din konto.</p>
+                </div>
+              </div>
+
+              {/* Share Card */}
+              <div className="p-6 rounded-2xl border border-outline-variant/30 bg-[#1B4965]/5 space-y-4 shadow-sm text-left">
+                <h4 className="font-bold text-xs text-[#1B4965] uppercase tracking-wider">Din personlige vervekobling</h4>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    className="flex-grow bg-white border border-outline-variant rounded-xl px-4 py-3 text-xs focus:outline-none text-onyx font-mono"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className={`sm:w-36 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl transition-all shadow-md cursor-pointer ${
+                      copied ? 'bg-green-600 text-white' : 'bg-[#1B4965] text-white hover:opacity-95 active:scale-95'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
+                    <span>{copied ? 'Kopiert!' : 'Kopier lenke'}</span>
+                  </button>
+                </div>
+
+                {/* Social Share Buttons */}
+                <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                  <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">Del direkte:</span>
+                  
+                  <a
+                    href={`https://api.whatsapp.com/send?text=Hei! Sjekk ut His Kingdom Designs. Bruk vervekoblingen min for å få 10% rabatt på din første bestilling: https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-xs">chat</span>
+                    WhatsApp
+                  </a>
+
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 bg-[#1877F2] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-xs">share</span>
+                    Facebook
+                  </a>
+
+                  <a
+                    href={`mailto:?subject=Invitasjon til His Kingdom Designs&body=Hei! Jeg vil invitere deg til å sjekke ut His Kingdom Designs. De har utrolig mange flotte produkter med kristent design. Bruk min vervekobling for å få 10% rabatt på ditt første kjøp: https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    className="flex items-center gap-1.5 bg-slate-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-xs">mail</span>
+                    E-post
+                  </a>
+                </div>
+              </div>
+
+              {/* Stats Section */}
+              <div className="space-y-6">
+                <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span className="material-symbols-outlined text-terracotta text-lg select-none">analytics</span>
+                  Dine vervestatistikker
+                </h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
+                    <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Verve-klikk</span>
+                    <span className="text-2xl font-extrabold text-[#1B4965]">12</span>
+                  </div>
+                  <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
+                    <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Registrerte venner</span>
+                    <span className="text-2xl font-extrabold text-[#1B4965]">3</span>
+                  </div>
+                  <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
+                    <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Poeng opptjent</span>
+                    <span className="text-2xl font-extrabold text-green-600">+300 poeng</span>
+                  </div>
+                </div>
+
+                {/* Referred friends table */}
+                <div className="space-y-3">
+                  <h5 className="font-bold text-xs text-onyx">Verve-historikk</h5>
+                  <div className="border border-outline-variant/20 rounded-2xl overflow-hidden bg-white shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-[11px]">
+                        <thead>
+                          <tr className="bg-slate-50 text-secondary border-b border-outline-variant/20 font-bold">
+                            <th className="p-3">Venn</th>
+                            <th className="p-3">Dato registrert</th>
+                            <th className="p-3">Status</th>
+                            <th className="p-3 text-right">Belønning</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-onyx font-medium">
+                          <tr>
+                            <td className="p-3">marcus.l***@gmail.com</td>
+                            <td className="p-3">12. Mai 2026</td>
+                            <td className="p-3">
+                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Gjennomført kjøp</span>
+                            </td>
+                            <td className="p-3 text-right text-green-600 font-bold">+100 poeng</td>
+                          </tr>
+                          <tr>
+                            <td className="p-3">ida.k***@outlook.com</td>
+                            <td className="p-3">2. Juni 2026</td>
+                            <td className="p-3">
+                              <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Konto opprettet</span>
+                            </td>
+                            <td className="p-3 text-right text-secondary/60">Venter på kjøp</td>
+                          </tr>
+                          <tr>
+                            <td className="p-3">jonas.s***@gmail.com</td>
+                            <td className="p-3">7. Juni 2026</td>
+                            <td className="p-3">
+                              <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Konto opprettet</span>
+                            </td>
+                            <td className="p-3 text-right text-secondary/60">Venter på kjøp</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
           )}
         </div>
