@@ -88,7 +88,7 @@ export default function Shipping() {
               />
               <CmsText
                 slug="shipping-row-val-2"
-                fallback="49 kr"
+                fallback="Fra 39 kr (vektbasert)"
                 as="span"
                 className="font-label-md text-onyx"
               />

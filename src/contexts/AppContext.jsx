@@ -797,6 +797,31 @@ export const AppProvider = ({ children }) => {
           const isSale = price < originalPrice || item.discount?.type !== 'NONE' || resolvedCollections.some(c => c.toUpperCase() === 'SALG');
           const isBestseller = resolvedCollections.includes('Bestselgere') || resolvedCollections.includes('Populære produkter');
 
+          // Intelligent weight calculations based on product category & details
+          let fallbackWeight = 0.1; // Default fallback (100g)
+          if (category === 'Klistermerker') {
+            fallbackWeight = 0.005; // 5g per sticker
+          } else if (category === 'Plakater') {
+            fallbackWeight = 0.15; // 150g per poster
+          } else if (category === 'Klær') {
+            const nameLower = item.name.toLowerCase();
+            if (nameLower.includes('hoodie') || nameLower.includes('genser') || nameLower.includes('sweatshirt') || nameLower.includes('bukse') || nameLower.includes('pants')) {
+              fallbackWeight = 0.6; // 600g for hoodies/gensere/bukser
+            } else if (nameLower.includes('caps') || nameLower.includes('lue') || nameLower.includes('beanie')) {
+              fallbackWeight = 0.1; // 100g for hats
+            } else {
+              fallbackWeight = 0.2; // 200g for t-shirts
+            }
+          } else if (category === 'Tilbehør') {
+            const nameLower = item.name.toLowerCase();
+            if (nameLower.includes('deksel') || nameLower.includes('cover')) {
+              fallbackWeight = 0.05; // 50g for phone covers
+            } else if (nameLower.includes('nett') || nameLower.includes('bag') || nameLower.includes('tote')) {
+              fallbackWeight = 0.15; // 150g for tote bags
+            }
+          }
+          const weight = item.weight || fallbackWeight;
+
           return {
             id: item._id,
             name: item.name,
@@ -806,6 +831,7 @@ export const AppProvider = ({ children }) => {
             colors: colors,
             colorNames: colorNames,
             sizes: sizes,
+            weight: weight,
             image: item.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
             images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
             isBestseller: isBestseller,
@@ -1122,7 +1148,12 @@ export const AppProvider = ({ children }) => {
       else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
         reply = '### 🚚 Frakt og Levering\n\n' +
           '- Vi har **gratis frakt på alle bestillinger over 1500 kr**!\n' +
-          '- For bestillinger under 1500 kr koster frakten **49 kr**.\n' +
+          '- For bestillinger under 1500 kr beregnes frakten ut fra vekt:\n' +
+          '  - Opptil 0.07 kg: **39 kr**\n' +
+          '  - 0.07 - 0.35 kg: **69 kr**\n' +
+          '  - 0.35 - 1.75 kg: **99 kr**\n' +
+          '  - 1.75 - 4.0 kg: **149 kr**\n' +
+          '  - Over 4.0 kg: **199 kr**\n' +
           '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Lyngdal.\n' +
           '- Leveringstid er normalt **2-4 virkedager** med Posten/Bring.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';
@@ -1192,7 +1223,7 @@ export const AppProvider = ({ children }) => {
 
           // If they also asked about shipping/return, append a helpful tip
           if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
-            reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers 49 kr) med Bring/Posten.';
+            reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers fra 39 kr basert på vekt) med Bring/Posten.';
           } else if (lower.includes('retur') || lower.includes('bytte')) {
             reply += '\n\n**PS:** Vi tilbyr **30 dagers åpent kjøp** og enkel retur/bytte.';
           }

@@ -659,7 +659,25 @@ export const CartProvider = ({ children }) => {
   // If estimated, use Wix calculated shipping
   const shipping = isEstimated && selectedShippingRate !== null 
     ? selectedShippingRate.cost 
-    : (subtotal === 0 ? 0 : (subtotal >= 1500 ? 0 : 49));
+    : (() => {
+        if (subtotal === 0) return 0;
+        if (subtotal >= 1500) return 0;
+        
+        // Calculate total weight of the cart
+        const totalWeight = cartItems.reduce((acc, item) => acc + ((item.weight || 0) * item.quantity), 0);
+        
+        if (totalWeight <= 0.07) {
+          return 39;
+        } else if (totalWeight <= 0.35) {
+          return 69;
+        } else if (totalWeight <= 1.75) {
+          return 99;
+        } else if (totalWeight <= 4.0) {
+          return 149;
+        } else {
+          return 199;
+        }
+      })();
 
   const mva = Math.max(0, subtotalAfterDiscount - giftCardAmount) * 0.20;
   const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + shipping;
