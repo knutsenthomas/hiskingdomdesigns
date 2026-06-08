@@ -5,7 +5,7 @@ import { Edit3, Check, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 export default function CmsVisualToggle() {
-  const { isAdminEditing, setIsAdminEditing, showToast } = useApp();
+  const { isAdminEditing, setIsAdminEditing, showToast, member, isLoggedIn } = useApp();
   const location = useLocation();
   const [isMinimized, setIsMinimized] = React.useState(() => {
     return localStorage.getItem('hkm-cms-minimized') === 'true';
@@ -13,22 +13,34 @@ export default function CmsVisualToggle() {
 
   const ADMIN_EMAILS = ['knutsenthomas@gmail.com', 'thomas@hiskingdomministry.no', 'thomas@hiskingdomministry', 'hildekarin@gmail.com', 'hildekarin@hiskingdomministry.no', 'thomas@tk-design.no'];
 
-  // Parse localStorage user safely for admin detection
-  const localStorageUser = (() => {
-    try {
-      const raw = localStorage.getItem('hkm-current-user') || localStorage.getItem('user');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
+  // Helper to safely extract email from Wix member object
+  const getMemberEmail = (memberObj) => {
+    if (!memberObj) return '';
+    if (memberObj.loginEmail) return memberObj.loginEmail;
+    
+    const cdEmails = memberObj.contactDetails?.emails || [];
+    if (cdEmails[0]) {
+      return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
     }
-  })();
-  const localEmail = localStorageUser?.email?.toLowerCase();
-  const localRole = localStorageUser?.role;
+    
+    const cEmails = memberObj.contact?.emails || [];
+    if (cEmails[0]) {
+      return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
+    }
+    
+    if (memberObj.contactDetails?.email) return memberObj.contactDetails.email;
+    if (memberObj.contact?.email) return memberObj.contact.email;
+    
+    return '';
+  };
+
+  const wixEmail = getMemberEmail(member).toLowerCase();
+  const localRole = localStorage.getItem('hkm-user-role') || '';
 
   // Authorize admin: admin emails, local storage roles, localhost dev server, or ?admin=true override
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const isAdminUser = 
-    ADMIN_EMAILS.includes(localEmail) ||
+    ADMIN_EMAILS.includes(wixEmail) ||
     localRole === 'admin' ||
     localRole === 'superadmin' ||
     isDevelopment ||

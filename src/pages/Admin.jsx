@@ -22,24 +22,28 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Parse localStorage user safely for immediate admin detection
-  const localStorageUser = (() => {
-    try {
-      const raw = localStorage.getItem('hkm-current-user') || localStorage.getItem('user');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
+  // Helper to safely extract email from Wix member object
+  const getMemberEmail = (memberObj) => {
+    if (!memberObj) return '';
+    if (memberObj.loginEmail) return memberObj.loginEmail;
+    
+    const cdEmails = memberObj.contactDetails?.emails || [];
+    if (cdEmails[0]) {
+      return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
     }
-  })();
+    
+    const cEmails = memberObj.contact?.emails || [];
+    if (cEmails[0]) {
+      return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
+    }
+    
+    if (memberObj.contactDetails?.email) return memberObj.contactDetails.email;
+    if (memberObj.contact?.email) return memberObj.contact.email;
+    
+    return '';
+  };
 
-  // Authorize admin
-  const localEmail = (
-    member?.contactDetails?.email || 
-    member?.contact?.email || 
-    localStorageUser?.email || 
-    ''
-  ).toLowerCase();
-  
+  const wixEmail = getMemberEmail(member).toLowerCase();
   const localRole = localStorage.getItem('hkm-user-role') || '';
   const ADMIN_EMAILS = [
     'knutsenthomas@gmail.com',
@@ -50,12 +54,12 @@ export default function Admin() {
     'thomas@tk-design.no'
   ];
   const isAdminUser = 
-    ADMIN_EMAILS.includes(localEmail) ||
+    ADMIN_EMAILS.includes(wixEmail) ||
     localRole === 'admin' ||
     localRole === 'superadmin' ||
     window.location.search.includes('admin=true');
 
-  const isAuthLoading = isLoggedIn && !member && !localStorageUser;
+  const isAuthLoading = isLoggedIn && !member;
 
   useEffect(() => {
     // If not admin, redirect to profile page after 3 seconds or show Forbidden
