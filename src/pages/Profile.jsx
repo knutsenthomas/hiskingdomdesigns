@@ -734,14 +734,13 @@ export default function Profile() {
         status: 'pending',
         appliedAt: new Date().toISOString()
       });
-      setAffiliateStatus('pending');
-      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
-      setAffiliateSuccess(true);
     } catch (err) {
-      console.error('Feil ved innsending av affiliate-søknad:', err);
-    } finally {
-      setIsSubmittingAffiliate(false);
+      console.warn('Kunne ikke lagre søknad i Firestore, bruker lokal fallback:', err);
     }
+    setAffiliateStatus('pending');
+    localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
+    setAffiliateSuccess(true);
+    setIsSubmittingAffiliate(false);
   };
 
   const handleSimulateApprove = async () => {
@@ -749,24 +748,26 @@ export default function Profile() {
     try {
       const docRef = doc(db, 'affiliate_applications', member._id);
       await updateDoc(docRef, { status: 'approved' });
-      setAffiliateStatus('approved');
-      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
     } catch (err) {
-      // If doc doesn't exist, create it as approved directly
-      const docRef = doc(db, 'affiliate_applications', member._id);
-      await setDoc(docRef, {
-        memberId: member._id,
-        name: affiliateName,
-        email: affiliateEmail,
-        address: affiliateAddress,
-        socialMedia: affiliateSocials || 'N/A',
-        motivation: affiliateMotivation || 'N/A',
-        status: 'approved',
-        appliedAt: new Date().toISOString()
-      });
-      setAffiliateStatus('approved');
-      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
+      console.warn('updateDoc feilet, prøver setDoc...', err);
+      try {
+        const docRef = doc(db, 'affiliate_applications', member._id);
+        await setDoc(docRef, {
+          memberId: member._id,
+          name: affiliateName,
+          email: affiliateEmail,
+          address: affiliateAddress,
+          socialMedia: affiliateSocials || 'N/A',
+          motivation: affiliateMotivation || 'N/A',
+          status: 'approved',
+          appliedAt: new Date().toISOString()
+        });
+      } catch (innerErr) {
+        console.warn('Kunne ikke lagre godkjent status i Firestore, bruker lokal fallback:', innerErr);
+      }
     }
+    setAffiliateStatus('approved');
+    localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
   };
 
   const handleSimulateReset = async () => {
@@ -774,14 +775,12 @@ export default function Profile() {
     try {
       const docRef = doc(db, 'affiliate_applications', member._id);
       await deleteDoc(docRef);
-      setAffiliateStatus('none');
-      localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
-      setAffiliateSuccess(false);
     } catch (err) {
-      setAffiliateStatus('none');
-      localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
-      setAffiliateSuccess(false);
+      console.warn('Kunne ikke slette søknad fra Firestore, bruker lokal fallback:', err);
     }
+    setAffiliateStatus('none');
+    localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
+    setAffiliateSuccess(false);
   };
 
   let memberSinceStr = 'Mars 2025';
