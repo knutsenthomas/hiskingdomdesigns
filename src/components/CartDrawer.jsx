@@ -71,7 +71,7 @@ export default function CartDrawer() {
         channelType: 'WEB'
       });
 
-      let checkoutId = checkoutResult._id;
+      let checkoutId = checkoutResult.checkoutId || checkoutResult._id || checkoutResult.checkout?._id;
 
       // Apply coupon code if active in context
       if (appliedCoupon) {
