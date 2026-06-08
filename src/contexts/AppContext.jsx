@@ -916,7 +916,10 @@ export const AppProvider = ({ children }) => {
       'jeg', 'og', 'i', 'på', 'en', 'et', 'er', 'det', 'har', 'dere', 'noen', 
       'vis', 'meg', 'leter', 'etter', 'hva', 'koster', 'anbefale', 'anbefal',
       'til', 'med', 'for', 'om', 'kan', 'du', 'søk', 'etter', 'produkter', 
-      'produkt', 'de', 'den', 'siste', 'nye', 'viser', 'gi', 'meg'
+      'produkt', 'de', 'den', 'siste', 'nye', 'viser', 'gi', 'meg',
+      'hvordan', 'hvem', 'hvor', 'hvorfor', 'gjør', 'gjøre', 'vil', 'skal', 
+      'må', 'bør', 'få', 'får', 'ta', 'tar', 'se', 'ser', 'finne', 'finner', 
+      'mer', 'om', 'enkel', 'mottar', 'varen', 'ubrukt', 'kontakt'
     ]);
     const words = lower
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "")
@@ -1088,46 +1091,14 @@ export const AppProvider = ({ children }) => {
       let reply = '';
       const lower = text.toLowerCase().trim();
 
-      const recommendations = getProductRecommendations(text);
-
-      if (recommendations && recommendations.length > 0) {
-        let titleText = '### 🛍️ Her er produkter jeg fant basert på ditt søk:';
-        
-        const isAllAgesQuery = 
-          lower.includes('for alle') || 
-          lower.includes('alle aldre') || 
-          lower.includes('hele familien') || 
-          (lower.includes('alle') && (lower.includes('aldre') || lower.includes('anbefal') || lower.includes('produkt') || lower.includes('kategori') || lower.includes('alder')));
-
-        if (isAllAgesQuery) {
-          titleText = '### 👨‍👩‍👧‍👦 Her er våre anbefalinger for hele familien og alle aldre:';
-        } else if (lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt')) {
-          titleText = '### 🏷️ Her er våre produkter på tilbud akkurat nå:';
-        } else if (lower.includes('bestselger') || lower.includes('populær') || lower.includes('topp')) {
-          titleText = '### 🌟 Her er våre mest populære bestselgere:';
-        } else if (lower.includes('anbefal') || lower.includes('anbefaling') || lower.includes('tips')) {
-          titleText = '### ✨ Her er mine anbefalinger til deg:';
-        }
-
-        const itemsText = recommendations.map((prod, idx) => {
-          const priceStr = prod.originalPrice 
-            ? `**${prod.price} kr** *(Salg! før ${prod.originalPrice} kr)*` 
-            : `**${prod.price} kr**`;
-          
-          const badge = prod.isBestseller ? ' ⭐ *Bestselger!*' : '';
-          
-          return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${prod.description ? prod.description.substring(0, 110) + '...' : prod.category}*`;
-        }).join('\n\n');
-
-        reply = `${titleText}\n\n${itemsText}\n\n💡 Klikk på produktlenkene over for å se produktdetaljene, velge farger/størrelser og legge dem i handlekurven!`;
-
-        // If they also asked about shipping/return, append a helpful tip
-        if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
-          reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers 49 kr) med Bring/Posten.';
-        } else if (lower.includes('retur') || lower.includes('bytte')) {
-          reply += '\n\n**PS:** Vi tilbyr **30 dagers åpent kjøp** og enkel retur/bytte.';
-        }
-      }
+      // 1. Prioritize specific customer service topics to prevent false matches on helper words
+      if (lower.includes('retur') || lower.includes('bytte') || lower.includes('fortre')) {
+        reply = '### 🔄 Enkel Retur & Bytte\n\n' +
+          '- Hos oss har du alltid **30 dagers åpent kjøp** fra du mottar varen.\n' +
+          '- Produktet må være ubrukt og i originalemballasjen.\n' +
+          '- Du kan enkelt kontakte vår kundeservice på **post@hiskingdomministry.no** for å motta en returetikett.\n\n' +
+          '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
+      } 
       else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
         reply = '### 🚚 Frakt og Levering\n\n' +
           '- Vi har **gratis frakt på alle bestillinger over 1500 kr**!\n' +
@@ -1135,13 +1106,6 @@ export const AppProvider = ({ children }) => {
           '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Mandal.\n' +
           '- Leveringstid er normalt **2-4 virkedager** med Posten/Bring.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';
-      } 
-      else if (lower.includes('retur') || lower.includes('bytte') || lower.includes('fortre')) {
-        reply = '### 🔄 Enkel Retur & Bytte\n\n' +
-          '- Hos oss har du alltid **30 dagers åpent kjøp** fra du mottar varen.\n' +
-          '- Produktet må være ubrukt og i originalemballasjen.\n' +
-          '- Du kan enkelt kontakte vår kundeservice på **post@hiskingdomministry.no** for å motta en returetikett.\n\n' +
-          '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
       } 
       else if (lower.includes('størrelse') || lower.includes('size') || lower.includes('passform')) {
         reply = '### 📏 Størrelsesguide\n\n' +
@@ -1171,20 +1135,63 @@ export const AppProvider = ({ children }) => {
           '- **Adresse:** Mandal Regnskapskontor / HKD, 4515 Mandal\n\n' +
           '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
       }
-      else if (lower.includes('hva handler') || lower.includes('hvor er jeg') || lower.includes('forklar')) {
-        reply = `### 🧭 Sideoversikt: ${assistantContext.title}\n\n` +
-          `Du er for øyeblikket på siden **${assistantContext.title}**.\n\n` +
-          `Her kan du utforske vårt utvalg av kristne kvalitetsprodukter som er designet for å inspirere og spre Guds ord. Spør meg gjerne hvis du trenger hjelp med å finne noe her!`;
-      }
       else {
-        reply = '### 🛡️ His Kingdom Designs\n\n' +
-          'Vi ønsker å spre Guds ord gjennom vakker og moderne design. Alle produktene våre er laget for å starte gode samtaler og gi oppmuntring i hverdagen.\n\n' +
-          'Du kan spørre meg om:\n' +
-          '• Våre **produkter** (Klær, Plakater, Klistermerker, Tilbehør)\n' +
-          '• **Frakt** og leveringstider\n' +
-          '• **Bytte og retur** av varer\n' +
-          '• **Størrelser** og passform\n\n' +
-          'Hva kan jeg hjelpe deg med?';
+        // 2. Otherwise, check for product recommendations or category pages
+        const recommendations = getProductRecommendations(text);
+
+        if (recommendations && recommendations.length > 0) {
+          let titleText = '### 🛍️ Her er produkter jeg fant basert på ditt søk:';
+          
+          const isAllAgesQuery = 
+            lower.includes('for alle') || 
+            lower.includes('alle aldre') || 
+            lower.includes('hele familien') || 
+            (lower.includes('alle') && (lower.includes('aldre') || lower.includes('anbefal') || lower.includes('produkt') || lower.includes('kategori') || lower.includes('alder')));
+
+          if (isAllAgesQuery) {
+            titleText = '### 👨‍👩‍👧‍👦 Her er våre anbefalinger for hele familien og alle aldre:';
+          } else if (lower.includes('salg') || lower.includes('tilbud') || lower.includes('rabatt') || lower.includes('billig') || lower.includes('nedsatt')) {
+            titleText = '### 🏷️ Her er våre produkter på tilbud akkurat nå:';
+          } else if (lower.includes('bestselger') || lower.includes('populær') || lower.includes('topp')) {
+            titleText = '### 🌟 Her er våre mest populære bestselgere:';
+          } else if (lower.includes('anbefal') || lower.includes('anbefaling') || lower.includes('tips')) {
+            titleText = '### ✨ Her er mine anbefalinger til deg:';
+          }
+
+          const itemsText = recommendations.map((prod, idx) => {
+            const priceStr = prod.originalPrice 
+              ? `**${prod.price} kr** *(Salg! før ${prod.originalPrice} kr)*` 
+              : `**${prod.price} kr**`;
+            
+            const badge = prod.isBestseller ? ' ⭐ *Bestselger!*' : '';
+            
+            return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${prod.description ? prod.description.substring(0, 110) + '...' : prod.category}*`;
+          }).join('\n\n');
+
+          reply = `${titleText}\n\n${itemsText}\n\n💡 Klikk på produktlenkene over for å se produktdetaljene, velge farger/størrelser og legge dem i handlekurven!`;
+
+          // If they also asked about shipping/return, append a helpful tip
+          if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
+            reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers 49 kr) med Bring/Posten.';
+          } else if (lower.includes('retur') || lower.includes('bytte')) {
+            reply += '\n\n**PS:** Vi tilbyr **30 dagers åpent kjøp** og enkel retur/bytte.';
+          }
+        }
+        else if (lower.includes('hva handler') || lower.includes('hvor er jeg') || lower.includes('forklar')) {
+          reply = `### 🧭 Sideoversikt: ${assistantContext.title}\n\n` +
+            `Du er for øyeblikket på siden **${assistantContext.title}**.\n\n` +
+            `Her kan du utforske vårt utvalg av kristne kvalitetsprodukter som er designet for å inspirere og spre Guds ord. Spør meg gjerne hvis du trenger hjelp med å finne noe her!`;
+        }
+        else {
+          reply = '### 🛡️ His Kingdom Designs\n\n' +
+            'Vi ønsker å spre Guds ord gjennom vakker og moderne design. Alle produktene våre er laget for å starte gode samtaler og gi oppmuntring i hverdagen.\n\n' +
+            'Du kan spørre meg om:\n' +
+            '• Våre **produkter** (Klær, Plakater, Klistermerker, Tilbehør)\n' +
+            '• **Frakt** og leveringstider\n' +
+            '• **Bytte og retur** av varer\n' +
+            '• **Størrelser** og passform\n\n' +
+            'Hva kan jeg hjelpe deg med?';
+        }
       }
 
       setAssistantMessages(prev => [...prev, {
