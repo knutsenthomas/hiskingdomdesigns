@@ -43,22 +43,22 @@ const MOCK_TESTIMONIALS = [
 const FALLBACK_INSTAGRAM_FEED = [
   {
     id: 'static-1',
-    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLtrw2htgQN1zfVzg4whrup6DQAKIgwIMIDXOnBqjIb_uWyoDo7cvZSFG7RPfxA0EiNT-zxQlvXNeF_wF_ob4rS8zmsOQ5LjG3MFLos92W8pD3S_9JM7EYyv47SrZNaa5g-y8RGUtlnkEotsquLvK4r4MKjbWSzn7QX1I2SgvNZGLqpgg4Ej4uFhRydn8on9kF4jkL8VKypTr4JBriKZro3XG6oixkpA2hjyhExNEeywETxZIeEn4YfV',
+    mediaUrl: 'https://static.wixstatic.com/media/3a1544_d9eda13558a74f0c830528cb6343abaf~mv2.jpg',
     permalink: 'https://www.instagram.com/hiskingdomdesigns/'
   },
   {
     id: 'static-2',
-    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLsptlMOGRGL00xzeOWps4PZ6d3y2hNxGVPcWSpkA2sum7nGSw26JQewmdHmP1lK0kID5Gs8iWSfGqljy4-RkrPzRhy5WyHj0U1ZUj2qOm9f2lpEvt0ea1BHItnefXFXuz0D6izjf-RXOZ4_GqAbgdaDiaP1fN2b3dR__V65k9nrCiFUIdo-AKNNNX3JX92ViMu42X2K3rReZAbME2itysslGYsBk9ZXL1k_JpWhjKEBsLhkDq5ggLa9',
+    mediaUrl: 'https://static.wixstatic.com/media/3a1544_d760f5c5d9b7434a952083743952289e~mv2.png',
     permalink: 'https://www.instagram.com/hiskingdomdesigns/'
   },
   {
     id: 'static-3',
-    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR',
+    mediaUrl: 'https://static.wixstatic.com/media/3a1544_2fe129ac03f54a1b9f0130d434f0db6c~mv2.jpg',
     permalink: 'https://www.instagram.com/hiskingdomdesigns/'
   },
   {
     id: 'static-4',
-    mediaUrl: 'https://lh3.googleusercontent.com/aida/AP1WRLtxy7b2t4ReBQEpdU-xdZ2kCnl2UpDNkd8DehvIkXz3cNrFYRvwDKpbTuAW4dcRyZSowggzen0ojoy3ZSbWMEc30-dDmJXHPFz7Q_9uJ8Rvx8tD1tK6YJXJSjDOmPpoeBDD-FiVZLzdsF8MC4nZLkaCqmGCRqatvFOz49FgBg3SeJnqtzMPyDHDEFFM91Xw0g3cHi5q8mo9KW-l87GESrBKRkPPZmfqZm5hvFOzLlXnlH5RhESATdJBjw',
+    mediaUrl: 'https://static.wixstatic.com/media/db4f96_8726b83da7be4e0da66aaf61e610ea67~mv2.png',
     permalink: 'https://www.instagram.com/hiskingdomdesigns/'
   }
 ];
@@ -70,7 +70,7 @@ const CATEGORIES = {
     descSlug: 'category-desc-klaer',
     fallbackDesc: 'Moderne t-skjorter og hettegensere med budskap.',
     path: 'Klær',
-    image: 'https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw'
+    image: 'https://static.wixstatic.com/media/db4f96_b5ef7d88759f4cd5b3dd5ff78f8dfc18~mv2.png'
   },
   klistermerker: {
     title: 'Klistermerker',
@@ -86,7 +86,7 @@ const CATEGORIES = {
     descSlug: 'category-desc-plakater',
     fallbackDesc: 'Dekorer hjemmet ditt med håp.',
     path: 'Plakater',
-    image: 'https://lh3.googleusercontent.com/aida/AP1WRLtA5Wejh-acQOMfMxekjYryt6bxtjj3vnr-WRJvzY5vPB0gWYTV9mJoqtNjHjtFyZPcmtR_fF0GMsqHzLPVYGOBg0qMTf_C8Rj7YN0RDf1ZwX_rSFomzQK9QWQq0ltc1SoqaU2ypKQxUpP2lV2pf2pQr8TGwhinfhzYJPNkBsj_P3q-ZWaT4JUhewinEQk-4_kudEyuJVr0OaMoKbJ0yZs9bnfn3r6yMcOt7st5zMBV4hYqOQBydQk6wA'
+    image: 'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png'
   },
   totebag: {
     title: 'Handlenett',
@@ -543,7 +543,7 @@ export default function Home() {
             <img 
               alt="Monthly package showcase" 
               className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[450px]" 
-              src="https://lh3.googleusercontent.com/aida/AP1WRLtaeP4sbiCpFCqqDrZM7VDSEFGDx5q6wvELtmzRkL4O1HG902BpXIXDtecwZReiKpp-UgpIHkjOWvq8yzu8qEt6SvlAkjZ1oBkeQtagiDSzjZ18kiIIVaalaitHrlYF1fcL6qa7GeO46hDwUCNSfexKWg-_AI19gVlUYsZG9iiz8S3OwEjOn7hbYxl9ttJm-hfpTyrh8T7SI91FQ8X8nEItcOjtz9Ib_DtFpBhEtay-_PrGrVMyDgrW4w"
+              src="https://static.wixstatic.com/media/db4f96_3592b75149c34a89988813cb8ff55a5e~mv2.avif"
             />
           </div>
           <div className="w-full lg:w-1/2">

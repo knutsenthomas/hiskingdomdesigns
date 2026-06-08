@@ -171,7 +171,7 @@ export default function Team() {
           <img 
             alt="Lyngdal kontor" 
             className="w-full h-full object-cover" 
-            src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"
+            src="https://static.wixstatic.com/media/db4f96_3fe1d07b55724928abbd785816f908be~mv2.jpg"
           />
         </div>
       </div>
