@@ -119,7 +119,6 @@ export default function Profile() {
   const [ordersList, setOrdersList] = useState([]);
   const [subscriptionsList, setSubscriptionsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [debugInfo, setDebugInfo] = useState(null);
 
   // Address book form state
   const [firstName, setFirstName] = useState('');
@@ -384,21 +383,11 @@ export default function Profile() {
         try {
           const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           console.log("getCurrentMember response:", res);
-          setDebugInfo({
-            hasRes: !!res,
-            hasMember: !!res?.member,
-            memberKeys: res?.member ? Object.keys(res.member) : null,
-            rawMember: res?.member ? JSON.stringify(res.member).substring(0, 150) : null
-          });
           if (res && res.member) {
             setMember(res.member);
           }
         } catch (err) {
           console.error('Failed to get current member:', err);
-          setDebugInfo({
-            error: err.message || String(err),
-            stack: err.stack
-          });
           if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
             wixClient.auth.logout();
             setIsLoggedIn(false);
@@ -1349,12 +1338,6 @@ export default function Profile() {
                 </button>
               </form>
             </section>
-          )}
-          {debugInfo && (
-            <div className="bg-slate-100 border border-slate-200 text-slate-800 text-[10px] p-4 rounded-xl mt-8 font-mono max-w-full overflow-x-auto">
-              <p className="font-bold mb-1">🔍 Wix Headless Diagnostics:</p>
-              <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo, null, 2)}</pre>
-            </div>
           )}
         </div>
       </div>
