@@ -22,8 +22,8 @@ const FAQ_ITEMS = [
         aSlug: 'faq-shipping-a2'
       },
       {
-        q: 'Sender dere to utlandet?',
-        a: 'Foreløpig sender vi primært til adresser i Norge. Dersom du ønsker levering til utlandet, ta kontakt med oss på e-post før du bestiller, så skal vi se hva vi kan ordne.',
+        q: 'Sender dere til utlandet?',
+        a: 'Ja, vi sender til hele verden! Fraktpriser og leveringstider til utlandet vil beregnes i kassen basert på leveringsadressen din.',
         qSlug: 'faq-shipping-q3',
         aSlug: 'faq-shipping-a3'
       }
