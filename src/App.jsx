@@ -112,8 +112,8 @@ function MainLayout() {
       script.defer = true;
       script.onload = () => {
         if (window.Goaffpro) {
-          // Initialize with public API key (Replace with your actual public key from GoAffPro Admin Panel > Settings)
-          window.Goaffpro('init', 'YOUR_GOAFFPRO_PUBLIC_KEY');
+          // Initialize with public API key
+          window.Goaffpro('init', '69ca807e2a160e63914327eda29253836c863b4b39a096e366275ff2ca0f2b09');
           window.Goaffpro('track-visit');
         }
       };
