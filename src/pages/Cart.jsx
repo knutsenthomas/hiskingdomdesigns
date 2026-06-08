@@ -33,6 +33,7 @@ export default function Cart() {
     applyGiftCardCode,
     removeGiftCard,
     mapCartItemsToWixLineItems,
+    forceSyncCartWithWix,
     isEstimated,
     isEstimating,
     estimateError,
@@ -93,10 +94,11 @@ export default function Cart() {
     setErrorMessage('');
 
     try {
-      const lineItems = mapCartItemsToWixLineItems(cartItems);
+      // 1. Force synchronize the cart state with Wix to avoid out-of-sync or debounce delays
+      await forceSyncCartWithWix(cartItems);
 
-      let checkoutResult = await wixClient.checkout.createCheckout({
-        lineItems,
+      // 2. Create the checkout from the visitor's active cart session
+      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
         channelType: 'WEB'
       });
 

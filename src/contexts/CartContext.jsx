@@ -158,87 +158,111 @@ export const CartProvider = ({ children }) => {
     }
   }, [appliedCoupon]);
 
+  const forceSyncCartWithWix = async (items = cartItems) => {
+    try {
+      console.log('Force synchronizing local cart with Wix currentCart...');
+      const localMapped = mapCartItemsToWixLineItems(items);
+      
+      let wixCartRes;
+      try {
+        wixCartRes = await wixClient.currentCart.getCurrentCart();
+      } catch (getErr) {
+        if (getErr.code === 'OWNED_CART_NOT_FOUND' || getErr.message?.includes('Cart not found')) {
+          if (localMapped.length > 0) {
+            console.log('No Wix cart found. Adding all items directly to new Wix cart.');
+            const cart = await wixClient.currentCart.addToCurrentCart({
+              lineItems: localMapped
+            });
+            console.log('Wix cart created and items added.');
+            return cart;
+          }
+          return null;
+        }
+        throw getErr;
+      }
+
+      const wixLineItems = wixCartRes.lineItems || [];
+      
+      // 1. Find items in Wix cart that are NOT in local cart and remove them
+      const itemsToRemove = [];
+      wixLineItems.forEach(wixItem => {
+        const localMatch = localMapped.find(loc => {
+          const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
+          const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
+          const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
+          
+          const wixOptions = wixItem.catalogReference?.options?.options || {};
+          const locOptions = loc.catalogReference.options?.options || {};
+          const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
+          
+          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
+        });
+        
+        if (!localMatch) {
+          itemsToRemove.push(wixItem._id);
+        }
+      });
+      
+      if (itemsToRemove.length > 0) {
+        console.log('Removing items from Wix cart:', itemsToRemove);
+        await wixClient.currentCart.removeLineItemsFromCurrentCart(itemsToRemove);
+      }
+      
+      // Re-fetch cart if we removed items to get updated IDs and revisions
+      let updatedWixCart = wixCartRes;
+      if (itemsToRemove.length > 0) {
+        updatedWixCart = await wixClient.currentCart.getCurrentCart();
+      }
+      const updatedWixLineItems = updatedWixCart.lineItems || [];
+      
+      // 2. Add or update remaining items
+      for (const loc of localMapped) {
+        const wixMatch = updatedWixLineItems.find(wixItem => {
+          const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
+          const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
+          const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
+          
+          const wixOptions = wixItem.catalogReference?.options?.options || {};
+          const locOptions = loc.catalogReference.options?.options || {};
+          const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
+          
+          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
+        });
+        
+        if (wixMatch) {
+          if (wixMatch.quantity !== loc.quantity) {
+            console.log(`Updating quantity for Wix line item ${wixMatch._id} to ${loc.quantity}`);
+            await wixClient.currentCart.updateCurrentCartLineItemQuantity([
+              {
+                _id: wixMatch._id,
+                quantity: loc.quantity
+              }
+            ]);
+          }
+        } else {
+          console.log('Adding item to Wix cart:', loc);
+          await wixClient.currentCart.addToCurrentCart({
+            lineItems: [loc]
+          });
+        }
+      }
+      console.log('Force Wix cart synchronization complete.');
+      return await wixClient.currentCart.getCurrentCart();
+    } catch (err) {
+      console.error('Error during forceSyncCartWithWix:', err);
+      throw err;
+    }
+  };
+
   // Sync local cart to Wix currentCart for Abandoned Cart recovery
   useEffect(() => {
     let active = true;
     const timer = setTimeout(async () => {
       try {
-        console.log('Synchronizing local cart with Wix currentCart...');
-        const wixCartRes = await wixClient.currentCart.getCurrentCart();
         if (!active) return;
-        
-        const wixLineItems = wixCartRes.lineItems || [];
-        const localMapped = mapCartItemsToWixLineItems(cartItems);
-        
-        // 1. Find items in Wix cart that are NOT in local cart and remove them
-        const itemsToRemove = [];
-        wixLineItems.forEach(wixItem => {
-          const localMatch = localMapped.find(loc => {
-            const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
-            const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
-            
-            // Check if variant or options match
-            const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
-            
-            // Safe option match comparison
-            const wixOptions = wixItem.catalogReference?.options?.options || {};
-            const locOptions = loc.catalogReference.options?.options || {};
-            const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
-            
-            return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
-          });
-          
-          if (!localMatch) {
-            itemsToRemove.push(wixItem._id);
-          }
-        });
-        
-        if (itemsToRemove.length > 0) {
-          console.log('Removing items from Wix cart:', itemsToRemove);
-          await wixClient.currentCart.removeLineItemsFromCurrentCart(itemsToRemove);
-        }
-        
-        // Re-fetch cart if we removed items to get updated IDs and revisions
-        let updatedWixCart = wixCartRes;
-        if (itemsToRemove.length > 0) {
-          updatedWixCart = await wixClient.currentCart.getCurrentCart();
-        }
-        const updatedWixLineItems = updatedWixCart.lineItems || [];
-        
-        // 2. Add or update remaining items
-        for (const loc of localMapped) {
-          const wixMatch = updatedWixLineItems.find(wixItem => {
-            const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
-            const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
-            const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
-            
-            const wixOptions = wixItem.catalogReference?.options?.options || {};
-            const locOptions = loc.catalogReference.options?.options || {};
-            const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
-            
-            return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
-          });
-          
-          if (wixMatch) {
-            if (wixMatch.quantity !== loc.quantity) {
-              console.log(`Updating quantity for Wix line item ${wixMatch._id} to ${loc.quantity}`);
-              await wixClient.currentCart.updateCurrentCartLineItemQuantity([
-                {
-                  _id: wixMatch._id,
-                  quantity: loc.quantity
-                }
-              ]);
-            }
-          } else {
-            console.log('Adding item to Wix cart:', loc);
-            await wixClient.currentCart.addToCurrentCart({
-              lineItems: [loc]
-            });
-          }
-        }
-        console.log('Wix cart synchronization complete.');
+        await forceSyncCartWithWix(cartItems);
       } catch (err) {
-        console.warn('Wix Cart sync warning (expected if client offline or not initialized):', err);
+        console.warn('Wix Cart background sync warning:', err);
       }
     }, 1500); // 1.5s debounce to avoid rapid API requests
     
@@ -603,6 +627,7 @@ export const CartProvider = ({ children }) => {
       applyGiftCardCode,
       removeGiftCard,
       mapCartItemsToWixLineItems,
+      forceSyncCartWithWix,
       estimatedShipping,
       estimatedTax,
       estimatedTotal,
