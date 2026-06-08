@@ -99,7 +99,7 @@ export default function ProductCard({ product }) {
             {product.category} {product.gender && `• ${product.gender}`}
           </p>
           <Link to={`/product/${product.id}`}>
-            <h3 className="font-bold text-base md:text-lg text-onyx mb-2 group-hover:text-terracotta transition-colors line-clamp-1">
+            <h3 className="font-bold text-base md:text-lg text-onyx mb-2 group-hover:text-terracotta transition-colors line-clamp-2 min-h-[2.5rem] md:min-h-[3rem]">
               {product.name}
             </h3>
           </Link>
