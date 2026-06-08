@@ -11,7 +11,7 @@ export default function CmsVisualToggle() {
     return localStorage.getItem('hkm-cms-minimized') === 'true';
   });
 
-  const ADMIN_EMAILS = ['knutsenthomas@gmail.com', 'thomas@tk-design.no'];
+  const ADMIN_EMAILS = ['knutsenthomas@gmail.com', 'thomas@hiskingdomministry.no', 'thomas@hiskingdomministry', 'hildekarin@gmail.com', 'hildekarin@hiskingdomministry.no', 'thomas@tk-design.no'];
 
   // Parse localStorage user safely for admin detection
   const localStorageUser = (() => {

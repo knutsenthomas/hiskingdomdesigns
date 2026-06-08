@@ -785,8 +785,16 @@ export default function Profile() {
 
   // Admin Affiliate states & hooks
   const [pendingApplications, setPendingApplications] = useState([]);
+  const ADMIN_EMAILS = [
+    'knutsenthomas@gmail.com',
+    'thomas@hiskingdomministry.no',
+    'thomas@hiskingdomministry',
+    'hildekarin@gmail.com',
+    'hildekarin@hiskingdomministry.no',
+    'thomas@tk-design.no'
+  ];
   const isAdminUser = 
-    ['knutsenthomas@gmail.com', 'thomas@tk-design.no'].includes(displayEmail) || 
+    ADMIN_EMAILS.includes(displayEmail?.toLowerCase()) || 
     localStorage.getItem('hkm-user-role') === 'admin' || 
     localStorage.getItem('hkm-user-role') === 'superadmin' ||
     window.location.search.includes('admin=true');

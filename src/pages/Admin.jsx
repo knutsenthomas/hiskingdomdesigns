@@ -23,10 +23,18 @@ export default function Admin() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Authorize admin
-  const localEmail = member?.contactDetails?.email || member?.contact?.email || '';
+  const localEmail = (member?.contactDetails?.email || member?.contact?.email || '').toLowerCase();
   const localRole = localStorage.getItem('hkm-user-role') || '';
+  const ADMIN_EMAILS = [
+    'knutsenthomas@gmail.com',
+    'thomas@hiskingdomministry.no',
+    'thomas@hiskingdomministry',
+    'hildekarin@gmail.com',
+    'hildekarin@hiskingdomministry.no',
+    'thomas@tk-design.no'
+  ];
   const isAdminUser = 
-    ['knutsenthomas@gmail.com', 'thomas@tk-design.no'].includes(localEmail) ||
+    ADMIN_EMAILS.includes(localEmail) ||
     localRole === 'admin' ||
     localRole === 'superadmin' ||
     window.location.search.includes('admin=true');
