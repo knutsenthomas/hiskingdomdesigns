@@ -489,14 +489,14 @@ export default function ProductDetails() {
 
   // --- 4. Effect & Custom Hook Declarations ---
 
-  // Fetch product directly from Wix if not found in preloaded context products
+  // Fetch product directly from Wix if not found or if it is a lightweight cached version
   useEffect(() => {
     async function fetchSingleProduct() {
-      if (!contextProduct && productId) {
+      if ((!contextProduct || !contextProduct.description || !contextProduct.variants || contextProduct.variants.length === 0) && productId) {
         setIsFetchingProduct(true);
         setFetchError(false);
         try {
-          console.log(`Product not found in preloaded list. Fetching product ${productId} directly from Wix...`);
+          console.log(`Fetching full details for product ${productId} from Wix...`);
           const res = await wixClient.products.getProduct(productId);
           if (res && res.product) {
             const item = res.product;

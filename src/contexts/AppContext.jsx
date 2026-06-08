@@ -910,7 +910,23 @@ export const AppProvider = ({ children }) => {
         if (mapped.length > 0) {
           setProducts(mapped);
           try {
-            localStorage.setItem('hkm-products-cache', JSON.stringify(mapped));
+            // Prune heavy fields for localStorage to stay well under the 5MB quota
+            const lightweight = mapped.map(p => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              originalPrice: p.originalPrice,
+              category: p.category,
+              colors: p.colors,
+              colorNames: p.colorNames,
+              sizes: p.sizes,
+              weight: p.weight,
+              image: p.image,
+              isBestseller: p.isBestseller,
+              isSale: p.isSale,
+              subcategories: p.subcategories
+            }));
+            localStorage.setItem('hkm-products-cache', JSON.stringify(lightweight));
           } catch (e) {
             console.warn('Feil ved lagring av produkt-cache:', e);
           }
