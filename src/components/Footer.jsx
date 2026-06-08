@@ -223,21 +223,20 @@ export default function Footer() {
           <div className="mt-8">
             <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-3">Betaling</p>
             <div className="flex gap-5 justify-center md:justify-start items-center">
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Vipps_rgb_orange_pos.svg" 
-                alt="Vipps" 
-                className="h-5 w-auto object-contain brightness-0 invert opacity-40 hover:brightness-100 hover:invert-0 hover:opacity-100 transition-all duration-300 select-none cursor-pointer"
-              />
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
-                alt="Visa" 
-                className="h-4 w-auto object-contain brightness-0 invert opacity-40 hover:brightness-100 hover:invert-0 hover:opacity-100 transition-all duration-300 select-none cursor-pointer"
-              />
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" 
-                alt="Mastercard" 
-                className="h-5 w-auto object-contain brightness-0 invert opacity-40 hover:brightness-100 hover:invert-0 hover:opacity-100 transition-all duration-300 select-none cursor-pointer"
-              />
+              {/* Vipps */}
+              <svg className="h-6 w-6 opacity-40 hover:opacity-100 transition-opacity duration-300 select-none cursor-pointer" viewBox="0 0 100 100" fill="none">
+                <path d="M50 15 C30.7 15 15 30.7 15 50 C15 57.9 17.6 65.2 22 71 L15 85 L29 80.8 C34.8 84.3 41.7 85 50 85 C69.3 85 85 69.3 85 50 C85 30.7 69.3 15 50 15 Z" stroke="#FF5B24" strokeWidth="8" strokeLinecap="round" />
+                <path d="M35 50 C35 58 42 65 50 65 C58 65 65 58 65 50" stroke="#FF5B24" strokeWidth="8" strokeLinecap="round" />
+              </svg>
+              {/* Visa */}
+              <svg className="h-4 w-auto opacity-40 hover:opacity-100 transition-opacity duration-300 select-none cursor-pointer" viewBox="0 0 36 12" fill="#1A1F71">
+                <path d="M13.6 11.6h2.6l1.6-9.8h-2.6l-1.6 9.8zm11-9.8h-2.5c-.8 0-1.4.5-1.7 1.2l-4.9 8.6h2.7l.5-1.5h3.3l.3 1.5h2.4L24.6 1.8zm-3.2 6.1l1-3.2.6 3.2h-1.6zm10.7-6.1h-2.5l-3.3 9.8h2.6l.7-2.1h3.3l.3 2.1h2.3l-3.4-9.8zm-1.8 5.6l.8-2.6.5 2.6h-1.3zM4 1.8L0 8.6h2.7L4.7 4l.8 4.6h2.6L6.5 1.8H4z" />
+              </svg>
+              {/* Mastercard */}
+              <svg className="h-6 w-auto opacity-40 hover:opacity-100 transition-opacity duration-300 select-none cursor-pointer" viewBox="0 0 24 15">
+                <circle cx="8" cy="7.5" r="7" fill="#EB001B" />
+                <circle cx="16" cy="7.5" r="7" fill="#F79E1B" opacity="0.85" />
+              </svg>
             </div>
           </div>
         </div>
