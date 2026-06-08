@@ -376,7 +376,7 @@ export default function CartDrawer() {
             <div className="space-y-2 select-none">
               <h3 className="font-headline-md text-lg text-onyx font-bold">Sikker betaling</h3>
               <p className="text-xs text-secondary leading-relaxed">
-                Vennligst vent mens vi gjør klar kassen din hos Wix...
+                Vennligst vent mens vi gjør klar kassen din...
               </p>
             </div>
           </div>
