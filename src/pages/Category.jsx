@@ -397,7 +397,7 @@ export default function Category() {
         ) : (
           <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28">
+            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto no-scrollbar pr-2">
               {filterSidebar}
             </aside>
 
