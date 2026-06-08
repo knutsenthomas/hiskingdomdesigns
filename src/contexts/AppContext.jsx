@@ -332,9 +332,46 @@ const FALLBACK_TAXONOMY = {
 };
 
 export const AppProvider = ({ children }) => {
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const [wixCollections, setWixCollections] = useState([]);
+  const [products, setProducts] = useState(() => {
+    try {
+      const cached = localStorage.getItem('hkm-products-cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Feil ved lesing av produkt-cache fra localStorage:', e);
+    }
+    return INITIAL_PRODUCTS;
+  });
+
+  const [isLoadingProducts, setIsLoadingProducts] = useState(() => {
+    try {
+      const cached = localStorage.getItem('hkm-products-cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return false; // Instant load, no spinner!
+        }
+      }
+    } catch (e) {}
+    return true;
+  });
+
+  const [wixCollections, setWixCollections] = useState(() => {
+    try {
+      const cached = localStorage.getItem('hkm-wix-collections-cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return [];
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -647,15 +684,27 @@ export const AppProvider = ({ children }) => {
           slug: c.slug
         })).filter(c => c.name !== 'All Products' && c.name !== 'all-products');
         setWixCollections(collectionsData);
+        try {
+          localStorage.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsData));
+        } catch (e) {}
 
         let allItems = [];
         try {
-          let response = await wixClient.products.queryProducts().limit(100).find();
-          allItems = [...response.items];
-
-          while (response.hasNext()) {
-            response = await response.next();
-            allItems = [...allItems, ...response.items];
+          const firstPage = await wixClient.products.queryProducts().limit(100).find();
+          allItems = [...firstPage.items];
+          const totalCount = firstPage.totalCount || 0;
+          if (totalCount > 100) {
+            const totalPages = Math.ceil(totalCount / 100);
+            const promises = [];
+            for (let i = 1; i < totalPages; i++) {
+              promises.push(wixClient.products.queryProducts().limit(100).skip(i * 100).find());
+            }
+            const results = await Promise.all(promises);
+            results.forEach(res => {
+              if (res.items) {
+                allItems = [...allItems, ...res.items];
+              }
+            });
           }
         } catch (productError) {
           console.warn('Wix product fetch failed, checking token validity...', productError);
@@ -692,12 +741,25 @@ export const AppProvider = ({ children }) => {
               slug: c.slug
             })).filter(c => c.name !== 'All Products' && c.name !== 'all-products');
             setWixCollections(collectionsDataRetry);
+            try {
+              localStorage.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsDataRetry));
+            } catch (e) {}
 
-            let responseRetry = await wixClient.products.queryProducts().limit(100).find();
-            allItems = [...responseRetry.items];
-            while (responseRetry.hasNext()) {
-              responseRetry = await responseRetry.next();
-              allItems = [...allItems, ...responseRetry.items];
+            const firstPageRetry = await wixClient.products.queryProducts().limit(100).find();
+            allItems = [...firstPageRetry.items];
+            const totalCountRetry = firstPageRetry.totalCount || 0;
+            if (totalCountRetry > 100) {
+              const totalPagesRetry = Math.ceil(totalCountRetry / 100);
+              const promisesRetry = [];
+              for (let i = 1; i < totalPagesRetry; i++) {
+                promisesRetry.push(wixClient.products.queryProducts().limit(100).skip(i * 100).find());
+              }
+              const resultsRetry = await Promise.all(promisesRetry);
+              resultsRetry.forEach(res => {
+                if (res.items) {
+                  allItems = [...allItems, ...res.items];
+                }
+              });
             }
           } catch (retryError) {
             console.error('Wix product fetch retry failed:', retryError);
@@ -847,6 +909,11 @@ export const AppProvider = ({ children }) => {
 
         if (mapped.length > 0) {
           setProducts(mapped);
+          try {
+            localStorage.setItem('hkm-products-cache', JSON.stringify(mapped));
+          } catch (e) {
+            console.warn('Feil ved lagring av produkt-cache:', e);
+          }
           console.log(`Laster ${mapped.length} produkter dynamisk fra Wix.`);
         }
       } catch (error) {
