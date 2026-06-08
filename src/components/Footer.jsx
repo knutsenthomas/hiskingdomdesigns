@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Heart, Mail, ShieldCheck, Copy, ExternalLink, Check } from 'lucide-react';
+import { CreditCard, Heart, Mail, ShieldCheck, Copy, ExternalLink, Check, Instagram, Facebook } from 'lucide-react';
 import CmsText from '@/components/CmsText';
 import { wixClient } from '@/lib/wix';
 
@@ -87,7 +87,16 @@ export default function Footer() {
               className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta hover:text-white transition-colors text-parchment/60"
               aria-label="Instagram"
             >
-              <Heart size={16} />
+              <Instagram size={16} />
+            </a>
+            <a 
+              href="https://www.facebook.com/HisKingdomDesigns?locale=nb_NO" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-terracotta hover:text-white transition-colors text-parchment/60"
+              aria-label="Facebook"
+            >
+              <Facebook size={16} />
             </a>
             <div className="relative" ref={emailMenuRef}>
               <button 
