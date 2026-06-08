@@ -293,7 +293,7 @@ export default function Category() {
       {/* Size Filter */}
       <div>
         <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Størrelse</h3>
-        <div className="max-h-48 overflow-y-auto pr-1 custom-scrollbar border border-outline-variant/30 rounded-lg p-3 bg-white/40">
+        <div className="max-h-48 overflow-y-auto no-scrollbar border border-outline-variant/30 rounded-lg p-3 bg-white/40">
           <div className="grid grid-cols-4 gap-2">
             {availableSizes.map(size => {
               const isSelected = selectedSizes.includes(size);
