@@ -22,8 +22,24 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Parse localStorage user safely for immediate admin detection
+  const localStorageUser = (() => {
+    try {
+      const raw = localStorage.getItem('hkm-current-user') || localStorage.getItem('user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+
   // Authorize admin
-  const localEmail = (member?.contactDetails?.email || member?.contact?.email || '').toLowerCase();
+  const localEmail = (
+    member?.contactDetails?.email || 
+    member?.contact?.email || 
+    localStorageUser?.email || 
+    ''
+  ).toLowerCase();
+  
   const localRole = localStorage.getItem('hkm-user-role') || '';
   const ADMIN_EMAILS = [
     'knutsenthomas@gmail.com',
@@ -39,19 +55,23 @@ export default function Admin() {
     localRole === 'superadmin' ||
     window.location.search.includes('admin=true');
 
+  const isAuthLoading = isLoggedIn && !member && !localStorageUser;
+
   useEffect(() => {
     // If not admin, redirect to profile page after 3 seconds or show Forbidden
-    if (!isLoading && !isAdminUser) {
+    if (!isAuthLoading && !isLoading && !isAdminUser) {
       showToast("Adgang nektet: Du må være administrator");
       const timer = setTimeout(() => {
         navigate('/profile');
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [isAdminUser, isLoading, navigate]);
+  }, [isAdminUser, isLoading, isAuthLoading, navigate]);
 
   // Fetch applications
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (!isAdminUser) {
       setIsLoading(false);
       return;
@@ -81,7 +101,7 @@ export default function Admin() {
     };
 
     fetchApps();
-  }, [activeSubTab, isAdminUser, refreshKey]);
+  }, [activeSubTab, isAdminUser, isAuthLoading, refreshKey]);
 
   const handleApprove = async (appId, appName) => {
     try {
@@ -126,6 +146,16 @@ export default function Admin() {
       (app.socialMedia || '').toLowerCase().includes(query)
     );
   });
+
+  // Loading profile and auth check
+  if (isAuthLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <div className="w-12 h-12 border-4 border-t-transparent border-[#1B4965] rounded-full animate-spin"></div>
+        <p className="text-secondary text-sm font-medium">Laster profil og rettigheter...</p>
+      </div>
+    );
+  }
 
   // Forbidden layout
   if (!isAdminUser) {
