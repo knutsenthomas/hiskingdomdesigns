@@ -1579,7 +1579,7 @@ export default function Profile() {
                       <button
                         type="submit"
                         disabled={isSubmittingAffiliate}
-                        className="w-full bg-[#1B4965] hover:bg-opacity-95 text-white py-3.5 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider shadow-md active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full bg-terracotta hover:bg-opacity-95 text-white py-3.5 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider shadow-md active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
                       >
                         {isSubmittingAffiliate ? 'Sender søknad...' : 'Send søknad'}
                       </button>
