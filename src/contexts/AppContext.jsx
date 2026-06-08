@@ -1358,7 +1358,9 @@ export const AppProvider = ({ children }) => {
       toggleWishlist,
       isInWishlist,
       getSlugByCategoryName,
-      getCategoryNameBySlug
+      getCategoryNameBySlug,
+      member,
+      isLoggedIn
     }}>
       {children}
     </AppContext.Provider>
