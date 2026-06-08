@@ -635,22 +635,24 @@ export default function Home() {
 
       {/* Brand Story & Values */}
       <section id="historie" className="py-section-gap bg-parchment reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-[800px] mx-auto text-center">
-          <div className="w-20 h-20 mb-8 flex items-center justify-center mx-auto overflow-hidden">
-            <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto text-center">
+          <div className="max-w-[800px] mx-auto mb-12">
+            <div className="w-20 h-20 mb-8 flex items-center justify-center mx-auto overflow-hidden">
+              <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
+            </div>
+            <CmsText 
+              slug="home-about-title" 
+              fallback="Hva betyr His Kingdom Designs for oss?" 
+              as="h2" 
+              className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx"
+            />
+            <CmsText 
+              slug="home-about-desc" 
+              fallback="Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap." 
+              as="p" 
+              className="font-body-lg text-body-lg text-secondary leading-relaxed"
+            />
           </div>
-          <CmsText 
-            slug="home-about-title" 
-            fallback="Hva betyr His Kingdom Designs for oss?" 
-            as="h2" 
-            className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx"
-          />
-          <CmsText 
-            slug="home-about-desc" 
-            fallback="Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap." 
-            as="p" 
-            className="font-body-lg text-body-lg text-secondary leading-relaxed mb-12"
-          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
