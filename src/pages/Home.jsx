@@ -491,13 +491,9 @@ export default function Home() {
             className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 md:mb-16 text-onyx block" 
           />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
-            {isLoadingProducts ? (
-              [...Array(4)].map((_, i) => <ProductSkeleton key={i} />)
-            ) : (
-              bestsellers.slice(0, 4).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            )}
+            {bestsellers.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         </div>
       </section>
