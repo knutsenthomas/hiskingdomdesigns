@@ -219,7 +219,7 @@ export default function Admin() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.3 }}
-      className="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-12 space-y-10"
+      className="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-28 space-y-10"
     >
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white p-8 md:p-12 rounded-3xl relative overflow-hidden shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
