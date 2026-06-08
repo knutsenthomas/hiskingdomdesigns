@@ -235,7 +235,7 @@ export default function Faq() {
           className="font-headline-md text-headline-md text-onyx font-bold"
         />
         <p className="font-body-md text-secondary leading-relaxed">
-          Send oss gjerne en e-post direkte på <CmsText slug="faq-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />. Vi svarer vanligvis innen få timer på virkedager!
+          Send oss gjerne en e-post direkte på <CmsText slug="faq-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />. Vi svarer vanligvis innen en virkedag!
         </p>
       </div>
     </motion.main>
