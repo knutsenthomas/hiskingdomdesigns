@@ -400,7 +400,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center justify-center gap-4 text-center md:text-left">
-            <span className="material-symbols-outlined text-terracotta text-3xl">bolt</span>
+            <span className="material-symbols-outlined text-terracotta text-3xl">package</span>
             <div>
               <CmsText slug="home-benefits-title-3" fallback="Lynrask levering" as="p" className="font-label-md text-label-md text-onyx" />
               <CmsText slug="home-benefits-desc-3" fallback="Sendes fra vårt lager innen 24 timer" as="p" className="text-label-sm text-secondary" />
