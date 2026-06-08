@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck, Heart } from 'lucide-react';
 import { wixClient } from '@/lib/wix';
 import { db } from '@/firebase';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { media } from '@wix/sdk';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
@@ -672,6 +672,118 @@ export default function Profile() {
     ? `${addrDetails.addressLine || ''}, ${addrDetails.postalCode || ''} ${addrDetails.city || ''}`.trim().replace(/^,\s*/, '')
     : 'Løkkeveien 3B, 4580 Lyngdal';
 
+  // Affiliate states
+  const [affiliateStatus, setAffiliateStatus] = useState('none'); // 'none' | 'pending' | 'approved'
+  const [affiliateName, setAffiliateName] = useState('');
+  const [affiliateEmail, setAffiliateEmail] = useState('');
+  const [affiliateSocials, setAffiliateSocials] = useState('');
+  const [affiliateAddress, setAffiliateAddress] = useState('');
+  const [affiliateMotivation, setAffiliateMotivation] = useState('');
+  const [isSubmittingAffiliate, setIsSubmittingAffiliate] = useState(false);
+  const [affiliateSuccess, setAffiliateSuccess] = useState(false);
+
+  // Sync default values for application form
+  useEffect(() => {
+    if (member) {
+      setAffiliateName(displayName || '');
+      setAffiliateEmail(displayEmail || '');
+      setAffiliateAddress(displayAddress || '');
+    }
+  }, [member, displayName, displayEmail, displayAddress]);
+
+  // Load status from cache and database
+  useEffect(() => {
+    if (!member?._id) return;
+    
+    const cachedStatus = localStorage.getItem(`hkm-affiliate-status-${member._id}`);
+    if (cachedStatus) {
+      setAffiliateStatus(cachedStatus);
+    }
+    
+    const fetchStatus = async () => {
+      try {
+        const docRef = doc(db, 'affiliate_applications', member._id);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data.status) {
+            setAffiliateStatus(data.status);
+            localStorage.setItem(`hkm-affiliate-status-${member._id}`, data.status);
+          }
+        }
+      } catch (err) {
+        console.warn('Kunne ikke hente affiliate-status fra Firestore:', err);
+      }
+    };
+    fetchStatus();
+  }, [member]);
+
+  const handleAffiliateSubmit = async (e) => {
+    e.preventDefault();
+    if (!member?._id) return;
+    setIsSubmittingAffiliate(true);
+    try {
+      const docRef = doc(db, 'affiliate_applications', member._id);
+      await setDoc(docRef, {
+        memberId: member._id,
+        name: affiliateName,
+        email: affiliateEmail,
+        address: affiliateAddress,
+        socialMedia: affiliateSocials,
+        motivation: affiliateMotivation,
+        status: 'pending',
+        appliedAt: new Date().toISOString()
+      });
+      setAffiliateStatus('pending');
+      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
+      setAffiliateSuccess(true);
+    } catch (err) {
+      console.error('Feil ved innsending av affiliate-søknad:', err);
+    } finally {
+      setIsSubmittingAffiliate(false);
+    }
+  };
+
+  const handleSimulateApprove = async () => {
+    if (!member?._id) return;
+    try {
+      const docRef = doc(db, 'affiliate_applications', member._id);
+      await updateDoc(docRef, { status: 'approved' });
+      setAffiliateStatus('approved');
+      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
+    } catch (err) {
+      // If doc doesn't exist, create it as approved directly
+      const docRef = doc(db, 'affiliate_applications', member._id);
+      await setDoc(docRef, {
+        memberId: member._id,
+        name: affiliateName,
+        email: affiliateEmail,
+        address: affiliateAddress,
+        socialMedia: affiliateSocials || 'N/A',
+        motivation: affiliateMotivation || 'N/A',
+        status: 'approved',
+        appliedAt: new Date().toISOString()
+      });
+      setAffiliateStatus('approved');
+      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
+    }
+  };
+
+  const handleSimulateReset = async () => {
+    if (!member?._id) return;
+    try {
+      const docRef = doc(db, 'affiliate_applications', member._id);
+      await deleteDoc(docRef);
+      setAffiliateStatus('none');
+      localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
+      setAffiliateSuccess(false);
+    } catch (err) {
+      setAffiliateStatus('none');
+      localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
+      setAffiliateSuccess(false);
+    }
+  };
+
   let memberSinceStr = 'Mars 2025';
   if (member?._createdDate) {
     try {
@@ -931,7 +1043,7 @@ export default function Profile() {
                 activeTab === 'referral' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Verv en venn
+              Affiliate program
               {activeTab === 'referral' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1370,159 +1482,298 @@ export default function Profile() {
 
           {activeTab === 'referral' && (
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-8 animate-fade-in">
-              <div className="flex items-center gap-3 text-terracotta">
-                <span className="material-symbols-outlined text-2xl select-none">diversity_3</span>
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Verv en venn & Tjen poeng</h3>
+              <style>{`
+                .affiliate-input {
+                  transform: translateZ(0) !important;
+                  backface-visibility: hidden !important;
+                  display: block !important;
+                  width: 100% !important;
+                }
+              `}</style>
+              
+              <div className="flex items-center gap-3 text-[#1B4965]">
+                <span className="material-symbols-outlined text-2xl select-none">military_tech</span>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Affiliate program</h3>
               </div>
-              <p className="text-xs text-secondary leading-relaxed">
-                Del gleden ved tro, håp og kjærlighet! Inviter vennene dine til His Kingdom Designs. 
-                Når de registrerer seg og fullfører sitt første kjøp, får de 10% rabatt, og du belønnes med 100 bonuspoeng i lojalitetsprogrammet.
-              </p>
 
-              {/* Step Flow */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                <div className="p-5 rounded-2xl bg-slate-50 border border-outline-variant/20 flex flex-col items-center text-center space-y-3 shadow-sm hover:border-[#1B4965]/20 transition-all">
-                  <div className="w-10 h-10 rounded-full bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center font-bold text-sm">1</div>
-                  <h5 className="font-bold text-xs text-onyx">Del din lenke</h5>
-                  <p className="text-[10px] text-secondary leading-relaxed">Kopier din unike vervekobling nedenfor og del den med venner på sosiale medier eller e-post.</p>
-                </div>
-                <div className="p-5 rounded-2xl bg-slate-50 border border-outline-variant/20 flex flex-col items-center text-center space-y-3 shadow-sm hover:border-[#1B4965]/20 transition-all">
-                  <div className="w-10 h-10 rounded-full bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center font-bold text-sm">2</div>
-                  <h5 className="font-bold text-xs text-onyx">Vennen din handler</h5>
-                  <p className="text-[10px] text-secondary leading-relaxed">Vennen din bruker vervekoblingen og mottar automatisk 10% rabatt (bruk koden <strong className="text-terracotta">VERV10</strong>) på sitt første kjøp.</p>
-                </div>
-                <div className="p-5 rounded-2xl bg-slate-50 border border-outline-variant/20 flex flex-col items-center text-center space-y-3 shadow-sm hover:border-[#1B4965]/20 transition-all">
-                  <div className="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center font-bold text-sm">
-                    <span className="material-symbols-outlined text-base">check</span>
+              {/* Info text */}
+              <div className="bg-[#1B4965]/5 border border-[#1B4965]/20 p-5 rounded-2xl text-secondary text-xs leading-relaxed flex items-start gap-3">
+                <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 select-none">info</span>
+                <p className="font-semibold text-[#1B4965]">
+                  Du oppnår prosent bonus utbetaling som godkjent affiliate markedsfører pr produkt solgt gjennom din personlige link.
+                </p>
+              </div>
+
+              {affiliateStatus === 'none' && (
+                <div className="space-y-6">
+                  <div className="border-t border-slate-100 pt-4">
+                    <h4 className="font-headline-sm text-onyx text-base font-bold mb-2">Søk om å bli affiliate markedsfører</h4>
+                    <p className="text-xs text-secondary mb-6 leading-relaxed">
+                      Fyll ut søknadsskjemaet nedenfor. Vi vil gå igjennom søknaden din og godkjenne den manuelt før du kan starte å tjene provisjon på salg.
+                    </p>
+                    
+                    {affiliateSuccess && (
+                      <div className="mb-4 bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
+                        ✓ Søknaden din er sendt! Statusen vil oppdatere seg til under behandling.
+                      </div>
+                    )}
+
+                    <form onSubmit={handleAffiliateSubmit} className="space-y-5 max-w-xl">
+                      <div className="block">
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Navn</label>
+                        <input
+                          type="text"
+                          required
+                          value={affiliateName}
+                          onChange={(e) => setAffiliateName(e.target.value)}
+                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                        />
+                      </div>
+
+                      <div className="block">
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">E-post</label>
+                        <input
+                          type="email"
+                          required
+                          value={affiliateEmail}
+                          onChange={(e) => setAffiliateEmail(e.target.value)}
+                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                        />
+                      </div>
+
+                      <div className="block">
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Adresse</label>
+                        <input
+                          type="text"
+                          required
+                          value={affiliateAddress}
+                          onChange={(e) => setAffiliateAddress(e.target.value)}
+                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                        />
+                      </div>
+
+                      <div className="block">
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Sosiale medier-kontoer</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="F.eks. @dittnavn på Instagram, Facebook-side, TikTok..."
+                          value={affiliateSocials}
+                          onChange={(e) => setAffiliateSocials(e.target.value)}
+                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
+                        />
+                      </div>
+
+                      <div className="block">
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Begrunnelse for at vi skal velge deg</label>
+                        <textarea
+                          required
+                          rows={4}
+                          placeholder="Fortell oss litt om hvorfor du ønsker å bli affiliate for His Kingdom Designs..."
+                          value={affiliateMotivation}
+                          onChange={(e) => setAffiliateMotivation(e.target.value)}
+                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta resize-none"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmittingAffiliate}
+                        className="w-full bg-[#1B4965] hover:bg-opacity-95 text-white py-3.5 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider shadow-md active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {isSubmittingAffiliate ? 'Sender søknad...' : 'Send søknad'}
+                      </button>
+                    </form>
                   </div>
-                  <h5 className="font-bold text-xs text-onyx">Du belønnes</h5>
-                  <p className="text-[10px] text-secondary leading-relaxed">Når kjøpet er fullført, overføres 100 lojalitetspoeng (verdi 100 kr) direkte til din konto.</p>
-                </div>
-              </div>
-
-              {/* Share Card */}
-              <div className="p-6 rounded-2xl border border-outline-variant/30 bg-[#1B4965]/5 space-y-4 shadow-sm text-left">
-                <h4 className="font-bold text-xs text-[#1B4965] uppercase tracking-wider">Din personlige vervekobling</h4>
-                
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="text"
-                    readOnly
-                    value={`${window.location.origin}/?ref=${member?._id || 'medlem'}`}
-                    className="flex-grow bg-white border border-outline-variant rounded-xl px-4 py-3 text-xs focus:outline-none text-onyx font-mono"
-                  />
-                  <button
-                    onClick={handleCopyLink}
-                    className={`sm:w-36 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl transition-all shadow-md cursor-pointer ${
-                      copied ? 'bg-green-600 text-white' : 'bg-[#1B4965] text-white hover:opacity-95 active:scale-95'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
-                    <span>{copied ? 'Kopiert!' : 'Kopier lenke'}</span>
-                  </button>
-                </div>
-
-                {/* Social Share Buttons */}
-                <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                  <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">Del direkte:</span>
                   
-                  <a
-                    href={`https://api.whatsapp.com/send?text=Hei! Sjekk ut His Kingdom Designs. Bruk vervekoblingen min for å få 10% rabatt på din første bestilling: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
-                  >
-                    <span className="material-symbols-outlined text-xs">chat</span>
-                    WhatsApp
-                  </a>
-
-                  <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/?ref=${member?._id || 'medlem'}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 bg-[#1877F2] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
-                  >
-                    <span className="material-symbols-outlined text-xs">share</span>
-                    Facebook
-                  </a>
-
-                  <a
-                    href={`mailto:?subject=Invitasjon til His Kingdom Designs&body=Hei! Jeg vil invitere deg til å sjekke ut His Kingdom Designs. De har utrolig mange flotte produkter med kristent design. Bruk min vervekobling for å få 10% rabatt på ditt første kjøp: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
-                    className="flex items-center gap-1.5 bg-slate-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
-                  >
-                    <span className="material-symbols-outlined text-xs">mail</span>
-                    E-post
-                  </a>
-                </div>
-              </div>
-
-              {/* Stats Section */}
-              <div className="space-y-6">
-                <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
-                  <span className="material-symbols-outlined text-terracotta text-lg select-none">analytics</span>
-                  Dine vervestatistikker
-                </h4>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                    <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Verve-klikk</span>
-                    <span className="text-2xl font-extrabold text-[#1B4965]">12</span>
-                  </div>
-                  <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                    <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Registrerte venner</span>
-                    <span className="text-2xl font-extrabold text-[#1B4965]">3</span>
-                  </div>
-                  <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                    <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Poeng opptjent</span>
-                    <span className="text-2xl font-extrabold text-green-600">+300 poeng</span>
+                  {/* Subtle Simulation Tool for Testing */}
+                  <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
+                    <span>💡 <strong>Testverktøy:</strong> Du kan simulere godkjenning av søknaden for å se affiliate-panelet:</span>
+                    <button 
+                      onClick={handleSimulateApprove} 
+                      className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      Simuler godkjenning
+                    </button>
                   </div>
                 </div>
+              )}
 
-                {/* Referred friends table */}
-                <div className="space-y-3">
-                  <h5 className="font-bold text-xs text-onyx">Verve-historikk</h5>
-                  <div className="border border-outline-variant/20 rounded-2xl overflow-hidden bg-white shadow-sm">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-[11px]">
-                        <thead>
-                          <tr className="bg-slate-50 text-secondary border-b border-outline-variant/20 font-bold">
-                            <th className="p-3">Venn</th>
-                            <th className="p-3">Dato registrert</th>
-                            <th className="p-3">Status</th>
-                            <th className="p-3 text-right">Belønning</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 text-onyx font-medium">
-                          <tr>
-                            <td className="p-3">marcus.l***@gmail.com</td>
-                            <td className="p-3">12. Mai 2026</td>
-                            <td className="p-3">
-                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Gjennomført kjøp</span>
-                            </td>
-                            <td className="p-3 text-right text-green-600 font-bold">+100 poeng</td>
-                          </tr>
-                          <tr>
-                            <td className="p-3">ida.k***@outlook.com</td>
-                            <td className="p-3">2. Juni 2026</td>
-                            <td className="p-3">
-                              <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Konto opprettet</span>
-                            </td>
-                            <td className="p-3 text-right text-secondary/60">Venter på kjøp</td>
-                          </tr>
-                          <tr>
-                            <td className="p-3">jonas.s***@gmail.com</td>
-                            <td className="p-3">7. Juni 2026</td>
-                            <td className="p-3">
-                              <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Konto opprettet</span>
-                            </td>
-                            <td className="p-3 text-right text-secondary/60">Venter på kjøp</td>
-                          </tr>
-                        </tbody>
-                      </table>
+              {affiliateStatus === 'pending' && (
+                <div className="space-y-6">
+                  <div className="border border-outline-variant/30 rounded-2xl p-8 bg-slate-50 text-center flex flex-col items-center space-y-4">
+                    <span className="material-symbols-outlined text-4xl text-amber-500 animate-pulse select-none">pending</span>
+                    <h4 className="font-headline-sm text-onyx text-base font-bold">Søknaden din er under behandling</h4>
+                    <p className="text-xs text-secondary max-w-md leading-relaxed">
+                      Takk for at du søkte! Vi går gjennom din søknad om å bli affiliate markedsfører. Du vil motta en e-post så snart vi har vurdert opplysningene dine.
+                    </p>
+                  </div>
+                  
+                  {/* Simulation Tools for Testing */}
+                  <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
+                    <span>💡 <strong>Testverktøy:</strong> Administrer søknadsstatusen for testing:</span>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={handleSimulateApprove} 
+                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                      >
+                        Godkjenn
+                      </button>
+                      <button 
+                        onClick={handleSimulateReset} 
+                        className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                      >
+                        Nullstill
+                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {affiliateStatus === 'approved' && (
+                <div className="space-y-8">
+                  {/* Approval Banner */}
+                  <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-emerald-800 text-xs flex items-center gap-3 font-semibold shadow-sm">
+                    <span className="material-symbols-outlined text-emerald-600 select-none">verified_user</span>
+                    <span>Gratulerer! Du er godkjent som affiliate markedsfører for His Kingdom Designs.</span>
+                  </div>
+
+                  {/* Share Card */}
+                  <div className="p-6 rounded-2xl border border-outline-variant/30 bg-[#1B4965]/5 space-y-4 shadow-sm text-left">
+                    <h4 className="font-bold text-xs text-[#1B4965] uppercase tracking-wider">Din personlige affiliate-link</h4>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        readOnly
+                        value={`${window.location.origin}/?ref=${member?._id || 'medlem'}`}
+                        className="flex-grow bg-white border border-outline-variant rounded-xl px-4 py-3 text-xs focus:outline-none text-onyx font-mono"
+                      />
+                      <button
+                        onClick={handleCopyLink}
+                        className={`sm:w-36 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl transition-all shadow-md cursor-pointer ${
+                          copied ? 'bg-green-600 text-white' : 'bg-[#1B4965] text-white hover:opacity-95 active:scale-95'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
+                        <span>{copied ? 'Kopiert!' : 'Kopier lenke'}</span>
+                      </button>
+                    </div>
+
+                    {/* Social Share Buttons */}
+                    <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                      <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">Del direkte:</span>
+                      
+                      <a
+                        href={`https://api.whatsapp.com/send?text=Hei! Sjekk ut His Kingdom Designs. Bruk vervekoblingen min for å få 10% rabatt på din første bestilling: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-xs">chat</span>
+                        WhatsApp
+                      </a>
+
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/?ref=${member?._id || 'medlem'}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 bg-[#1877F2] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-xs">share</span>
+                        Facebook
+                      </a>
+
+                      <a
+                        href={`mailto:?subject=Invitasjon til His Kingdom Designs&body=Hei! Jeg vil invitere deg til å sjekke ut His Kingdom Designs. De har utrolig mange flotte produkter med kristent design. Bruk min vervekobling for å få 10% rabatt på ditt første kjøp: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
+                        className="flex items-center gap-1.5 bg-slate-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-xs">mail</span>
+                        E-post
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Stats Section */}
+                  <div className="space-y-6">
+                    <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <span className="material-symbols-outlined text-terracotta text-lg select-none">analytics</span>
+                      Dine affiliate-statistikker
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
+                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Klikk på din link</span>
+                        <span className="text-2xl font-extrabold text-[#1B4965]">48</span>
+                      </div>
+                      <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
+                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Affiliate-salg</span>
+                        <span className="text-2xl font-extrabold text-[#1B4965]">3</span>
+                      </div>
+                      <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
+                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Bonus utbetalt</span>
+                        <span className="text-2xl font-extrabold text-green-600">325 kr</span>
+                      </div>
+                    </div>
+
+                    {/* Sales history */}
+                    <div className="space-y-3">
+                      <h5 className="font-bold text-xs text-onyx">Provisjonshistorikk</h5>
+                      <div className="border border-outline-variant/20 rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse text-[11px]">
+                            <thead>
+                              <tr className="bg-slate-50 text-secondary border-b border-outline-variant/20 font-bold">
+                                <th className="p-3">Kilde (Ordre ID)</th>
+                                <th className="p-3">Dato registrert</th>
+                                <th className="p-3">Status</th>
+                                <th className="p-3 text-right">Din Bonus (15%)</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-onyx font-medium">
+                              <tr>
+                                <td className="p-3">#HKD-4912</td>
+                                <td className="p-3">12. Mai 2026</td>
+                                <td className="p-3">
+                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Utbetalt</span>
+                                </td>
+                                <td className="p-3 text-right text-green-600 font-bold">120 kr</td>
+                              </tr>
+                              <tr>
+                                <td className="p-3">#HKD-4985</td>
+                                <td className="p-3">2. Juni 2026</td>
+                                <td className="p-3">
+                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Utbetalt</span>
+                                </td>
+                                <td className="p-3 text-right text-green-600 font-bold">85 kr</td>
+                              </tr>
+                              <tr>
+                                <td className="p-3">#HKD-5044</td>
+                                <td className="p-3">7. Juni 2026</td>
+                                <td className="p-3">
+                                  <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Under behandling</span>
+                                </td>
+                                <td className="p-3 text-right text-amber-600 font-bold">120 kr</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reset simulation for testing */}
+                  <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
+                    <span>💡 <strong>Testverktøy:</strong> Du kan tilbakestille affiliate-statusen for å søke på nytt:</span>
+                    <button 
+                      onClick={handleSimulateReset} 
+                      className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                    >
+                      Nullstill
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
           )}
         </div>
