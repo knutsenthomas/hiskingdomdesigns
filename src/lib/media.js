@@ -11,30 +11,43 @@
 export const getOptimizedWixImageUrl = (url, width, height, quality = 80) => {
   if (!url || typeof url !== 'string') return url;
 
-  // Handle Wix internal image URIs (e.g. wix:image://v1/hash/filename.jpg#originWidth=...&originHeight=...)
+  // 1. Handle Wix internal image URIs (e.g. wix:image://v1/hash/filename.jpg#...)
   if (url.startsWith('wix:image://')) {
     const match = url.match(/wix:image:\/\/v1\/([^\/]+)\/([^\s#?]+)/);
     if (match && match[1]) {
       const imageId = match[1];
       const filename = match[2];
-      const webpFilename = filename.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+      const webpFilename = filename.replace(/\.(jpg|jpeg|png|avif|webp)$/i, '.webp');
       return `https://static.wixstatic.com/media/${imageId}/v1/fill/w_${width},h_${height},q_${quality}/${webpFilename}`;
     }
   }
 
-  // Handle standard Wix HTTP CDN URLs (e.g. https://static.wixstatic.com/media/hash/...)
+  // 2. Handle standard Wix HTTP CDN URLs (e.g. https://static.wixstatic.com/media/hash/...)
   if (url.includes('static.wixstatic.com/media/')) {
-    // If it already has scaling parameters, replace them with our requested dimensions
-    if (url.includes('/v1/fill/')) {
-      return url.replace(/\/v1\/fill\/w_\d+,h_\d+[^/]*\//, `/v1/fill/w_${width},h_${height},q_${quality}/`);
+    const mediaPrefix = 'static.wixstatic.com/media/';
+    const index = url.indexOf(mediaPrefix);
+    const pathAfterMedia = url.substring(index + mediaPrefix.length);
+    
+    const segments = pathAfterMedia.split('/');
+    const imageId = segments[0];
+    
+    let filename = 'image.webp';
+    if (segments.length > 1) {
+      const lastSegment = segments[segments.length - 1].split('?')[0];
+      if (lastSegment && lastSegment !== 'file' && lastSegment.includes('.')) {
+        filename = lastSegment;
+      } else {
+        filename = imageId;
+      }
+    } else {
+      filename = imageId;
     }
-
-    // Otherwise append the fill scaling path
-    const urlParts = url.split('?');
-    const baseUrl = urlParts[0];
-    const filename = baseUrl.substring(baseUrl.lastIndexOf('/') + 1);
-    const webpFilename = filename.replace(/\.(jpg|jpeg|png)$/i, '.webp');
-    return `${baseUrl}/v1/fill/w_${width},h_${height},q_${quality}/${webpFilename}`;
+    
+    const webpFilename = filename.replace(/\.(jpg|jpeg|png|avif|webp)$/i, '.webp');
+    if (!webpFilename.endsWith('.webp')) {
+      return `https://static.wixstatic.com/media/${imageId}/v1/fill/w_${width},h_${height},q_${quality}/${webpFilename}.webp`;
+    }
+    return `https://static.wixstatic.com/media/${imageId}/v1/fill/w_${width},h_${height},q_${quality}/${webpFilename}`;
   }
 
   return url;
