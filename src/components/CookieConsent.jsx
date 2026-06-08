@@ -65,7 +65,7 @@ export default function CookieConsent() {
 
           {/* Description */}
           <p className="text-xs text-secondary leading-relaxed">
-            Vi bruker cookies for å optimalisere brukeropplevelsen, analysere trafikk, og levere tilpassede tilbud i samarbeid med <strong>Mandal Regnskapskontor</strong>. Ved å trykke «Godta alle» samtykker du til denne bruken.
+            Vi bruker cookies for å optimalisere brukeropplevelsen, analysere trafikk, og levere tilpassede tilbud. Ved å trykke «Godta alle» samtykker du til denne bruken.
           </p>
 
           {/* Buttons */}

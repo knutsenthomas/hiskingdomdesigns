@@ -144,7 +144,7 @@ export default function Team() {
           />
           <CmsText
             slug="team-base-desc"
-            fallback="Vi holder til i Lyngdal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
+            fallback="Vi holder til i Lyngdal. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />

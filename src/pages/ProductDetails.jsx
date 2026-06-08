@@ -449,7 +449,7 @@ export default function ProductDetails() {
       const clothingMocks = [
         { title: 'Helt fantastisk kvalitet!', body: 'Stoffet er utrolig mykt og behagelig. Trykket ser profesjonelt ut og falmer ikke vask. Anbefales på det varmeste!', rating: 5 },
         { title: 'Fin genser, god passform', body: 'Normal i størrelsen. Genseren er behagelig å gå med, og budskapet er nydelig. Kommer til å kjøpe mer herfra!', rating: 5 },
-        { title: 'Veldig fornøyd', body: 'Rask levering og god kvalitet på klærne. Mandal Regnskapskontor leverer solid service og trygg handel.', rating: 4 }
+        { title: 'Veldig fornøyd', body: 'Rask levering og god kvalitet på klærne. His Kingdom Designs leverer solid service og trygg handel.', rating: 4 }
       ];
       const stickerMocks = [
         { title: 'Perfekt på vannflasken', body: 'Tåler oppvaskmaskin kjempebra uten å løsne eller falme. Kjempefine farger!', rating: 5 },
@@ -1337,7 +1337,7 @@ export default function ProductDetails() {
                 Meld meg når varen er på lager
               </h4>
               <p className="text-xs text-secondary leading-relaxed">
-                Vi sender deg en automatisk e-post så snart vi har varen tilbake på lager i Mandal.
+                Vi sender deg en automatisk e-post så snart vi har varen tilbake på lager.
               </p>
               {backInStockSuccess ? (
                 <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">

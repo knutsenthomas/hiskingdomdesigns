@@ -655,7 +655,7 @@ export default function Profile() {
     ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ''}`.trim() 
     : member?.contact?.firstName 
       ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
-      : (member?.profile?.nickname || 'Christian Mandal');
+      : (member?.profile?.nickname || 'Christian Lyngdal');
 
   const displayInitials = String(displayName || '')
     .split(' ')
@@ -663,7 +663,7 @@ export default function Profile() {
     .join('')
     .toUpperCase();
 
-  const displayEmail = getMemberEmail(member) || 'christian@mandalregnskap.no';
+  const displayEmail = getMemberEmail(member) || 'christian@hiskingdomministry.no';
   
   const displayPhone = getMemberPhone(member) || '987 65 432';
   

@@ -1183,7 +1183,7 @@ export const AppProvider = ({ children }) => {
         reply = '### 📞 Kontakt Kundeservice\n\n' +
           'Vi vil gjerne høre fra deg! Du kan kontakte oss på:\n' +
           '- **E-post:** post@hiskingdomministry.no\n' +
-          '- **Adresse:** Mandal Regnskapskontor / HKD, Løkkeveien 3B, 4580 Lyngdal\n\n' +
+          '- **Adresse:** Løkkeveien 3B, 4580 Lyngdal\n\n' +
           '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
       }
       else {

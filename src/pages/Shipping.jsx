@@ -141,7 +141,7 @@ export default function Shipping() {
             </div>
             <CmsText
               slug="shipping-returns-title"
-              fallback="Enkel Retur & Kjøpsvilkår"
+              fallback="Enkel retur & kjøpsvilkår"
               as="h2"
               className="font-headline-lg text-headline-lg text-onyx text-2xl font-bold"
             />
