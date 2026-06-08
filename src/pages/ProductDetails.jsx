@@ -309,18 +309,10 @@ export default function ProductDetails() {
   const { productId } = useParams();
   const navigate = useNavigate();
 
-  // Find product by id
-  // Find product by id from app context
-  const contextProduct = useMemo(() => {
-    return products.find(p => p.id === productId);
-  }, [products, productId]);
-
+  // --- 1. State Declarations ---
   const [fetchedProduct, setFetchedProduct] = useState(null);
   const [isFetchingProduct, setIsFetchingProduct] = useState(false);
   const [fetchError, setFetchError] = useState(false);
-
-  // Use contextProduct if available, otherwise fallback to fetchedProduct
-  const product = contextProduct || fetchedProduct;
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Hvit');
@@ -328,6 +320,172 @@ export default function ProductDetails() {
   const [added, setAdded] = useState(false);
   const [activeImage, setActiveImage] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+
+  // Back in stock states
+  const [backInStockEmail, setBackInStockEmail] = useState('');
+  const [backInStockSuccess, setBackInStockSuccess] = useState(false);
+  const [backInStockLoading, setBackInStockLoading] = useState(false);
+  const [backInStockError, setBackInStockError] = useState('');
+
+  // Reviews states
+  const [reviewsList, setReviewsList] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingDistribution, setRatingDistribution] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  // Review form states
+  const [reviewName, setReviewName] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewBody, setReviewBody] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
+  const [reviewSubmitError, setReviewSubmitError] = useState('');
+
+  // --- 2. Memoized Derivations ---
+  
+  // Find product by id from app context
+  const contextProduct = useMemo(() => {
+    return products.find(p => p.id === productId);
+  }, [products, productId]);
+
+  // Use contextProduct if available, otherwise fallback to fetchedProduct
+  const product = contextProduct || fetchedProduct;
+
+  // Find the selected variant matching selectedSize and selectedColor
+  const selectedVariant = useMemo(() => {
+    if (!product || !product.manageVariants || !product.variants || product.variants.length === 0) return null;
+    
+    const sizeOpt = product.productOptions?.find(o => {
+      const name = o.name?.trim().toLowerCase();
+      return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+    });
+    const colorOpt = product.productOptions?.find(o => {
+      const name = o.name?.trim().toLowerCase();
+      return name && (name === 'color' || name === 'farge');
+    });
+
+    const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
+    const colorChoice = colorOpt?.choices?.find(c => {
+      const resolved = resolveColor(c.value);
+      return resolved.name === selectedColor;
+    });
+
+    const targetChoices = {};
+    if (sizeOpt && sizeChoice) targetChoices[sizeOpt.name] = sizeChoice.value;
+    if (colorOpt && colorChoice) targetChoices[colorOpt.name] = colorChoice.value;
+
+    return product.variants.find(v => {
+      if (!v || !v.choices) return false;
+      return Object.entries(v.choices).every(([optName, optVal]) => {
+        return targetChoices[optName] === optVal;
+      });
+    });
+  }, [product, selectedSize, selectedColor]);
+
+  // Aggregate stock information from wix client structures
+  const stockStatus = useMemo(() => {
+    if (!product) return { inStock: false, trackQuantity: false, quantity: 0 };
+    
+    if (product.manageVariants && selectedVariant) {
+      return {
+        inStock: selectedVariant.stock?.inStock ?? false,
+        trackQuantity: selectedVariant.stock?.trackQuantity ?? false,
+        quantity: selectedVariant.stock?.quantity ?? 0
+      };
+    }
+    
+    if (product.variants && product.variants.length > 0) {
+      const defaultVariant = product.variants[0];
+      return {
+        inStock: defaultVariant.stock?.inStock ?? false,
+        trackQuantity: defaultVariant.stock?.trackQuantity ?? false,
+        quantity: defaultVariant.stock?.quantity ?? 0
+      };
+    }
+
+    return { inStock: true, trackQuantity: false, quantity: 999 };
+  }, [product, selectedVariant]);
+
+  // Wishlist helper
+  const isWishlisted = product ? isInWishlist(product.id) : false;
+
+  // --- 3. Helper Functions ---
+  
+  const loadReviews = async () => {
+    setIsLoadingReviews(true);
+    let apiReviews = [];
+    try {
+      const res = await wixClient.reviews.queryReviews()
+        .eq('entityId', productId)
+        .descending('_createdDate')
+        .find();
+      if (res && res.items) {
+        apiReviews = res.items;
+      }
+    } catch (err) {
+      console.warn('Wix Reviews API call failed. Using fallback reviews.', err);
+    }
+
+    // Load local storage reviews
+    let localReviews = [];
+    try {
+      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
+      if (saved) {
+        localReviews = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to parse local reviews', e);
+    }
+
+    // Default mock reviews if there are no API or local reviews
+    let defaultMocks = [];
+    if (apiReviews.length === 0 && localReviews.length === 0) {
+      const dates = ['2026-05-15', '2026-05-28', '2026-06-02'];
+      const names = ['Kari Nordmann', 'Ole Hansen', 'Maria Pedersen'];
+      const clothingMocks = [
+        { title: 'Helt fantastisk kvalitet!', body: 'Stoffet er utrolig mykt og behagelig. Trykket ser profesjonelt ut og falmer ikke vask. Anbefales på det varmeste!', rating: 5 },
+        { title: 'Fin genser, god passform', body: 'Normal i størrelsen. Genseren er behagelig å gå med, og budskapet er nydelig. Kommer til å kjøpe mer herfra!', rating: 5 },
+        { title: 'Veldig fornøyd', body: 'Rask levering og god kvalitet på klærne. Mandal Regnskapskontor leverer solid service og trygg handel.', rating: 4 }
+      ];
+      const stickerMocks = [
+        { title: 'Perfekt på vannflasken', body: 'Tåler oppvaskmaskin kjempebra uten å løsne eller falme. Kjempefine farger!', rating: 5 },
+        { title: 'Gode budskap', body: 'Har limt disse på bøkene og PC-en min. De gir god oppmuntring i hverdagen.', rating: 5 },
+        { title: 'Fine farger', body: 'Klistremerkene ser nøyaktig ut som på bildet. Veldig fornøyd med kjøpet.', rating: 4 }
+      ];
+      const defaultMocksSource = product?.category === 'Klær' ? clothingMocks : (product?.category === 'Klistermerker' ? stickerMocks : clothingMocks);
+
+      defaultMocks = defaultMocksSource.map((m, idx) => ({
+        _id: `mock-${idx}`,
+        author: { authorName: names[idx] },
+        content: { title: m.title, body: m.body, rating: m.rating },
+        _createdDate: new Date(dates[idx]).toISOString()
+      }));
+    }
+
+    const allReviews = [...localReviews, ...apiReviews, ...defaultMocks];
+    setReviewsList(allReviews);
+
+    // Calculate average and distribution
+    if (allReviews.length > 0) {
+      const totalRating = allReviews.reduce((sum, r) => sum + (r.content?.rating || 5), 0);
+      setAverageRating(parseFloat((totalRating / allReviews.length).toFixed(1)));
+
+      const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      allReviews.forEach(r => {
+        const rating = r.content?.rating || 5;
+        if (dist[rating] !== undefined) dist[rating]++;
+      });
+      setRatingDistribution(dist);
+    } else {
+      setAverageRating(0);
+      setRatingDistribution({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+    }
+    setIsLoadingReviews(false);
+  };
+
+  // --- 4. Effect & Custom Hook Declarations ---
 
   // Fetch product directly from Wix if not found in preloaded context products
   useEffect(() => {
@@ -549,14 +707,6 @@ export default function ProductDetails() {
       };
     }
   }, [product, reviewsList, averageRating]);
-  
-  const isWishlisted = product ? isInWishlist(product.id) : false;
-
-  // Back in stock states
-  const [backInStockEmail, setBackInStockEmail] = useState('');
-  const [backInStockSuccess, setBackInStockSuccess] = useState(false);
-  const [backInStockLoading, setBackInStockLoading] = useState(false);
-  const [backInStockError, setBackInStockError] = useState('');
 
   // Auto-fill email if member is logged in
   useEffect(() => {
@@ -582,22 +732,6 @@ export default function ProductDetails() {
     checkLoggedInMember();
   }, []);
 
-  // Reviews states
-  const [reviewsList, setReviewsList] = useState([]);
-  const [averageRating, setAverageRating] = useState(0);
-  const [ratingDistribution, setRatingDistribution] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
-  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  
-  // Review form states
-  const [reviewName, setReviewName] = useState('');
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewTitle, setReviewTitle] = useState('');
-  const [reviewBody, setReviewBody] = useState('');
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
-  const [reviewSubmitError, setReviewSubmitError] = useState('');
-
   // Auto-fill member name for review form
   useEffect(() => {
     async function getMemberName() {
@@ -621,195 +755,11 @@ export default function ProductDetails() {
     getMemberName();
   }, []);
 
-  const loadReviews = async () => {
-    setIsLoadingReviews(true);
-    let apiReviews = [];
-    try {
-      const res = await wixClient.reviews.queryReviews()
-        .eq('entityId', productId)
-        .descending('_createdDate')
-        .find();
-      if (res && res.items) {
-        apiReviews = res.items;
-      }
-    } catch (err) {
-      console.warn('Wix Reviews API call failed. Using fallback reviews.', err);
-    }
-
-    // Load local storage reviews
-    let localReviews = [];
-    try {
-      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
-      if (saved) {
-        localReviews = JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error('Failed to parse local reviews', e);
-    }
-
-    // Default mock reviews if there are no API or local reviews
-    let defaultMocks = [];
-    if (apiReviews.length === 0 && localReviews.length === 0) {
-      const dates = ['2026-05-15', '2026-05-28', '2026-06-02'];
-      const names = ['Kari Nordmann', 'Ole Hansen', 'Maria Pedersen'];
-      const clothingMocks = [
-        { title: 'Helt fantastisk kvalitet!', body: 'Stoffet er utrolig mykt og behagelig. Trykket ser profesjonelt ut og falmer ikke vask. Anbefales på det varmeste!', rating: 5 },
-        { title: 'Fin genser, god passform', body: 'Normal i størrelsen. Genseren er behagelig å gå med, og budskapet er nydelig. Kommer til å kjøpe mer herfra!', rating: 5 },
-        { title: 'Veldig fornøyd', body: 'Rask levering og god kvalitet på klærne. Mandal Regnskapskontor leverer solid service og trygg handel.', rating: 4 }
-      ];
-      const stickerMocks = [
-        { title: 'Perfekt på vannflasken', body: 'Tåler oppvaskmaskin kjempebra uten å løsne eller falme. Kjempefine farger!', rating: 5 },
-        { title: 'Gode budskap', body: 'Har limt disse på bøkene og PC-en min. De gir god oppmuntring i hverdagen.', rating: 5 },
-        { title: 'Fine farger', body: 'Klistremerkene ser nøyaktig ut som på bildet. Veldig fornøyd med kjøpet.', rating: 4 }
-      ];
-      const defaultMocksSource = product?.category === 'Klær' ? clothingMocks : (product?.category === 'Klistermerker' ? stickerMocks : clothingMocks);
-
-      defaultMocks = defaultMocksSource.map((m, idx) => ({
-        _id: `mock-${idx}`,
-        author: { authorName: names[idx] },
-        content: { title: m.title, body: m.body, rating: m.rating },
-        _createdDate: new Date(dates[idx]).toISOString()
-      }));
-    }
-
-    const allReviews = [...localReviews, ...apiReviews, ...defaultMocks];
-    setReviewsList(allReviews);
-
-    // Calculate average and distribution
-    if (allReviews.length > 0) {
-      const totalRating = allReviews.reduce((sum, r) => sum + (r.content?.rating || 5), 0);
-      setAverageRating(parseFloat((totalRating / allReviews.length).toFixed(1)));
-
-      const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-      allReviews.forEach(r => {
-        const rating = r.content?.rating || 5;
-        if (dist[rating] !== undefined) dist[rating]++;
-      });
-      setRatingDistribution(dist);
-    } else {
-      setAverageRating(0);
-      setRatingDistribution({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
-    }
-    setIsLoadingReviews(false);
-  };
-
   useEffect(() => {
     if (product) {
       loadReviews();
     }
   }, [productId, product]);
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    if (!reviewName || !reviewTitle || !reviewBody) return;
-    setIsSubmittingReview(true);
-    setReviewSubmitError('');
-    setReviewSubmitSuccess(false);
-
-    const newReviewItem = {
-      _id: `local-${Date.now()}`,
-      author: { authorName: reviewName },
-      content: {
-        title: reviewTitle,
-        body: reviewBody,
-        rating: reviewRating
-      },
-      _createdDate: new Date().toISOString()
-    };
-
-    let wixSuccess = false;
-    try {
-      await wixClient.reviews.createReview({
-        review: {
-          namespace: 'stores',
-          entityId: productId,
-          content: {
-            title: reviewTitle,
-            body: reviewBody,
-            rating: reviewRating
-          },
-          author: {
-            authorName: reviewName
-          }
-        }
-      });
-      wixSuccess = true;
-    } catch (err) {
-      console.warn('Wix Reviews API submit failed. Saving review locally.', err);
-    }
-
-    try {
-      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
-      const list = saved ? JSON.parse(saved) : [];
-      list.unshift(newReviewItem);
-      localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
-    } catch (err) {
-      console.error('Failed to save review to localStorage:', err);
-    }
-
-    setReviewSubmitSuccess(true);
-    setReviewTitle('');
-    setReviewBody('');
-    setShowReviewForm(false);
-    setIsSubmittingReview(false);
-    loadReviews();
-  };
-
-
-  // Find the selected variant matching selectedSize and selectedColor
-  const selectedVariant = useMemo(() => {
-    if (!product || !product.manageVariants || !product.variants || product.variants.length === 0) return null;
-    
-    const sizeOpt = product.productOptions?.find(o => {
-      const name = o.name?.trim().toLowerCase();
-      return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
-    });
-    const colorOpt = product.productOptions?.find(o => {
-      const name = o.name?.trim().toLowerCase();
-      return name && (name === 'color' || name === 'farge');
-    });
-
-    const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
-    const colorChoice = colorOpt?.choices?.find(c => {
-      const resolved = resolveColor(c.value);
-      return resolved.name === selectedColor;
-    });
-
-    const targetChoices = {};
-    if (sizeOpt && sizeChoice) targetChoices[sizeOpt.name] = sizeChoice.value;
-    if (colorOpt && colorChoice) targetChoices[colorOpt.name] = colorChoice.value;
-
-    return product.variants.find(v => {
-      if (!v || !v.choices) return false;
-      return Object.entries(v.choices).every(([optName, optVal]) => {
-        return targetChoices[optName] === optVal;
-      });
-    });
-  }, [product, selectedSize, selectedColor]);
-
-  // Aggregate stock information from wix client structures
-  const stockStatus = useMemo(() => {
-    if (!product) return { inStock: false, trackQuantity: false, quantity: 0 };
-    
-    if (product.manageVariants && selectedVariant) {
-      return {
-        inStock: selectedVariant.stock?.inStock ?? false,
-        trackQuantity: selectedVariant.stock?.trackQuantity ?? false,
-        quantity: selectedVariant.stock?.quantity ?? 0
-      };
-    }
-    
-    if (product.variants && product.variants.length > 0) {
-      const defaultVariant = product.variants[0];
-      return {
-        inStock: defaultVariant.stock?.inStock ?? false,
-        trackQuantity: defaultVariant.stock?.trackQuantity ?? false,
-        quantity: defaultVariant.stock?.quantity ?? 0
-      };
-    }
-
-    return { inStock: true, trackQuantity: false, quantity: 999 };
-  }, [product, selectedVariant]);
 
   // Reset local state on product change
   useEffect(() => {
@@ -904,6 +854,62 @@ export default function ProductDetails() {
     } finally {
       setBackInStockLoading(false);
     }
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewName || !reviewTitle || !reviewBody) return;
+    setIsSubmittingReview(true);
+    setReviewSubmitError('');
+    setReviewSubmitSuccess(false);
+
+    const newReviewItem = {
+      _id: `local-${Date.now()}`,
+      author: { authorName: reviewName },
+      content: {
+        title: reviewTitle,
+        body: reviewBody,
+        rating: reviewRating
+      },
+      _createdDate: new Date().toISOString()
+    };
+
+    let wixSuccess = false;
+    try {
+      await wixClient.reviews.createReview({
+        review: {
+          namespace: 'stores',
+          entityId: productId,
+          content: {
+            title: reviewTitle,
+            body: reviewBody,
+            rating: reviewRating
+          },
+          author: {
+            authorName: reviewName
+          }
+        }
+      });
+      wixSuccess = true;
+    } catch (err) {
+      console.warn('Wix Reviews API submit failed. Saving review locally.', err);
+    }
+
+    try {
+      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
+      const list = saved ? JSON.parse(saved) : [];
+      list.unshift(newReviewItem);
+      localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
+    } catch (err) {
+      console.error('Failed to save review to localStorage:', err);
+    }
+
+    setReviewSubmitSuccess(true);
+    setReviewTitle('');
+    setReviewBody('');
+    setShowReviewForm(false);
+    setIsSubmittingReview(false);
+    loadReviews();
   };
 
   return (
