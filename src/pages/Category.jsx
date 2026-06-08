@@ -249,23 +249,37 @@ export default function Category() {
                   </button>
                   {isExpanded && (
                     <ul className="p-3 space-y-2 border-t border-outline-variant/30 bg-white/10 max-h-48 overflow-y-auto custom-scrollbar">
-                      {cats.map(cat => (
-                        <li key={cat}>
-                          <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                              type="checkbox"
-                              checked={selectedCategories.includes(cat)}
-                              onChange={() => handleCategoryToggle(cat)}
-                              className="rounded border-outline-variant text-terracotta focus:ring-terracotta"
-                            />
-                            <span className={`font-body-md text-body-md group-hover:text-terracotta transition-colors ${
-                              selectedCategories.includes(cat) ? 'text-terracotta font-bold' : 'text-onyx'
-                            }`}>
-                              {cat}
-                            </span>
-                          </label>
-                        </li>
-                      ))}
+                      {cats.map(cat => {
+                        const isVarna = cat.toLowerCase().includes('varna') && (cat.toLowerCase().includes('bibelskole') || cat.toLowerCase().includes('bible school'));
+                        return (
+                          <li key={cat}>
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                              <input 
+                                type="checkbox"
+                                checked={selectedCategories.includes(cat)}
+                                onChange={() => handleCategoryToggle(cat)}
+                                className="rounded border-outline-variant text-terracotta focus:ring-terracotta"
+                              />
+                              {isVarna ? (
+                                <span className="flex flex-col gap-0.5 text-left">
+                                  <span className="text-[10px] font-bold text-onyx/40 uppercase tracking-wider leading-none">Varna - Evangeliesenteret</span>
+                                  <span className={`font-body-md text-body-md group-hover:text-terracotta transition-colors leading-normal ${
+                                    selectedCategories.includes(cat) ? 'text-terracotta font-bold' : 'text-onyx'
+                                  }`}>
+                                    Bible School
+                                  </span>
+                                </span>
+                              ) : (
+                                <span className={`font-body-md text-body-md group-hover:text-terracotta transition-colors ${
+                                  selectedCategories.includes(cat) ? 'text-terracotta font-bold' : 'text-onyx'
+                                }`}>
+                                  {cat}
+                                </span>
+                              )}
+                            </label>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>

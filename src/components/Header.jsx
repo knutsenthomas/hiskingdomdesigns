@@ -360,16 +360,34 @@ export default function Header() {
                 <div className="col-span-2">
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
                   <ul className="grid grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
-                    {categoryTaxonomy['Temaer & Språk']?.map(sub => (
-                      <li key={sub}>
-                        <Link 
-                          to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
-                        >
-                          {sub}
-                        </Link>
-                      </li>
-                    ))}
+                    {categoryTaxonomy['Temaer & Språk']?.map(sub => {
+                      const isVarna = sub.toLowerCase().includes('varna') && (sub.toLowerCase().includes('bibelskole') || sub.toLowerCase().includes('bible school'));
+                      if (isVarna) {
+                        return (
+                          <li key={sub} className="flex flex-col gap-0.5 mt-0.5">
+                            <span className="text-[10px] font-bold text-onyx/45 uppercase tracking-wider">
+                              Varna - Evangeliesenteret
+                            </span>
+                            <Link 
+                              to={`/category/${getSlugByCategoryName(sub)}`} 
+                              className="text-sm text-onyx/75 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block pl-2 border-l border-terracotta/25"
+                            >
+                              Bible School
+                            </Link>
+                          </li>
+                        );
+                      }
+                      return (
+                        <li key={sub}>
+                          <Link 
+                            to={`/category/${getSlugByCategoryName(sub)}`} 
+                            className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
+                          >
+                            {sub}
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
  
@@ -547,17 +565,36 @@ export default function Header() {
                     
                     {isExpanded && (
                       <ul className="mt-2 pl-4 space-y-2.5">
-                        {cats?.map(sub => (
-                          <li key={sub}>
-                            <Link
-                              to={`/category/${getSlugByCategoryName(sub)}`}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="text-body-md text-secondary hover:text-terracotta transition-colors block py-0.5"
-                            >
-                              {sub}
-                            </Link>
-                          </li>
-                        ))}
+                        {cats?.map(sub => {
+                          const isVarna = sub.toLowerCase().includes('varna') && (sub.toLowerCase().includes('bibelskole') || sub.toLowerCase().includes('bible school'));
+                          if (isVarna) {
+                            return (
+                              <li key={sub} className="flex flex-col gap-0.5 pl-2 py-0.5">
+                                <span className="text-[10px] font-bold text-onyx/45 uppercase tracking-wider">
+                                  Varna - Evangeliesenteret
+                                </span>
+                                <Link
+                                  to={`/category/${getSlugByCategoryName(sub)}`}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="text-body-md text-secondary hover:text-terracotta transition-colors block pl-2 border-l border-terracotta/25 py-0.5"
+                                >
+                                  Bible School
+                                </Link>
+                              </li>
+                            );
+                          }
+                          return (
+                            <li key={sub}>
+                              <Link
+                                  to={`/category/${getSlugByCategoryName(sub)}`}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="text-body-md text-secondary hover:text-terracotta transition-colors block py-0.5"
+                              >
+                                {sub}
+                              </Link>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
