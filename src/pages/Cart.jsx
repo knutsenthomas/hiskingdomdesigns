@@ -203,7 +203,7 @@ export default function Cart() {
           </div>
           <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">Takk for din bestilling!</h2>
           <p className="text-secondary font-body-md mb-8 leading-relaxed">
-            Vi har mottatt din bestilling og sender en bekreftelse på e-post om kort tid. Dine produkter pakkes og sendes innen 24 timer fra vårt lager.
+            Vi har mottatt din bestilling og sender en bekreftelse på e-post om kort tid. Normal leveringstid i Norge er ca. 2 uker (produksjonstid og frakt).
           </p>
           <button 
             onClick={() => navigate('/')}

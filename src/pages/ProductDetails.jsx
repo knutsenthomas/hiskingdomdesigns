@@ -1373,7 +1373,7 @@ export default function ProductDetails() {
           <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
             <div className="flex items-center gap-3 text-secondary">
               <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">Lynrask levering: 2-4 dager</span>
+              <span className="text-label-sm font-label-sm">Normal levering: ca. 2 uker</span>
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />

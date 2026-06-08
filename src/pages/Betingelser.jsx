@@ -110,7 +110,7 @@ export default function Betingelser() {
           </div>
           <CmsText
             slug="terms-section-desc-4"
-            fallback="Vi pakker og sender vanligvis ordren din i løpet av 1-3 virkedager. Normal leveringstid med Posten/Bring er 2-5 virkedager, avhengig av hvor i verden du bor. Risikoen for varen går over på deg når du har mottatt pakken."
+            fallback="Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er ca 2 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Risikoen for varen går over på deg når du har mottatt pakken."
             as="p"
           />
         </section>

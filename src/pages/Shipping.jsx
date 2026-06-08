@@ -59,7 +59,7 @@ export default function Shipping() {
           
           <CmsText
             slug="shipping-details-desc"
-            fallback="Alle våre varer sendes direkte fra vårt lager i Lyngdal. Vi pakker og klargjør bestillingen din raskt slik at du får varene dine i postkassen uten unødvendig ventetid."
+            fallback="Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er ca. 2 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Du mottar en e-post med sporingsnummer så snart pakken din er sendt."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />
@@ -96,13 +96,13 @@ export default function Shipping() {
             <div className="flex justify-between border-b border-slate-100 pb-2">
               <CmsText
                 slug="shipping-row-title-3"
-                fallback="Behandlingstid på lageret"
+                fallback="Klargjøring & produksjonstid"
                 as="span"
                 className="font-body-md text-secondary"
               />
               <CmsText
                 slug="shipping-row-val-3"
-                fallback="Innen 24 timer"
+                fallback="1-2 uker"
                 as="span"
                 className="font-label-md text-onyx"
               />
@@ -110,13 +110,13 @@ export default function Shipping() {
             <div className="flex justify-between pb-2">
               <CmsText
                 slug="shipping-row-title-4"
-                fallback="Leveringstid (Helthjem / Posten)"
+                fallback="Normal leveringstid (Norge)"
                 as="span"
                 className="font-body-md text-secondary"
               />
               <CmsText
                 slug="shipping-row-val-4"
-                fallback="2 - 4 virkedager"
+                fallback="ca. 2 uker (total tid)"
                 as="span"
                 className="font-label-md text-onyx"
               />

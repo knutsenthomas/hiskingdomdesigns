@@ -403,8 +403,8 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">package</span>
             <div className="min-w-0">
-              <CmsText slug="home-benefits-title-3" fallback="Lynrask levering" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
-              <CmsText slug="home-benefits-desc-3" fallback="Sendes fra vårt lager innen 24 timer" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
+              <CmsText slug="home-benefits-title-3" fallback="Trygg levering" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-3" fallback="Normal leveringstid: ca. 2 uker" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
         </div>

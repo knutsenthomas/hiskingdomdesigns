@@ -602,7 +602,7 @@ export const CartProvider = ({ children }) => {
               carrier.shippingOptions.forEach(opt => {
                 let deliveryTime = opt.logistics?.deliveryTime || '';
                 if (deliveryTime === '2-3 uker') {
-                  deliveryTime = '2-4 virkedager';
+                  deliveryTime = 'ca. 2 uker';
                 }
                 rates.push({
                   code: opt.code,
