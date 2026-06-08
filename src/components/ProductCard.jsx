@@ -4,6 +4,7 @@ import { ShoppingCart, Check, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useApp } from '@/contexts/AppContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -28,17 +29,30 @@ export default function ProductCard({ product }) {
     <article className="group relative bg-white border border-outline-variant/50 hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden flex flex-col h-full">
       <Link to={`/product/${product.id}`} className="block relative aspect-[0.92] overflow-hidden bg-parchment flex-shrink-0">
         {/* Wishlist Heart Button */}
-        <button
+        <motion.button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             toggleWishlist(product);
           }}
-          className="absolute top-4 right-4 z-10 bg-white/95 p-2 rounded-full shadow-md hover:bg-slate-50 hover:scale-110 active:scale-95 transition-all text-terracotta"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="absolute top-4 right-4 z-10 bg-white/95 p-2 rounded-full shadow-md hover:bg-slate-50 transition-all text-terracotta flex items-center justify-center cursor-pointer"
           title={isWishlisted ? "Fjern fra ønskelisten" : "Legg i ønskelisten"}
         >
-          <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} className={isWishlisted ? "text-terracotta fill-terracotta scale-105" : "text-terracotta/75 hover:text-terracotta"} />
-        </button>
+          <motion.div
+            key={isWishlisted ? "wishlisted" : "not-wishlisted"}
+            initial={{ scale: 0.8, opacity: 0.5 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+          >
+            <Heart 
+              size={16} 
+              fill={isWishlisted ? "currentColor" : "none"} 
+              className={isWishlisted ? "text-terracotta fill-terracotta" : "text-terracotta/75 hover:text-terracotta"} 
+            />
+          </motion.div>
+        </motion.button>
 
         {/* Badges */}
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
@@ -65,9 +79,9 @@ export default function ProductCard({ product }) {
         {/* Quick Add Button */}
         <button 
           onClick={handleQuickAdd}
-          className={`absolute bottom-4 right-4 bg-white/95 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-lg hover:bg-terracotta hover:text-white ${
+          className={`absolute bottom-4 right-4 bg-white/95 p-3 rounded-full shadow-lg hover:bg-terracotta hover:text-white transition-all duration-300 ${
             added ? 'text-green-500' : 'text-terracotta'
-          }`}
+          } lg:opacity-0 lg:translate-y-2 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 opacity-100 translate-y-0 cursor-pointer`}
           title="Legg i handlekurv"
         >
           {added ? (

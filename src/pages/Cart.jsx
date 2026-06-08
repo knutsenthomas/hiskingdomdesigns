@@ -205,7 +205,7 @@ export default function Cart() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-28"
+      className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-margin-mobile md:px-margin-desktop py-28"
     >
       <h1 className="font-headline-lg text-headline-lg mb-10 text-onyx">
         {checkoutStep === 'billing' ? 'Kasse & Betaling' : 'Din Handlekurv'}

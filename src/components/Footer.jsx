@@ -59,7 +59,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-onyx text-parchment pt-20 pb-8 mt-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-gutter px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-gutter px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto mb-16">
         {/* Brand Column */}
         <div className="space-y-6 lg:col-span-4">
           <Link 
@@ -231,7 +231,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10 pt-8 text-center text-label-sm text-parchment/40 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+      <div className="border-t border-white/10 pt-8 text-center text-label-sm text-parchment/40 px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
         <p>&copy; {new Date().getFullYear()} His Kingdom Designs. Alle rettigheter reservert.</p>
       </div>
     </footer>

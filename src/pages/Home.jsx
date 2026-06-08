@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
+import ProductSkeleton from '@/components/ProductSkeleton';
 import { motion } from 'framer-motion';
 import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
@@ -136,7 +137,7 @@ export default function Home() {
     "His Kingdom Designs tilbyr lekre kristne motiver på t-skjorter, hoodies, caps og plakater. Finn dine favorittbibelvers trykket på premium materialer."
   );
 
-  const { products } = useApp();
+  const { products, isLoadingProducts } = useApp();
   const navigate = useNavigate();
 
   const today = new Date();
@@ -350,7 +351,7 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-onyx/20"></div>
         </div>
-        <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width mx-auto w-full">
+        <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <div className="max-w-2xl text-white">
             <CmsText 
               slug="home-hero-title" 
@@ -367,13 +368,13 @@ export default function Home() {
             <div className="flex flex-wrap gap-4">
               <button 
                 onClick={() => navigate('/products')}
-                className="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] shadow-lg"
+                className="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer"
               >
                 Se kolleksjonen
               </button>
               <a 
                 href="#historie"
-                className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white px-8 py-4 rounded font-label-md text-label-md transition-all text-center flex items-center justify-center"
+                className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white px-8 py-4 rounded font-label-md text-label-md transition-all text-center flex items-center justify-center hover:scale-[1.02] duration-300"
               >
                 Vår historie
               </a>
@@ -384,7 +385,7 @@ export default function Home() {
 
       {/* Benefits Bar */}
       <section className="bg-white border-b border-outline-variant/30 py-6 reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">local_shipping</span>
             <div className="min-w-0">
@@ -410,7 +411,7 @@ export default function Home() {
       </section>
 
       {/* Featured Categories (Bento Grid) */}
-      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto py-section-gap reveal-on-scroll">
+      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto py-section-gap reveal-on-scroll">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
           <div>
             <CmsText slug="home-categories-badge" fallback="Kategorier" as="span" className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold" />
@@ -418,9 +419,9 @@ export default function Home() {
           </div>
           <button 
             onClick={() => navigate('/products')}
-            className="text-terracotta font-label-md text-label-md flex items-center gap-2 hover:underline underline-offset-4 font-bold"
+            className="text-terracotta font-label-md text-label-md flex items-center gap-2 hover:underline underline-offset-4 font-bold group cursor-pointer"
           >
-            Se alle kategorier <ArrowRight size={16} />
+            Se alle kategorier <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
           </button>
         </div>
         
@@ -482,7 +483,7 @@ export default function Home() {
 
       {/* Best Sellers */}
       <section className="bg-white py-section-gap reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <CmsText 
             slug="home-bestsellers-title" 
             fallback="Våre bestselgere" 
@@ -490,16 +491,20 @@ export default function Home() {
             className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 md:mb-16 text-onyx block" 
           />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
-            {bestsellers.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {isLoadingProducts ? (
+              [...Array(4)].map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              bestsellers.slice(0, 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            )}
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
       <section className="bg-parchment py-section-gap overflow-hidden reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <CmsText
             slug="home-testimonials-title"
             fallback="Kundeuttalelser"
@@ -536,7 +541,7 @@ export default function Home() {
 
       {/* Subscription Packages */}
       <section className="bg-white py-section-gap overflow-hidden reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto flex flex-col lg:flex-row items-center gap-16">
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="w-full lg:w-1/2 relative">
             <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
             <img 
@@ -680,7 +685,7 @@ export default function Home() {
 
       {/* Instagram Feed */}
       <section className="py-section-gap bg-white reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <div className="text-center mb-12">
             <CmsText slug="home-instagram-title" fallback="Følg oss på Instagram" as="h2" className="font-headline-lg text-2xl md:text-headline-lg mb-4 text-onyx block" />
             <CmsText slug="home-instagram-desc" fallback="Se hvordan våre kunder bærer sin tro @hiskingdomdesigns" as="p" className="text-secondary font-body-md" />
@@ -719,7 +724,7 @@ export default function Home() {
       </section>
 
       {/* Newsletter */}
-      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto mb-section-gap reveal-on-scroll">
+      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto mb-section-gap reveal-on-scroll">
         <div className="bg-onyx rounded-3xl p-12 md:p-20 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-terracotta/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-terracotta/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
