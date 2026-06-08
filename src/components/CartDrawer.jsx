@@ -111,36 +111,8 @@ export default function CartDrawer() {
         }
       });
 
-      let redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
+      const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
       if (redirectUrl) {
-        // Fix domain/subdomain cookie mismatch by replacing the hostname in the redirect URL 
-        // to match the current browsing hostname (e.g. www vs non-www).
-        const currentHost = window.location.host;
-        try {
-          const urlObj = new URL(redirectUrl);
-          if (urlObj.hostname.includes('hiskingdomdesigns.no')) {
-            const originalHost = urlObj.hostname;
-            urlObj.hostname = currentHost;
-            
-            const redirectParam = urlObj.searchParams.get('redirectUrl');
-            if (redirectParam) {
-              try {
-                const innerUrl = new URL(redirectParam);
-                if (innerUrl.hostname.includes('hiskingdomdesigns.no')) {
-                  innerUrl.hostname = currentHost;
-                  urlObj.searchParams.set('redirectUrl', innerUrl.toString());
-                }
-              } catch (innerErr) {
-                const updatedParam = redirectParam.replaceAll(originalHost, currentHost);
-                urlObj.searchParams.set('redirectUrl', updatedParam);
-              }
-            }
-            redirectUrl = urlObj.toString();
-            console.log('Adjusted Wix redirect URL domain to match current browsing host:', redirectUrl);
-          }
-        } catch (urlErr) {
-          console.warn('Could not adjust redirect URL host:', urlErr);
-        }
         setIsCartDrawerOpen(false);
         window.location.href = redirectUrl;
       } else {
