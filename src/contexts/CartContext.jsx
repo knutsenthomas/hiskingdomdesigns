@@ -659,7 +659,7 @@ export const CartProvider = ({ children }) => {
   // If estimated, use Wix calculated shipping
   const shipping = isEstimated && selectedShippingRate !== null 
     ? selectedShippingRate.cost 
-    : (subtotal === 0 ? 0 : (subtotal >= 1500 ? 0 : 39));
+    : (subtotal === 0 ? 0 : (subtotal >= 1500 ? 0 : 49));
 
   const mva = Math.max(0, subtotalAfterDiscount - giftCardAmount) * 0.20;
   const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + shipping;
