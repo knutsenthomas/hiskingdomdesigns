@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ChevronRight, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
@@ -16,6 +16,8 @@ export default function Category() {
     `Utforsk vårt utvalg av produkter i kategorien ${categoryName || 'kategorier'} hos His Kingdom Designs. Finn bibelvers på klær, plakater og tilbehør.`
   );
 
+  const sidebarRef = useRef(null);
+  const [isSidebarTaller, setIsSidebarTaller] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Read search URL param
@@ -101,6 +103,27 @@ export default function Category() {
     setSortBy('Nyeste');
     setSearchParams({});
   };
+
+  // Dynamic sticky sidebar height calculation to adapt "from category to category"
+  useEffect(() => {
+    const checkSidebarHeight = () => {
+      if (sidebarRef.current) {
+        const sidebarHeight = sidebarRef.current.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        // Adjust for header height (approx 140px)
+        setIsSidebarTaller(sidebarHeight > (viewportHeight - 140));
+      }
+    };
+
+    // Run after a short delay to let the DOM settle
+    const timer = setTimeout(checkSidebarHeight, 150);
+    
+    window.addEventListener('resize', checkSidebarHeight);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkSidebarHeight);
+    };
+  }, [filteredProducts, wixCollections, expandedGroups]);
 
   // Get products belonging to current category context (before applying size/color/price filters)
   const categoryProducts = useMemo(() => {
@@ -397,7 +420,12 @@ export default function Category() {
         ) : (
           <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:block w-64 flex-shrink-0">
+            <aside 
+              ref={sidebarRef}
+              className={`hidden lg:block w-64 flex-shrink-0 sticky transition-all duration-300 ${
+                isSidebarTaller ? 'bottom-8' : 'top-28'
+              }`}
+            >
               {filterSidebar}
             </aside>
 
