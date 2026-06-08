@@ -723,7 +723,7 @@ export default function Header() {
                   setShowRecoveryToast(false);
                   setIsCartDrawerOpen(true);
                 }}
-                className="flex-1 bg-[#1B4965] hover:bg-[#153a50] text-white py-2 rounded-xl font-label-md text-xs font-bold shadow-md shadow-[#1B4965]/10 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="flex-1 bg-terracotta hover:bg-terracotta/90 text-white py-2 rounded-xl font-label-md text-xs font-bold shadow-md shadow-terracotta/20 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer text-center"
               >
                 Fullfør kjøpet
               </button>
