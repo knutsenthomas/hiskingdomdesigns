@@ -425,11 +425,32 @@ export default function Profile() {
           setOrdersList(MOCK_ORDERS);
         }
 
-        // Get subscriptions
+        // Get subscriptions from Wix Pricing Plans
         try {
-          // Fallback to mock subscriptions defensively
-          setSubscriptionsList(MOCK_SUBSCRIPTIONS);
+          console.log('Fetching pricing plan subscriptions for member...');
+          const response = await wixClient.pricingPlansOrders.memberListOrders({
+            paging: { limit: 100 }
+          });
+          console.log('Wix pricing plans memberListOrders response:', response);
+          if (response && response.orders && response.orders.length > 0) {
+            const activeOrPastSubscriptions = response.orders.map(subOrder => {
+              const amountVal = subOrder.price?.value || '0';
+              const nextDate = subOrder.nextPaymentDate || subOrder.endDate || null;
+              
+              return {
+                _id: subOrder._id,
+                planName: subOrder.planName || 'Abonnement',
+                price: { amount: amountVal },
+                status: subOrder.status || 'ACTIVE',
+                nextShipmentDate: nextDate
+              };
+            });
+            setSubscriptionsList(activeOrPastSubscriptions);
+          } else {
+            setSubscriptionsList([]);
+          }
         } catch (err) {
+          console.warn('Wix Pricing Plans memberListOrders API error. Using mock subscriptions fallback.', err);
           setSubscriptionsList(MOCK_SUBSCRIPTIONS);
         }
         setIsLoading(false);

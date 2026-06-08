@@ -3,7 +3,7 @@ import { products, collections } from '@wix/stores';
 import { currentCart, checkout, orders, backInStockNotifications } from '@wix/ecom';
 import { redirects } from '@wix/redirects';
 import { members } from '@wix/members';
-import { plans } from '@wix/pricing-plans';
+import { plans, orders as pricingPlansOrders } from '@wix/pricing-plans';
 import { reviews } from '@wix/reviews';
 import { contacts } from '@wix/site-crm';
 import { accounts as loyaltyAccounts, transactions as loyaltyTransactions } from '@wix/loyalty';
@@ -49,6 +49,7 @@ export const wixClient = createClient({
     redirects,
     members,
     plans,
+    pricingPlansOrders,
     orders,
     backInStockNotifications,
     reviews,

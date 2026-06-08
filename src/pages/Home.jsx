@@ -162,8 +162,9 @@ export default function Home() {
     async function fetchPlans() {
       try {
         const response = await wixClient.plans.queryPublicPlans().limit(10).find();
-        if (response.items && response.items.length > 0) {
-          setPlansList(response.items);
+        const items = response.items || response._items;
+        if (items && items.length > 0) {
+          setPlansList(items);
         }
       } catch (err) {
         console.warn('Wix Pricing Plans API not available or app not installed. Using mock fallback plans.', err);
