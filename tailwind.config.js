@@ -75,15 +75,14 @@ export default {
         "max-width": "1280px"
       },
       fontFamily: {
-        "headline-xl": ["'Cormorant Garamond'", "serif"],
-        "headline-lg-mobile": ["'Cormorant Garamond'", "serif"],
+        "headline-xl": ["Inter", "sans-serif"],
+        "headline-lg-mobile": ["Inter", "sans-serif"],
         "label-sm": ["Inter", "sans-serif"],
-        "headline-md": ["'Cormorant Garamond'", "serif"],
-        "headline-lg": ["'Cormorant Garamond'", "serif"],
+        "headline-md": ["Inter", "sans-serif"],
+        "headline-lg": ["Inter", "sans-serif"],
         "body-md": ["Inter", "sans-serif"],
         "body-lg": ["Inter", "sans-serif"],
-        "label-md": ["Inter", "sans-serif"],
-        "serif": ["'Cormorant Garamond'", "serif"]
+        "label-md": ["Inter", "sans-serif"]
       },
       fontSize: {
         "headline-xl": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
