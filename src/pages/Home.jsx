@@ -288,7 +288,7 @@ export default function Home() {
         '5 unike klistermerker/mnd',
         'Gratis frakt inkludert',
         'Eksklusive design',
-        'Avslutt når som helst'
+        '1 mnd bindingstid (min. 2 pakker)'
       ]
     },
     {
@@ -301,7 +301,7 @@ export default function Home() {
         '1 premium kopp/mnd',
         'Utvalgt kaffe eller te',
         'Gratis frakt inkludert',
-        'Avslutt når som helst'
+        '1 mnd bindingstid (min. 2 pakker)'
       ],
       popular: true
     }

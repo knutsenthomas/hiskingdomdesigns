@@ -17,7 +17,7 @@ const FAQ_ITEMS = [
       },
       {
         q: 'Hva koster frakten?',
-        a: 'Vi tilbyr gratis standardfrakt på alle bestillinger over 1500 kr. For bestillinger under dette beløpet beregnes fraktprisen ut fra vekten til pakken, og starter på 39 kr.',
+        a: 'Vi tilbyr gratis standardfrakt på alle bestillinger over 1500 kr i Norge. For bestillinger under dette beløpet, eller for sendinger til utlandet, beregnes fraktprisen i kassen basert på vekt og leveringsadresse. Innenlands frakt starter på 39 kr.',
         qSlug: 'faq-shipping-q2',
         aSlug: 'faq-shipping-a2'
       },
@@ -77,7 +77,7 @@ const FAQ_ITEMS = [
     questions: [
       {
         q: 'Er det bindingstid på månedspakkene?',
-        a: 'Nei, det er absolutt ingen bindingstid på abonnementsløsningene våre. Du kan når som helst endre, pause eller avslutte abonnementet ditt direkte via profilsiden din eller ved å sende oss en e-post.',
+        a: 'Det er 1 måned bindingstid på månedspakkene våre, noe som betyr at du forplikter deg til å motta og betale for minimum 2 pakker totalt. Deretter kan du når som helst endre, pause eller avslutte abonnementet ditt direkte via profilsiden din.',
         qSlug: 'faq-subscription-q1',
         aSlug: 'faq-subscription-a1'
       },
