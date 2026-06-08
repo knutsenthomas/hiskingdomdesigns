@@ -385,25 +385,25 @@ export default function Home() {
       {/* Benefits Bar */}
       <section className="bg-white border-b border-outline-variant/30 py-6 reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="flex items-center justify-center gap-4 text-center md:text-left">
-            <span className="material-symbols-outlined text-terracotta text-3xl">local_shipping</span>
-            <div>
-              <CmsText slug="home-benefits-title-1" fallback="Gratis frakt over 1500 kr" as="p" className="font-label-md text-label-md text-onyx" />
-              <CmsText slug="home-benefits-desc-1" fallback="Rask levering til hele landet" as="p" className="text-label-sm text-secondary" />
+          <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
+            <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">local_shipping</span>
+            <div className="min-w-0">
+              <CmsText slug="home-benefits-title-1" fallback="Gratis frakt over 1500 kr" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-1" fallback="Rask levering til hele landet" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
-          <div className="flex items-center justify-center gap-4 text-center md:text-left">
-            <span className="material-symbols-outlined text-terracotta text-3xl">assignment_return</span>
-            <div>
-              <CmsText slug="home-benefits-title-2" fallback="30 dagers åpent kjøp" as="p" className="font-label-md text-label-md text-onyx" />
-              <CmsText slug="home-benefits-desc-2" fallback="Enkel retur hvis du ombestemmer deg" as="p" className="text-label-sm text-secondary" />
+          <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
+            <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">assignment_return</span>
+            <div className="min-w-0">
+              <CmsText slug="home-benefits-title-2" fallback="30 dagers åpent kjøp" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-2" fallback="Enkel retur hvis du ombestemmer deg" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
-          <div className="flex items-center justify-center gap-4 text-center md:text-left">
-            <span className="material-symbols-outlined text-terracotta text-3xl">package</span>
-            <div>
-              <CmsText slug="home-benefits-title-3" fallback="Lynrask levering" as="p" className="font-label-md text-label-md text-onyx" />
-              <CmsText slug="home-benefits-desc-3" fallback="Sendes fra vårt lager innen 24 timer" as="p" className="text-label-sm text-secondary" />
+          <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
+            <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">package</span>
+            <div className="min-w-0">
+              <CmsText slug="home-benefits-title-3" fallback="Lynrask levering" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-3" fallback="Sendes fra vårt lager innen 24 timer" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
         </div>
