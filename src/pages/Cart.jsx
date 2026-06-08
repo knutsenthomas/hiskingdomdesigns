@@ -148,6 +148,7 @@ export default function Cart() {
       }
     } catch (err) {
       console.error('Checkout error:', err);
+      console.error('Wix Checkout Error Details:', JSON.stringify(err.details || err));
       setErrorMessage('Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.');
       setIsRedirecting(false);
     }

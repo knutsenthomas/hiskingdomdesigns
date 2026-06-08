@@ -118,6 +118,7 @@ export default function CartDrawer() {
       }
     } catch (err) {
       console.error('CartDrawer Checkout error:', err);
+      console.error('Wix Checkout Error Details:', JSON.stringify(err.details || err));
       setCheckoutError('Kunne ikke opprette betaling. Vennligst gå til handlekurven.');
       setIsRedirecting(false);
     }

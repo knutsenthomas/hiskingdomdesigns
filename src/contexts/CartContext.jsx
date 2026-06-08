@@ -55,6 +55,7 @@ export const CartProvider = ({ children }) => {
           selectedColor,
           selectedOptions,
           customTextFields,
+          customTextFieldDefinitions: product.customTextFields || [],
           quantity: qty
         }];
       }
@@ -195,7 +196,11 @@ export const CartProvider = ({ children }) => {
           const locOptions = loc.catalogReference.options?.options || {};
           const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
           
-          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
+          const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
+          const locCustomFields = loc.catalogReference.options?.customTextFields || {};
+          const customFieldsMatch = JSON.stringify(wixCustomFields) === JSON.stringify(locCustomFields);
+          
+          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch && customFieldsMatch;
         });
         
         if (!localMatch) {
@@ -226,7 +231,11 @@ export const CartProvider = ({ children }) => {
           const locOptions = loc.catalogReference.options?.options || {};
           const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
           
-          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch;
+          const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
+          const locCustomFields = loc.catalogReference.options?.customTextFields || {};
+          const customFieldsMatch = JSON.stringify(wixCustomFields) === JSON.stringify(locCustomFields);
+          
+          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch && customFieldsMatch;
         });
         
         if (wixMatch) {
@@ -360,21 +369,38 @@ export const CartProvider = ({ children }) => {
       }
 
       // Handle custom text fields (FREE_TEXT choices)
+      const customTextFieldsMap = {};
+      
+      // 1. Populate from item.customTextFields (user choices)
       if (item.customTextFields && item.customTextFields.length > 0) {
-        catalogReference.customTextFields = item.customTextFields.map(field => ({
-          title: field.title,
-          value: field.value || 'Tilfeldig' // Fallback to avoid empty value validation errors
-        }));
-      } else if (item.productOptions) {
-        // Fallback: if the product page has custom text fields, but they weren't stored in the item,
-        // check if they are in the item's metadata and populate them with 'Tilfeldig' to pass Wix validation
-        const productFromContext = item; // item has item.customTextFields if preloaded
-        if (productFromContext.customTextFields && productFromContext.customTextFields.length > 0) {
-          catalogReference.customTextFields = productFromContext.customTextFields.map(field => ({
-            title: field.title,
-            value: 'Tilfeldig'
-          }));
+        item.customTextFields.forEach(field => {
+          if (field.title) {
+            customTextFieldsMap[field.title] = field.value || 'Tilfeldig';
+          }
+        });
+      }
+
+      // 2. Fallback to product definitions if stored on the cart item
+      if (item.customTextFieldDefinitions && item.customTextFieldDefinitions.length > 0) {
+        item.customTextFieldDefinitions.forEach(field => {
+          if (field.title && !customTextFieldsMap[field.title]) {
+            customTextFieldsMap[field.title] = 'Tilfeldig';
+          }
+        });
+      }
+
+      // 3. Robust fallback: specific customized sticker IDs that require a custom text field
+      const customStickerIds = ['bcf7626f-9509-7151-8a1e-d7ce4c3c7cef', '8ad0fd79-4c27-4d18-61e9-3d0f441be21a'];
+      if (customStickerIds.includes(item.id)) {
+        const mandatoryTitle = "Bestille en spesiell sticker? Fortell oss hvilken!";
+        if (!customTextFieldsMap[mandatoryTitle]) {
+          customTextFieldsMap[mandatoryTitle] = 'Tilfeldig';
         }
+      }
+
+      if (Object.keys(customTextFieldsMap).length > 0) {
+        catalogReference.options = catalogReference.options || {};
+        catalogReference.options.customTextFields = customTextFieldsMap;
       }
 
       return {
