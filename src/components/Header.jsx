@@ -141,6 +141,11 @@ export default function Header() {
           <div className="flex items-center shrink-0">
             <Link 
               to="/" 
+              onClick={() => {
+                if (location.pathname === '/') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
               className="flex items-center gap-1.5 sm:gap-2 font-bold text-onyx hover:text-terracotta transition-all duration-300 logo group"
             >
               <div className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
