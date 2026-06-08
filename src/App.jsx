@@ -102,25 +102,12 @@ function MainLayout() {
       localStorage.setItem('hkm_referral_id', ref);
     }
 
-    // 2. GoAffPro affiliate script integration
-    const scriptId = 'goaffpro-tracker-script';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.src = 'https://static.goaffpro.com/client_sdk.js';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (window.Goaffpro) {
-          // Initialize with public API key
-          window.Goaffpro('init', '69ca807e2a160e63914327eda29253836c863b4b39a096e366275ff2ca0f2b09');
-          window.Goaffpro('track-visit');
-        }
-      };
-      document.head.appendChild(script);
-    } else {
-      if (window.Goaffpro) {
+    // 2. GoAffPro visit tracking on route change
+    if (window.Goaffpro) {
+      try {
         window.Goaffpro('track-visit');
+      } catch (err) {
+        console.warn('GoAffPro track-visit failed:', err);
       }
     }
   }, [location]);
