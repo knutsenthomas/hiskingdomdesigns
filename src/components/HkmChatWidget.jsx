@@ -641,14 +641,14 @@ export default function HkmChatWidget() {
             </div>
 
             {/* Mode Selector Tab Bar */}
-            <div className="flex border-b border-outline-variant/40 shrink-0 bg-slate-50 text-xs font-semibold select-none">
+            <div className="flex shrink-0 bg-slate-50 text-xs font-semibold select-none">
               <button
                 type="button"
                 onClick={() => setChatMode('ai')}
                 className={`flex-1 py-3 text-center border-r border-outline-variant/30 transition-all ${
                   chatMode === 'ai' 
                     ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
-                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
                 }`}
               >
                 AI Assistent
@@ -666,7 +666,7 @@ export default function HkmChatWidget() {
                 className={`flex-1 py-3 text-center transition-all ${
                   chatMode === 'live' 
                     ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
-                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
+                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
                 }`}
               >
                 Kundeservice (Live)
