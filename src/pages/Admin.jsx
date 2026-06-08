@@ -18,6 +18,8 @@ export default function Admin() {
   
   const [activeSubTab, setActiveSubTab] = useState('pending'); // 'pending' | 'approved'
   const [applications, setApplications] = useState([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [approvedCount, setApprovedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -87,6 +89,15 @@ export default function Admin() {
         // Sort by applied date descending
         apps.sort((a, b) => new Date(b.appliedAt || 0) - new Date(a.appliedAt || 0));
         setApplications(apps);
+
+        // Fetch counts for both pending and approved
+        const pendingQuery = query(collection(db, 'affiliate_applications'), where('status', '==', 'pending'));
+        const pendingSnap = await getDocs(pendingQuery);
+        setPendingCount(pendingSnap.size);
+
+        const approvedQuery = query(collection(db, 'affiliate_applications'), where('status', '==', 'approved'));
+        const approvedSnap = await getDocs(approvedQuery);
+        setApprovedCount(approvedSnap.size);
       } catch (err) {
         console.error('Kunne ikke hente søknader:', err);
         showToast("Feil ved henting av søknader");
@@ -105,6 +116,8 @@ export default function Admin() {
       showToast(`Søknaden til ${appName} ble godkjent!`);
       // Update local state instantly with animation
       setApplications(prev => prev.filter(app => app.id !== appId));
+      setPendingCount(prev => Math.max(0, prev - 1));
+      setApprovedCount(prev => prev + 1);
       
       // Update localStorage cached status if the user approved themselves
       if (appId === member?._id) {
@@ -122,6 +135,12 @@ export default function Admin() {
       await deleteDoc(docRef);
       showToast(`Søknaden til ${appName} ble slettet/avvist.`);
       setApplications(prev => prev.filter(app => app.id !== appId));
+      
+      if (activeSubTab === 'pending') {
+        setPendingCount(prev => Math.max(0, prev - 1));
+      } else {
+        setApprovedCount(prev => Math.max(0, prev - 1));
+      }
       
       if (appId === member?._id) {
         localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
@@ -203,15 +222,15 @@ export default function Admin() {
       className="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-12 space-y-10"
     >
       {/* Header Banner */}
-      <div className="bg-[#1B4965] text-white p-8 md:p-12 rounded-3xl relative overflow-hidden shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white p-8 md:p-12 rounded-3xl relative overflow-hidden shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-[80px] -mr-16 -mt-16"></div>
         <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-2 text-terracotta text-xs font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full w-fit">
+          <div className="flex items-center gap-2 text-white text-xs font-bold uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full w-fit">
             <ShieldCheck size={14} />
             <span>Admin-konsoll</span>
           </div>
           <h1 className="font-headline-xl text-headline-xl font-bold">Administrasjon</h1>
-          <p className="text-slate-200 text-xs max-w-md">
+          <p className="text-slate-100 text-xs max-w-md">
             Behandle affiliate markedsførere, godkjenn nye søknader, og hold oversikt over samarbeidspartnere.
           </p>
         </div>
@@ -236,7 +255,7 @@ export default function Admin() {
           <div>
             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Søknader til behandling</p>
             <p className="text-xl font-extrabold text-[#1B4965]">
-              {activeSubTab === 'pending' ? applications.length : '-'}
+              {pendingCount}
             </p>
           </div>
         </div>
@@ -248,18 +267,18 @@ export default function Admin() {
           <div>
             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Godkjente affiliates</p>
             <p className="text-xl font-extrabold text-[#1B4965]">
-              {activeSubTab === 'approved' ? applications.length : '-'}
+              {approvedCount}
             </p>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#1B4965]/10 text-[#1B4965] rounded-xl flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 bg-[#d17d39]/10 text-[#d17d39] rounded-xl flex items-center justify-center shrink-0">
             <BarChart3 size={22} />
           </div>
           <div>
             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Totalt registrerte</p>
-            <p className="text-xl font-extrabold text-[#1B4965]">Provisjonspartnere</p>
+            <p className="text-xl font-extrabold text-[#1B4965]">{approvedCount}</p>
           </div>
         </div>
       </div>
@@ -276,7 +295,7 @@ export default function Admin() {
                 setSearchQuery('');
               }}
               className={`px-4 py-2 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer ${
-                activeSubTab === 'pending' ? 'bg-[#1B4965] text-white shadow-sm' : 'text-secondary hover:text-onyx'
+                activeSubTab === 'pending' ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
               }`}
             >
               Nye søknader
@@ -287,7 +306,7 @@ export default function Admin() {
                 setSearchQuery('');
               }}
               className={`px-4 py-2 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer ${
-                activeSubTab === 'approved' ? 'bg-[#1B4965] text-white shadow-sm' : 'text-secondary hover:text-onyx'
+                activeSubTab === 'approved' ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
               }`}
             >
               Godkjente affiliates
