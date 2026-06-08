@@ -112,84 +112,87 @@ export default function Header() {
   return (
     <>
       <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 backdrop-blur-md ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 backdrop-blur-lg ${
           isScrolled 
             ? 'h-16 bg-parchment/90 border-b border-onyx/5 shadow-[0_2px_20px_-10px_rgba(0,0,0,0.08)]' 
             : 'h-20 bg-parchment/95 border-b border-outline-variant/10'
         }`}
       >
-        <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto h-full">
-          <div className="flex items-center gap-8">
+        <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto h-full">
+          {/* Venstre side: Logo */}
+          <div className="flex items-center shrink-0">
             <Link 
               to="/" 
               className="flex items-center gap-1.5 sm:gap-2 font-bold text-onyx hover:text-terracotta transition-all duration-300 logo group"
             >
-              <div className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
                 <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-[12px] min-[360px]:text-[13px] min-[400px]:text-[14px] sm:text-[15px] md:text-base lg:text-lg font-bold tracking-tight whitespace-nowrap">
+              <span className="text-[12px] min-[360px]:text-[13px] min-[400px]:text-[14px] sm:text-[15px] md:text-base xl:text-lg 2xl:text-xl font-bold tracking-tight whitespace-nowrap">
                 His Kingdom Designs
               </span>
             </Link>
-            
-            <nav className="hidden lg:flex items-center gap-8 h-full">
-              {/* Alle produkter Link */}
-              <Link
-                to="/products"
-                className={`font-label-md text-label-md py-6 transition-all relative group flex items-center ${
-                  location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
+          </div>
+          
+          {/* Senter: Sentrert navigasjon med widescreen-skalering */}
+          <nav className="hidden lg:flex items-center justify-center gap-8 xl:gap-10 2xl:gap-12 h-full mx-auto">
+            {/* Alle produkter Link */}
+            <Link
+              to="/products"
+              className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all relative group flex items-center ${
+                location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
+              }`}
+            >
+              <span className="relative py-1">
+                Alle Produkter
+                <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                  location.pathname === '/products' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                }`} />
+              </span>
+            </Link>
+
+            {/* Collapsible Megamenu Link */}
+            <div 
+              className="h-full flex items-center"
+              onMouseEnter={() => setMegamenuOpen(true)}
+              onMouseLeave={() => setMegamenuOpen(false)}
+            >
+              <button
+                className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all flex items-center gap-1 cursor-pointer focus:outline-none relative group ${
+                  megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                 }`}
               >
                 <span className="relative py-1">
-                  Alle Produkter
+                  Kategorier
                   <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                    location.pathname === '/products' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                    megamenuOpen || location.pathname.startsWith('/category/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                   }`} />
                 </span>
-              </Link>
+                <ChevronDown size={14} className={`transition-transform duration-300 ${megamenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
 
-              {/* Collapsible Megamenu Link */}
-              <div 
-                className="h-full flex items-center"
-                onMouseEnter={() => setMegamenuOpen(true)}
-                onMouseLeave={() => setMegamenuOpen(false)}
-              >
-                <button
-                  className={`font-label-md text-label-md py-6 transition-all flex items-center gap-1 cursor-pointer focus:outline-none relative group ${
-                    megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
-                  }`}
-                >
-                  <span className="relative py-1">
-                    Kategorier
-                    <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                      megamenuOpen || location.pathname.startsWith('/category/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                    }`} />
-                  </span>
-                  <ChevronDown size={14} className={`transition-transform duration-300 ${megamenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
+            {/* Salg Link */}
+            <Link
+              to="/category/Salg"
+              className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all relative group flex items-center ${
+                location.pathname === '/category/Salg' 
+                  ? 'text-terracotta font-bold' 
+                  : 'text-terracotta/90 hover:text-terracotta font-semibold'
+              }`}
+            >
+              <span className="relative py-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-terracotta rounded-full animate-pulse" />
+                Salg
+                <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                  location.pathname === '/category/Salg' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                }`} />
+              </span>
+            </Link>
+          </nav>
 
-              {/* Salg Link */}
-              <Link
-                to="/category/Salg"
-                className={`font-label-md text-label-md py-6 transition-all relative group flex items-center ${
-                  location.pathname === '/category/Salg' 
-                    ? 'text-terracotta font-bold' 
-                    : 'text-terracotta/90 hover:text-terracotta font-semibold'
-                }`}
-              >
-                <span className="relative py-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-terracotta rounded-full animate-pulse" />
-                  Salg
-                  <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                    location.pathname === '/category/Salg' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                  }`} />
-                </span>
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3">
+          {/* Høyre side: Ikoner med luftigere avstand */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 md:gap-3 2xl:gap-4 shrink-0">
             <button 
               onClick={() => setSearchOpen(true)}
               className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer"
@@ -284,16 +287,16 @@ export default function Header() {
               onMouseEnter={() => setMegamenuOpen(true)}
               onMouseLeave={() => setMegamenuOpen(false)}
             >
-              <div className="max-w-max-width mx-auto grid grid-cols-7 gap-6">
+              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-7 gap-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Klær & Bekledning</h4>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Klær & Bekledning']?.map(sub => (
                       <li key={sub}>
                         <Link 
                           to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -305,12 +308,12 @@ export default function Header() {
                 {/* Column 2: Bilder & Kunst */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Bilder & Kunst</h4>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Bilder & Kunst']?.map(sub => (
                       <li key={sub}>
                         <Link 
                           to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -322,12 +325,12 @@ export default function Header() {
                 {/* Column 3: Tilbehør & Hjem */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Tilbehør & Hjem</h4>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Tilbehør & Hjem']?.map(sub => (
                       <li key={sub}>
                         <Link 
                           to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -339,12 +342,12 @@ export default function Header() {
                 {/* Column 4: Barn & Familie */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Barn & Familie</h4>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Barn & Familie']?.map(sub => (
                       <li key={sub}>
                         <Link 
                           to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block"
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {sub}
                         </Link>
@@ -352,16 +355,16 @@ export default function Header() {
                     ))}
                   </ul>
                 </div>
-
+ 
                 {/* Column 5 & 6: Temaer & Språk */}
                 <div className="col-span-2">
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
-                  <ul className="grid grid-cols-2 gap-x-6 gap-y-2 w-full">
+                  <ul className="grid grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => (
                       <li key={sub}>
                         <Link 
                           to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-0.5 transition-all duration-300 inline-block whitespace-nowrap"
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
                         >
                           {sub}
                         </Link>
@@ -369,7 +372,7 @@ export default function Header() {
                     ))}
                   </ul>
                 </div>
-
+ 
                 {/* Column 7: Featured Promo Box */}
                 <div className="col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
