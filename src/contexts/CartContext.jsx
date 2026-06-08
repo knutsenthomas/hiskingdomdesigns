@@ -552,11 +552,20 @@ export const CartProvider = ({ children }) => {
   // Live shipping and tax estimation states
   const [estimatedShipping, setEstimatedShipping] = useState(null);
   const [estimatedTax, setEstimatedTax] = useState(null);
+  const [estimatedRates, setEstimatedRates] = useState([]);
+  const [selectedShippingRate, setSelectedShippingRate] = useState(null);
   const [estimatedTotal, setEstimatedTotal] = useState(null);
   const [isEstimated, setIsEstimated] = useState(false);
   const [isEstimating, setIsEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState('');
   const [shippingAddress, setShippingAddress] = useState(null);
+
+  const selectShippingRate = (code) => {
+    const match = estimatedRates.find(r => r.code === code);
+    if (match) {
+      setSelectedShippingRate(match);
+    }
+  };
 
   const estimateShippingAndTotals = async (postalCode, city, countryCode = 'NO') => {
     setIsEstimating(true);
@@ -584,6 +593,29 @@ export const CartProvider = ({ children }) => {
         if (postalCode && city) {
           setShippingAddress({ postalCode, city, country: countryCode });
         }
+
+        // Extract and populate actual shipping options from Wix
+        const rates = [];
+        if (response.shippingInfo?.carrierServiceOptions) {
+          response.shippingInfo.carrierServiceOptions.forEach(carrier => {
+            if (carrier.shippingOptions) {
+              carrier.shippingOptions.forEach(opt => {
+                rates.push({
+                  code: opt.code,
+                  title: opt.title,
+                  deliveryTime: opt.logistics?.deliveryTime || '',
+                  cost: parseFloat(opt.cost?.price?.amount || '0')
+                });
+              });
+            }
+          });
+        }
+        setEstimatedRates(rates);
+
+        const activeCode = response.shippingInfo?.selectedCarrierServiceOption?.code;
+        const activeRate = rates.find(r => r.code === activeCode) || rates[0] || null;
+        setSelectedShippingRate(activeRate);
+
         setIsEstimating(false);
         setEstimateError('');
         return true;
@@ -604,6 +636,8 @@ export const CartProvider = ({ children }) => {
     setEstimatedTax(null);
     setEstimatedTotal(null);
     setShippingAddress(null);
+    setEstimatedRates([]);
+    setSelectedShippingRate(null);
     setEstimateError('');
   };
 
@@ -623,8 +657,8 @@ export const CartProvider = ({ children }) => {
   
   // MVA (25%) included in price: if item is 125kr, MVA is 25kr (which is subtotal * 0.2)
   // If estimated, use Wix calculated shipping
-  const shipping = isEstimated && estimatedShipping !== null 
-    ? estimatedShipping 
+  const shipping = isEstimated && selectedShippingRate !== null 
+    ? selectedShippingRate.cost 
     : (subtotal === 0 ? 0 : (subtotal >= 1500 ? 0 : 39));
 
   const mva = Math.max(0, subtotalAfterDiscount - giftCardAmount) * 0.20;
@@ -661,6 +695,9 @@ export const CartProvider = ({ children }) => {
       estimatedShipping,
       estimatedTax,
       estimatedTotal,
+      estimatedRates,
+      selectedShippingRate,
+      selectShippingRate,
       isEstimated,
       isEstimating,
       estimateError,

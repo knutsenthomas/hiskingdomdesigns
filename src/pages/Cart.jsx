@@ -39,7 +39,10 @@ export default function Cart() {
     estimateError,
     shippingAddress,
     estimateShippingAndTotals,
-    clearEstimation
+    clearEstimation,
+    estimatedRates,
+    selectedShippingRate,
+    selectShippingRate
   } = useCart();
   const navigate = useNavigate();
   const [checkoutStep, setCheckoutStep] = useState(null); // 'billing' | 'success'
@@ -667,17 +670,52 @@ export default function Cart() {
                   <p className="text-[11px] text-red-600 font-semibold mt-1.5">{estimateError}</p>
                 )}
                 {isEstimated && (
-                  <div className="mt-2.5 p-2.5 bg-emerald-50 rounded-lg border border-emerald-100 flex items-center justify-between text-xs">
-                    <div className="text-emerald-800 font-medium flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">done</span>
-                      <span>Frakt beregnet for {shippingAddress.postalCode} {shippingAddress.city}!</span>
+                  <div className="space-y-4 mt-3">
+                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between text-xs">
+                      <div className="text-emerald-800 font-medium flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[16px]">done</span>
+                        <span>Frakt beregnet for {shippingAddress ? `${shippingAddress.postalCode} ${shippingAddress.city}` : 'Norge'}!</span>
+                      </div>
+                      <button 
+                        onClick={clearEstimation}
+                        className="text-[10px] text-secondary hover:text-red-500 hover:underline font-semibold"
+                      >
+                        Nullstill
+                      </button>
                     </div>
-                    <button 
-                      onClick={clearEstimation}
-                      className="text-[10px] text-secondary hover:text-red-500 hover:underline"
-                    >
-                      Nullstill
-                    </button>
+
+                    {/* Display actual shipping methods from Wix */}
+                    {estimatedRates && estimatedRates.length > 0 && (
+                      <div className="space-y-2.5">
+                        <span className="block text-[10px] font-semibold text-onyx uppercase tracking-wider">Fraktalternativer</span>
+                        <div className="space-y-2">
+                          {estimatedRates.map((rate) => {
+                            const isSelected = selectedShippingRate?.code === rate.code;
+                            return (
+                              <div 
+                                key={rate.code}
+                                onClick={() => selectShippingRate(rate.code)}
+                                className={`p-3 border rounded-xl flex items-center justify-between text-xs cursor-pointer active:scale-[0.99] transition-all select-none ${
+                                  isSelected 
+                                    ? 'border-[#1B4965] bg-[#1B4965]/5 font-semibold text-onyx' 
+                                    : 'border-outline-variant/40 hover:border-[#1B4965]/30 bg-slate-50 text-secondary'
+                                }`}
+                              >
+                                <div>
+                                  <span className="font-bold block text-onyx">{rate.title}</span>
+                                  {rate.deliveryTime && (
+                                    <span className="text-[10px] text-secondary/70">Forventet levering: {rate.deliveryTime}</span>
+                                  )}
+                                </div>
+                                <span className="font-bold text-terracotta text-sm">
+                                  {rate.cost === 0 ? 'Gratis' : `${rate.cost} kr`}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
