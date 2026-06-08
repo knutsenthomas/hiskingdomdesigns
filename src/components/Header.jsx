@@ -361,7 +361,9 @@ export default function Header() {
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
                   <ul className="grid grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => {
-                      const isVarna = sub.toLowerCase().includes('varna') && (sub.toLowerCase().includes('bibelskole') || sub.toLowerCase().includes('bible school'));
+                      const lower = sub.toLowerCase();
+                      const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
+                                      (lower.includes('bibelskole') || lower.includes('bible school') || lower.includes('evangeliesenter') || lower.includes('evangliesenter'));
                       if (isVarna) {
                         return (
                           <li key={sub} className="flex flex-col gap-0.5 mt-0.5">
@@ -566,7 +568,9 @@ export default function Header() {
                     {isExpanded && (
                       <ul className="mt-2 pl-4 space-y-2.5">
                         {cats?.map(sub => {
-                          const isVarna = sub.toLowerCase().includes('varna') && (sub.toLowerCase().includes('bibelskole') || sub.toLowerCase().includes('bible school'));
+                          const lower = sub.toLowerCase();
+                          const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
+                                          (lower.includes('bibelskole') || lower.includes('bible school') || lower.includes('evangeliesenter') || lower.includes('evangliesenter'));
                           if (isVarna) {
                             return (
                               <li key={sub} className="flex flex-col gap-0.5 pl-2 py-0.5">

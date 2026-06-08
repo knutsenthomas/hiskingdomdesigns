@@ -250,7 +250,9 @@ export default function Category() {
                   {isExpanded && (
                     <ul className="p-3 space-y-2 border-t border-outline-variant/30 bg-white/10 max-h-48 overflow-y-auto custom-scrollbar">
                       {cats.map(cat => {
-                        const isVarna = cat.toLowerCase().includes('varna') && (cat.toLowerCase().includes('bibelskole') || cat.toLowerCase().includes('bible school'));
+                        const lower = cat.toLowerCase();
+                        const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
+                                        (lower.includes('bibelskole') || lower.includes('bible school') || lower.includes('evangeliesenter') || lower.includes('evangliesenter'));
                         return (
                           <li key={cat}>
                             <label className="flex items-center gap-3 cursor-pointer group">
