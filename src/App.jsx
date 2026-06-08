@@ -95,10 +95,33 @@ function MainLayout() {
   const { toastMessage } = useApp();
 
   useEffect(() => {
+    // 1. Wix referral parameter tracking
     const params = new URLSearchParams(location.search);
     const ref = params.get('ref');
     if (ref) {
       localStorage.setItem('hkm_referral_id', ref);
+    }
+
+    // 2. GoAffPro affiliate script integration
+    const scriptId = 'goaffpro-tracker-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://static.goaffpro.com/client_sdk.js';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (window.Goaffpro) {
+          // Initialize with public API key (Replace with your actual public key from GoAffPro Admin Panel > Settings)
+          window.Goaffpro('init', 'YOUR_GOAFFPRO_PUBLIC_KEY');
+          window.Goaffpro('track-visit');
+        }
+      };
+      document.head.appendChild(script);
+    } else {
+      if (window.Goaffpro) {
+        window.Goaffpro('track-visit');
+      }
     }
   }, [location]);
 

@@ -148,6 +148,28 @@ export default function Cart() {
 
   const handleCheckoutSubmit = (e) => {
     e.preventDefault();
+
+    // Get customer email from form
+    const emailInput = e.currentTarget.querySelector('input[type="email"]');
+    const customerEmail = emailInput ? emailInput.value : '';
+
+    // Generate simulated order number
+    const orderNumber = 'HKD-' + Math.floor(100000 + Math.random() * 900000);
+
+    // Track conversion in GoAffPro
+    if (window.Goaffpro) {
+      try {
+        window.Goaffpro('track-conversion', {
+          number: orderNumber,
+          total_price: parseFloat(total),
+          subtotal_price: parseFloat(subtotal),
+          email: customerEmail
+        });
+      } catch (err) {
+        console.warn('Failed to track conversion in GoAffPro:', err);
+      }
+    }
+
     setCheckoutStep('success');
     setTimeout(() => {
       clearCart();
