@@ -168,7 +168,7 @@ export default function CartDrawer() {
               <div className="px-6 py-4 bg-terracotta/5 border-b border-terracotta/10 text-xs text-onyx">
                 {amountToFreeShipping > 0 ? (
                   <p className="mb-2 font-medium">
-                    Du er bare <strong className="text-terracotta font-bold">{amountToFreeShipping} kr</strong> unna <strong className="text-primary-dark">gratis frakt</strong>!
+                    Du er <strong className="text-terracotta font-bold">{amountToFreeShipping} kr</strong> unna <strong className="text-primary-dark">gratis frakt</strong>!
                   </p>
                 ) : (
                   <p className="mb-2 font-medium text-emerald-800 flex items-center gap-1">
