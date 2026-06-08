@@ -338,7 +338,7 @@ export default function CartDrawer() {
                   <button
                     onClick={handleDirectCheckout}
                     disabled={isRedirecting}
-                    className="bg-[#1B4965] hover:bg-opacity-95 text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
+                    className="bg-terracotta hover:bg-opacity-95 text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
                   >
                     {isRedirecting ? (
                       <>
