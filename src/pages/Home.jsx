@@ -11,30 +11,30 @@ import { getOptimizedWixImageUrl } from '@/lib/media';
 
 const MOCK_TESTIMONIALS = [
   {
-    _id: 'mock-1',
-    author: { authorName: 'Maria H.' },
+    _id: 'e1ba5a6c-d6b3-45d2-a543-15fb5147cdf8',
+    author: { authorName: 'Anne' },
     content: {
       rating: 5,
-      title: 'Fantastisk kvalitet',
-      body: 'Fantastisk kvalitet på t-skjortene! De holder formen vask etter vask, og budskapet starter alltid gode samtaler.'
+      title: 'Flott bibelvers!',
+      body: 'Jeg liker at bibelverset står både på baksiden og med liten skrift på framsiden. Teksten minner meg om å la Den Hellige Ånd lede livet mitt. Trykket er stort og fint på ryggen og vitner til folk rundt også, om å la seg lede av Gud.'
     }
   },
   {
-    _id: 'mock-2',
-    author: { authorName: 'Andreas T.' },
+    _id: 'de6ba802-88fc-4182-a35c-318f6e6db083',
+    author: { authorName: 'Anne' },
     content: {
       rating: 5,
-      title: 'Kjempefine plakater',
-      body: 'Plakatene er så fine! De gir stuen min en helt egen ro og påminnelse om Guds fred hver eneste dag.'
+      title: 'Flott trykk!',
+      body: 'Tskjorten er god i størrelsen og stoffet er bra. Jeg likte veldig godt trykket og elsker den blå fargen på skjorten.'
     }
   },
   {
-    _id: 'mock-3',
-    author: { authorName: 'Karoline S.' },
+    _id: 'd70acda0-1f5c-444c-87cf-c073f8d41f3a',
+    author: { authorName: 'Kari' },
     content: {
       rating: 5,
-      title: 'Lynrask levering',
-      body: 'Lynrask levering! Bestilte på mandag og pakken var i postkassen allerede onsdag. Veldig fornøyd.'
+      title: 'Feminin og nydelig Tskjorte',
+      body: 'Veldig stilig design og trykket var overraskende mykt på Tskjorten. Jeg er kjempefornøyd. Kjøpte hvit Tskjorte str. M. Fint at det var dametskjorte med bittelita innsving i livet.'
     }
   }
 ];
@@ -184,10 +184,20 @@ export default function Home() {
           .find();
         console.log("HKD Debug: Wix API respons:", response);
         if (response && response.items && response.items.length > 0) {
-          console.log(`HKD Debug: Fant ${response.items.length} godkjente omtaler:`, response.items);
-          setTestimonialsList(response.items.slice(0, 3));
+          // Filter to only include approved reviews with body text
+          const approvedReviews = response.items.filter(item => 
+            (!item.moderation || item.moderation.moderationStatus === 'APPROVED') && 
+            item.content?.body
+          );
+          console.log(`HKD Debug: Fant ${approvedReviews.length} godkjente omtaler:`, approvedReviews);
+          if (approvedReviews.length > 0) {
+            setTestimonialsList(approvedReviews.slice(0, 3));
+          } else {
+            setTestimonialsList(MOCK_TESTIMONIALS);
+          }
         } else {
           console.log("HKD Debug: API-et returnerte 0 godkjente omtaler. Sjekk om de må godkjennes i Wix-dashbordet.");
+          setTestimonialsList(MOCK_TESTIMONIALS);
         }
       } catch (err) {
         console.warn('HKD Debug: Wix Reviews API feilet. Bruker mock-data.', err);
