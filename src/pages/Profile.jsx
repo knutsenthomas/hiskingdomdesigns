@@ -155,7 +155,7 @@ export default function Profile() {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const link = `https://hiskingdom.no/?ref=${member?._id || 'medlem'}`;
+    const link = `${window.location.origin}/?ref=${member?._id || 'medlem'}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -1408,7 +1408,7 @@ export default function Profile() {
                   <input
                     type="text"
                     readOnly
-                    value={`https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    value={`${window.location.origin}/?ref=${member?._id || 'medlem'}`}
                     className="flex-grow bg-white border border-outline-variant rounded-xl px-4 py-3 text-xs focus:outline-none text-onyx font-mono"
                   />
                   <button
@@ -1427,7 +1427,7 @@ export default function Profile() {
                   <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">Del direkte:</span>
                   
                   <a
-                    href={`https://api.whatsapp.com/send?text=Hei! Sjekk ut His Kingdom Designs. Bruk vervekoblingen min for å få 10% rabatt på din første bestilling: https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    href={`https://api.whatsapp.com/send?text=Hei! Sjekk ut His Kingdom Designs. Bruk vervekoblingen min for å få 10% rabatt på din første bestilling: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
@@ -1437,7 +1437,7 @@ export default function Profile() {
                   </a>
 
                   <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/?ref=${member?._id || 'medlem'}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 bg-[#1877F2] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
@@ -1447,7 +1447,7 @@ export default function Profile() {
                   </a>
 
                   <a
-                    href={`mailto:?subject=Invitasjon til His Kingdom Designs&body=Hei! Jeg vil invitere deg til å sjekke ut His Kingdom Designs. De har utrolig mange flotte produkter med kristent design. Bruk min vervekobling for å få 10% rabatt på ditt første kjøp: https://hiskingdom.no/?ref=${member?._id || 'medlem'}`}
+                    href={`mailto:?subject=Invitasjon til His Kingdom Designs&body=Hei! Jeg vil invitere deg til å sjekke ut His Kingdom Designs. De har utrolig mange flotte produkter med kristent design. Bruk min vervekobling for å få 10% rabatt på ditt første kjøp: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
                     className="flex items-center gap-1.5 bg-slate-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
                   >
                     <span className="material-symbols-outlined text-xs">mail</span>

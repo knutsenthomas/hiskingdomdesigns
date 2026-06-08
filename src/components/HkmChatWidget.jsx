@@ -197,7 +197,7 @@ export default function HkmChatWidget() {
   // Auto-start live chat once member is loaded if in live mode
   useEffect(() => {
     if (chatMode === 'live' && !conversationId && !isCreatingConv && wixClient.auth.loggedIn() && member) {
-      startLiveChat(getMemberEmail(member) || 'member@hiskingdom.no', displayName);
+      startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
     }
   }, [chatMode, conversationId, member]);
 
@@ -660,7 +660,7 @@ export default function HkmChatWidget() {
                   if (!wixClient.auth.loggedIn() && !conversationId) {
                     setNeedsContactInfo(true);
                   } else if (wixClient.auth.loggedIn() && !conversationId) {
-                    startLiveChat(getMemberEmail(member) || 'member@hiskingdom.no', displayName);
+                    startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
                   }
                 }}
                 className={`flex-1 py-3 text-center transition-all ${
