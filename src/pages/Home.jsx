@@ -347,7 +347,7 @@ export default function Home() {
           <img 
             alt="Hero faith fashion" 
             className="w-full h-full object-cover" 
-            src="https://lh3.googleusercontent.com/aida/AP1WRLvJWfxlC8GKMXjf7zeiY1bbVVDq1a_ZX-nTKngBhdBwVlZ2WiV4ucv5hz6gZyDNTzMqpiGth48coynDj-4SKRbkeGROXThOokUqHOd6PFHcTcY96QJ1aJrs7uqwTiH5sHHMAD0P1T9_7SyoVOQnqSziTuoeEjsU48GG7-EVJ987E4ZYvBbvexby2s5Qoubzblv5lwneROe4M5vGuCHnG1KAVRZ2tuGEi0yIY1sqsU7w2pRWJKCI4tUR"
+            src="/hero_fashion.png"
           />
           <div className="absolute inset-0 bg-onyx/20"></div>
         </div>
