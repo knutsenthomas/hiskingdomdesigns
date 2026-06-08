@@ -263,13 +263,19 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Sync local cart to Wix currentCart for Abandoned Cart recovery
+  const serializedCartItems = JSON.stringify(cartItems.map(item => ({ id: item.id, qty: item.quantity })));
+
+  // Sync local cart to Wix currentCart for Abandoned Cart recovery and estimate shipping rates
   useEffect(() => {
     let active = true;
     const timer = setTimeout(async () => {
       try {
         if (!active) return;
         await forceSyncCartWithWix(cartItems);
+        if (active && cartItems.length > 0) {
+          const addr = shippingAddress || { country: 'NO' };
+          await estimateShippingAndTotals(addr.postalCode, addr.city, addr.country);
+        }
       } catch (err) {
         console.warn('Wix Cart background sync warning:', err);
       }
@@ -279,7 +285,7 @@ export const CartProvider = ({ children }) => {
       active = false;
       clearTimeout(timer);
     };
-  }, [cartItems]);
+  }, [serializedCartItems]);
 
   const mapCartItemsToWixLineItems = (items) => {
     return items.map(item => {
@@ -553,16 +559,17 @@ export const CartProvider = ({ children }) => {
   const [shippingAddress, setShippingAddress] = useState(null);
 
   const estimateShippingAndTotals = async (postalCode, city, countryCode = 'NO') => {
-    if (!postalCode) return false;
     setIsEstimating(true);
     setEstimateError('');
     try {
+      const shippingAddressParam = {
+        country: countryCode
+      };
+      if (postalCode) shippingAddressParam.postalCode = postalCode.trim();
+      if (city) shippingAddressParam.city = city.trim();
+
       const response = await wixClient.currentCart.estimateCurrentCartTotals({
-        shippingAddress: {
-          postalCode: postalCode.trim(),
-          city: city.trim(),
-          country: countryCode
-        }
+        shippingAddress: shippingAddressParam
       });
 
       if (response && response.priceSummary) {
@@ -574,7 +581,9 @@ export const CartProvider = ({ children }) => {
         setEstimatedTax(taxCost);
         setEstimatedTotal(totalCost);
         setIsEstimated(true);
-        setShippingAddress({ postalCode, city, country: countryCode });
+        if (postalCode && city) {
+          setShippingAddress({ postalCode, city, country: countryCode });
+        }
         setIsEstimating(false);
         setEstimateError('');
         return true;
@@ -598,17 +607,12 @@ export const CartProvider = ({ children }) => {
     setEstimateError('');
   };
 
-  // Background recalculation when cart items or discounts change
+  // Clear estimation when cart is empty
   useEffect(() => {
-    if (isEstimated && shippingAddress && cartItems.length > 0) {
-      const timer = setTimeout(() => {
-        estimateShippingAndTotals(shippingAddress.postalCode, shippingAddress.city, shippingAddress.country);
-      }, 500);
-      return () => clearTimeout(timer);
-    } else if (cartItems.length === 0 && isEstimated) {
+    if (cartItems.length === 0 && isEstimated) {
       clearEstimation();
     }
-  }, [cartItems.length, appliedCoupon, appliedGiftCard]);
+  }, [cartItems.length]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
@@ -621,7 +625,7 @@ export const CartProvider = ({ children }) => {
   // If estimated, use Wix calculated shipping
   const shipping = isEstimated && estimatedShipping !== null 
     ? estimatedShipping 
-    : (subtotal === 0 ? 0 : (subtotal >= 1500 ? 0 : 49));
+    : (subtotal === 0 ? 0 : (subtotal >= 1500 ? 0 : 39));
 
   const mva = Math.max(0, subtotalAfterDiscount - giftCardAmount) * 0.20;
   const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + shipping;
