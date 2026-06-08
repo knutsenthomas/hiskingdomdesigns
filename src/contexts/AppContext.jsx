@@ -1360,7 +1360,9 @@ export const AppProvider = ({ children }) => {
       getSlugByCategoryName,
       getCategoryNameBySlug,
       member,
-      isLoggedIn
+      isLoggedIn,
+      // Build version v1.0.2 - Force rebuild and CDN cache flush
+      buildVersion: '1.0.2'
     }}>
       {children}
     </AppContext.Provider>
