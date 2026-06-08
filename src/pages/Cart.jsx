@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowLeft, ArrowRight, Truck, ShieldCheck, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import useMeta from '@/hooks/useMeta';
 
@@ -240,6 +240,7 @@ export default function Cart() {
   }
 
   return (
+    <>
     <motion.main
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
@@ -736,5 +737,32 @@ export default function Cart() {
         </aside>
       </div>
     </motion.main>
+
+    {/* Loading Overlay */}
+    <AnimatePresence>
+      {isRedirecting && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm"
+        >
+          <div className="flex flex-col items-center space-y-6 max-w-sm px-6 text-center">
+            {/* Animated premium spinner */}
+            <div className="relative w-16 h-16">
+              <div className="w-16 h-16 border-4 border-slate-100 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div className="space-y-2 select-none">
+              <h3 className="font-headline-md text-lg text-onyx font-bold">Sikker betaling</h3>
+              <p className="text-xs text-secondary leading-relaxed">
+                Vennligst vent mens vi gjør klar kassen din hos Wix...
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   );
 }
