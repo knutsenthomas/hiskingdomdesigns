@@ -100,7 +100,7 @@ export default function Admin() {
         setApprovedCount(approvedSnap.size);
       } catch (err) {
         console.error('Kunne ikke hente søknader:', err);
-        showToast("Feil ved henting av søknader");
+        showToast("Feil ved henting av søknader: " + (err.message || String(err)));
       } finally {
         setIsLoading(false);
       }
@@ -125,7 +125,7 @@ export default function Admin() {
       }
     } catch (err) {
       console.error('Feil ved godkjenning:', err);
-      showToast("Kunne ikke godkjenne søknad");
+      showToast("Kunne ikke godkjenne søknad: " + (err.message || String(err)));
     }
   };
 
@@ -147,7 +147,7 @@ export default function Admin() {
       }
     } catch (err) {
       console.error('Feil ved sletting:', err);
-      showToast("Kunne ikke avvise søknad");
+      showToast("Kunne ikke avvise søknad: " + (err.message || String(err)));
     }
   };
 
