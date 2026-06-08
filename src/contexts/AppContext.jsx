@@ -466,7 +466,7 @@ export const AppProvider = ({ children }) => {
       setIsLoggedIn(logged);
       if (logged) {
         try {
-          const res = await wixClient.members.getCurrentMember();
+          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           if (res && res.member) {
             setMember(res.member);
           }
