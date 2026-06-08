@@ -1039,7 +1039,7 @@ export default function Profile() {
           {isAdminUser && (
             <Link 
               to="/admin"
-              className="w-full flex items-center justify-center gap-2 bg-[#1B4965] hover:bg-opacity-95 text-white py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 mb-3 shadow-md font-bold cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-terracotta hover:bg-opacity-95 text-white py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 mb-3 shadow-md font-bold cursor-pointer"
             >
               <span className="material-symbols-outlined text-base">admin_panel_settings</span>
               <span>Gå til Admin-panel</span>
