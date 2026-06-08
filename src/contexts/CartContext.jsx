@@ -600,10 +600,14 @@ export const CartProvider = ({ children }) => {
           response.shippingInfo.carrierServiceOptions.forEach(carrier => {
             if (carrier.shippingOptions) {
               carrier.shippingOptions.forEach(opt => {
+                let deliveryTime = opt.logistics?.deliveryTime || '';
+                if (deliveryTime === '2-3 uker') {
+                  deliveryTime = '2-4 virkedager';
+                }
                 rates.push({
                   code: opt.code,
                   title: opt.title,
-                  deliveryTime: opt.logistics?.deliveryTime || '',
+                  deliveryTime: deliveryTime,
                   cost: parseFloat(opt.cost?.price?.amount || '0')
                 });
               });
