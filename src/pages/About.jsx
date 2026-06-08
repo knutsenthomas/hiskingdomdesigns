@@ -33,12 +33,17 @@ export default function About() {
           as="h1"
           className="font-headline-xl text-headline-xl text-onyx mb-6"
         />
-        <CmsText
-          slug="about-desc"
-          fallback="His Kingdom Ministry er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin."
-          as="p"
-          className="font-body-lg text-body-lg text-secondary leading-relaxed"
-        />
+        <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
+          <a 
+            href="https://hiskingdomministry.no/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-terracotta hover:underline font-semibold transition-colors"
+          >
+            His Kingdom Ministry
+          </a>{' '}
+          er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.
+        </p>
       </div>
 
       {/* Narrative grid */}
