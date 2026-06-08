@@ -670,7 +670,7 @@ export default function Profile() {
   const addrDetails = getMemberAddress(member);
   const displayAddress = (addrDetails && (addrDetails.addressLine || addrDetails.postalCode || addrDetails.city))
     ? `${addrDetails.addressLine || ''}, ${addrDetails.postalCode || ''} ${addrDetails.city || ''}`.trim().replace(/^,\s*/, '')
-    : 'Store Elvegate 16, 4514 Mandal';
+    : 'Løkkeveien 3B, 4580 Lyngdal';
 
   let memberSinceStr = 'Mars 2025';
   if (member?._createdDate) {
@@ -1351,7 +1351,7 @@ export default function Profile() {
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder="Mandal"
+                      placeholder="Lyngdal"
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>

@@ -614,7 +614,7 @@ export default function Cart() {
                       type="text" 
                       name="postalInput"
                       required
-                      placeholder="F.eks. 4515" 
+                      placeholder="F.eks. 4580" 
                       defaultValue={shippingAddress?.postalCode || ''}
                       className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" 
                     />
@@ -626,7 +626,7 @@ export default function Cart() {
                       type="text" 
                       name="cityInput"
                       required
-                      placeholder="F.eks. Mandal" 
+                      placeholder="F.eks. Lyngdal" 
                       defaultValue={shippingAddress?.city || ''}
                       className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" 
                     />

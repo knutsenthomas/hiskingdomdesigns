@@ -130,7 +130,7 @@ export default function Team() {
         ))}
       </div>
 
-      {/* Mandal office details block */}
+      {/* Lyngdal office details block */}
       <div className="bg-parchment border border-outline-variant/40 rounded-3xl p-10 md:p-16 flex flex-col md:flex-row items-center gap-12">
         <div className="md:w-1/2 space-y-6">
           <span className="material-symbols-outlined text-4xl text-terracotta bg-white p-4 rounded-2xl shadow-sm">
@@ -144,7 +144,7 @@ export default function Team() {
           />
           <CmsText
             slug="team-base-desc"
-            fallback="Vi holder til i hjertet av Mandal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
+            fallback="Vi holder til i Lyngdal, i samlokaliserte kontorer sammen med Mandal Regnskapskontor. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />
@@ -153,7 +153,7 @@ export default function Team() {
               <strong>Adresse: </strong>
               <CmsText
                 slug="team-base-address"
-                fallback="Store Elvegate 16, 4514 Mandal"
+                fallback="Løkkeveien 3B, 4580 Lyngdal"
                 as="span"
               />
             </p>
@@ -169,7 +169,7 @@ export default function Team() {
         </div>
         <div className="md:w-1/2 w-full h-[300px] rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm relative bg-slate-50">
           <img 
-            alt="Mandal kontor" 
+            alt="Lyngdal kontor" 
             className="w-full h-full object-cover" 
             src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"
           />

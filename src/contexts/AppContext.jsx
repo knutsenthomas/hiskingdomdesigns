@@ -1122,7 +1122,7 @@ export const AppProvider = ({ children }) => {
         reply = '### 🚚 Frakt og Levering\n\n' +
           '- Vi har **gratis frakt på alle bestillinger over 1500 kr**!\n' +
           '- For bestillinger under 1500 kr koster frakten **49 kr**.\n' +
-          '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Mandal.\n' +
+          '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Lyngdal.\n' +
           '- Leveringstid er normalt **2-4 virkedager** med Posten/Bring.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';
       } 
@@ -1151,7 +1151,7 @@ export const AppProvider = ({ children }) => {
         reply = '### 📞 Kontakt Kundeservice\n\n' +
           'Vi vil gjerne høre fra deg! Du kan kontakte oss på:\n' +
           '- **E-post:** post@hiskingdomministry.no\n' +
-          '- **Adresse:** Mandal Regnskapskontor / HKD, 4515 Mandal\n\n' +
+          '- **Adresse:** Mandal Regnskapskontor / HKD, Løkkeveien 3B, 4580 Lyngdal\n\n' +
           '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
       }
       else {

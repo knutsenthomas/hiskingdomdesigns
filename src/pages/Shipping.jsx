@@ -59,7 +59,7 @@ export default function Shipping() {
           
           <CmsText
             slug="shipping-details-desc"
-            fallback="Alle våre varer sendes direkte fra vårt lager i Mandal. Vi pakker og klargjør bestillingen din raskt slik at du får varene dine i postkassen uten unødvendig ventetid."
+            fallback="Alle våre varer sendes direkte fra vårt lager i Lyngdal. Vi pakker og klargjør bestillingen din raskt slik at du får varene dine i postkassen uten unødvendig ventetid."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />
