@@ -396,7 +396,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">assignment_return</span>
             <div className="min-w-0">
-              <CmsText slug="home-benefits-title-2" fallback="30 dagers åpent kjøp" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-title-2" fallback="14 dagers angrerett" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
               <CmsText slug="home-benefits-desc-2" fallback="Enkel retur hvis du ombestemmer deg" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>

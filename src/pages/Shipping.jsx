@@ -149,7 +149,7 @@ export default function Shipping() {
           
           <CmsText
             slug="shipping-returns-desc"
-            fallback="Vi ønsker at du skal være 100% fornøyd med kjøpet ditt. Derfor tilbyr vi utvidet åpent kjøp og en helt ukomplisert returprosess dersom produktene ikke passer eller står til forventningene."
+            fallback="Vi ønsker at du skal være 100% fornøyd med kjøpet ditt. Derfor tilbyr vi en helt ukomplisert returprosess i tråd med angreretten dersom produktene ikke passer eller står til forventningene."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />
@@ -160,13 +160,13 @@ export default function Shipping() {
               <div>
                 <CmsText
                   slug="shipping-return-step-title-1"
-                  fallback="30 dagers åpent kjøp"
+                  fallback="14 dagers angrerett"
                   as="h4"
                   className="font-label-md text-onyx font-bold"
                 />
                 <CmsText
                   slug="shipping-return-step-desc-1"
-                  fallback="Du har full rett til å angre eller bytte i 30 dager etter mottatt vare."
+                  fallback="Du har i henhold til angrerettsloven full rett til å angre eller bytte i 14 dager etter mottatt vare."
                   as="p"
                   className="font-body-sm text-secondary"
                 />

@@ -121,14 +121,14 @@ export default function Betingelser() {
             <RefreshCw size={20} />
             <CmsText
               slug="terms-section-title-5"
-              fallback="5. Angrerett og 30 dagers åpent kjøp"
+              fallback="5. Angrerett (14 dagers angrefrist)"
               as="h2"
               className="font-headline-md text-onyx text-xl font-bold"
             />
           </div>
           <CmsText
             slug="terms-section-desc-5"
-            fallback="Du har i henhold til angrerettsloven 14 dagers lovfestet angrerett, men vi tilbyr utvidet 30 dagers åpent kjøp fra den dagen du mottar varen. For å benytte deg av dette må varen returneres i ubrukt, original stand og i originalemballasjen. Du må selv dekke returportoen med mindre annet er avtalt."
+            fallback="Du har i henhold til angrerettsloven 14 dagers lovfestet angrerett fra den dagen du mottar varen. For å benytte deg av angreretten må varen returneres i ubrukt, original stand og i originalemballasjen. Du må selv dekke returportoen med mindre annet er avtalt."
             as="p"
           />
         </section>

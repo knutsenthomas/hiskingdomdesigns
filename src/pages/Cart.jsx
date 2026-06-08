@@ -769,7 +769,7 @@ export default function Cart() {
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">30 dagers åpent kjøp og retur</span>
+              <span className="text-label-sm font-label-sm">14 dagers angrerett og retur</span>
             </div>
           </div>
         </aside>

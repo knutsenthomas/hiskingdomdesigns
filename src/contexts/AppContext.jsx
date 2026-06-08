@@ -1140,7 +1140,7 @@ export const AppProvider = ({ children }) => {
       // 1. Prioritize specific customer service topics to prevent false matches on helper words
       if (lower.includes('retur') || lower.includes('bytte') || lower.includes('fortre')) {
         reply = '### 🔄 Enkel Retur & Bytte\n\n' +
-          '- Hos oss har du alltid **30 dagers åpent kjøp** fra du mottar varen.\n' +
+          '- Hos oss har du alltid **14 dagers angrefrist** i tråd med angrerettsloven fra du mottar varen.\n' +
           '- Produktet må være ubrukt og i originalemballasjen.\n' +
           '- Du kan enkelt kontakte vår kundeservice på **post@hiskingdomministry.no** for å motta en returetikett.\n\n' +
           '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
@@ -1225,7 +1225,7 @@ export const AppProvider = ({ children }) => {
           if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
             reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers fra 39 kr basert på vekt) med Bring/Posten.';
           } else if (lower.includes('retur') || lower.includes('bytte')) {
-            reply += '\n\n**PS:** Vi tilbyr **30 dagers åpent kjøp** og enkel retur/bytte.';
+            reply += '\n\n**PS:** Vi tilbyr **14 dagers angrerett** og enkel retur/bytte.';
           }
         }
         else if (lower.includes('hva handler') || lower.includes('hvor er jeg') || lower.includes('forklar')) {
