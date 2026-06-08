@@ -168,7 +168,7 @@ export default function About() {
               to="/faq" 
               className="bg-white text-onyx px-8 py-4 rounded-xl font-label-md hover:bg-terracotta hover:text-white transition-all inline-block active:scale-95 font-bold shadow-md"
             >
-              Les Ofte Stilte Spørsmål
+              Les ofte stilte spørsmål
             </Link>
           </div>
         </div>
