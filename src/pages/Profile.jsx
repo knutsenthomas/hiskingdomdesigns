@@ -1156,17 +1156,17 @@ export default function Profile() {
                         Hvordan samle poeng?
                       </h4>
                       <ul className="text-xs text-secondary space-y-2 pl-1">
-                        <li className="flex justify-between">
-                          <span>Kjøp i butikken:</span>
-                          <strong className="text-onyx">1 poeng per 10 kr brukt</strong>
+                        <li className="flex justify-between items-start gap-4">
+                          <span className="shrink-0">Kjøp i butikken:</span>
+                          <strong className="text-onyx text-right">1 poeng per 10 kr brukt</strong>
                         </li>
-                        <li className="flex justify-between">
-                          <span>Opprett konto:</span>
-                          <strong className="text-onyx">+100 poeng</strong>
+                        <li className="flex justify-between items-start gap-4">
+                          <span className="shrink-0">Opprett konto:</span>
+                          <strong className="text-onyx text-right">+100 poeng</strong>
                         </li>
-                        <li className="flex justify-between">
-                          <span>Skriv en omtale:</span>
-                          <strong className="text-onyx">+20 poeng</strong>
+                        <li className="flex justify-between items-start gap-4">
+                          <span className="shrink-0">Skriv en omtale:</span>
+                          <strong className="text-onyx text-right">+20 poeng</strong>
                         </li>
                       </ul>
                     </div>
@@ -1177,17 +1177,17 @@ export default function Profile() {
                         Hva kan poeng brukes til?
                       </h4>
                       <ul className="text-xs text-secondary space-y-2 pl-1">
-                        <li className="flex justify-between">
-                          <span>100 poeng:</span>
-                          <strong className="text-onyx">Gratis frakt på neste ordre</strong>
+                        <li className="flex justify-between items-start gap-4">
+                          <span className="shrink-0">100 poeng:</span>
+                          <strong className="text-onyx text-right">Gratis frakt på neste ordre</strong>
                         </li>
-                        <li className="flex justify-between">
-                          <span>200 poeng:</span>
-                          <strong className="text-onyx">10% rabatt på valgfritt produkt</strong>
+                        <li className="flex justify-between items-start gap-4">
+                          <span className="shrink-0">200 poeng:</span>
+                          <strong className="text-onyx text-right">10% rabatt på valgfritt produkt</strong>
                         </li>
-                        <li className="flex justify-between">
-                          <span>500 poeng:</span>
-                          <strong className="text-onyx">150 kr rabattkupong</strong>
+                        <li className="flex justify-between items-start gap-4">
+                          <span className="shrink-0">500 poeng:</span>
+                          <strong className="text-onyx text-right">150 kr rabattkupong</strong>
                         </li>
                       </ul>
                     </div>
