@@ -221,11 +221,23 @@ export default function Footer() {
           )}
           
           <div className="mt-8">
-            <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-2">Betaling</p>
-            <div className="flex gap-3 justify-center md:justify-start items-center opacity-40">
-              <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-white font-bold select-none">VIPPS</span>
-              <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-white font-bold select-none">VISA</span>
-              <span className="bg-white/10 px-2 py-1 rounded text-[10px] text-white font-bold select-none">MC</span>
+            <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-3">Betaling</p>
+            <div className="flex gap-5 justify-center md:justify-start items-center">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Vipps_rgb_orange_pos.svg" 
+                alt="Vipps" 
+                className="h-5 w-auto object-contain brightness-0 invert opacity-40 hover:brightness-100 hover:invert-0 hover:opacity-100 transition-all duration-300 select-none cursor-pointer"
+              />
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
+                alt="Visa" 
+                className="h-4 w-auto object-contain brightness-0 invert opacity-40 hover:brightness-100 hover:invert-0 hover:opacity-100 transition-all duration-300 select-none cursor-pointer"
+              />
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" 
+                alt="Mastercard" 
+                className="h-5 w-auto object-contain brightness-0 invert opacity-40 hover:brightness-100 hover:invert-0 hover:opacity-100 transition-all duration-300 select-none cursor-pointer"
+              />
             </div>
           </div>
         </div>
