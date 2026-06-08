@@ -317,6 +317,8 @@ export default function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Hvit');
   const [qty, setQty] = useState(1);
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [customTextFieldValues, setCustomTextFieldValues] = useState({});
   const [added, setAdded] = useState(false);
   const [activeImage, setActiveImage] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
@@ -591,7 +593,8 @@ export default function ProductDetails() {
               subcategories: [],
               productOptions: item.productOptions,
               manageVariants: item.manageVariants,
-              variants: item.variants
+              variants: item.variants,
+              customTextFields: item.customTextFields || []
             };
 
             setFetchedProduct(mapped);
@@ -637,6 +640,76 @@ export default function ProductDetails() {
       }
     }
   }, [selectedColor, product]);
+
+  // Initialize generic selectedOptions and customTextFieldValues when product changes
+  useEffect(() => {
+    if (product) {
+      // 1. Initialize options
+      const initialOpts = {};
+      if (product.productOptions && product.productOptions.length > 0) {
+        product.productOptions.forEach(opt => {
+          const nameLower = opt.name?.trim().toLowerCase();
+          const isSize = nameLower.includes('size') || 
+                         nameLower.includes('størrelse') || 
+                         nameLower.includes('størrelser') || 
+                         nameLower.includes('format') || 
+                         nameLower === 'str' || nameLower === 'str.';
+          
+          const isColor = nameLower === 'color' || nameLower === 'farge';
+
+          if (isSize) {
+            const matchingChoice = opt.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
+            initialOpts[opt.name] = matchingChoice ? matchingChoice.value : (opt.choices?.[0]?.value || '');
+          } else if (isColor) {
+            const matchingChoice = opt.choices?.find(c => {
+              const resolved = resolveColor(c.value);
+              return resolved.name === selectedColor;
+            });
+            initialOpts[opt.name] = matchingChoice ? matchingChoice.value : (opt.choices?.[0]?.value || '');
+          } else {
+            initialOpts[opt.name] = opt.choices?.[0]?.value || '';
+          }
+        });
+      }
+      setSelectedOptions(initialOpts);
+
+      // 2. Initialize custom text fields
+      const initialTexts = {};
+      if (product.customTextFields && product.customTextFields.length > 0) {
+        product.customTextFields.forEach(field => {
+          initialTexts[field.title] = 'Tilfeldig';
+        });
+      }
+      setCustomTextFieldValues(initialTexts);
+    }
+  }, [product]);
+
+  // Keep selectedOptions in sync with selectedSize and selectedColor selections
+  useEffect(() => {
+    if (product) {
+      const sizeOpt = product.productOptions?.find(o => {
+        const name = o.name?.trim().toLowerCase();
+        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+      });
+      const colorOpt = product.productOptions?.find(o => {
+        const name = o.name?.trim().toLowerCase();
+        return name && (name === 'color' || name === 'farge');
+      });
+
+      const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
+      const colorChoice = colorOpt?.choices?.find(c => {
+        const resolved = resolveColor(c.value);
+        return resolved.name === selectedColor;
+      });
+
+      setSelectedOptions(prev => {
+        const updated = { ...prev };
+        if (sizeOpt && sizeChoice) updated[sizeOpt.name] = sizeChoice.value;
+        if (colorOpt && colorChoice) updated[colorOpt.name] = colorChoice.value;
+        return updated;
+      });
+    }
+  }, [selectedSize, selectedColor, product]);
 
   useMeta(
     product ? product.name : 'Produktdetaljer',
@@ -823,7 +896,13 @@ export default function ProductDetails() {
     .slice(0, 3);
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, selectedColor, qty);
+    // Construct custom text fields payload as [{ title, value }]
+    const customTextFieldsPayload = Object.entries(customTextFieldValues).map(([title, value]) => ({
+      title,
+      value
+    }));
+
+    addToCart(product, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -1099,6 +1178,77 @@ export default function ProductDetails() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* General Option Selectors (e.g. Choose Your Option) */}
+          {product.productOptions && product.productOptions.length > 0 && (
+            product.productOptions.some(opt => {
+              const nameLower = opt.name?.trim().toLowerCase();
+              const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+              const isColor = nameLower === 'color' || nameLower === 'farge';
+              return !isSize && !isColor;
+            }) && (
+              <div className="space-y-4">
+                {product.productOptions.map(opt => {
+                  const nameLower = opt.name?.trim().toLowerCase();
+                  const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+                  const isColor = nameLower === 'color' || nameLower === 'farge';
+                  
+                  if (isSize || isColor) return null;
+
+                  return (
+                    <div key={opt.name} className="space-y-2">
+                      <span className="font-label-md text-label-md text-onyx block">{opt.name}</span>
+                      <select
+                        value={selectedOptions[opt.name] || ''}
+                        onChange={(e) => setSelectedOptions(prev => ({ ...prev, [opt.name]: e.target.value }))}
+                        className="w-full bg-white border border-outline rounded-lg p-3 text-sm font-semibold text-onyx focus:border-terracotta focus:ring-1 focus:ring-terracotta cursor-pointer outline-none"
+                      >
+                        {opt.choices?.map(c => (
+                          <option key={c.value} value={c.value}>
+                            {c.value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          )}
+
+          {/* Custom Text Fields */}
+          {product.customTextFields && product.customTextFields.length > 0 && (
+            <div className="space-y-4">
+              {product.customTextFields.map(field => (
+                <div key={field.title} className="space-y-2">
+                  <label className="font-label-md text-label-md text-onyx block font-semibold">
+                    {field.title}
+                    {field.mandatory && <span className="text-red-500 ml-1">*</span>}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={field.maxLength || 500}
+                    required={field.mandatory}
+                    value={customTextFieldValues[field.title] === 'Tilfeldig' ? '' : (customTextFieldValues[field.title] || '')}
+                    placeholder="Skriv her (valgfritt - la stå tom for vilkårlig)"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomTextFieldValues(prev => ({
+                        ...prev,
+                        [field.title]: val || 'Tilfeldig'
+                      }));
+                    }}
+                    className="w-full bg-white border border-outline rounded-lg p-3 text-sm text-onyx focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none"
+                  />
+                  {field.mandatory && (!customTextFieldValues[field.title] || customTextFieldValues[field.title] === 'Tilfeldig') && (
+                    <p className="text-[10px] text-secondary/70">
+                      Merk: Hvis feltet står tomt, velger vi et vakkert, tilfeldig motiv for deg.
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 

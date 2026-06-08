@@ -359,15 +359,35 @@ export default function Cart() {
                           {item.name}
                         </Link>
                       </h3>
-                      <p className="text-secondary text-sm mt-1">
-                        Størrelse: <span className="font-semibold text-onyx">{item.selectedSize}</span>
-                        {item.selectedColor && (
-                          <> | Farge: <span className="font-semibold text-onyx">{item.selectedColor}</span></>
+                      <div className="text-secondary text-sm mt-1">
+                        {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
+                          <span>Størrelse: <span className="font-semibold text-onyx">{item.selectedSize}</span></span>
                         )}
-                      </p>
+                        {((item.colors && item.colors.length > 0 && !item.colorNames.includes('Terracotta')) || item.selectedColor !== 'Terracotta') && (
+                          <span> | Farge: <span className="font-semibold text-onyx">{item.selectedColor}</span></span>
+                        )}
+                        {item.selectedOptions && Object.entries(item.selectedOptions).map(([optName, optVal]) => {
+                          const nameLower = optName.toLowerCase();
+                          const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+                          const isColor = nameLower === 'color' || nameLower === 'farge';
+                          if (isSize || isColor) return null;
+                          return (
+                            <span key={optName}> | {optName}: <span className="font-semibold text-onyx">{optVal}</span></span>
+                          );
+                        })}
+                      </div>
+                      {item.customTextFields && item.customTextFields.length > 0 && (
+                        <div className="mt-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100/70 text-xs text-secondary max-w-md">
+                          {item.customTextFields.map(field => (
+                            <div key={field.title}>
+                              <strong className="text-onyx font-semibold">{field.title}:</strong> {field.value === 'Tilfeldig' ? 'Vilkårlig motiv (vi velger for deg)' : field.value}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       
                       <button 
-                        onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)}
+                        onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
                         className="text-terracotta text-label-md font-label-md mt-2 inline-flex items-center gap-1 hover:underline"
                       >
                         <Trash2 size={14} /> 
@@ -378,7 +398,7 @@ export default function Cart() {
                     {/* Quantity Selector */}
                     <div className="flex items-center gap-3 bg-parchment p-1.5 rounded-full border border-outline-variant/60">
                       <button 
-                        onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor)}
+                        onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
                         className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors font-bold"
                       >
                         -
@@ -387,7 +407,7 @@ export default function Cart() {
                         {item.quantity}
                       </span>
                       <button 
-                        onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor)}
+                        onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
                         className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors font-bold"
                       >
                         +

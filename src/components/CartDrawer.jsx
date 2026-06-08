@@ -241,7 +241,7 @@ export default function CartDrawer() {
                             </Link>
                           </h4>
                           <button
-                            onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)}
+                            onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
                             className="text-secondary/50 hover:text-red-500 transition-colors p-0.5 hover:bg-slate-50 rounded"
                             title="Fjern vare"
                           >
@@ -249,16 +249,40 @@ export default function CartDrawer() {
                           </button>
                         </div>
                         
-                        <p className="text-[10px] text-secondary mt-0.5 uppercase tracking-wide">
-                          Størrelse: <span className="font-bold text-onyx">{item.selectedSize}</span> • Farge: <span className="font-bold text-onyx">{item.selectedColor}</span>
-                        </p>
+                        <div className="text-[10px] text-secondary mt-0.5 uppercase tracking-wide">
+                          {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
+                            <span>Størrelse: <span className="font-bold text-onyx">{item.selectedSize}</span> • </span>
+                          )}
+                          {((item.colors && item.colors.length > 0 && !item.colorNames.includes('Terracotta')) || item.selectedColor !== 'Terracotta') && (
+                            <span>Farge: <span className="font-bold text-onyx">{item.selectedColor}</span> • </span>
+                          )}
+                          {item.selectedOptions && Object.entries(item.selectedOptions).map(([optName, optVal]) => {
+                            const nameLower = optName.toLowerCase();
+                            const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+                            const isColor = nameLower === 'color' || nameLower === 'farge';
+                            if (isSize || isColor) return null;
+                            return (
+                              <span key={optName}>
+                                {optName}: <span className="font-bold text-onyx">{optVal}</span> • </span>
+                            );
+                          })}
+                        </div>
+                        {item.customTextFields && item.customTextFields.length > 0 && (
+                          <div className="mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100/70 text-[10px] text-secondary lowercase first-letter:uppercase normal-case">
+                            {item.customTextFields.map(field => (
+                              <div key={field.title}>
+                                <strong className="text-onyx font-semibold">{field.title}:</strong> {field.value === 'Tilfeldig' ? 'Vilkårlig motiv (vi velger for deg)' : field.value}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-end justify-between mt-2">
                         {/* Qty Selector */}
                         <div className="flex items-center border border-outline rounded-lg bg-slate-50 scale-90 -ml-2 select-none">
                           <button
-                            onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor)}
+                            onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
                             className="p-1.5 hover:text-terracotta transition-colors"
                             title="Reduser antall"
                           >
@@ -266,7 +290,7 @@ export default function CartDrawer() {
                           </button>
                           <span className="w-8 text-center text-xs font-semibold text-onyx">{item.quantity}</span>
                           <button
-                            onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor)}
+                            onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
                             className="p-1.5 hover:text-terracotta transition-colors"
                             title="Øk antall"
                           >

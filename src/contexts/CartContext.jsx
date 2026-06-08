@@ -33,13 +33,15 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-  const addToCart = (product, selectedSize = 'M', selectedColor = 'Hvit', qty = 1) => {
+  const addToCart = (product, selectedSize = 'M', selectedColor = 'Hvit', qty = 1, selectedOptions = {}, customTextFields = []) => {
     setIsCartDrawerOpen(true); // Open the drawer immediately on add
     setCartItems(prev => {
       const existingIndex = prev.findIndex(item => 
         item.id === product.id && 
         item.selectedSize === selectedSize && 
-        item.selectedColor === selectedColor
+        item.selectedColor === selectedColor &&
+        JSON.stringify(item.selectedOptions || {}) === JSON.stringify(selectedOptions) &&
+        JSON.stringify(item.customTextFields || []) === JSON.stringify(customTextFields)
       );
 
       if (existingIndex > -1) {
@@ -51,43 +53,69 @@ export const CartProvider = ({ children }) => {
           ...product,
           selectedSize,
           selectedColor,
+          selectedOptions,
+          customTextFields,
           quantity: qty
         }];
       }
     });
   };
 
-  const removeFromCart = (productId, selectedSize, selectedColor) => {
+  const removeFromCart = (productId, selectedSize, selectedColor, selectedOptions = {}, customTextFields = []) => {
     setCartItems(prev => prev.filter(item => 
-      !(item.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor)
+      !(
+        item.id === productId && 
+        item.selectedSize === selectedSize && 
+        item.selectedColor === selectedColor &&
+        JSON.stringify(item.selectedOptions || {}) === JSON.stringify(selectedOptions) &&
+        JSON.stringify(item.customTextFields || []) === JSON.stringify(customTextFields)
+      )
     ));
   };
 
-  const updateQuantity = (productId, selectedSize, selectedColor, quantity) => {
+  const updateQuantity = (productId, selectedSize, selectedColor, quantity, selectedOptions = {}, customTextFields = []) => {
     if (quantity <= 0) {
-      removeFromCart(productId, selectedSize, selectedColor);
+      removeFromCart(productId, selectedSize, selectedColor, selectedOptions, customTextFields);
       return;
     }
     setCartItems(prev => prev.map(item => {
-      if (item.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor) {
+      if (
+        item.id === productId && 
+        item.selectedSize === selectedSize && 
+        item.selectedColor === selectedColor &&
+        JSON.stringify(item.selectedOptions || {}) === JSON.stringify(selectedOptions) &&
+        JSON.stringify(item.customTextFields || []) === JSON.stringify(customTextFields)
+      ) {
         return { ...item, quantity };
       }
       return item;
     }));
   };
 
-  const incrementQuantity = (productId, selectedSize, selectedColor) => {
+  const incrementQuantity = (productId, selectedSize, selectedColor, selectedOptions = {}, customTextFields = []) => {
     setCartItems(prev => prev.map(item => {
-      if (item.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor) {
+      if (
+        item.id === productId && 
+        item.selectedSize === selectedSize && 
+        item.selectedColor === selectedColor &&
+        JSON.stringify(item.selectedOptions || {}) === JSON.stringify(selectedOptions) &&
+        JSON.stringify(item.customTextFields || []) === JSON.stringify(customTextFields)
+      ) {
         return { ...item, quantity: item.quantity + 1 };
       }
       return item;
     }));
   };
 
-  const decrementQuantity = (productId, selectedSize, selectedColor) => {
+  const decrementQuantity = (productId, selectedSize, selectedColor, selectedOptions = {}, customTextFields = []) => {
     setCartItems(prev => prev.map(item => {
-      if (item.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor) {
+      if (
+        item.id === productId && 
+        item.selectedSize === selectedSize && 
+        item.selectedColor === selectedColor &&
+        JSON.stringify(item.selectedOptions || {}) === JSON.stringify(selectedOptions) &&
+        JSON.stringify(item.customTextFields || []) === JSON.stringify(customTextFields)
+      ) {
         if (item.quantity > 1) {
           return { ...item, quantity: item.quantity - 1 };
         }
@@ -227,10 +255,12 @@ export const CartProvider = ({ children }) => {
         catalogItemId: item.id
       };
 
+      // Handle options
       if (item.productOptions && item.productOptions.length > 0) {
-        if (item.manageVariants && item.variants && item.variants.length > 0) {
-          const selectedOptions = {};
-          
+        let selectedOptions = item.selectedOptions ? { ...item.selectedOptions } : {};
+
+        // Fallback: If selectedOptions is empty, build it from selectedSize & selectedColor
+        if (Object.keys(selectedOptions).length === 0) {
           const sizeOpt = item.productOptions.find(o => {
             const name = o.name?.trim().toLowerCase();
             return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
@@ -270,7 +300,18 @@ export const CartProvider = ({ children }) => {
           if (colorOpt && colorChoice) {
             selectedOptions[colorOpt.name] = colorChoice.value;
           }
+        }
 
+        // Safety net: Ensure EVERY required product option has a value selected.
+        // If an option is missing from selectedOptions, fallback to its first choice!
+        item.productOptions.forEach(opt => {
+          if (!selectedOptions[opt.name] && opt.choices && opt.choices.length > 0) {
+            selectedOptions[opt.name] = opt.choices[0].value;
+          }
+        });
+
+        // Set variantId or options based on manageVariants
+        if (item.manageVariants && item.variants && item.variants.length > 0) {
           const match = item.variants.find(v => {
             return Object.entries(v.choices).every(([optName, optVal]) => {
               return selectedOptions[optName] === optVal;
@@ -281,52 +322,34 @@ export const CartProvider = ({ children }) => {
             catalogReference.options = {
               variantId: match._id
             };
+          } else {
+            // If managed variants fails to match, fall back to first variant as a safe default
+            catalogReference.options = {
+              variantId: item.variants[0]._id
+            };
           }
         } else {
-          const selectedOptions = {};
-          const sizeOpt = item.productOptions.find(o => {
-            const name = o.name?.trim().toLowerCase();
-            return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
-          });
-          const colorOpt = item.productOptions.find(o => {
-            const name = o.name?.trim().toLowerCase();
-            return name === 'color' || name === 'farge';
-          });
-
-          const sizeChoice = sizeOpt?.choices?.find(c => c.value === item.selectedSize || c.description === item.selectedSize);
-          const colorChoice = colorOpt?.choices?.find(c => {
-            const lower = c.value?.toLowerCase() || '';
-            let mappedName = 'Sort';
-            if (lower.includes('sort') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('rgb(0,0,0)') || lower.includes('rgb(64,64,64)')) mappedName = 'Sort';
-            else if (lower.includes('hvit') || lower.includes('white') || lower.includes('rgb(252,252,252)') || lower.includes('rgb(255,255,255)')) mappedName = 'Hvit';
-            else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('#a8a8a8') || lower.includes('grey melange') || lower.includes('sport grey')) mappedName = 'Grå';
-            else if (lower.includes('blå') || lower.includes('blue') || lower.includes('navy') || lower.includes('royal') || lower.includes('sky') || lower.includes('sapphire') || lower.includes('teal')) mappedName = 'Blå';
-            else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('garnet') || lower.includes('cardinal') || lower.includes('cherry')) mappedName = 'Rød';
-            else if (lower.includes('grønn') || lower.includes('green') || lower.includes('kelly') || lower.includes('mint') || lower.includes('pistachio') || lower.includes('forest')) mappedName = 'Grønn';
-            else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('daisy') || lower.includes('haze')) mappedName = 'Gul';
-            else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('fuchsia') || lower.includes('azalea') || lower.includes('berry') || lower.includes('heliconia') || lower.includes('magenta')) mappedName = 'Rosa';
-            else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('cream') || lower.includes('creamy')) mappedName = 'Beige';
-            else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('brun') || lower.includes('brown') || lower.includes('chocolate') || lower.includes('clay')) mappedName = 'Terracotta';
-            else if (lower.includes('orange') || lower.includes('tangerine') || lower.includes('coral')) mappedName = 'Orange';
-            else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('violet') || lower.includes('orchid') || lower.includes('plum')) mappedName = 'Lilla';
-            else if (lower.startsWith('#') || lower.startsWith('rgb')) {
-              if (lower.includes('255,255,255') || lower === '#ffffff') mappedName = 'Hvit';
-              else if (lower.includes('0,0,0') || lower === '#000000' || lower === '#151a21') mappedName = 'Sort';
-              else mappedName = 'Grå';
-            }
-            return mappedName === item.selectedColor;
-          });
-
-          if (sizeOpt && sizeChoice) {
-            selectedOptions[sizeOpt.name] = sizeChoice.value;
-          }
-          if (colorOpt && colorChoice) {
-            selectedOptions[colorOpt.name] = colorChoice.value;
-          }
-
           catalogReference.options = {
             options: selectedOptions
           };
+        }
+      }
+
+      // Handle custom text fields (FREE_TEXT choices)
+      if (item.customTextFields && item.customTextFields.length > 0) {
+        catalogReference.customTextFields = item.customTextFields.map(field => ({
+          title: field.title,
+          value: field.value || 'Tilfeldig' // Fallback to avoid empty value validation errors
+        }));
+      } else if (item.productOptions) {
+        // Fallback: if the product page has custom text fields, but they weren't stored in the item,
+        // check if they are in the item's metadata and populate them with 'Tilfeldig' to pass Wix validation
+        const productFromContext = item; // item has item.customTextFields if preloaded
+        if (productFromContext.customTextFields && productFromContext.customTextFields.length > 0) {
+          catalogReference.customTextFields = productFromContext.customTextFields.map(field => ({
+            title: field.title,
+            value: 'Tilfeldig'
+          }));
         }
       }
 

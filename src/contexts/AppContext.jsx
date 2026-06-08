@@ -814,7 +814,8 @@ export const AppProvider = ({ children }) => {
             subcategories: resolvedCollections,
             productOptions: item.productOptions,
             manageVariants: item.manageVariants,
-            variants: item.variants
+            variants: item.variants,
+            customTextFields: item.customTextFields || []
           };
         });
 
