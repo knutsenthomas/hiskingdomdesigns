@@ -62,6 +62,74 @@ const FALLBACK_INSTAGRAM_FEED = [
   }
 ];
 
+const CATEGORIES = {
+  klaer: {
+    title: 'Klær',
+    titleSlug: 'category-title-klaer',
+    descSlug: 'category-desc-klaer',
+    fallbackDesc: 'Moderne t-skjorter og hettegensere med budskap.',
+    path: 'Klær',
+    image: 'https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw'
+  },
+  klistermerker: {
+    title: 'Klistermerker',
+    titleSlug: 'category-title-klistermerker',
+    descSlug: 'category-desc-klistermerker',
+    fallbackDesc: 'Små påminnelser i hverdagen.',
+    path: 'Klistermerker',
+    image: 'https://static.wixstatic.com/media/3a1544_fd343ead0a094799aac08e7f17391ce5~mv2.jpg'
+  },
+  plakater: {
+    title: 'Plakater',
+    titleSlug: 'category-title-plakater',
+    descSlug: 'category-desc-plakater',
+    fallbackDesc: 'Dekorer hjemmet ditt med håp.',
+    path: 'Plakater',
+    image: 'https://lh3.googleusercontent.com/aida/AP1WRLtA5Wejh-acQOMfMxekjYryt6bxtjj3vnr-WRJvzY5vPB0gWYTV9mJoqtNjHjtFyZPcmtR_fF0GMsqHzLPVYGOBg0qMTf_C8Rj7YN0RDf1ZwX_rSFomzQK9QWQq0ltc1SoqaU2ypKQxUpP2lV2pf2pQr8TGwhinfhzYJPNkBsj_P3q-ZWaT4JUhewinEQk-4_kudEyuJVr0OaMoKbJ0yZs9bnfn3r6yMcOt7st5zMBV4hYqOQBydQk6wA'
+  },
+  totebag: {
+    title: 'Handlenett',
+    titleSlug: 'category-title-totebag',
+    descSlug: 'category-desc-totebag',
+    fallbackDesc: 'Bærekraftige nett med inspirasjon.',
+    path: 'totebag',
+    image: 'https://static.wixstatic.com/media/db4f96_2811fd2828c44989805355a5de7f69a2~mv2.png'
+  },
+  caps: {
+    title: 'Hatter & Caps',
+    titleSlug: 'category-title-caps',
+    descSlug: 'category-desc-caps',
+    fallbackDesc: 'Tøffe caps med stilrene detaljer.',
+    path: 'caps',
+    image: 'https://static.wixstatic.com/media/db4f96_d199592e63bf4e9e9040add0ceb0b586~mv2.png'
+  },
+  kopper: {
+    title: 'Kopper & Flasker',
+    titleSlug: 'category-title-kopper',
+    descSlug: 'category-desc-kopper',
+    fallbackDesc: 'Bibelvers til din morgenkaffe.',
+    path: 'cups-bottles',
+    image: 'https://static.wixstatic.com/media/db4f96_7ed719f8e0954fd78693f7b0b29a127b~mv2.png'
+  }
+};
+
+const CATEGORY_SETS = [
+  // Sunday (0)
+  { large: CATEGORIES.klaer, small1: CATEGORIES.klistermerker, small2: CATEGORIES.plakater },
+  // Monday (1)
+  { large: CATEGORIES.plakater, small1: CATEGORIES.totebag, small2: CATEGORIES.klistermerker },
+  // Tuesday (2)
+  { large: CATEGORIES.klaer, small1: CATEGORIES.caps, small2: CATEGORIES.kopper },
+  // Wednesday (3)
+  { large: CATEGORIES.klistermerker, small1: CATEGORIES.plakater, small2: CATEGORIES.totebag },
+  // Thursday (4)
+  { large: CATEGORIES.plakater, small1: CATEGORIES.caps, small2: CATEGORIES.kopper },
+  // Friday (5)
+  { large: CATEGORIES.klaer, small1: CATEGORIES.totebag, small2: CATEGORIES.klistermerker },
+  // Saturday (6)
+  { large: CATEGORIES.kopper, small1: CATEGORIES.caps, small2: CATEGORIES.plakater }
+];
+
 export default function Home() {
   useMeta(
     "Hjem",
@@ -70,6 +138,10 @@ export default function Home() {
 
   const { products } = useApp();
   const navigate = useNavigate();
+
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+  const currentSet = CATEGORY_SETS[dayOfWeek];
 
   const [plansList, setPlansList] = useState([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
@@ -343,19 +415,19 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-          {/* Klær Category */}
+          {/* Large Card */}
           <div 
-            onClick={() => navigate('/category/Klær')}
+            onClick={() => navigate(`/category/${currentSet.large.path}`)}
             className="md:col-span-8 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer aspect-[16/10] md:aspect-auto md:h-[500px]"
           >
             <img 
-              alt="Clothing collection" 
+              alt={`${currentSet.large.title} collection`} 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              src="https://lh3.googleusercontent.com/aida/AP1WRLv4J8V9jg3579mtqffcPAu_gt1Na1gEpE7X2qkAgryCvtPcOeh0ESfU5U4aLEjB0IMpT9kSdNoYM4An6sQBmkw6iHxUGd4sZ04mdGRPb-szj-DhKGq_ORxArSsY9NhLzzjNhzbqcLZTQdFBEFGTHxiyiAWfuVJ8xBYqPFNjDAHrpPJ_fVO4ypnMcsTbpOVVWijZb7ZpeYQO1ZnuBj9LwVcbOLKJh3vm-vSIveIXCSboeE06hSbr6aV2uw"
+              src={getOptimizedWixImageUrl(currentSet.large.image, 800, 500)}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-8">
-              <CmsText slug="home-category-title-1" fallback="Klær" as="h3" className="text-white font-headline-md text-headline-md mb-2" />
-              <CmsText slug="home-category-desc-1" fallback="Moderne t-skjorter og hettegensere med budskap." as="p" className="text-white/80 font-body-md text-body-md mb-4 max-w-sm" />
+              <CmsText slug={currentSet.large.titleSlug} fallback={currentSet.large.title} as="h3" className="text-white font-headline-md text-headline-md mb-2" />
+              <CmsText slug={currentSet.large.descSlug} fallback={currentSet.large.fallbackDesc} as="p" className="text-white/80 font-body-md text-body-md mb-4 max-w-sm" />
               <span className="w-fit bg-white text-onyx px-5 py-2.5 rounded font-label-md text-label-md group-hover:bg-terracotta group-hover:text-white transition-colors duration-300">
                 Handle nå
               </span>
@@ -363,35 +435,35 @@ export default function Home() {
           </div>
           
           <div className="md:col-span-4 flex flex-col gap-gutter">
-            {/* Klistermerker Category */}
+            {/* Small Card 1 */}
             <div 
-              onClick={() => navigate('/category/Klistermerker')}
+              onClick={() => navigate(`/category/${currentSet.small1.path}`)}
               className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer"
             >
               <img 
-                alt="Stickers category" 
+                alt={`${currentSet.small1.title} category`} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                src={getOptimizedWixImageUrl('https://static.wixstatic.com/media/3a1544_fd343ead0a094799aac08e7f17391ce5~mv2.jpg', 600, 400)}
+                src={getOptimizedWixImageUrl(currentSet.small1.image, 600, 400)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
-                <CmsText slug="home-category-title-2" fallback="Klistermerker" as="h3" className="text-white font-headline-md text-headline-md" />
-                <CmsText slug="home-category-desc-2" fallback="Små påminnelser i hverdagen." as="p" className="text-white/70 text-label-sm mt-1" />
+                <CmsText slug={currentSet.small1.titleSlug} fallback={currentSet.small1.title} as="h3" className="text-white font-headline-md text-headline-md" />
+                <CmsText slug={currentSet.small1.descSlug} fallback={currentSet.small1.fallbackDesc} as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
             </div>
             
-            {/* Plakater Category */}
+            {/* Small Card 2 */}
             <div 
-              onClick={() => navigate('/category/Plakater')}
+              onClick={() => navigate(`/category/${currentSet.small2.path}`)}
               className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer"
             >
               <img 
-                alt="Posters category" 
+                alt={`${currentSet.small2.title} category`} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                src="https://lh3.googleusercontent.com/aida/AP1WRLtA5Wejh-acQOMfMxekjYryt6bxtjj3vnr-WRJvzY5vPB0gWYTV9mJoqtNjHjtFyZPcmtR_fF0GMsqHzLPVYGOBg0qMTf_C8Rj7YN0RDf1ZwX_rSFomzQK9QWQq0ltc1SoqaU2ypKQxUpP2lV2pf2pQr8TGwhinfhzYJPNkBsj_P3q-ZWaT4JUhewinEQk-4_kudEyuJVr0OaMoKbJ0yZs9bnfn3r6yMcOt7st5zMBV4hYqOQBydQk6wA"
+                src={getOptimizedWixImageUrl(currentSet.small2.image, 600, 400)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
-                <CmsText slug="home-category-title-3" fallback="Plakater" as="h3" className="text-white font-headline-md text-headline-md" />
-                <CmsText slug="home-category-desc-3" fallback="Dekorer hjemmet ditt med håp." as="p" className="text-white/70 text-label-sm mt-1" />
+                <CmsText slug={currentSet.small2.titleSlug} fallback={currentSet.small2.title} as="h3" className="text-white font-headline-md text-headline-md" />
+                <CmsText slug={currentSet.small2.descSlug} fallback={currentSet.small2.fallbackDesc} as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
             </div>
           </div>
