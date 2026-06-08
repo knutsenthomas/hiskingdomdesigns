@@ -104,27 +104,6 @@ export default function Category() {
     setSearchParams({});
   };
 
-  // Dynamic sticky sidebar height calculation to adapt "from category to category"
-  useEffect(() => {
-    const checkSidebarHeight = () => {
-      if (sidebarRef.current) {
-        const sidebarHeight = sidebarRef.current.offsetHeight;
-        const viewportHeight = window.innerHeight;
-        // Adjust for header height (approx 140px)
-        setIsSidebarTaller(sidebarHeight > (viewportHeight - 140));
-      }
-    };
-
-    // Run after a short delay to let the DOM settle
-    const timer = setTimeout(checkSidebarHeight, 150);
-    
-    window.addEventListener('resize', checkSidebarHeight);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', checkSidebarHeight);
-    };
-  }, [filteredProducts, wixCollections, expandedGroups]);
-
   // Get products belonging to current category context (before applying size/color/price filters)
   const categoryProducts = useMemo(() => {
     let result = [...products];
@@ -234,6 +213,27 @@ export default function Category() {
 
     return result;
   }, [products, categoryName, selectedCategories, urlSearch, selectedSizes, selectedColors, priceRange, sortBy]);
+
+  // Dynamic sticky sidebar height calculation to adapt "from category to category"
+  useEffect(() => {
+    const checkSidebarHeight = () => {
+      if (sidebarRef.current) {
+        const sidebarHeight = sidebarRef.current.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        // Adjust for header height (approx 140px)
+        setIsSidebarTaller(sidebarHeight > (viewportHeight - 140));
+      }
+    };
+
+    // Run after a short delay to let the DOM settle
+    const timer = setTimeout(checkSidebarHeight, 150);
+    
+    window.addEventListener('resize', checkSidebarHeight);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkSidebarHeight);
+    };
+  }, [filteredProducts, wixCollections, expandedGroups]);
 
   // Set page title for breadcrumb
   const displayTitle = categoryName === 'Salg' ? 'Salgskampanje' : (categoryName || 'Alle produkter');
