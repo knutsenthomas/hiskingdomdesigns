@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart } from 'lucide-react';
+import { Search, ShoppingBag, User, Menu, X, ChevronDown, Heart } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
@@ -36,7 +36,7 @@ const getProfileImageUrl = (member) => {
 
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products } = useApp();
-  const { cartCount, setIsCartDrawerOpen } = useCart();
+  const { cartCount, setIsCartDrawerOpen, isCartDrawerOpen } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const [showRecoveryToast, setShowRecoveryToast] = useState(false);
@@ -266,9 +266,9 @@ export default function Header() {
               className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center cursor-pointer"
               aria-label="Handlekurv"
             >
-              <ShoppingCart size={20} />
+              <ShoppingBag size={20} />
               <AnimatePresence mode="popLayout">
-                {cartCount > 0 && (
+                {cartCount > 0 && !isCartDrawerOpen && location.pathname !== '/cart' && (
                   <motion.span
                     key={cartCount}
                     initial={{ scale: 0.6, opacity: 0 }}
@@ -691,7 +691,7 @@ export default function Header() {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-terracotta/10 flex items-center justify-center text-terracotta shrink-0">
-                  <ShoppingCart size={20} />
+                  <ShoppingBag size={20} />
                 </div>
                 <div>
                   <h4 className="font-headline-md text-sm font-bold text-[#1B4965]">Gjenværende varer</h4>
