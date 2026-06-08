@@ -248,8 +248,9 @@ export default function Home() {
           thankYouPageUrl: window.location.origin + '/profile'
         }
       });
-      if (redirectSession && redirectSession.fullUrl) {
-        window.location.href = redirectSession.fullUrl;
+      const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
       }
     } catch (err) {
       console.error('Subscription redirect error:', err);

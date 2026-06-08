@@ -109,9 +109,10 @@ export default function CartDrawer() {
         }
       });
 
-      if (redirectSession && redirectSession.fullUrl) {
+      const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
+      if (redirectUrl) {
         setIsCartDrawerOpen(false);
-        window.location.href = redirectSession.fullUrl;
+        window.location.href = redirectUrl;
       } else {
         throw new Error('Mottok ingen omdirigerings-URL fra Wix.');
       }
