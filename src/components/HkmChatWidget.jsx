@@ -618,8 +618,8 @@ export default function HkmChatWidget() {
             transition={{ duration: 0.2 }}
             className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
           >
-            {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
-            <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
+            {/* Header - Mørkeblå (#1B4965) */}
+            <div className="bg-[#1B4965] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
@@ -647,7 +647,7 @@ export default function HkmChatWidget() {
                 onClick={() => setChatMode('ai')}
                 className={`flex-1 py-3 text-center border-r border-outline-variant/30 transition-all ${
                   chatMode === 'ai' 
-                    ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+                    ? 'bg-white text-[#1B4965] font-bold border-b-2 border-[#1B4965]' 
                     : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
                 }`}
               >
@@ -665,7 +665,7 @@ export default function HkmChatWidget() {
                 }}
                 className={`flex-1 py-3 text-center transition-all ${
                   chatMode === 'live' 
-                    ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
+                    ? 'bg-white text-[#1B4965] font-bold border-b-2 border-[#1B4965]' 
                     : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
                 }`}
               >
@@ -750,7 +750,7 @@ export default function HkmChatWidget() {
                       setChatError('');
                       setChatMode('ai');
                     }}
-                    className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                    className="w-full bg-[#1B4965] text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
                     Bruk AI Assistent i stedet
                   </button>
@@ -778,7 +778,7 @@ export default function HkmChatWidget() {
                       value={contactName}
                       onChange={(e) => setContactName(e.target.value)}
                       placeholder="F.eks. Thomas Knutsen"
-                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#1B4965] text-onyx"
                     />
                   </div>
 
@@ -790,21 +790,21 @@ export default function HkmChatWidget() {
                       value={contactEmail}
                       onChange={(e) => setContactEmail(e.target.value)}
                       placeholder="din@epost.no"
-                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#1B4965] text-onyx"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isCreatingConv}
-                    className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                    className="w-full bg-[#1B4965] text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
                     {isCreatingConv ? 'Starter samtale...' : 'Start samtale'}
                   </button>
                 </form>
               ) : isCreatingConv ? (
                 <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                  <div className="w-8 h-8 border-3 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-3 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
                   <p className="text-xs text-secondary font-semibold">Kobler deg til innboksen...</p>
                 </div>
               ) : (
@@ -861,7 +861,7 @@ export default function HkmChatWidget() {
                         setInputText(reply.text);
                       }
                     }}
-                    className="flex-shrink-0 bg-white border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer flex items-center gap-1"
+                    className="flex-shrink-0 bg-white border border-outline-variant/60 hover:border-[#1B4965] hover:text-[#1B4965] text-onyx text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer flex items-center gap-1"
                   >
                     {reply.label}
                   </button>
@@ -883,12 +883,12 @@ export default function HkmChatWidget() {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     disabled={isCreatingConv || (chatMode === 'live' && needsContactInfo)}
-                    className="w-full bg-slate-50 border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta transition-all font-medium text-onyx"
+                    className="w-full bg-slate-50 border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B4965] focus:border-[#1B4965] transition-all font-medium text-onyx"
                   />
                   <button
                     type="submit"
                     disabled={!inputText.trim() || isCreatingConv}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-terracotta hover:text-primary-container disabled:text-secondary/40 transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#1B4965] hover:text-[#1B4965]/80 disabled:text-secondary/40 transition-colors"
                   >
                     <Send size={16} />
                   </button>
