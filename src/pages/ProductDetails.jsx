@@ -190,7 +190,7 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
       <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed text-secondary custom-scrollbar flex-1">
         {activeTab === 'clothing' && (
           <div className="space-y-4">
-            <p className="italic">Våre klær er laget av 100% organisk bomull og har en behagelig, normal skandinavisk passform (true to size). Vi anbefaler å vaske på 30 grader med vrangen ut for at motivet skal holde seg best mulig.</p>
+            <p className="italic">Våre klær er laget av 100% organisk bomull og har en behagelig, normal skandinavisk passform (true to size). Vi tilbyr størrelser opp til 3XL på de fleste av våre plagg, og utvalgte plagg opp til 5XL. Vi anbefaler å vaske på 30 grader med vrangen ut for at motivet skal holde seg best mulig.</p>
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">

@@ -53,7 +53,7 @@ const FAQ_ITEMS = [
     questions: [
       {
         q: 'Hvordan er klærne i størrelsen?',
-        a: 'Klærne våre følger standard skandinaviske størrelser. Våre t-skjorter og hettegensere er laget av 100% organisk bomull og har en myk, tidsriktig passform. Se vår størrelsesguide inne på produktsidene for nøyaktige mål.',
+        a: 'Klærne våre følger standard skandinaviske størrelser. Vi tilbyr størrelser opp til 3XL på de fleste av våre plagg, og utvalgte plagg opp til 5XL. Våre t-skjorter og hettegensere er laget av 100% organisk bomull og har en myk, tidsriktig passform. Se vår størrelsesguide inne på produktsidene for nøyaktige mål.',
         qSlug: 'faq-products-q1',
         aSlug: 'faq-products-a1'
       },

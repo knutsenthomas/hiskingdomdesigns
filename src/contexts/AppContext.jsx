@@ -1163,7 +1163,7 @@ export const AppProvider = ({ children }) => {
           '- Våre t-skjorter for herre og unisex har en **standard, komfortabel passform** (true to size).\n' +
           '- `Grace Oversized Tee` er designet for å sitte løst og ledig. Hvis du foretrekker en tettere passform, anbefaler vi å gå ned én størrelse.\n' +
           '- T-skjortene til dame er litt mer figursydde.\n\n' +
-          '💡 Du kan velge mellom størrelser fra **XS til 2XL** på de fleste av våre plagg.';
+          '💡 Vi tilbyr størrelser opp til **3XL** på de fleste av våre plagg, og utvalgte plagg opp til **5XL**.';
       } 
       else if (lower.includes('materiale') || lower.includes('bomull') || lower.includes('kvalitet')) {
         reply = '### 🌿 Materialer & Bærekraft\n\n' +
