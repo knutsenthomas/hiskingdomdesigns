@@ -7,6 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
+import { getOptimizedWixImageUrl } from '@/lib/media';
 
 const MOCK_TESTIMONIALS = [
   {
@@ -370,7 +371,7 @@ export default function Home() {
               <img 
                 alt="Stickers category" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                src="https://lh3.googleusercontent.com/aida/AP1WRLszihbNKwjOsKdnixf-5r35a6Xba2jlEmuqK6Ow72s8KEL52iJCXqZJrshr6YDlc03OqnuU4KZvmcKRaGwOX7Idbd9VsvxGhNJ8V30WGHf6RRHtzg7bw5ZarKCFYFpP05FYaleB_OCre6P4QrICKQyWws5x-mYsQlu2fhc91h9_obAeP-jeSREE2bDD9RVgwfg1vfpj_wKCPLkN1l4b9MD3SgYwtLtb9RddUykqMykJvv9U4mu43gvsDA"
+                src={getOptimizedWixImageUrl('https://static.wixstatic.com/media/3a1544_fd343ead0a094799aac08e7f17391ce5~mv2.jpg', 600, 400)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
                 <CmsText slug="home-category-title-2" fallback="Klistermerker" as="h3" className="text-white font-headline-md text-headline-md" />
