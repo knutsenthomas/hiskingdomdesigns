@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, Trash2, ArrowRight, ShoppingBag, Lock } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ArrowRight, ShoppingCart, Lock } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { wixClient } from '@/lib/wix';
@@ -148,7 +148,7 @@ export default function CartDrawer() {
             {/* Header */}
             <div className="px-6 py-5 border-b border-outline-variant/30 flex items-center justify-between bg-parchment/30">
               <div className="flex items-center gap-2.5">
-                <ShoppingBag size={20} className="text-terracotta" />
+                <ShoppingCart size={20} className="text-terracotta" />
                 <h2 className="font-headline-md text-headline-md text-onyx font-bold">Handlekurv</h2>
                 <span className="bg-terracotta/10 text-terracotta text-xs font-bold px-2 py-0.5 rounded-full">
                   {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
@@ -196,7 +196,7 @@ export default function CartDrawer() {
               {cartItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center py-20 space-y-4 select-none">
                   <div className="w-16 h-16 rounded-full bg-parchment flex items-center justify-center text-secondary/60">
-                    <ShoppingBag size={32} />
+                    <ShoppingCart size={32} />
                   </div>
                   <div>
                     <h3 className="font-bold text-onyx text-base">Kurven er tom</h3>
