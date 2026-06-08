@@ -4,8 +4,14 @@ import { Trash2, ArrowLeft, ArrowRight, Truck, ShieldCheck, Heart } from 'lucide
 import { useCart } from '@/contexts/CartContext';
 import { motion } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
+import useMeta from '@/hooks/useMeta';
 
 export default function Cart() {
+  useMeta(
+    "Handlekurv",
+    "Gå til kassen og betal trygt og enkelt. Se over produktene dine i handlekurven hos His Kingdom Designs."
+  );
+
   const {
     cartItems,
     removeFromCart,

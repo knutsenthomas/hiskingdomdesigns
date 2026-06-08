@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Facebook, Instagram, Youtube } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import useMeta from '@/hooks/useMeta';
 
 const TEAM_MEMBERS = [
   {
@@ -36,6 +37,11 @@ const TEAM_MEMBERS = [
 ];
 
 export default function Team() {
+  useMeta(
+    "Vårt team",
+    "Møt teamet bak His Kingdom Designs og His Kingdom Ministry. Vi brenner for å spre Guds ord og kjærlighet gjennom musikk, undervisning og unike designprodukter."
+  );
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}

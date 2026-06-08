@@ -487,6 +487,68 @@ export default function ProductDetails() {
       : 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
     product ? { type: 'product', image: product.image, price: `${product.price} NOK` } : null
   );
+
+  // Dynamic Product JSON-LD Schema (World-Class SEO)
+  useEffect(() => {
+    if (product) {
+      const score = averageRating || 5;
+      const count = reviewsList?.length || 0;
+
+      const schema = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": product.name,
+        "image": product.media?.mainMedia?.image?.url || product.media?.items?.[0]?.image?.url || '',
+        "description": product.description || 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
+        "sku": product.sku || product._id,
+        "offers": {
+          "@type": "Offer",
+          "url": window.location.href,
+          "priceCurrency": "NOK",
+          "price": product.price?.price || 0,
+          "availability": product.stock?.inventoryStatus === 'IN_STOCK' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+        }
+      };
+
+      if (count > 0) {
+        schema.aggregateRating = {
+          "@type": "AggregateRating",
+          "ratingValue": score,
+          "reviewCount": count
+        };
+        schema.review = reviewsList.map(r => ({
+          "@type": "Review",
+          "author": {
+            "@type": "Person",
+            "name": r.content?.title || 'Kunde'
+          },
+          "datePublished": r._createdDate,
+          "reviewBody": r.content?.body || '',
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": r.content?.rating || 5
+          }
+        }));
+      }
+
+      const scriptId = 'jsonld-product-schema';
+      let script = document.getElementById(scriptId);
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.type = 'application/ld+json';
+        document.head.appendChild(script);
+      }
+      script.innerHTML = JSON.stringify(schema);
+
+      return () => {
+        const existingScript = document.getElementById(scriptId);
+        if (existingScript) {
+          existingScript.remove();
+        }
+      };
+    }
+  }, [product, reviewsList, averageRating]);
   
   const isWishlisted = product ? isInWishlist(product.id) : false;
 

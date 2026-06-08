@@ -8,6 +8,7 @@ import { media } from '@wix/sdk';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
+import useMeta from '@/hooks/useMeta';
 
 // Helper to safely extract email from Wix member object across various schema versions
 const getMemberEmail = (member) => {
@@ -93,6 +94,11 @@ const getProfileImageUrl = (member) => {
 let isExchangingTokens = false;
 
 export default function Profile() {
+  useMeta(
+    "Min konto",
+    "Administrer din profil, se dine ordre, administrer adresser, lojalitetspoeng og verv venner hos His Kingdom Designs."
+  );
+
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
       return wixClient.auth.loggedIn();
