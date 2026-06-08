@@ -1166,10 +1166,10 @@ export const AppProvider = ({ children }) => {
           '💡 Vi tilbyr størrelser opp til **3XL** på de fleste av våre plagg, og utvalgte plagg opp til **5XL**.';
       } 
       else if (lower.includes('materiale') || lower.includes('bomull') || lower.includes('kvalitet')) {
-        reply = '### 🌿 Materialer & Bærekraft\n\n' +
-          '- Alle våre klær produseres i **100% økologisk bomull**.\n' +
+        reply = '### 🌿 Materialer & Kvalitet\n\n' +
+          '- Våre klær er laget av **100% bomull eller en behagelig blanding av bomull og polyester**.\n' +
           '- Dette gir en utrolig myk følelse mot huden, god pusteevne og lang holdbarhet.\n' +
-          '- Trykkene våre er vannbaserte og miljøvennlige, slik at de holder formen vask etter vask uten å sprekke.\n\n' +
+          '- Trykkene våre er vannbaserte og holdbare, slik at de holder formen vask etter vask uten å sprekke.\n\n' +
           '💡 Vi anbefaler å vaske plaggene på **30-40 grader med vrangen ut** for å bevare trykket best mulig.';
       } 
       else if (lower.includes('betaling') || lower.includes('vipps') || lower.includes('kort') || lower.includes('visa')) {
