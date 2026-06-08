@@ -453,7 +453,7 @@ export default function Profile() {
             account = await wixClient.loyaltyAccounts.getCurrentMemberAccount();
           } catch (accErr) {
             console.warn('getCurrentMemberAccount failed, trying getAccountBySecondaryId:', accErr);
-            account = await wixClient.loyaltyAccounts.getAccountBySecondaryId({ secondaryId: member._id });
+            account = await wixClient.loyaltyAccounts.getAccountBySecondaryId({ memberId: member._id });
           }
 
           if (account) {
