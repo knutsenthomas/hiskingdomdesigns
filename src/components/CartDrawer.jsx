@@ -63,11 +63,9 @@ export default function CartDrawer() {
     setCheckoutError('');
 
     try {
-      // 1. Force synchronize the cart state with Wix to avoid out-of-sync or debounce delays
-      await forceSyncCartWithWix(cartItems);
-
-      // 2. Create the checkout from the visitor's active cart session
-      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
+      // 1. Create the checkout from local cart items explicitly (standalone checkout)
+      let checkoutResult = await wixClient.checkout.createCheckout({
+        lineItems: mapCartItemsToWixLineItems(cartItems),
         channelType: 'WEB'
       });
 
