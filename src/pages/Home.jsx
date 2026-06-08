@@ -543,7 +543,7 @@ export default function Home() {
             <img 
               alt="Monthly package showcase" 
               className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[450px]" 
-              src="https://static.wixstatic.com/media/db4f96_3592b75149c34a89988813cb8ff55a5e~mv2.avif"
+              src="https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png"
             />
           </div>
           <div className="w-full lg:w-1/2">
