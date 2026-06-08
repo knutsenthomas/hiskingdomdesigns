@@ -783,6 +783,64 @@ export default function Profile() {
     setAffiliateSuccess(false);
   };
 
+  // Admin Affiliate states & hooks
+  const [pendingApplications, setPendingApplications] = useState([]);
+  const isAdminUser = 
+    ['knutsenthomas@gmail.com', 'thomas@tk-design.no'].includes(displayEmail) || 
+    localStorage.getItem('hkm-user-role') === 'admin' || 
+    localStorage.getItem('hkm-user-role') === 'superadmin' ||
+    window.location.search.includes('admin=true');
+
+  useEffect(() => {
+    if (!isAdminUser) return;
+    
+    const fetchPendingApps = async () => {
+      try {
+        const q = query(collection(db, 'affiliate_applications'), where('status', '==', 'pending'));
+        const querySnapshot = await getDocs(q);
+        const apps = [];
+        querySnapshot.forEach((doc) => {
+          apps.push({ id: doc.id, ...doc.data() });
+        });
+        setPendingApplications(apps);
+      } catch (err) {
+        console.warn('Kunne ikke hente søknader for admin:', err);
+      }
+    };
+    
+    if (activeTab === 'referral') {
+      fetchPendingApps();
+    }
+  }, [activeTab, isAdminUser]);
+
+  const handleAdminApprove = async (appId) => {
+    try {
+      const docRef = doc(db, 'affiliate_applications', appId);
+      await updateDoc(docRef, { status: 'approved' });
+      setPendingApplications(prev => prev.filter(app => app.id !== appId));
+      if (appId === member?._id) {
+        setAffiliateStatus('approved');
+        localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
+      }
+    } catch (err) {
+      console.error('Feil ved godkjenning av affiliate:', err);
+    }
+  };
+
+  const handleAdminReject = async (appId) => {
+    try {
+      const docRef = doc(db, 'affiliate_applications', appId);
+      await deleteDoc(docRef);
+      setPendingApplications(prev => prev.filter(app => app.id !== appId));
+      if (appId === member?._id) {
+        setAffiliateStatus('none');
+        localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
+      }
+    } catch (err) {
+      console.error('Feil ved avvisning av affiliate:', err);
+    }
+  };
+
   let memberSinceStr = 'Mars 2025';
   if (member?._createdDate) {
     try {
@@ -1771,6 +1829,63 @@ export default function Profile() {
                       Nullstill
                     </button>
                   </div>
+                </div>
+              )}
+
+              {/* Admin Panel */}
+              {isAdminUser && (
+                <div className="border-t border-slate-100 pt-8 space-y-6">
+                  <h4 className="font-bold text-sm text-[#1B4965] flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500 text-lg select-none">admin_panel_settings</span>
+                    Admin-panel: Behandle søknader ({pendingApplications.length})
+                  </h4>
+                  
+                  {pendingApplications.length === 0 ? (
+                    <p className="text-xs text-secondary italic">Ingen nye ubehandlede søknader for øyeblikket.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {pendingApplications.map((app) => (
+                        <div key={app.id} className="p-5 border border-outline-variant/30 rounded-2xl bg-slate-50 space-y-3 text-xs">
+                          <div className="flex justify-between items-start gap-4">
+                            <div>
+                              <p className="font-bold text-onyx text-sm">{app.name}</p>
+                              <p className="text-secondary">{app.email}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleAdminApprove(app.id)}
+                                className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                              >
+                                Godkjenn
+                              </button>
+                              <button
+                                onClick={() => handleAdminReject(app.id)}
+                                className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                              >
+                                Avvis
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-secondary">
+                            <div>
+                              <span className="font-bold text-onyx block mb-0.5">Adresse:</span>
+                              {app.address}
+                            </div>
+                            <div>
+                              <span className="font-bold text-onyx block mb-0.5">Sosiale medier:</span>
+                              {app.socialMedia}
+                            </div>
+                          </div>
+                          
+                          <div className="border-t border-slate-100 pt-3">
+                            <span className="font-bold text-onyx block mb-1">Begrunnelse:</span>
+                            <p className="text-secondary leading-relaxed bg-white p-3 rounded-lg border border-slate-100">{app.motivation}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </section>
