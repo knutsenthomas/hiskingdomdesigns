@@ -66,4 +66,15 @@ export const wixClient = createClient({
   }),
 });
 
+export const staticWixClient = createClient({
+  host: headlessSite.host(),
+  modules: {
+    products,
+  },
+  auth: OAuthStrategy({
+    clientId: '82b2b70d-fb70-4b76-abfd-a2a70f38ac06'
+  }),
+});
+
+
 

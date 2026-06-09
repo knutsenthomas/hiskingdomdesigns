@@ -14,55 +14,57 @@ const wixClient = createClient({
 });
 
 async function main() {
-  const itemId = 'bcf7626f-9509-7151-8a1e-d7ce4c3c7cef';
-  
-  console.log('1. Adding item to current cart...');
-  try {
-    await wixClient.currentCart.addToCurrentCart({
-      lineItems: [
-        {
-          catalogReference: {
-            appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
-            catalogItemId: itemId,
-          },
-          quantity: 1,
+  const plakatId = '64bc2f66-b418-7794-9661-4d16c575d764';
+  const tshirtId = '9e6a4b75-d8da-753e-ea15-93e76bf63e27'; // Praise the Lord Classic Tee
+
+  console.log('1. Adding items to Wix currentCart...');
+  const lineItems = [
+    {
+      catalogReference: {
+        appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
+        catalogItemId: plakatId
+      },
+      quantity: 1
+    },
+    {
+      catalogReference: {
+        appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
+        catalogItemId: tshirtId,
+        options: {
+          options: {
+            "Farge": "Lilla",
+            "Størrelse": "XS"
+          }
         }
-      ]
-    });
-    console.log('Added successfully.');
-  } catch (err) {
-    console.error('Failed to add to cart:', err.message);
-  }
+      },
+      quantity: 1
+    }
+  ];
+
+  const cartRes = await wixClient.currentCart.addToCurrentCart({ lineItems });
+  console.log('Cart updated. Cart ID:', cartRes.cart._id);
+  console.log('Cart line items:');
+  cartRes.cart.lineItems.forEach(item => {
+    console.log(`  - ${item.productName?.translated || item.productName?.original} (Qty: ${item.quantity})`);
+  });
 
   console.log('\n2. Creating checkout from current cart...');
-  let checkoutId;
-  try {
-    const res = await wixClient.currentCart.createCheckoutFromCurrentCart({
-      channelType: 'WEB'
-    });
-    checkoutId = res.checkoutId || res._id || res.checkout?._id;
-    console.log('Checkout created from cart. ID:', checkoutId);
-  } catch (err) {
-    console.error('Failed to create checkout from cart:', err.message);
-    return;
-  }
+  const checkoutRes = await wixClient.currentCart.createCheckoutFromCurrentCart({
+    channelType: 'WEB'
+  });
+  console.log('Checkout response:', JSON.stringify(checkoutRes, null, 2));
 
-  console.log('\n3. Creating redirect session...');
-  try {
-    const redirectSession = await wixClient.redirects.createRedirectSession({
-      ecomCheckout: {
-        checkoutId: checkoutId
-      },
-      callbacks: {
-        postFlowUrl: 'https://hiskingdomdesigns.vercel.app/cart',
-        thankYouPageUrl: 'https://hiskingdomdesigns.vercel.app/profile'
-      }
-    });
-    const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
-    console.log('Redirect URL:', redirectUrl);
-  } catch (err) {
-    console.error('Redirect Session failed:', err.message);
-  }
+  console.log('\n3. Creating redirect session for this checkout...');
+  const redirectRes = await wixClient.redirects.createRedirectSession({
+    ecomCheckout: {
+      checkoutId: checkoutRes.checkoutId
+    },
+    callbacks: {
+      postFlowUrl: 'https://hiskingdomdesigns.vercel.app/cart',
+      thankYouPageUrl: 'https://hiskingdomdesigns.vercel.app/profile'
+    }
+  });
+  console.log('Redirect URL:', redirectRes.fullUrl || redirectRes.redirectSession?.fullUrl);
 }
 
 main().catch(console.error);

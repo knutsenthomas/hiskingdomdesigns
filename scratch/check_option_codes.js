@@ -11,19 +11,20 @@ const wixClient = createClient({
 });
 
 async function main() {
-  const id = 'bcf7626f-9509-7151-8a1e-d7ce4c3c7cef';
-  const item = await wixClient.products.getProduct(id);
-  const option = item.product.productOptions[0];
-  console.log('Option Name:', option.name);
-  console.log('Choices:');
-  option.choices.forEach(c => {
-    const codes = [];
-    for (let i = 0; i < c.value.length; i++) {
-      codes.push(c.value.charCodeAt(i));
-    }
-    console.log(`- Value: "${c.value}" (length: ${c.value.length})`);
-    console.log(`  Codes: ${JSON.stringify(codes)}`);
-  });
+  console.log('Fetching all products to inspect options...');
+  try {
+    const res = await wixClient.products.queryProducts().limit(100).find();
+    const uniqueOptions = new Set();
+    res.items.forEach(p => {
+      p.productOptions?.forEach(opt => {
+        uniqueOptions.add(`${opt.name} (${opt.optionType})`);
+      });
+    });
+    console.log('Unique options found in database:');
+    uniqueOptions.forEach(opt => console.log(` - ${opt}`));
+  } catch (err) {
+    console.error('Query failed:', err.message);
+  }
 }
 
 main().catch(console.error);

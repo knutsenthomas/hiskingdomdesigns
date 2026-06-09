@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { wixClient } from '@/lib/wix';
+import { wixClient, staticWixClient } from '@/lib/wix';
 import { resolveColor } from '@/lib/colors';
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
@@ -17,16 +17,26 @@ export const useCart = () => {
 const productCache = {};
 
 const normalizeSelectedOptions = (selectedOptions, productOptions) => {
-  const normalized = { ...selectedOptions };
-  if (!productOptions) return normalized;
+  const normalized = {};
+  if (!productOptions) return selectedOptions;
 
   productOptions.forEach(opt => {
-    const nameLower = opt.name?.trim().toLowerCase();
+    const defaultName = opt.name;
+    const nameLower = defaultName.trim().toLowerCase();
     const isColor = nameLower === 'color' || nameLower === 'farge';
     const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
 
-    const currentValue = normalized[opt.name];
-    if (currentValue) {
+    // Look for a matching key in selectedOptions (case-insensitive, localized)
+    const matchingKey = Object.keys(selectedOptions).find(k => {
+      const kLower = k.trim().toLowerCase();
+      if (kLower === nameLower) return true;
+      if (isColor && (kLower === 'color' || kLower === 'farge')) return true;
+      if (isSize && (kLower.includes('size') || kLower.includes('størrelse') || kLower.includes('størrelser') || kLower.includes('format') || kLower === 'str' || kLower === 'str.')) return true;
+      return false;
+    });
+
+    if (matchingKey) {
+      const currentValue = selectedOptions[matchingKey];
       if (isColor) {
         // Resolve the user's selected color to a standard name
         const selectedResolved = resolveColor(currentValue);
@@ -36,7 +46,9 @@ const normalizeSelectedOptions = (selectedOptions, productOptions) => {
           return choiceResolved.name === selectedResolved.name;
         });
         if (match) {
-          normalized[opt.name] = match.value;
+          normalized[defaultName] = match.value;
+        } else {
+          normalized[defaultName] = currentValue; // fallback
         }
       } else if (isSize) {
         // For sizes, compare value or description case-insensitively
@@ -45,8 +57,17 @@ const normalizeSelectedOptions = (selectedOptions, productOptions) => {
           c.description?.toLowerCase() === currentValue.toLowerCase()
         );
         if (match) {
-          normalized[opt.name] = match.value;
+          normalized[defaultName] = match.value;
+        } else {
+          normalized[defaultName] = currentValue; // fallback
         }
+      } else {
+        normalized[defaultName] = currentValue;
+      }
+    } else {
+      // If an option is missing from the user's input, default to its first choice
+      if (opt.choices && opt.choices.length > 0) {
+        normalized[defaultName] = opt.choices[0].value;
       }
     }
   });
@@ -334,7 +355,7 @@ export const CartProvider = ({ children }) => {
       return productCache[productId];
     }
     try {
-      const res = await wixClient.products.getProduct(productId);
+      const res = await staticWixClient.products.getProduct(productId);
       if (res && res.product) {
         productCache[productId] = res.product;
         return res.product;
@@ -352,19 +373,11 @@ export const CartProvider = ({ children }) => {
         catalogItemId: item.id
       };
 
-      // Robustly ensure productOptions, manageVariants, and variants are present
-      let productOptions = item.productOptions;
-      let manageVariants = item.manageVariants;
-      let variants = item.variants;
-
-      if (!variants || variants.length === 0 || !productOptions) {
-        const fullProduct = await resolveProductDetails(item.id);
-        if (fullProduct) {
-          productOptions = fullProduct.productOptions;
-          manageVariants = fullProduct.manageVariants;
-          variants = fullProduct.variants;
-        }
-      }
+      // Always resolve options and variants from the static (Norwegian) Wix client to prevent drops
+      const fullProduct = await resolveProductDetails(item.id);
+      let productOptions = fullProduct ? fullProduct.productOptions : item.productOptions;
+      let manageVariants = fullProduct ? fullProduct.manageVariants : item.manageVariants;
+      let variants = fullProduct ? fullProduct.variants : item.variants;
 
       // Handle options
       if (productOptions && productOptions.length > 0) {
