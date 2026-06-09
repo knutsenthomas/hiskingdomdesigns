@@ -305,7 +305,7 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
   );
 }
 
-function formatDescription(html) {
+function formatDescription(html, lang = 'no') {
   if (!html) return '';
   if (!html.toLowerCase().includes('measurements')) return html;
   
@@ -317,6 +317,16 @@ function formatDescription(html) {
   let inMeasurements = false;
   let headerHtml = '';
   
+  const isNo = lang === 'no';
+  const isEs = lang === 'es';
+  
+  const headerText = isNo ? 'Størrelsesmål:' : isEs ? 'Medidas:' : 'Measurements:';
+  const footerText = isNo 
+    ? 'Alle mål er veiledende med en minimumstoleranse på 1 cm.' 
+    : isEs 
+    ? 'Todas las medidas son indicativas con una tolerancia mínima de 1 cm.' 
+    : 'All measurements are indicative with minimum tolerance of 1 cm.';
+  
   for (let part of parts) {
     part = part.trim();
     if (!part) continue;
@@ -327,7 +337,12 @@ function formatDescription(html) {
     
     if (text.toLowerCase() === 'measurements:') {
       inMeasurements = true;
-      headerHtml = p;
+      headerHtml = `<p><strong>${headerText}</strong></p>`;
+      continue;
+    }
+    
+    if (text.toLowerCase().includes('all measurements are indicative')) {
+      after.push(`<p>${footerText}</p>`);
       continue;
     }
     
@@ -352,7 +367,11 @@ function formatDescription(html) {
   
   if (sizeRows.length > 0) {
     const tableRows = [];
-    const headers = ['Størrelse (Size)', 'Lengde (Length)', 'Brystvidde (½ Chest)'];
+    const headers = isNo 
+      ? ['Størrelse', 'Lengde', 'Brystvidde (½ Chest)'] 
+      : isEs 
+      ? ['Talla', 'Largo', '½ Pecho'] 
+      : ['Size', 'Length', '½ Chest'];
     
     sizeRows.forEach(row => {
       const cleanText = row.replace(/[\s\u00A0]+/g, ' ').trim();
@@ -1189,7 +1208,7 @@ export default function ProductDetails() {
             <h4 className="font-label-md text-label-md text-onyx mb-2 uppercase tracking-wider">{t('product.descriptionTitle')}</h4>
             <div 
               className="font-body-md text-body-md text-secondary leading-relaxed space-y-3 html-description"
-              dangerouslySetInnerHTML={{ __html: formatDescription(product.description || t('home.metaDesc')) }}
+              dangerouslySetInnerHTML={{ __html: formatDescription(product.description || t('home.metaDesc'), language) }}
             />
           </div>
 
