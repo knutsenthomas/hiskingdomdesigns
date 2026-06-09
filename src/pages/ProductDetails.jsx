@@ -721,6 +721,16 @@ export default function ProductDetails() {
     }
   }, [product]);
 
+  // Preload all product images in parallel for instant gallery transitions
+  useEffect(() => {
+    if (product?.images && product.images.length > 0) {
+      product.images.forEach((imgUrl) => {
+        const img = new Image();
+        img.src = getOptimizedWixImageUrl(imgUrl, 600, 750);
+      });
+    }
+  }, [product]);
+
   // Sync activeImage with selected color variant image if available
   useEffect(() => {
     if (!product || !selectedColor) return;
@@ -1136,7 +1146,11 @@ export default function ProductDetails() {
         {/* Gallery Column */}
         <div className="lg:col-span-6 flex flex-col gap-4">
           <div className="relative group bg-white rounded-xl overflow-hidden shadow-sm aspect-square md:aspect-[4/5] max-h-[500px] md:max-h-[550px] lg:max-h-[600px] flex items-center justify-center p-8 border border-outline-variant/35">
-            <img 
+            <motion.img 
+              key={activeImage || product.image}
+              initial={{ opacity: 0.4 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               alt={product.name} 
               className="max-w-full max-h-full object-contain rounded-lg hover:scale-[1.02] transition-transform duration-500" 
               src={getOptimizedWixImageUrl(activeImage || product.image, 600, 750)}
