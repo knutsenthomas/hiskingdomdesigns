@@ -9,6 +9,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
 import useMeta from '@/hooks/useMeta';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Helper to safely extract email from Wix member object across various schema versions
 const getMemberEmail = (member) => {
@@ -94,9 +95,10 @@ const getProfileImageUrl = (member) => {
 let isExchangingTokens = false;
 
 export default function Profile() {
+  const { language, t } = useLanguage();
   useMeta(
-    "Min konto",
-    "Administrer din profil, se dine ordre, administrer adresser, lojalitetspoeng og verv venner hos His Kingdom Designs."
+    t('profile.metaTitle') || "Min konto",
+    t('profile.metaDesc') || "Administrer din profil, se dine ordre, administrer adresser, lojalitetspoeng og verv venner hos His Kingdom Designs."
   );
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -224,7 +226,7 @@ export default function Profile() {
       setRefreshKey(prev => prev + 1); // Refresh page data
     } catch (err) {
       console.error('Failed to update member address in Wix:', err);
-      setAddressError('Klarte ikke å lagre adresse: ' + (err.message || err));
+      setAddressError(t('profile.addressError') + (err.message || err));
     } finally {
       setIsUpdatingAddress(false);
     }
@@ -662,12 +664,12 @@ export default function Profile() {
 
   const translateStatus = (status) => {
     switch (status?.toUpperCase()) {
-      case 'DELIVERED': return 'Levert';
-      case 'PAID': return 'Betalt';
-      case 'APPROVED': return 'Godkjent';
-      case 'CANCELED': return 'Kansellert';
-      case 'ACTIVE': return 'Aktiv';
-      default: return 'Behandles';
+      case 'DELIVERED': return t('profile.delivered') || 'Levert';
+      case 'PAID': return t('profile.paid') || 'Betalt';
+      case 'APPROVED': return t('profile.approved') || 'Godkjent';
+      case 'CANCELED': return t('profile.canceled') || 'Kansellert';
+      case 'ACTIVE': return t('profile.active') || 'Aktiv';
+      default: return t('profile.pending') || 'Behandles';
     }
   };
 
@@ -870,12 +872,13 @@ export default function Profile() {
     }
   };
 
-  let memberSinceStr = 'Mars 2025';
+  let memberSinceStr = language === 'es' ? 'Marzo 2025' : (language === 'en' ? 'March 2025' : 'Mars 2025');
   if (member?._createdDate) {
     try {
       const d = new Date(member._createdDate);
       if (!isNaN(d.getTime())) {
-        const dateStr = d.toLocaleDateString('no-NO', { month: 'long', year: 'numeric' });
+        const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
+        const dateStr = d.toLocaleDateString(localeMap[language] || 'no-NO', { month: 'long', year: 'numeric' });
         if (dateStr) {
           memberSinceStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
         }
@@ -889,7 +892,7 @@ export default function Profile() {
     return (
       <div className="flex flex-col items-center justify-center py-56">
         <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-secondary font-semibold font-body-md">Laster din profil...</p>
+        <p className="mt-4 text-secondary font-semibold font-body-md">{t('profile.saving') === 'Lagrer...' ? 'Laster din profil...' : 'Loading your profile...'}</p>
       </div>
     );
   }
@@ -912,7 +915,7 @@ export default function Profile() {
                 loginTab === 'login' ? 'border-b-2 border-terracotta text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Logg inn
+              {t('login.login')}
             </button>
             <button 
               onClick={() => setLoginTab('register')}
@@ -920,7 +923,7 @@ export default function Profile() {
                 loginTab === 'register' ? 'border-b-2 border-terracotta text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Registrer deg
+              {t('login.register')}
             </button>
           </div>
 
@@ -934,19 +937,19 @@ export default function Profile() {
             /* Login Form */
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="font-headline-md text-headline-md text-onyx mb-2">Velkommen tilbake</h2>
-                <p className="font-body-sm text-body-sm text-secondary">Logg inn for å se ordrene dine og administrere abonnementer.</p>
+                <h2 className="font-headline-md text-headline-md text-onyx mb-2">{t('login.welcome')}</h2>
+                <p className="font-body-sm text-body-sm text-secondary">{t('login.welcomeDesc')}</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-onyx uppercase mb-2">E-postadresse</label>
+                <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('login.email')}</label>
                 <div className="relative">
                   <input 
                     type="email" 
                     required 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="din@epost.no"
+                    placeholder={t('login.emailPlaceholder')}
                     disabled={isLoggingIn}
                     className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 pl-10 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-onyx" 
                   />
@@ -956,13 +959,13 @@ export default function Profile() {
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-xs font-semibold text-onyx uppercase">Passord</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase">{t('login.password')}</label>
                   <button 
                     type="button"
                     onClick={handleRegisterSubmit} 
                     className="text-xs text-terracotta hover:underline font-semibold"
                   >
-                    Glemt passord?
+                    {t('login.forgotPassword')}
                   </button>
                 </div>
                 <div className="relative">
@@ -984,15 +987,15 @@ export default function Profile() {
                 disabled={isLoggingIn}
                 className="w-full bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md mt-8 uppercase tracking-wider text-xs font-bold flex items-center justify-center gap-2"
               >
-                {isLoggingIn ? 'Logger inn...' : 'Logg inn'}
+                {isLoggingIn ? t('login.loggingIn') : t('login.login')}
               </button>
             </form>
           ) : (
             /* Registration Form */
             <form onSubmit={handleRegisterSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="font-headline-md text-headline-md text-onyx mb-2">Opprett konto</h2>
-                <p className="font-body-sm text-body-sm text-secondary">Registrering skjer sikkert via vår Wix-portal for å beskytte dine data.</p>
+                <h2 className="font-headline-md text-headline-md text-onyx mb-2">{t('login.createAccount')}</h2>
+                <p className="font-body-sm text-body-sm text-secondary">{t('login.registerDesc')}</p>
               </div>
 
               <button 
@@ -1000,20 +1003,20 @@ export default function Profile() {
                 disabled={isLoggingIn}
                 className="w-full bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md mt-8 uppercase tracking-wider text-xs font-bold flex items-center justify-center gap-2"
               >
-                Fortsett til sikker registrering
+                {t('login.continueRegister')}
               </button>
             </form>
           )}
 
           {/* Social login redirect triggers */}
           <div className="mt-8 pt-6 border-t border-slate-100 text-center space-y-4">
-            <span className="text-xs text-secondary/50 uppercase tracking-wider block">Eller logg inn med</span>
+            <span className="text-xs text-secondary/50 uppercase tracking-wider block">{t('login.orLoginWith')}</span>
             <button 
               onClick={handleRegisterSubmit}
               className="w-full border border-outline-variant rounded-xl py-3 text-xs font-semibold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-onyx"
             >
               <ShieldCheck size={16} className="text-terracotta" />
-              <span>Sikker innlogging (Google, E-post)</span>
+              <span>{t('login.secureLoginGoogle')}</span>
             </button>
           </div>
         </div>
@@ -1050,15 +1053,15 @@ export default function Profile() {
 
           <div className="space-y-4 w-full text-left font-body-sm text-secondary">
             <div>
-              <span className="text-xs font-semibold text-onyx uppercase block mb-1">Telefon</span>
+              <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.phone')}</span>
               <span>{displayPhone}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold text-onyx uppercase block mb-1">Standardadresse</span>
+              <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.defaultAddress')}</span>
               <span className="block leading-relaxed">{displayAddress}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold text-onyx uppercase block mb-1">Medlem siden</span>
+              <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.memberSince')}</span>
               <span>{memberSinceStr}</span>
             </div>
           </div>
@@ -1071,7 +1074,7 @@ export default function Profile() {
               className="w-full flex items-center justify-center gap-2 bg-terracotta hover:bg-opacity-95 text-white py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 mb-3 shadow-md font-bold cursor-pointer"
             >
               <span className="material-symbols-outlined text-base">admin_panel_settings</span>
-              <span>Gå til Admin-panel</span>
+              <span>{t('profile.goToAdmin')}</span>
             </Link>
           )}
 
@@ -1080,7 +1083,7 @@ export default function Profile() {
             className="w-full flex items-center justify-center gap-2 border border-outline hover:border-terracotta hover:text-terracotta text-onyx py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 cursor-pointer"
           >
             <LogOut size={16} />
-            <span>Logg ut</span>
+            <span>{t('profile.logout')}</span>
           </button>
         </aside>
 
@@ -1095,7 +1098,7 @@ export default function Profile() {
                 activeTab === 'dashboard' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Dashbord
+              {t('profile.dashboard')}
               {activeTab === 'dashboard' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1106,7 +1109,7 @@ export default function Profile() {
                 activeTab === 'wishlist' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Min ønskeliste ({wishlist.length})
+              {t('profile.wishlist')} ({wishlist.length})
               {activeTab === 'wishlist' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1117,7 +1120,7 @@ export default function Profile() {
                 activeTab === 'address' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Adressebok
+              {t('profile.addressBook')}
               {activeTab === 'address' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1128,7 +1131,7 @@ export default function Profile() {
                 activeTab === 'loyalty' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Lojalitetsprogram
+              {t('profile.loyalty')}
               {activeTab === 'loyalty' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1139,7 +1142,7 @@ export default function Profile() {
                 activeTab === 'referral' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
               }`}
             >
-              Affiliate program
+              {t('profile.affiliate')}
               {activeTab === 'referral' && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
@@ -1152,38 +1155,39 @@ export default function Profile() {
               <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
                 <div className="flex items-center gap-3 text-terracotta">
                   <ShoppingBag size={22} />
-                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Ordrehistorikk</h3>
+                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.orderHistory')}</h3>
                 </div>
 
                 {ordersList.length > 0 ? (
                   <div className="space-y-4">
                     {ordersList.map(order => {
-                      let dateStr = 'Ukjent dato';
+                      let dateStr = t('profile.unknownDate') || 'Ukjent dato';
                       if (order._createdDate) {
                         try {
                           const d = new Date(order._createdDate);
                           if (!isNaN(d.getTime())) {
-                            dateStr = d.toLocaleDateString('no-NO');
+                            const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
+                            dateStr = d.toLocaleDateString(localeMap[language] || 'no-NO');
                           }
                         } catch (e) {}
                       }
                       const itemsStr = order.lineItems 
                         ? order.lineItems.map(item => `${item.name || item.productName?.translated} (x${item.quantity})`).join(', ')
-                        : 'Ingen varebeskrivelse';
+                        : t('profile.noDescription') || 'Ingen varebeskrivelse';
                       const totalStr = order.priceSummary?.total?.amount || '0';
 
                       return (
                         <div key={order._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-outline transition-colors bg-slate-50/20">
                           <div>
                             <div className="flex items-center gap-3 mb-1">
-                              <span className="font-label-md text-onyx font-bold text-sm">Ordre #{order._id?.substring(0, 8)}</span>
+                              <span className="font-label-md text-onyx font-bold text-sm">{t('profile.order')} #{order._id?.substring(0, 8)}</span>
                               <span className="text-xs text-secondary/60">• {dateStr}</span>
                             </div>
                             <p className="font-body-sm text-secondary text-xs line-clamp-1">{itemsStr}</p>
                           </div>
                           <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
                             <div>
-                              <span className="text-xs text-secondary block">Totalpris</span>
+                              <span className="text-xs text-secondary block">{t('profile.total')}</span>
                               <span className="font-label-md text-onyx font-bold">{totalStr} kr</span>
                             </div>
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -1195,7 +1199,7 @@ export default function Profile() {
                                   onClick={() => handleOpenReturnModal(order)}
                                   className="border border-outline hover:border-terracotta hover:text-terracotta text-onyx px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] text-center"
                                 >
-                                  Be om retur
+                                  {t('profile.requestReturn')}
                                 </button>
                               )}
                             </div>
@@ -1205,27 +1209,27 @@ export default function Profile() {
                     })}
                   </div>
                 ) : (
-                  <p className="text-secondary font-body-md text-sm">Du har ikke lagt inn noen bestillinger ennå.</p>
+                  <p className="text-secondary font-body-md text-sm">{t('profile.noOrdersYet')}</p>
                 )}
 
                 {activeReturns.length > 0 && (
                   <div className="mt-8 border-t border-slate-100 pt-6">
                     <h4 className="font-bold text-sm text-[#1B4965] mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-terracotta text-lg select-none">swap_driving_side</span>
-                      Dine returforespørsler
+                      {t('profile.activeReturns')}
                     </h4>
                     <div className="space-y-3">
                       {activeReturns.map(ret => (
                         <div key={ret.id} className="border border-outline-variant/20 rounded-xl p-4 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                           <div>
-                            <p className="font-semibold text-xs text-onyx">Retur for ordre #{ret.orderId?.substring(0, 8)}</p>
+                            <p className="font-semibold text-xs text-onyx">{t('profile.returnForOrder', { id: ret.orderId?.substring(0, 8) })}</p>
                             <p className="text-[10px] text-secondary mt-0.5">
-                              Varer: {ret.items?.map(i => `${i.name} (x${i.quantity})`).join(', ')}
+                              {t('profile.returnItems', { items: ret.items?.map(i => `${i.name} (x${i.quantity})`).join(', ') })}
                             </p>
-                            <p className="text-[10px] text-secondary/70 italic mt-0.5">Årsak: {ret.reason}</p>
+                            <p className="text-[10px] text-secondary/70 italic mt-0.5">{t('profile.returnReason', { reason: ret.reason })}</p>
                           </div>
                           <span className="bg-amber-100 text-amber-800 text-[9px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider text-center">
-                            {ret.status || 'Mottatt'}
+                            {ret.status === 'Mottatt' ? (t('profile.pending') || 'Mottatt') : (t(`profile.${ret.status?.toLowerCase()}`) || ret.status)}
                           </span>
                         </div>
                       ))}
@@ -1238,7 +1242,7 @@ export default function Profile() {
               <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 text-terracotta">
                   <Package size={22} />
-                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Dine Månedspakker</h3>
+                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.mySubscriptions')}</h3>
                 </div>
 
                 {subscriptionsList.length > 0 ? (
@@ -1250,7 +1254,8 @@ export default function Profile() {
                         try {
                           const d = new Date(sub.nextShipmentDate);
                           if (!isNaN(d.getTime())) {
-                            subNextDate = d.toLocaleDateString('no-NO');
+                            const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
+                            subNextDate = d.toLocaleDateString(localeMap[language] || 'no-NO');
                           }
                         } catch (e) {}
                       }
@@ -1259,13 +1264,13 @@ export default function Profile() {
                           <div>
                             <h4 className="font-label-md text-onyx font-bold text-sm mb-1">{sub.planName}</h4>
                             <p className="text-xs text-secondary">
-                              Neste sending: <strong className="text-onyx">{subNextDate}</strong> (fraktes gratis)
+                              {t('profile.nextShipment', { date: subNextDate })}
                             </p>
                           </div>
                           <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
                             <div>
-                              <span className="text-xs text-secondary block">Månedspris</span>
-                              <span className="font-label-md text-terracotta font-bold">{subPrice} kr/mnd</span>
+                              <span className="text-xs text-secondary block">{t('profile.monthlyPrice')}</span>
+                              <span className="font-label-md text-terracotta font-bold">{subPrice} kr/{t('home.subscription.month')}</span>
                             </div>
                             <span className="bg-emerald-100 text-emerald-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                               {translateStatus(sub.status)}
@@ -1276,7 +1281,7 @@ export default function Profile() {
                     })}
                   </div>
                 ) : (
-                  <p className="text-secondary font-body-md text-sm">Du abonnerer ikke på noen månedspakker for øyeblikket.</p>
+                  <p className="text-secondary font-body-md text-sm">{t('profile.noSubscriptionsYet')}</p>
                 )}
               </section>
             </>
@@ -1286,7 +1291,7 @@ export default function Profile() {
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
               <div className="flex items-center gap-3 text-terracotta">
                 <Heart size={22} className="fill-current" />
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Min ønskeliste</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.wishlist')}</h3>
               </div>
               
               {wishlist.length > 0 ? (
@@ -1313,13 +1318,13 @@ export default function Profile() {
                             className="bg-terracotta text-white font-label-md text-[11px] px-3 py-1.5 rounded-lg hover:opacity-95 active:scale-95 transition-all shadow-md font-semibold flex items-center gap-1 cursor-pointer"
                           >
                             <ShoppingBag size={12} />
-                            Legg i kurv
+                            {t('profile.addToCart')}
                           </button>
                           <button
                             onClick={() => toggleWishlist(item)}
                             className="text-secondary hover:text-red-500 font-label-md text-[11px] transition-colors cursor-pointer"
                           >
-                            Fjern
+                            {t('profile.remove')}
                           </button>
                         </div>
                       </div>
@@ -1328,9 +1333,9 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="text-center py-10">
-                  <p className="text-secondary font-body-md text-sm mb-4">Ønskelisten din er tom.</p>
+                  <p className="text-secondary font-body-md text-sm mb-4">{t('profile.emptyWishlist')}</p>
                   <Link to="/products" className="inline-flex items-center gap-1 text-terracotta font-bold hover:underline text-xs">
-                    Utforsk produkter &rarr;
+                    {t('profile.exploreProducts')}
                   </Link>
                 </div>
               )}
@@ -1341,7 +1346,7 @@ export default function Profile() {
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-8 animate-fade-in">
               <div className="flex items-center gap-3 text-terracotta">
                 <span className="material-symbols-outlined text-2xl select-none">stars</span>
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Lojalitetsprogram & Poeng</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.loyaltyPoints')}</h3>
               </div>
 
               {isLoadingLoyalty ? (
@@ -1357,11 +1362,11 @@ export default function Profile() {
                     
                     <div className="flex justify-between items-start mb-6">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest text-blue-200 font-semibold">Ditt Medlemskort</span>
+                        <span className="text-[10px] uppercase tracking-widest text-blue-200 font-semibold">{t('profile.loyaltyCard')}</span>
                         <h4 className="text-xl font-bold mt-1 tracking-wide">{displayName}</h4>
                       </div>
                       <span className="bg-amber-400 text-slate-900 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
-                        Gull-nivå
+                        {t('profile.loyaltyLevel')}
                       </span>
                     </div>
 
@@ -1369,14 +1374,14 @@ export default function Profile() {
                       <span className="text-4xl md:text-5xl font-extrabold tracking-tight">
                         {loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 150}
                       </span>
-                      <span className="text-sm font-semibold text-blue-200">poeng tilgjengelig</span>
+                      <span className="text-sm font-semibold text-blue-200">{t('profile.pointsAvailable')}</span>
                     </div>
 
                     {/* Progress to next level */}
                     <div className="mt-6 pt-4 border-t border-white/10 space-y-2">
                       <div className="flex justify-between text-xs text-blue-100">
-                        <span>Fremgang til neste nivå</span>
-                        <span className="font-semibold">150 / 300 poeng</span>
+                        <span>{t('profile.pointsProgress')}</span>
+                        <span className="font-semibold">{t('profile.pointsProgressValue', { current: loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 150, target: 300 })}</span>
                       </div>
                       <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
                         <div className="bg-amber-400 h-full rounded-full transition-all duration-500" style={{ width: '50%' }} />
@@ -1389,20 +1394,20 @@ export default function Profile() {
                     <div className="border border-outline-variant/30 rounded-xl p-5 bg-slate-50/40">
                       <h4 className="font-bold text-sm text-onyx mb-2 flex items-center gap-2">
                         <span className="material-symbols-outlined text-terracotta text-lg select-none">local_activity</span>
-                        Hvordan samle poeng?
+                        {t('profile.howToEarn')}
                       </h4>
                       <ul className="text-xs text-secondary space-y-2 pl-1">
                         <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">Kjøp i butikken:</span>
-                          <strong className="text-onyx text-right">1 poeng per 10 kr brukt</strong>
+                          <span className="shrink-0">{t('profile.earnBuy')}</span>
+                          <strong className="text-onyx text-right">{t('profile.earnBuyValue')}</strong>
                         </li>
                         <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">Opprett konto:</span>
-                          <strong className="text-onyx text-right">+100 poeng</strong>
+                          <span className="shrink-0">{t('profile.earnRegister')}</span>
+                          <strong className="text-onyx text-right">{t('profile.earnRegisterValue')}</strong>
                         </li>
                         <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">Skriv en omtale:</span>
-                          <strong className="text-onyx text-right">+20 poeng</strong>
+                          <span className="shrink-0">{t('profile.earnReview')}</span>
+                          <strong className="text-onyx text-right">{t('profile.earnReviewValue')}</strong>
                         </li>
                       </ul>
                     </div>
@@ -1410,20 +1415,20 @@ export default function Profile() {
                     <div className="border border-outline-variant/30 rounded-xl p-5 bg-slate-50/40">
                       <h4 className="font-bold text-sm text-onyx mb-2 flex items-center gap-2">
                         <span className="material-symbols-outlined text-terracotta text-lg select-none">redeem</span>
-                        Hva kan poeng brukes til?
+                        {t('profile.howToUse')}
                       </h4>
                       <ul className="text-xs text-secondary space-y-2 pl-1">
                         <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">100 poeng:</span>
-                          <strong className="text-onyx text-right">Gratis frakt på neste ordre</strong>
+                          <span className="shrink-0">{t('profile.useFreeShipping')}</span>
+                          <strong className="text-onyx text-right">{t('profile.useFreeShippingValue')}</strong>
                         </li>
                         <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">200 poeng:</span>
-                          <strong className="text-onyx text-right">10% rabatt på valgfritt produkt</strong>
+                          <span className="shrink-0">{t('profile.useDiscount')}</span>
+                          <strong className="text-onyx text-right">{t('profile.useDiscountValue')}</strong>
                         </li>
                         <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">500 poeng:</span>
-                          <strong className="text-onyx text-right">150 kr rabattkupong</strong>
+                          <span className="shrink-0">{t('profile.useCoupon')}</span>
+                          <strong className="text-onyx text-right">{t('profile.useCouponValue')}</strong>
                         </li>
                       </ul>
                     </div>
@@ -1433,7 +1438,7 @@ export default function Profile() {
                   <div className="space-y-4">
                     <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
                       <span className="material-symbols-outlined text-terracotta text-lg select-none">history</span>
-                      Poeng-historikk
+                      {t('profile.pointsHistory')}
                     </h4>
                     
                     <div className="space-y-3">
@@ -1442,23 +1447,33 @@ export default function Profile() {
                         { _id: 'tx-2', description: 'Poeng tjent på ordre HK-9821', pointsDelta: 50, _createdDate: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
                       ]).map(tx => {
                         const isEarned = tx.pointsDelta > 0;
-                        let date = 'Ukjent dato';
+                        let date = t('profile.unknownDate') || 'Ukjent dato';
                         if (tx._createdDate) {
                           try {
                             const d = new Date(tx._createdDate);
                             if (!isNaN(d.getTime())) {
-                              date = d.toLocaleDateString('no-NO');
+                              const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
+                              date = d.toLocaleDateString(localeMap[language] || 'no-NO');
                             }
                           } catch (e) {}
                         }
+                        
+                        let txDesc = tx.description;
+                        if (tx.description === 'Konto opprettet velkomstbonus') {
+                          txDesc = t('profile.historyWelcome') || tx.description;
+                        } else if (tx.description?.includes('Poeng tjent på ordre')) {
+                          const orderMatch = tx.description.match(/HK-\d+/)?.[0] || '';
+                          txDesc = t('profile.historyOrder', { orderId: orderMatch }) || tx.description;
+                        }
+
                         return (
                           <div key={tx._id} className="flex justify-between items-center p-4 border border-outline-variant/15 rounded-xl bg-slate-50/10">
                             <div>
-                              <p className="font-semibold text-sm text-onyx">{tx.description || (isEarned ? 'Poeng tjent' : 'Poeng brukt')}</p>
+                              <p className="font-semibold text-sm text-onyx">{txDesc || (isEarned ? t('profile.pointsEarned') : t('profile.pointsUsed'))}</p>
                               <span className="text-[10px] text-secondary/60">{date}</span>
                             </div>
                             <span className={`font-bold text-sm ${isEarned ? 'text-green-600' : 'text-red-500'}`}>
-                              {isEarned ? `+${tx.pointsDelta}` : tx.pointsDelta} poeng
+                              {isEarned ? `+${tx.pointsDelta}` : tx.pointsDelta} {t('profile.pointsAvailable')?.split(' ')[0]}
                             </span>
                           </div>
                         );
@@ -1474,16 +1489,16 @@ export default function Profile() {
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
               <div className="flex items-center gap-3 text-terracotta">
                 <User size={22} />
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Adressebok</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.addressBook')}</h3>
               </div>
               <p className="text-xs text-secondary leading-relaxed">
-                Oppdater leveringsinformasjonen din. Denne informasjonen lagres direkte i Wix-medlemsprofilen din og vil automatisk fylles ut når du går til kassen.
+                {t('profile.addressBookDesc')}
               </p>
               
               <form onSubmit={handleAddressSubmit} className="space-y-4">
                 {addressSuccess && (
                   <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
-                    ✓ Endringene er lagret!
+                    {t('profile.addressSaved')}
                   </div>
                 )}
                 {addressError && (
@@ -1494,7 +1509,7 @@ export default function Profile() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Fornavn</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.firstName')}</label>
                     <input
                       type="text"
                       value={firstName}
@@ -1504,7 +1519,7 @@ export default function Profile() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Etternavn</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.lastName')}</label>
                     <input
                       type="text"
                       value={lastName}
@@ -1517,24 +1532,24 @@ export default function Profile() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Telefonnummer</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.phoneInput')}</label>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder="F.eks. 98765432"
+                      placeholder={t('profile.phonePlaceholder')}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Gateadresse</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.streetAddress')}</label>
                     <input
                       type="text"
                       value={addressLine}
                       onChange={(e) => setAddressLine(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder="Gate og nummer"
+                      placeholder={t('profile.streetPlaceholder')}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
@@ -1542,24 +1557,24 @@ export default function Profile() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex flex-col sm:col-span-1">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Postnummer</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.postalCode')}</label>
                     <input
                       type="text"
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder="4 sifre"
+                      placeholder={t('profile.postalPlaceholder')}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
                   <div className="flex flex-col sm:col-span-2">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Poststed</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.city')}</label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder="Lyngdal"
+                      placeholder={t('profile.cityPlaceholder')}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
@@ -1570,7 +1585,7 @@ export default function Profile() {
                   disabled={isUpdatingAddress}
                   className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                 >
-                  {isUpdatingAddress ? 'Lagrer...' : 'Lagre endringer'}
+                  {isUpdatingAddress ? t('profile.saving') : t('profile.saveChanges')}
                 </button>
               </form>
             </section>
@@ -1589,34 +1604,34 @@ export default function Profile() {
               
               <div className="flex items-center gap-3 text-[#1B4965]">
                 <span className="material-symbols-outlined text-2xl select-none">military_tech</span>
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">Affiliate program</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.affiliate')}</h3>
               </div>
 
               {/* Info text */}
               <div className="bg-[#1B4965]/5 border border-[#1B4965]/20 p-5 rounded-2xl text-secondary text-xs leading-relaxed flex items-start gap-3">
                 <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 select-none">info</span>
                 <p className="font-semibold text-[#1B4965]">
-                  Du oppnår prosent bonus utbetaling som godkjent affiliate markedsfører pr produkt solgt gjennom din personlige link.
+                  {t('profile.affiliateDesc')}
                 </p>
               </div>
 
               {affiliateStatus === 'none' && (
                 <div className="space-y-6">
                   <div className="border-t border-slate-100 pt-4">
-                    <h4 className="font-headline-sm text-onyx text-base font-bold mb-2">Søk om å bli affiliate markedsfører</h4>
+                    <h4 className="font-headline-sm text-onyx text-base font-bold mb-2">{t('profile.applyAffiliate')}</h4>
                     <p className="text-xs text-secondary mb-6 leading-relaxed">
-                      Fyll ut søknadsskjemaet nedenfor. Vi vil gå igjennom søknaden din og godkjenne den manuelt før du kan starte å tjene provisjon på salg.
+                      {t('profile.applyAffiliateDesc')}
                     </p>
                     
                     {affiliateSuccess && (
                       <div className="mb-4 bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
-                        ✓ Søknaden din er sendt! Statusen vil oppdatere seg til under behandling.
+                        {t('profile.affiliateSuccess')}
                       </div>
                     )}
 
                     <form onSubmit={handleAffiliateSubmit} className="space-y-5 max-w-xl">
                       <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Navn</label>
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.name')}</label>
                         <input
                           type="text"
                           required
@@ -1627,7 +1642,7 @@ export default function Profile() {
                       </div>
 
                       <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">E-post</label>
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.email')}</label>
                         <input
                           type="email"
                           required
@@ -1638,7 +1653,7 @@ export default function Profile() {
                       </div>
 
                       <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Adresse</label>
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.address')}</label>
                         <input
                           type="text"
                           required
@@ -1649,11 +1664,11 @@ export default function Profile() {
                       </div>
 
                       <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Sosiale medier-kontoer</label>
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.socials')}</label>
                         <input
                           type="text"
                           required
-                          placeholder="F.eks. @dittnavn på Instagram, Facebook-side, TikTok..."
+                          placeholder={t('profile.socialsPlaceholder')}
                           value={affiliateSocials}
                           onChange={(e) => setAffiliateSocials(e.target.value)}
                           className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
@@ -1661,11 +1676,11 @@ export default function Profile() {
                       </div>
 
                       <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">Begrunnelse for at vi skal velge deg</label>
+                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.motivation')}</label>
                         <textarea
                           required
                           rows={4}
-                          placeholder="Fortell oss litt om hvorfor du ønsker å bli affiliate for His Kingdom Designs..."
+                          placeholder={t('profile.motivationPlaceholder')}
                           value={affiliateMotivation}
                           onChange={(e) => setAffiliateMotivation(e.target.value)}
                           className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta resize-none"
@@ -1677,19 +1692,19 @@ export default function Profile() {
                         disabled={isSubmittingAffiliate}
                         className="w-full bg-terracotta hover:bg-opacity-95 text-white py-3.5 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider shadow-md active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
                       >
-                        {isSubmittingAffiliate ? 'Sender søknad...' : 'Send søknad'}
+                        {isSubmittingAffiliate ? t('profile.submitting') : t('profile.submitApplication')}
                       </button>
                     </form>
                   </div>
                   
                   {/* Subtle Simulation Tool for Testing */}
                   <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
-                    <span>💡 <strong>Testverktøy:</strong> Du kan simulere godkjenning av søknaden for å se affiliate-panelet:</span>
+                    <span>{t('profile.simApproveTitle')}</span>
                     <button 
                       onClick={handleSimulateApprove} 
                       className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     >
-                      Simuler godkjenning
+                      {t('profile.simApproveBtn')}
                     </button>
                   </div>
                 </div>
@@ -1699,27 +1714,27 @@ export default function Profile() {
                 <div className="space-y-6">
                   <div className="border border-outline-variant/30 rounded-2xl p-8 bg-slate-50 text-center flex flex-col items-center space-y-4">
                     <span className="material-symbols-outlined text-4xl text-amber-500 animate-pulse select-none">pending</span>
-                    <h4 className="font-headline-sm text-onyx text-base font-bold">Søknaden din er under behandling</h4>
+                    <h4 className="font-headline-sm text-onyx text-base font-bold">{t('profile.affiliatePending')}</h4>
                     <p className="text-xs text-secondary max-w-md leading-relaxed">
-                      Takk for at du søkte! Vi går gjennom din søknad om å bli affiliate markedsfører. Du vil motta en e-post så snart vi har vurdert opplysningene dine.
+                      {t('profile.affiliatePendingDesc')}
                     </p>
                   </div>
                   
                   {/* Simulation Tools for Testing */}
                   <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
-                    <span>💡 <strong>Testverktøy:</strong> Administrer søknadsstatusen for testing:</span>
+                    <span>{t('profile.simManageTitle')}</span>
                     <div className="flex gap-2">
                       <button 
                         onClick={handleSimulateApprove} 
                         className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
                       >
-                        Godkjenn
+                        {t('profile.approve')}
                       </button>
                       <button 
                         onClick={handleSimulateReset} 
                         className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
                       >
-                        Nullstill
+                        {t('profile.simReset')}
                       </button>
                     </div>
                   </div>
@@ -1731,12 +1746,12 @@ export default function Profile() {
                   {/* Approval Banner */}
                   <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-emerald-800 text-xs flex items-center gap-3 font-semibold shadow-sm">
                     <span className="material-symbols-outlined text-emerald-600 select-none">verified_user</span>
-                    <span>Gratulerer! Du er godkjent som affiliate markedsfører for His Kingdom Designs.</span>
+                    <span>{t('profile.affiliateApproved')}</span>
                   </div>
 
                   {/* Share Card */}
                   <div className="p-6 rounded-2xl border border-outline-variant/30 bg-[#1B4965]/5 space-y-4 shadow-sm text-left">
-                    <h4 className="font-bold text-xs text-[#1B4965] uppercase tracking-wider">Din personlige affiliate-link</h4>
+                    <h4 className="font-bold text-xs text-[#1B4965] uppercase tracking-wider">{t('profile.affiliateLink')}</h4>
                     
                     <div className="flex flex-col sm:flex-row gap-3">
                       <input
@@ -1752,16 +1767,16 @@ export default function Profile() {
                         }`}
                       >
                         <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
-                        <span>{copied ? 'Kopiert!' : 'Kopier lenke'}</span>
+                        <span>{copied ? t('profile.copied') : t('profile.copyLink')}</span>
                       </button>
                     </div>
 
                     {/* Social Share Buttons */}
                     <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                      <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">Del direkte:</span>
+                      <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">{t('profile.shareDirect')}</span>
                       
                       <a
-                        href={`https://api.whatsapp.com/send?text=Hei! Sjekk ut His Kingdom Designs. Bruk vervekoblingen min for å få 10% rabatt på din første bestilling: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
+                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(t('profile.shareWhatsAppText', { link: `${window.location.origin}/?ref=${member?._id || 'medlem'}` }))}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
@@ -1781,7 +1796,7 @@ export default function Profile() {
                       </a>
 
                       <a
-                        href={`mailto:?subject=Invitasjon til His Kingdom Designs&body=Hei! Jeg vil invitere deg til å sjekke ut His Kingdom Designs. De har utrolig mange flotte produkter med kristent design. Bruk min vervekobling for å få 10% rabatt på ditt første kjøp: ${window.location.origin}/?ref=${member?._id || 'medlem'}`}
+                        href={`mailto:?subject=${encodeURIComponent(t('profile.shareEmailSubject'))}&body=${encodeURIComponent(t('profile.shareEmailBody', { link: `${window.location.origin}/?ref=${member?._id || 'medlem'}` }))}`}
                         className="flex items-center gap-1.5 bg-slate-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
                       >
                         <span className="material-symbols-outlined text-xs">mail</span>
@@ -1794,60 +1809,60 @@ export default function Profile() {
                   <div className="space-y-6">
                     <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
                       <span className="material-symbols-outlined text-terracotta text-lg select-none">analytics</span>
-                      Dine affiliate-statistikker
+                      {t('profile.affiliateStats')}
                     </h4>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Klikk på din link</span>
+                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.clicksLink')}</span>
                         <span className="text-2xl font-extrabold text-[#1B4965]">48</span>
                       </div>
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Affiliate-salg</span>
+                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.affiliateSales')}</span>
                         <span className="text-2xl font-extrabold text-[#1B4965]">3</span>
                       </div>
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">Bonus utbetalt</span>
+                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.bonusPaid')}</span>
                         <span className="text-2xl font-extrabold text-green-600">325 kr</span>
                       </div>
                     </div>
 
                     {/* Sales history */}
                     <div className="space-y-3">
-                      <h5 className="font-bold text-xs text-onyx">Provisjonshistorikk</h5>
+                      <h5 className="font-bold text-xs text-onyx">{t('profile.commissionHistory')}</h5>
                       <div className="border border-outline-variant/20 rounded-2xl overflow-hidden bg-white shadow-sm">
                         <div className="overflow-x-auto">
                           <table className="w-full text-left border-collapse text-[11px]">
                             <thead>
                               <tr className="bg-slate-50 text-secondary border-b border-outline-variant/20 font-bold">
-                                <th className="p-3">Kilde (Ordre ID)</th>
-                                <th className="p-3">Dato registrert</th>
-                                <th className="p-3">Status</th>
-                                <th className="p-3 text-right">Din Bonus (15%)</th>
+                                <th className="p-3">{t('profile.colSource')}</th>
+                                <th className="p-3">{t('profile.colDate')}</th>
+                                <th className="p-3">{t('profile.colStatus')}</th>
+                                <th className="p-3 text-right">{t('profile.colBonus')}</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-onyx font-medium">
                               <tr>
                                 <td className="p-3">#HKD-4912</td>
-                                <td className="p-3">12. Mai 2026</td>
+                                <td className="p-3">{language === 'no' ? '12. Mai 2026' : language === 'es' ? '12 de mayo de 2026' : 'May 12, 2026'}</td>
                                 <td className="p-3">
-                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Utbetalt</span>
+                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.paid')}</span>
                                 </td>
                                 <td className="p-3 text-right text-green-600 font-bold">120 kr</td>
                               </tr>
                               <tr>
                                 <td className="p-3">#HKD-4985</td>
-                                <td className="p-3">2. Juni 2026</td>
+                                <td className="p-3">{language === 'no' ? '2. Juni 2026' : language === 'es' ? '2 de junio de 2026' : 'June 2, 2026'}</td>
                                 <td className="p-3">
-                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Utbetalt</span>
+                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.paid')}</span>
                                 </td>
                                 <td className="p-3 text-right text-green-600 font-bold">85 kr</td>
                               </tr>
                               <tr>
                                 <td className="p-3">#HKD-5044</td>
-                                <td className="p-3">7. Juni 2026</td>
+                                <td className="p-3">{language === 'no' ? '7. Juni 2026' : language === 'es' ? '7 de junio de 2026' : 'June 7, 2026'}</td>
                                 <td className="p-3">
-                                  <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">Under behandling</span>
+                                  <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.pending')}</span>
                                 </td>
                                 <td className="p-3 text-right text-amber-600 font-bold">120 kr</td>
                               </tr>
@@ -1860,12 +1875,12 @@ export default function Profile() {
 
                   {/* Reset simulation for testing */}
                   <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
-                    <span>💡 <strong>Testverktøy:</strong> Du kan tilbakestille affiliate-statusen for å søke på nytt:</span>
+                    <span>{t('profile.simResetTitle')}</span>
                     <button 
                       onClick={handleSimulateReset} 
                       className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
                     >
-                      Nullstill
+                      {t('profile.simReset')}
                     </button>
                   </div>
                 </div>
@@ -1876,11 +1891,11 @@ export default function Profile() {
                 <div className="border-t border-slate-100 pt-8 space-y-6">
                   <h4 className="font-bold text-sm text-[#1B4965] flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-500 text-lg select-none">admin_panel_settings</span>
-                    Admin-panel: Behandle søknader ({pendingApplications.length})
+                    {t('profile.adminTitle', { count: pendingApplications.length })}
                   </h4>
                   
                   {pendingApplications.length === 0 ? (
-                    <p className="text-xs text-secondary italic">Ingen nye ubehandlede søknader for øyeblikket.</p>
+                    <p className="text-xs text-secondary italic">{t('profile.noPendingApps')}</p>
                   ) : (
                     <div className="space-y-4">
                       {pendingApplications.map((app) => (
@@ -1895,30 +1910,30 @@ export default function Profile() {
                                 onClick={() => handleAdminApprove(app.id)}
                                 className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
                               >
-                                Godkjenn
+                                {t('profile.approve')}
                               </button>
                               <button
                                 onClick={() => handleAdminReject(app.id)}
                                 className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
                               >
-                                Avvis
+                                {t('profile.reject')}
                               </button>
                             </div>
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-secondary">
                             <div>
-                              <span className="font-bold text-onyx block mb-0.5">Adresse:</span>
+                              <span className="font-bold text-onyx block mb-0.5">{t('profile.address')}:</span>
                               {app.address}
                             </div>
                             <div>
-                              <span className="font-bold text-onyx block mb-0.5">Sosiale medier:</span>
+                              <span className="font-bold text-onyx block mb-0.5">{t('profile.socialsLabel')}</span>
                               {app.socialMedia}
                             </div>
                           </div>
                           
                           <div className="border-t border-slate-100 pt-3">
-                            <span className="font-bold text-onyx block mb-1">Begrunnelse:</span>
+                            <span className="font-bold text-onyx block mb-1">{t('profile.motivationLabel')}</span>
                             <p className="text-secondary leading-relaxed bg-white p-3 rounded-lg border border-slate-100">{app.motivation}</p>
                           </div>
                         </div>
@@ -1955,7 +1970,7 @@ export default function Profile() {
               {/* Header */}
               <div className="bg-[#1B4965] text-white px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
                 <div>
-                  <h3 className="font-bold text-base">Opprett returforespørsel</h3>
+                  <h3 className="font-bold text-base">{t('return.createRequest')}</h3>
                   <span className="text-[10px] text-blue-200">Ordre #{selectedOrderForReturn._id?.substring(0, 8)}</span>
                 </div>
                 <button
@@ -1973,27 +1988,27 @@ export default function Profile() {
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto">
                       <span className="material-symbols-outlined text-2xl select-none">check_circle</span>
                     </div>
-                    <h4 className="font-bold text-onyx">Forespørsel sendt!</h4>
+                    <h4 className="font-bold text-onyx">{t('return.successTitle')}</h4>
                     <p className="text-xs text-secondary leading-relaxed">
-                      Vi har registrert din returforespørsel. Du vil motta en e-post med returetikett og videre instruksjoner innen kort tid.
+                      {t('return.successDesc')}
                     </p>
                     <button
                       type="button"
                       onClick={() => setIsReturnModalOpen(false)}
                       className="bg-terracotta text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 active:scale-95 transition-all shadow-md mx-auto"
                     >
-                      Lukk vindu
+                      {t('return.closeWindow')}
                     </button>
                   </div>
                 ) : (
                   <>
                     <p className="text-xs text-secondary leading-relaxed">
-                      Velg varene du ønsker å returnere fra denne bestillingen og angi årsaken. Vi godkjenner forespørselen manuelt og sender deg en fraktetikett.
+                      {t('return.intro')}
                     </p>
 
                     {/* Line Items Selection */}
                     <div className="space-y-3">
-                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Velg varer å returnere *</label>
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('return.selectItems')}</label>
                       <div className="border border-outline-variant/30 rounded-xl overflow-hidden divide-y divide-slate-100">
                         {selectedOrderForReturn.lineItems?.map(item => {
                           const maxQty = item.quantity || 1;
@@ -2002,7 +2017,7 @@ export default function Profile() {
                             <div key={item._id} className="p-4 flex justify-between items-center gap-4 bg-slate-50/20">
                               <div className="flex-grow">
                                 <p className="font-semibold text-xs text-onyx">{item.name || item.productName?.translated}</p>
-                                <p className="text-[10px] text-secondary mt-0.5">Kjøpt antall: {maxQty}</p>
+                                <p className="text-[10px] text-secondary mt-0.5">{t('return.purchasedQty', { qty: maxQty })}</p>
                               </div>
                               <div className="flex items-center gap-2">
                                 <button
@@ -2031,30 +2046,30 @@ export default function Profile() {
 
                     {/* Reason */}
                     <div className="flex flex-col">
-                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Årsak til retur *</label>
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('return.reasonLabel')}</label>
                       <select
                         required
                         value={returnReason}
                         onChange={(e) => setReturnReason(e.target.value)}
                         className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                       >
-                        <option value="">Velg en årsak...</option>
-                        <option value="Feil størrelse">Feil størrelse</option>
-                        <option value="Passet ikke / Misfornøyd">Passet ikke / Misfornøyd</option>
-                        <option value="Skadet eller defekt vare">Skadet eller defekt vare</option>
-                        <option value="Mottok feil vare">Mottok feil vare</option>
-                        <option value="Annet (spesifiser under)">Annet (spesifiser under)</option>
+                        <option value="">{t('return.selectReason')}</option>
+                        <option value="Feil størrelse">{t('return.reasonSize')}</option>
+                        <option value="Passet ikke / Misfornøyd">{t('return.reasonUnsatisfied')}</option>
+                        <option value="Skadet eller defekt vare">{t('return.reasonDamaged')}</option>
+                        <option value="Mottok feil vare">{t('return.reasonWrongItem')}</option>
+                        <option value="Annet (spesifiser under)">{t('return.reasonOther')}</option>
                       </select>
                     </div>
 
                     {/* Additional Comments */}
                     <div className="flex flex-col">
-                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">Ytterligere kommentarer (valgfritt)</label>
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('return.commentsLabel')}</label>
                       <textarea
                         rows={3}
                         value={returnComments}
                         onChange={(e) => setReturnComments(e.target.value)}
-                        placeholder="Skriv kommentar her..."
+                        placeholder={t('return.commentsPlaceholder')}
                         className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx resize-none"
                       />
                     </div>
@@ -2065,7 +2080,7 @@ export default function Profile() {
                       disabled={isSubmittingReturn || !Object.values(returnItems).some(qty => qty > 0)}
                       className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
-                      {isSubmittingReturn ? 'Sender forespørsel...' : 'Send returforespørsel'}
+                      {isSubmittingReturn ? t('return.submitting') : t('return.submit')}
                     </button>
                   </>
                 )}

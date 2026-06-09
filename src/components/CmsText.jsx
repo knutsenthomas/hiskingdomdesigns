@@ -11,13 +11,16 @@ export default function CmsText({
   style = {}
 }) {
   const { cmsContent, updateCmsContent, isAdminEditing, showToast } = useApp();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const getCmsText = () => {
     if (!isAdminEditing) {
       const translated = t(slug);
       if (translated !== slug) {
         return translated;
+      }
+      if (language !== 'no') {
+        return fallback;
       }
     }
     return cmsContent?.[slug] || fallback;

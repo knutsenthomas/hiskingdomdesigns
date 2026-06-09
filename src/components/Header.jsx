@@ -38,7 +38,7 @@ const getProfileImageUrl = (member) => {
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products } = useApp();
   const { cartCount, setIsCartDrawerOpen, isCartDrawerOpen } = useCart();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, translateProduct } = useLanguage();
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -407,7 +407,7 @@ export default function Header() {
               <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-4 xl:grid-cols-7 gap-y-10 gap-x-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Klær & Bekledning</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Klær & Bekledning')}</h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Klær & Bekledning']?.map(sub => (
                       <li key={sub}>
@@ -415,7 +415,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
-                          {sub}
+                          {t(sub)}
                         </Link>
                       </li>
                     ))}
@@ -424,7 +424,7 @@ export default function Header() {
  
                 {/* Column 2: Bilder & Kunst */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Bilder & Kunst</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Bilder & Kunst')}</h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Bilder & Kunst']?.map(sub => (
                       <li key={sub}>
@@ -432,7 +432,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
-                          {sub}
+                          {t(sub)}
                         </Link>
                       </li>
                     ))}
@@ -441,7 +441,7 @@ export default function Header() {
  
                 {/* Column 3: Tilbehør & Hjem */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Tilbehør & Hjem</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Tilbehør & Hjem')}</h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Tilbehør & Hjem']?.map(sub => (
                       <li key={sub}>
@@ -449,7 +449,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
-                          {sub}
+                          {t(sub)}
                         </Link>
                       </li>
                     ))}
@@ -458,7 +458,7 @@ export default function Header() {
  
                 {/* Column 4: Barn & Familie */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Barn & Familie</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Barn & Familie')}</h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Barn & Familie']?.map(sub => (
                       <li key={sub}>
@@ -466,7 +466,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
-                          {sub}
+                          {t(sub)}
                         </Link>
                       </li>
                     ))}
@@ -475,7 +475,7 @@ export default function Header() {
  
                 {/* Column 5 & 6: Temaer & Språk */}
                 <div className="col-span-4 lg:col-span-3 xl:col-span-2">
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Temaer & Språk')}</h4>
                   <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => {
                       const lower = sub.toLowerCase();
@@ -485,13 +485,13 @@ export default function Header() {
                         return (
                           <li key={sub} className="flex flex-col gap-0.5 mt-0.5">
                             <span className="text-[10px] font-bold text-onyx/45 uppercase tracking-wider">
-                              Varna - Evangeliesenteret
+                              {t('Varna - Evangeliesenteret')}
                             </span>
                             <Link 
                               to={`/category/${getSlugByCategoryName(sub)}`} 
                               className="text-sm text-onyx/75 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block pl-2 border-l border-terracotta/25"
                             >
-                              Bible School
+                              {t('Bible School')}
                             </Link>
                           </li>
                         );
@@ -502,7 +502,7 @@ export default function Header() {
                             to={`/category/${getSlugByCategoryName(sub)}`} 
                             className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
                           >
-                            {sub}
+                            {t(sub)}
                           </Link>
                         </li>
                       );
@@ -514,11 +514,11 @@ export default function Header() {
                 <div className="col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
                     <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-3">
-                      Fremhevet
+                      {t('nav.featured')}
                     </span>
-                    <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">Velsignelse Gavepakke</h5>
+                    <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">{t('nav.promo_gift_title')}</h5>
                     <p className="text-[11px] text-secondary leading-relaxed mb-3">
-                      Få våre bestselgende klistermerker og en t-skjorte i en vakker gaveeske.
+                      {t('nav.promo_gift_desc')}
                     </p>
                     
                     {/* Visual Product Image Placeholder */}
@@ -537,7 +537,7 @@ export default function Header() {
                     onClick={() => setMegamenuOpen(false)}
                     className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                   >
-                    Utforsk Butikken
+                    {t('nav.explore_shop')}
                   </Link>
                 </div>
               </div>
@@ -572,50 +572,53 @@ export default function Header() {
               <div className="mt-4 border-t border-outline-variant/40 pt-4 max-h-[360px] overflow-y-auto custom-scrollbar space-y-3">
                 {searchResults.length > 0 ? (
                   <>
-                    <p className="text-[10px] font-bold text-secondary uppercase tracking-wider mb-2">Produkter</p>
+                    <p className="text-[10px] font-bold text-secondary uppercase tracking-wider mb-2">{t('search.products')}</p>
                     <div className="space-y-2">
-                      {searchResults.map(product => (
-                        <Link
-                          key={product.id}
-                          to={`/product/${product.id}`}
-                          onClick={() => {
-                            setSearchOpen(false);
-                            setSearchQuery('');
-                          }}
-                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 active:scale-[0.99] transition-all group"
-                        >
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-parchment flex-shrink-0 border border-outline-variant/30">
-                            <img
-                              src={getOptimizedWixImageUrl(product.image, 60, 60)}
-                              alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-sm text-onyx group-hover:text-terracotta transition-colors truncate">
-                              {product.name}
-                            </h4>
-                            <p className="text-xs text-secondary truncate">
-                              {product.category} {product.gender && `• ${product.gender}`}
-                            </p>
-                          </div>
-                          <div className="text-right flex-shrink-0">
-                            <span className="font-bold text-sm text-terracotta">
-                              {product.price} kr
-                            </span>
-                            {product.originalPrice && (
-                              <p className="text-[10px] text-onyx/40 line-through">
-                                {product.originalPrice} kr
+                      {searchResults.map((product) => {
+                        const p = translateProduct(product);
+                        return (
+                          <Link 
+                            key={p.id}
+                            to={`/product/${p.id}`}
+                            onClick={() => {
+                              setSearchOpen(false);
+                              setSearchQuery('');
+                            }}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 active:scale-[0.99] transition-all group"
+                          >
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-parchment flex-shrink-0 border border-outline-variant/30">
+                              <img
+                                src={getOptimizedWixImageUrl(p.image, 60, 60)}
+                                alt={p.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm text-onyx group-hover:text-terracotta transition-colors truncate">
+                                {p.name}
+                              </h4>
+                              <p className="text-xs text-secondary truncate">
+                                {t(p.category)} {p.gender && `• ${p.gender}`}
                               </p>
-                            )}
-                          </div>
-                        </Link>
-                      ))}
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className="font-bold text-sm text-terracotta">
+                                {p.price} kr
+                              </span>
+                              {p.originalPrice && (
+                                <p className="text-[10px] text-onyx/40 line-through">
+                                  {p.originalPrice} kr
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
                     </div>
                   </>
                 ) : (
                   <div className="py-6 text-center text-secondary font-medium text-sm">
-                    Ingen produkter funnet for "{searchQuery}"
+                    {t('search.no_products_found', { query: searchQuery })}
                   </div>
                 )}
               </div>
@@ -741,7 +744,7 @@ export default function Header() {
                                 {getCategoryIcon(group)}
                               </div>
                               <div>
-                                <p className="text-xs font-bold text-onyx group-hover:text-terracotta transition-colors">{group}</p>
+                                <p className="text-xs font-bold text-onyx group-hover:text-terracotta transition-colors">{t(group)}</p>
                                 <p className="text-[10px] text-secondary font-medium">{cats?.length || 0} {t('nav.subcategories')}</p>
                               </div>
                             </div>
@@ -801,7 +804,7 @@ export default function Header() {
                     >
                       <div>
                         <span className="text-[10px] font-bold text-terracotta uppercase tracking-wider">{t('nav.categories')}</span>
-                        <h4 className="font-headline-md text-onyx font-extrabold text-base leading-tight mt-0.5">{mobileActiveCategory}</h4>
+                        <h4 className="font-headline-md text-onyx font-extrabold text-base leading-tight mt-0.5">{t(mobileActiveCategory)}</h4>
                       </div>
 
                       <div className="flex flex-col gap-2">
@@ -827,14 +830,14 @@ export default function Header() {
                             return (
                               <div key={sub} className="flex flex-col gap-1 p-3.5 bg-white border border-outline-variant/40 rounded-xl">
                                 <span className="text-[8px] font-bold text-onyx/45 uppercase tracking-widest leading-none">
-                                  Varna - Evangeliesenteret
+                                  {t('Varna - Evangeliesenteret')}
                                 </span>
                                 <Link
                                   to={`/category/${getSlugByCategoryName(sub)}`}
                                   onClick={closeMobileMenu}
                                   className="text-xs font-bold text-onyx hover:text-terracotta transition-colors flex items-center justify-between"
                                 >
-                                  <span>Bible School</span>
+                                  <span>{t('Bible School')}</span>
                                   <ChevronRight size={14} className="text-onyx/30" />
                                 </Link>
                               </div>
@@ -848,7 +851,7 @@ export default function Header() {
                               onClick={closeMobileMenu}
                               className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-50/50 border border-outline-variant/40 rounded-xl transition-all cursor-pointer group"
                             >
-                              <span className="text-xs font-bold text-onyx/80 group-hover:text-terracotta transition-colors">{sub}</span>
+                              <span className="text-xs font-bold text-onyx/80 group-hover:text-terracotta transition-colors">{t(sub)}</span>
                               <ChevronRight size={14} className="text-onyx/30 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
                           );
