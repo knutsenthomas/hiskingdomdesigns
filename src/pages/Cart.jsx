@@ -117,7 +117,7 @@ export default function Cart() {
 
       // 2. Create the checkout using standalone API with explicit line items to avoid empty cached checkouts
       let checkoutResult = await wixClient.checkout.createCheckout({
-        lineItems: mapCartItemsToWixLineItems(cartItems),
+        lineItems: await mapCartItemsToWixLineItems(cartItems),
         channelType: 'WEB'
       });
 

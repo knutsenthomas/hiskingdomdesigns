@@ -12,6 +12,9 @@ export const useCart = () => {
   return context;
 };
 
+// Cache to avoid duplicate fetch calls for same product ID when mapping cart items
+const productCache = {};
+
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
@@ -162,7 +165,7 @@ export const CartProvider = ({ children }) => {
   const forceSyncCartWithWix = async (items = cartItems) => {
     try {
       console.log('Force synchronizing local cart with Wix currentCart...');
-      const localMapped = mapCartItemsToWixLineItems(items);
+      const localMapped = await mapCartItemsToWixLineItems(items);
       
       let wixCartRes;
       try {
@@ -287,24 +290,54 @@ export const CartProvider = ({ children }) => {
     };
   }, [serializedCartItems]);
 
-  const mapCartItemsToWixLineItems = (items) => {
-    return items.map(item => {
+  const resolveProductDetails = async (productId) => {
+    if (productCache[productId]) {
+      return productCache[productId];
+    }
+    try {
+      const res = await wixClient.products.getProduct(productId);
+      if (res && res.product) {
+        productCache[productId] = res.product;
+        return res.product;
+      }
+    } catch (err) {
+      console.warn(`Failed to resolve product details for ${productId}:`, err);
+    }
+    return null;
+  };
+
+  const mapCartItemsToWixLineItems = async (items) => {
+    return Promise.all(items.map(async (item) => {
       const catalogReference = {
         appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
         catalogItemId: item.id
       };
 
+      // Robustly ensure productOptions, manageVariants, and variants are present
+      let productOptions = item.productOptions;
+      let manageVariants = item.manageVariants;
+      let variants = item.variants;
+
+      if (!variants || variants.length === 0 || !productOptions) {
+        const fullProduct = await resolveProductDetails(item.id);
+        if (fullProduct) {
+          productOptions = fullProduct.productOptions;
+          manageVariants = fullProduct.manageVariants;
+          variants = fullProduct.variants;
+        }
+      }
+
       // Handle options
-      if (item.productOptions && item.productOptions.length > 0) {
+      if (productOptions && productOptions.length > 0) {
         let selectedOptions = item.selectedOptions ? { ...item.selectedOptions } : {};
 
         // Fallback: If selectedOptions is empty, build it from selectedSize & selectedColor
         if (Object.keys(selectedOptions).length === 0) {
-          const sizeOpt = item.productOptions.find(o => {
+          const sizeOpt = productOptions.find(o => {
             const name = (o.name || '').trim().toLowerCase();
             return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
           });
-          const colorOpt = item.productOptions.find(o => {
+          const colorOpt = productOptions.find(o => {
             const name = (o.name || '').trim().toLowerCase();
             return name === 'color' || name === 'farge';
           });
@@ -343,15 +376,15 @@ export const CartProvider = ({ children }) => {
 
         // Safety net: Ensure EVERY required product option has a value selected.
         // If an option is missing from selectedOptions, fallback to its first choice!
-        item.productOptions.forEach(opt => {
+        productOptions.forEach(opt => {
           if (!selectedOptions[opt.name] && opt.choices && opt.choices.length > 0) {
             selectedOptions[opt.name] = opt.choices[0].value;
           }
         });
 
         // Set variantId or options based on manageVariants
-        if (item.manageVariants && item.variants && item.variants.length > 0) {
-          const match = item.variants.find(v => {
+        if (manageVariants && variants && variants.length > 0) {
+          const match = variants.find(v => {
             return Object.entries(v.choices).every(([optName, optVal]) => {
               return selectedOptions[optName] === optVal;
             });
@@ -364,14 +397,14 @@ export const CartProvider = ({ children }) => {
           } else {
             // If managed variants fails to match, fall back to first variant as a safe default
             catalogReference.options = {
-              variantId: item.variants[0]._id
+              variantId: variants[0]._id
             };
           }
         } else {
           // If manageVariants is false, Wix requires the options choice descriptions (e.g. 'lilla'), not the hex values for colors!
           const apiOptions = { ...selectedOptions };
-          if (item.productOptions) {
-            item.productOptions.forEach(opt => {
+          if (productOptions) {
+            productOptions.forEach(opt => {
               const currentValue = apiOptions[opt.name];
               if (currentValue) {
                 const choice = opt.choices?.find(c => c.value === currentValue);
@@ -426,7 +459,7 @@ export const CartProvider = ({ children }) => {
         catalogReference,
         quantity: item.quantity
       };
-    });
+    }));
   };
 
   const applyCouponCode = async (code) => {
@@ -434,7 +467,7 @@ export const CartProvider = ({ children }) => {
     setIsApplyingCoupon(true);
     setCouponError('');
     try {
-      const lineItems = mapCartItemsToWixLineItems(cartItems);
+      const lineItems = await mapCartItemsToWixLineItems(cartItems);
       
       // Create a temporary checkout to validate coupon
       const testCheckout = await wixClient.checkout.createCheckout({
@@ -502,7 +535,7 @@ export const CartProvider = ({ children }) => {
     setIsApplyingGiftCard(true);
     setGiftCardError('');
     try {
-      const lineItems = mapCartItemsToWixLineItems(cartItems);
+      const lineItems = await mapCartItemsToWixLineItems(cartItems);
       
       // Create a temporary checkout to validate gift card
       const testCheckout = await wixClient.checkout.createCheckout({
