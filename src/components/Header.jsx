@@ -47,14 +47,14 @@ export default function Header() {
 
   const handleMegamenuOpen = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setMegamenuOpen(true);
-    }, 150);
+    setMegamenuOpen(true);
   };
 
   const handleMegamenuClose = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    setMegamenuOpen(false);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setMegamenuOpen(false);
+    }, 200); // 200ms delay to bridge the physical gap between header and dropdown panel
   };
   const [showRecoveryToast, setShowRecoveryToast] = useState(false);
 
