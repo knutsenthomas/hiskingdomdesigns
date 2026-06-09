@@ -174,7 +174,7 @@ export default function Team() {
           <img 
             alt="Lyngdal kontor" 
             className="w-full h-full object-cover" 
-            src="https://static.wixstatic.com/media/db4f96_3fe1d07b55724928abbd785816f908be~mv2.jpg"
+            src="/lyngdal_office.png"
           />
         </div>
       </div>
