@@ -344,12 +344,12 @@ export default function Header() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="absolute left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-onyx/5 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.06)] z-40 py-8 px-margin-mobile md:px-margin-desktop"
+              className="absolute left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-onyx/5 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.06)] z-40 py-8 px-6 xl:px-margin-desktop"
               style={{ top: isScrolled ? '64px' : '80px' }}
               onMouseEnter={() => setMegamenuOpen(true)}
               onMouseLeave={() => setMegamenuOpen(false)}
             >
-              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-7 gap-6 xl:gap-8 2xl:gap-10">
+              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-4 xl:grid-cols-7 gap-y-10 gap-x-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Klær & Bekledning</h4>
@@ -419,9 +419,9 @@ export default function Header() {
                 </div>
  
                 {/* Column 5 & 6: Temaer & Språk */}
-                <div className="col-span-2">
+                <div className="col-span-4 lg:col-span-3 xl:col-span-2">
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">Temaer & Språk</h4>
-                  <ul className="grid grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
+                  <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => {
                       const lower = sub.toLowerCase();
                       const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
