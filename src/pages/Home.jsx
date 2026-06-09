@@ -158,6 +158,9 @@ export default function Home() {
   // Instagram Feed State
   const [instagramFeed, setInstagramFeed] = useState(FALLBACK_INSTAGRAM_FEED);
 
+  // Loading state for plan checkout redirect
+  const [subscribingId, setSubscribingId] = useState(null);
+
   useEffect(() => {
     async function fetchPlans() {
       try {
@@ -238,6 +241,7 @@ export default function Home() {
       alert(`Takk for din interesse i abonnementsplanen "${plan.name}"! Siden dette er en testbutikk, er denne abonnementsfunksjonen for øyeblikket i demomodus.`);
       return;
     }
+    setSubscribingId(plan._id);
     try {
       const redirectSession = await wixClient.redirects.createRedirectSession({
         paidPlansCheckout: {
@@ -251,10 +255,13 @@ export default function Home() {
       const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
       if (redirectUrl) {
         window.location.href = redirectUrl;
+      } else {
+        setSubscribingId(null);
       }
     } catch (err) {
       console.error('Subscription redirect error:', err);
       alert('Det oppstod en feil ved opprettelse av abonnement. Vennligst prøv igjen.');
+      setSubscribingId(null);
     }
   };
 
@@ -618,13 +625,21 @@ export default function Home() {
                     
                     <button 
                       onClick={() => handleSubscribe(plan)}
-                      className={`w-full py-2.5 rounded-lg font-bold transition-all active:scale-[0.98] shadow-sm text-center text-xs ${
+                      disabled={subscribingId !== null}
+                      className={`w-full py-2.5 rounded-lg font-bold transition-all active:scale-[0.98] shadow-sm text-center text-xs flex items-center justify-center gap-2 ${
                         plan.popular 
                           ? 'bg-terracotta text-white hover:opacity-95' 
                           : 'bg-onyx text-white hover:bg-slate-800'
-                      }`}
+                      } ${subscribingId !== null ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
-                      Abonner nå
+                      {subscribingId === planId ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          <span>Vennligst vent...</span>
+                        </>
+                      ) : (
+                        'Abonner nå'
+                      )}
                     </button>
                   </div>
                 );
