@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getOptimizedWixImageUrl } from '@/lib/media';
 
 export default function Cart() {
   const { t, translateProduct, formatPrice, getActiveCurrency } = useLanguage();
@@ -378,7 +379,7 @@ export default function Cart() {
                         <img 
                           alt={translatedItem.name} 
                           className="w-full h-full object-contain rounded" 
-                          src={item.image} 
+                          src={getOptimizedWixImageUrl(item.image, 160, 160)} 
                         />
                       </div>
                       

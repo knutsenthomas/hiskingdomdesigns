@@ -870,7 +870,13 @@ export default function ProductDetails() {
       value: (typeof value === 'string' ? value.trim() : value) || 'Tilfeldig'
     }));
 
-    addToCart(product, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload);
+    // Override product image with color-specific activeImage
+    const productWithActiveImage = {
+      ...product,
+      image: activeImage || product.image
+    };
+
+    addToCart(productWithActiveImage, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

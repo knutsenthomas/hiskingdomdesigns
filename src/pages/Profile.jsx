@@ -10,6 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
 import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getOptimizedWixImageUrl } from '@/lib/media';
 
 // Helper to safely extract email from Wix member object across various schema versions
 const getMemberEmail = (member) => {
@@ -1303,7 +1304,7 @@ export default function Profile() {
                   {wishlist.map(item => (
                     <div key={item.id} className="border border-outline-variant/30 rounded-xl p-4 flex gap-4 hover:border-outline transition-all bg-slate-50/10 relative group">
                       <div className="w-20 h-20 bg-parchment rounded-lg overflow-hidden flex items-center justify-center p-2 border border-outline-variant/15 flex-shrink-0">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-contain rounded" />
+                        <img src={getOptimizedWixImageUrl(item.image, 160, 160)} alt={item.name} className="w-full h-full object-contain rounded" />
                       </div>
                       <div className="flex-grow flex flex-col justify-between">
                         <div>
