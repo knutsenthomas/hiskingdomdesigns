@@ -417,7 +417,7 @@ export default function Header() {
               onMouseEnter={handleMegamenuOpen}
               onMouseLeave={handleMegamenuClose}
             >
-              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-4 xl:grid-cols-7 gap-y-6 lg:gap-y-8 xl:gap-y-10 gap-x-6 xl:gap-8 2xl:gap-10">
+              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-5 xl:grid-cols-7 gap-y-6 gap-x-4 lg:gap-x-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Klær & Bekledning')}</h4>
@@ -522,9 +522,9 @@ export default function Header() {
                 </div>
  
                 {/* Column 5 & 6: Temaer & Språk */}
-                <div className="col-span-4 lg:col-span-3 xl:col-span-2">
+                <div className="col-span-1 xl:col-span-2">
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Temaer & Språk')}</h4>
-                  <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
+                  <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-2 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => (
                       <li key={sub}>
                         <Link 
