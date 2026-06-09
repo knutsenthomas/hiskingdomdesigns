@@ -108,11 +108,16 @@ export default function Cart() {
     setErrorMessage('');
 
     try {
-      // 1. Force sync the local cart with Wix to guarantee they are identical
-      await forceSyncCartWithWix(cartItems);
+      // 1. Force sync the local cart with Wix to guarantee they are identical (defensive)
+      try {
+        await forceSyncCartWithWix(cartItems);
+      } catch (syncErr) {
+        console.warn('Wix Cart sync failed before checkout creation:', syncErr);
+      }
 
-      // 2. Create the checkout from the synchronized current cart
-      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
+      // 2. Create the checkout using standalone API with explicit line items to avoid empty cached checkouts
+      let checkoutResult = await wixClient.checkout.createCheckout({
+        lineItems: mapCartItemsToWixLineItems(cartItems),
         channelType: 'WEB'
       });
 
