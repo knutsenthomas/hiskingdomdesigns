@@ -600,7 +600,7 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-[380px] bg-parchment shadow-2xl flex flex-col z-10 overflow-hidden"
+              className="fixed top-0 right-0 bottom-0 w-full bg-parchment shadow-2xl flex flex-col z-10 overflow-hidden"
             >
               {/* Header */}
               <div className="flex justify-between items-center px-6 py-5 border-b border-outline-variant/30 bg-white">
