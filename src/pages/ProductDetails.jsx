@@ -319,6 +319,7 @@ export default function ProductDetails() {
   const [qty, setQty] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [customTextFieldValues, setCustomTextFieldValues] = useState({});
+  const [customTextModes, setCustomTextModes] = useState({});
   const [added, setAdded] = useState(false);
   const [activeImage, setActiveImage] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
@@ -675,12 +676,15 @@ export default function ProductDetails() {
 
       // 2. Initialize custom text fields
       const initialTexts = {};
+      const initialModes = {};
       if (product.customTextFields && product.customTextFields.length > 0) {
         product.customTextFields.forEach(field => {
           initialTexts[field.title] = 'Tilfeldig';
+          initialModes[field.title] = 'random';
         });
       }
       setCustomTextFieldValues(initialTexts);
+      setCustomTextModes(initialModes);
     }
   }, [product]);
 
@@ -899,7 +903,7 @@ export default function ProductDetails() {
     // Construct custom text fields payload as [{ title, value }]
     const customTextFieldsPayload = Object.entries(customTextFieldValues).map(([title, value]) => ({
       title,
-      value
+      value: (typeof value === 'string' ? value.trim() : value) || 'Tilfeldig'
     }));
 
     addToCart(product, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload);
@@ -1221,34 +1225,83 @@ export default function ProductDetails() {
           {/* Custom Text Fields */}
           {product.customTextFields && product.customTextFields.length > 0 && (
             <div className="space-y-4">
-              {product.customTextFields.map(field => (
-                <div key={field.title} className="space-y-2">
-                  <label className="font-label-md text-label-md text-onyx block font-semibold">
-                    {field.title}
-                    {field.mandatory && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={field.maxLength || 500}
-                    required={field.mandatory}
-                    value={customTextFieldValues[field.title] === 'Tilfeldig' ? '' : (customTextFieldValues[field.title] || '')}
-                    placeholder="Skriv her (valgfritt - la stå tom for vilkårlig)"
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setCustomTextFieldValues(prev => ({
-                        ...prev,
-                        [field.title]: val || 'Tilfeldig'
-                      }));
-                    }}
-                    className="w-full bg-white border border-outline rounded-lg p-3 text-sm text-onyx focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none"
-                  />
-                  {field.mandatory && (!customTextFieldValues[field.title] || customTextFieldValues[field.title] === 'Tilfeldig') && (
-                    <p className="text-[10px] text-secondary/70">
-                      Merk: Hvis feltet står tomt, velger vi et vakkert, tilfeldig motiv for deg.
-                    </p>
-                  )}
-                </div>
-              ))}
+              {product.customTextFields.map(field => {
+                const currentMode = customTextModes[field.title] || 'random';
+                return (
+                  <div key={field.title} className="space-y-2">
+                    <label className="font-label-md text-label-md text-onyx block font-semibold">
+                      {field.title}
+                      {field.mandatory && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    
+                    <div className="flex gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomTextModes(prev => ({ ...prev, [field.title]: 'random' }));
+                          setCustomTextFieldValues(prev => ({ ...prev, [field.title]: 'Tilfeldig' }));
+                        }}
+                        className={`flex-1 py-3 px-3 border rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all select-none cursor-pointer outline-none active:scale-[0.98] ${
+                          currentMode === 'random'
+                            ? 'border-terracotta bg-terracotta/5 text-terracotta'
+                            : 'border-outline text-secondary hover:border-terracotta/40 hover:text-onyx bg-white'
+                        }`}
+                      >
+                        Overlat motivet til oss
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomTextModes(prev => ({ ...prev, [field.title]: 'custom' }));
+                          setCustomTextFieldValues(prev => ({ ...prev, [field.title]: '' }));
+                        }}
+                        className={`flex-1 py-3 px-3 border rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all select-none cursor-pointer outline-none active:scale-[0.98] ${
+                          currentMode === 'custom'
+                            ? 'border-terracotta bg-terracotta/5 text-terracotta'
+                            : 'border-outline text-secondary hover:border-terracotta/40 hover:text-onyx bg-white'
+                        }`}
+                      >
+                        Jeg vil velge eget motiv
+                      </button>
+                    </div>
+
+                    <AnimatePresence initial={false}>
+                      {currentMode === 'custom' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2, ease: 'easeInOut' }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-2">
+                            <input
+                              type="text"
+                              maxLength={field.maxLength || 500}
+                              required={field.mandatory && currentMode === 'custom'}
+                              value={customTextFieldValues[field.title] === 'Tilfeldig' ? '' : (customTextFieldValues[field.title] || '')}
+                              placeholder="F.eks. ønske om bibelvers, tekst eller plassering..."
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setCustomTextFieldValues(prev => ({
+                                  ...prev,
+                                  [field.title]: val
+                                }));
+                              }}
+                              className="w-full bg-white border border-outline rounded-lg p-3 text-sm text-onyx focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none"
+                            />
+                            {field.mandatory && (
+                              <p className="text-[10px] text-secondary/70 mt-1">
+                                Vennligst oppgi ønsket motiv/tekst da dette feltet er obligatorisk.
+                              </p>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -1296,37 +1349,42 @@ export default function ProductDetails() {
           </div>
 
           {/* CTA Add to Cart & Wishlist */}
-          <div className="flex gap-4 items-stretch mt-4">
-            <button 
-              onClick={handleAddToCart}
-              disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
-              className={`flex-grow font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-md ${
-                (!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0))
-                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                  : 'bg-terracotta text-white hover:opacity-95 active:scale-[0.98]'
-              }`}
-            >
-              {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
-                <span>Utsolgt</span>
-              ) : added ? (
-                <>
-                  <Check size={18} />
-                  <span>Lagt til!</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingCart size={18} />
-                  <span>Legg i handlekurv</span>
-                </>
-              )}
-            </button>
-            <button
-              onClick={() => toggleWishlist(product)}
-              className="p-4 border border-outline hover:border-terracotta text-terracotta rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center shrink-0 active:scale-95"
-              title={isWishlisted ? "Fjern fra ønskelisten" : "Legg i ønskelisten"}
-            >
-              <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
-            </button>
+          <div className="flex flex-col gap-2.5 mt-4">
+            <div className="flex gap-4 items-stretch">
+              <button 
+                onClick={handleAddToCart}
+                disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
+                className={`flex-grow font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-md ${
+                  (!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0))
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                    : 'bg-terracotta text-white hover:opacity-95 active:scale-[0.98]'
+                }`}
+              >
+                {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
+                  <span>Utsolgt</span>
+                ) : added ? (
+                  <>
+                    <Check size={18} />
+                    <span>Lagt til!</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={18} />
+                    <span>Legg i handlekurv</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => toggleWishlist(product)}
+                className="p-4 border border-outline hover:border-terracotta text-terracotta rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center shrink-0 active:scale-95"
+                title={isWishlisted ? "Fjern fra ønskelisten" : "Legg i ønskelisten"}
+              >
+                <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
+              </button>
+            </div>
+            <p className="text-center text-[11px] text-secondary/80 select-none font-medium leading-normal">
+              ✓ Fri frakt over 1500 kr | ✓ 14 dagers åpent kjøp | ✓ Trygg betaling med Vipps & kort
+            </p>
           </div>
 
           {/* Back in stock request form */}
@@ -1371,9 +1429,11 @@ export default function ProductDetails() {
 
           {/* Shipping / Trust details */}
           <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
-            <div className="flex items-center gap-3 text-secondary">
-              <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">Normal levering: ca. 2 uker</span>
+            <div className="flex items-start gap-3 text-secondary">
+              <Truck size={18} className="text-terracotta shrink-0 mt-0.5" />
+              <span className="text-label-sm font-label-sm leading-relaxed">
+                Hvert produkt produseres unikt for deg etter bestilling for å skåne miljøet og sikre høyeste kvalitet – normalt levert på ca. 2 uker med sporing.
+              </span>
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
