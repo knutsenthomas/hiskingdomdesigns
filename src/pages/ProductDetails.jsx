@@ -1552,7 +1552,7 @@ export default function ProductDetails() {
           </div>
           <button
             onClick={() => setShowReviewForm(!showReviewForm)}
-            className="bg-[#1B4965] text-white hover:bg-[#153a50] px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors active:scale-95 shadow-sm"
+            className="bg-terracotta text-white hover:brightness-105 px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-95 shadow-sm"
           >
             {showReviewForm ? (language === 'es' ? 'Cerrar formulario' : language === 'en' ? 'Close form' : 'Lukk skjema') : t('product.reviewFormTitle')}
           </button>
