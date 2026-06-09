@@ -470,20 +470,55 @@ export default function Header() {
                 </div>
  
                 {/* Column 4: Barn & Familie */}
-                <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Barn & Familie')}</h4>
-                  <ul className="space-y-2 2xl:space-y-3">
-                    {categoryTaxonomy['Barn & Familie']?.map(sub => (
-                      <li key={sub}>
-                        <Link 
-                          to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
-                        >
-                          {t(sub)}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Barn & Familie')}</h4>
+                    <ul className="space-y-2 2xl:space-y-3 mb-6">
+                      {categoryTaxonomy['Barn & Familie']?.map(sub => (
+                        <li key={sub}>
+                          <Link 
+                            to={`/category/${getSlugByCategoryName(sub)}`} 
+                            className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
+                          >
+                            {t(sub)}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Promo Box inside Column 4 for smaller screens (below xl) */}
+                  <div className="xl:hidden">
+                    <div className="bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <div>
+                        <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-2">
+                          {t('nav.featured')}
+                        </span>
+                        <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">{t('nav.promo_gift_title')}</h5>
+                        <p className="text-[11px] text-secondary leading-relaxed mb-2">
+                          {t('nav.promo_gift_desc')}
+                        </p>
+                        
+                        {/* Visual Product Image Placeholder */}
+                        <div className="my-2 h-24 rounded-xl overflow-hidden relative group/promo">
+                          <img 
+                            src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=400&auto=format&fit=crop" 
+                            alt="Gavepakke" 
+                            className="w-full h-full object-cover group-hover/promo:scale-105 transition-transform duration-500" 
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-onyx/20 to-transparent" />
+                        </div>
+                      </div>
+                      
+                      <Link 
+                        to="/products"
+                        onClick={() => setMegamenuOpen(false)}
+                        className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
+                      >
+                        {t('nav.explore_shop')}
+                      </Link>
+                    </div>
+                  </div>
                 </div>
  
                 {/* Column 5 & 6: Temaer & Språk */}
@@ -504,7 +539,7 @@ export default function Header() {
                 </div>
  
                 {/* Column 7: Featured Promo Box */}
-                <div className="col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-4 xl:p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="hidden xl:flex col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-4 xl:p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
                     <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-2 xl:mb-3">
                       {t('nav.featured')}
