@@ -1239,8 +1239,8 @@ export const AppProvider = ({ children }) => {
           '  - 0.35 - 1.75 kg: **99 kr**\n' +
           '  - 1.75 - 4.0 kg: **149 kr**\n' +
           '  - Over 4.0 kg: **199 kr**\n' +
-          '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Lyngdal.\n' +
-          '- Leveringstid er normalt **2-4 virkedager**.\n\n' +
+          '- Våre produkter produseres på bestilling. Klargjøring og produksjonstid er normalt **1-2 uker**.\n' +
+          '- Total leveringstid er vanligvis **ca. 2 uker**.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';
       } 
       else if (lower.includes('størrelse') || lower.includes('size') || lower.includes('passform')) {
