@@ -546,8 +546,8 @@ export const translations = {
     'search.products': 'Produkter',
 
     // Home Page CMS Benefits Banner Slugs
-    'home-benefits-title-1': 'Rask levering (2-4 dager)',
-    'home-benefits-desc-1': 'Levering til hele verden',
+    'home-benefits-title-1': 'Frakt med Posten/Bring',
+    'home-benefits-desc-1': 'Fra 39 kr (vektbasert) i Norge',
     'home-benefits-title-2': '14 dagers angrerett',
     'home-benefits-desc-2': 'Må returneres i samme stand som du mottok dem',
     'home-benefits-title-3': 'Leveranse',
@@ -1246,8 +1246,8 @@ export const translations = {
     'search.products': 'Products',
 
     // Home Page CMS Benefits Banner Slugs
-    'home-benefits-title-1': 'Fast shipping (2-4 days)',
-    'home-benefits-desc-1': 'Shipping worldwide',
+    'home-benefits-title-1': 'Shipping with Posten/Bring',
+    'home-benefits-desc-1': 'From 39 NOK (weight-based) in Norway',
     'home-benefits-title-2': '14-day return policy',
     'home-benefits-desc-2': 'Must be returned in the same condition as received',
     'home-benefits-title-3': 'Delivery',
@@ -1946,8 +1946,8 @@ export const translations = {
     'search.products': 'Productos',
 
     // Home Page CMS Benefits Banner Slugs
-    'home-benefits-title-1': 'Envío rápido (2-4 días)',
-    'home-benefits-desc-1': 'Envío a todo el mundo',
+    'home-benefits-title-1': 'Envío con Posten/Bring',
+    'home-benefits-desc-1': 'Desde 39 NOK (según peso) en Noruega',
     'home-benefits-title-2': 'Política de devolución de 14 días',
     'home-benefits-desc-2': 'Debe ser devuelto en el mismo estado en que se recibió',
     'home-benefits-title-3': 'Entrega',
