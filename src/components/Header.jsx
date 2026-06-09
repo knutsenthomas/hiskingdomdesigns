@@ -412,12 +412,12 @@ export default function Header() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="absolute left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-onyx/5 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.06)] z-40 py-8 px-6 xl:px-margin-desktop"
+              className="absolute left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-onyx/5 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.06)] z-40 py-6 xl:py-8 px-6 xl:px-margin-desktop max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar"
               style={{ top: isScrolled ? '64px' : '80px' }}
               onMouseEnter={handleMegamenuOpen}
               onMouseLeave={handleMegamenuClose}
             >
-              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-4 xl:grid-cols-7 gap-y-10 gap-x-6 xl:gap-8 2xl:gap-10">
+              <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-4 xl:grid-cols-7 gap-y-6 lg:gap-y-8 xl:gap-y-10 gap-x-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Klær & Bekledning')}</h4>
@@ -504,18 +504,18 @@ export default function Header() {
                 </div>
  
                 {/* Column 7: Featured Promo Box */}
-                <div className="col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-4 xl:p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
-                    <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-3">
+                    <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-2 xl:mb-3">
                       {t('nav.featured')}
                     </span>
                     <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">{t('nav.promo_gift_title')}</h5>
-                    <p className="text-[11px] text-secondary leading-relaxed mb-3">
+                    <p className="text-[11px] text-secondary leading-relaxed mb-2 xl:mb-3">
                       {t('nav.promo_gift_desc')}
                     </p>
                     
                     {/* Visual Product Image Placeholder */}
-                    <div className="my-3 h-28 rounded-xl overflow-hidden relative group/promo">
+                    <div className="my-2 xl:my-3 h-24 xl:h-28 rounded-xl overflow-hidden relative group/promo">
                       <img 
                         src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=400&auto=format&fit=crop" 
                         alt="Gavepakke" 
