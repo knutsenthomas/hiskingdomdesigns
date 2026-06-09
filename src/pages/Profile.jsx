@@ -816,8 +816,12 @@ export default function Profile() {
     'hildekarin@hiskingdomministry.no',
     'thomas@tk-design.no'
   ];
+  const ADMIN_MEMBER_IDS = [
+    '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
+  ];
   const isAdminUser = 
     ADMIN_EMAILS.includes(displayEmail?.toLowerCase()) || 
+    ADMIN_MEMBER_IDS.includes(member?._id) ||
     localStorage.getItem('hkm-user-role') === 'admin' || 
     localStorage.getItem('hkm-user-role') === 'superadmin' ||
     window.location.search.includes('admin=true');

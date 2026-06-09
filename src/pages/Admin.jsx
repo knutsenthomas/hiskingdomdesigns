@@ -56,8 +56,12 @@ export default function Admin() {
     'hildekarin@hiskingdomministry.no',
     'thomas@tk-design.no'
   ];
+  const ADMIN_MEMBER_IDS = [
+    '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
+  ];
   const isAdminUser = 
     ADMIN_EMAILS.includes(wixEmail) ||
+    ADMIN_MEMBER_IDS.includes(member?._id) ||
     localRole === 'admin' ||
     localRole === 'superadmin' ||
     window.location.search.includes('admin=true');

@@ -506,12 +506,46 @@ export const AppProvider = ({ children }) => {
           const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
           if (res && res.member) {
             setMember(res.member);
+            
+            // Sync admin role to localStorage defensively
+            const ADMIN_EMAILS = [
+              'knutsenthomas@gmail.com',
+              'thomas@hiskingdomministry.no',
+              'thomas@hiskingdomministry',
+              'hildekarin@gmail.com',
+              'hildekarin@hiskingdomministry.no',
+              'thomas@tk-design.no'
+            ];
+            const ADMIN_MEMBER_IDS = [
+              '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
+            ];
+
+            // Helper to get email
+            const getEmail = (m) => {
+              if (!m) return '';
+              if (m.loginEmail) return m.loginEmail;
+              const cdEmails = m.contactDetails?.emails || [];
+              if (cdEmails[0]) return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
+              const cEmails = m.contact?.emails || [];
+              if (cEmails[0]) return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
+              return m.contactDetails?.email || m.contact?.email || '';
+            };
+
+            const email = getEmail(res.member).toLowerCase();
+            const memberId = res.member._id;
+
+            if (ADMIN_MEMBER_IDS.includes(memberId) || (email && ADMIN_EMAILS.includes(email))) {
+              localStorage.setItem('hkm-user-role', 'admin');
+            } else {
+              localStorage.removeItem('hkm-user-role');
+            }
           }
         } catch (e) {
           console.error('Failed to get current member in AppContext:', e);
         }
       } else {
         setMember(null);
+        localStorage.removeItem('hkm-user-role');
       }
     };
 

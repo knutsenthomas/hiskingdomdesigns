@@ -36,11 +36,15 @@ export default function CmsVisualToggle() {
 
   const wixEmail = getMemberEmail(member).toLowerCase();
   const localRole = localStorage.getItem('hkm-user-role') || '';
+  const ADMIN_MEMBER_IDS = [
+    '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
+  ];
 
   // Authorize admin: admin emails, local storage roles, localhost dev server, or ?admin=true override
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const isAdminUser = 
     ADMIN_EMAILS.includes(wixEmail) ||
+    ADMIN_MEMBER_IDS.includes(member?._id) ||
     localRole === 'admin' ||
     localRole === 'superadmin' ||
     isDevelopment ||

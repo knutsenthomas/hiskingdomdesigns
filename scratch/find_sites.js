@@ -15,8 +15,8 @@ async function getSites() {
     });
     
     console.log('Wix Sites Query Response status:', res.status);
-    const text = await res.text();
-    console.log('Response preview:', text.substring(0, 1000));
+    const json = await res.json();
+    console.log('Sites:', JSON.stringify(json, null, 2));
   } catch (err) {
     console.error('Error fetching sites:', err);
   }
