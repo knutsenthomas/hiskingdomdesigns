@@ -1233,8 +1233,7 @@ export const AppProvider = ({ children }) => {
       } 
       else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
         reply = '### 🚚 Frakt og Levering\n\n' +
-          '- Vi har **gratis frakt på alle bestillinger over 1500 kr**!\n' +
-          '- For bestillinger under 1500 kr beregnes frakten ut fra vekt:\n' +
+          '- Frakten beregnes ut fra vekt i kassen:\n' +
           '  - Opptil 0.07 kg: **39 kr**\n' +
           '  - 0.07 - 0.35 kg: **69 kr**\n' +
           '  - 0.35 - 1.75 kg: **99 kr**\n' +
@@ -1309,7 +1308,7 @@ export const AppProvider = ({ children }) => {
 
           // If they also asked about shipping/return, append a helpful tip
           if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
-            reply += '\n\n**PS:** Vi har **gratis frakt på alle ordre over 1500 kr** (ellers fra 39 kr basert på vekt) med Bring/Posten.';
+            reply += '\n\n**PS:** Frakten beregnes ut fra vekt (fra 39 kr) med Bring/Posten.';
           } else if (lower.includes('retur') || lower.includes('bytte')) {
             reply += '\n\n**PS:** Vi tilbyr **14 dagers angrerett** og enkel retur/bytte.';
           }

@@ -135,10 +135,6 @@ export default function CartDrawer() {
     }
   };
 
-  // Progress to free shipping (1500 kr)
-  const FREE_SHIPPING_THRESHOLD = 1500;
-  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   return (
     <AnimatePresence>
@@ -174,27 +170,6 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* Free Shipping Progress Indicator (Byråstandard Upsell UX) */}
-            {cartItems.length > 0 && (
-              <div className="px-6 py-4 bg-terracotta/5 border-b border-terracotta/10 text-xs text-onyx">
-                {amountToFreeShipping > 0 ? (
-                  <p className="mb-2 font-medium">
-                    {t('cart.progressToFreeShipping', { amount: formatPrice(amountToFreeShipping) })}
-                  </p>
-                ) : (
-                  <p className="mb-2 font-medium text-emerald-800 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm font-bold">check_circle</span>
-                    {t('cart.freeShippingAchieved')}
-                  </p>
-                )}
-                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-terracotta to-[#bd4f2a] transition-all duration-500 rounded-full"
-                    style={{ width: `${freeShippingProgress}%` }}
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Cart Items List */}
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar">

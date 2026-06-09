@@ -18,7 +18,7 @@ const FAQ_ITEMS = [
       },
       {
         q: 'Hva koster frakten?',
-        a: 'Vi tilbyr gratis standardfrakt på alle bestillinger over 1500 kr i Norge. For bestillinger under dette beløpet, eller for sendinger til utlandet, beregnes fraktprisen i kassen basert på vekt og leveringsadresse. Innenlands frakt starter på 39 kr.',
+        a: 'Fraktprisen beregnes i kassen basert på vekt og leveringsadresse. Innenlands frakt starter på 39 kr.',
         qSlug: 'faq-shipping-q2',
         aSlug: 'faq-shipping-a2'
       },
@@ -209,7 +209,7 @@ export default function Faq() {
                               <CmsText
                                 slug={item.aSlug}
                                 fallback={item.a}
-                                replaceObj={item.aSlug === 'faq-shipping-a2' ? { '{amount}': formatPrice(1500), '{standardAmount}': formatPrice(39) } : null}
+                                replaceObj={item.aSlug === 'faq-shipping-a2' ? { '{standardAmount}': formatPrice(39) } : null}
                                 as="p"
                               />
                             </div>

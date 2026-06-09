@@ -665,7 +665,6 @@ export const CartProvider = ({ children }) => {
     ? selectedShippingRate.cost 
     : (() => {
         if (subtotal === 0) return 0;
-        if (subtotal >= 1500) return 0;
         
         // Calculate total weight of the cart
         const totalWeight = cartItems.reduce((acc, item) => acc + ((item.weight || 0) * item.quantity), 0);

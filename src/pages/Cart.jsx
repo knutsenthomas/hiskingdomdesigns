@@ -781,10 +781,6 @@ export default function Cart() {
           {/* Trust Badges */}
           <div className="mt-6 flex flex-col gap-4 px-4">
             <div className="flex items-center gap-3 text-secondary">
-              <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">{t('home.benefits.freeShipping', { amount: formatPrice(1500) })}</span>
-            </div>
-            <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
               <span className="text-label-sm font-label-sm">{t('home.benefits.returnPolicy')}</span>
             </div>

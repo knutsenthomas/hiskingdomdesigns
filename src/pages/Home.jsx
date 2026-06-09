@@ -255,8 +255,8 @@ export default function Home() {
         name: language === 'es' ? 'Club de Pegatinas' : 'Sticker Club',
         description: language === 'es' ? 'Recibe 5 pegatinas únicas y alentadoras en tu buzón cada mes.' : 'Get 5 unique and encouraging stickers straight to your mailbox every month.',
         benefits: language === 'es' 
-          ? ['5 pegatinas únicas al mes', 'Envío gratis incluido', 'Diseños exclusivos', 'Compromiso de 1 mes (mín. 2 paquetes)']
-          : ['5 unique stickers/mo', 'Free shipping included', 'Exclusive designs', '1-month commitment (min. 2 packs)']
+          ? ['5 pegatinas únicas al mes', 'Diseños exclusivos', 'Compromiso de 1 mes (mín. 2 paquetes)']
+          : ['5 unique stickers/mo', 'Exclusive designs', '1-month commitment (min. 2 packs)']
       };
     }
     if (plan._id === 'mock-plan-2') {
@@ -265,8 +265,8 @@ export default function Home() {
         name: language === 'es' ? 'Taza y Calidez' : 'Mug & Cozy',
         description: language === 'es' ? 'Cada mes te enviamos una taza nueva con un mensaje de fe y café/té.' : 'Every month we send you a brand new mug with a faith message and coffee/tea.',
         benefits: language === 'es'
-          ? ['1 taza premium al mes', 'Café o té seleccionado', 'Envío gratis incluido', 'Compromiso de 1 mes (mín. 2 paquetes)']
-          : ['1 premium mug/mo', 'Selected coffee or tea', 'Free shipping included', '1-month commitment (min. 2 packs)']
+          ? ['1 taza premium al mes', 'Café o té seleccionado', 'Compromiso de 1 mes (mín. 2 paquetes)']
+          : ['1 premium mug/mo', 'Selected coffee or tea', '1-month commitment (min. 2 packs)']
       };
     }
     return plan;
@@ -481,7 +481,6 @@ export default function Home() {
       recurring: true,
       benefits: [
         '5 unike klistermerker/mnd',
-        'Gratis frakt inkludert',
         'Eksklusive design',
         '1 mnd bindingstid (min. 2 pakker)'
       ]
@@ -495,7 +494,6 @@ export default function Home() {
       benefits: [
         '1 premium kopp/mnd',
         'Utvalgt kaffe eller te',
-        'Gratis frakt inkludert',
         '1 mnd bindingstid (min. 2 pakker)'
       ],
       popular: true
@@ -631,7 +629,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">local_shipping</span>
             <div className="min-w-0">
-              <CmsText slug="home-benefits-title-1" fallback={t('home.benefits.freeShipping', { amount: formatPrice(1500) })} replaceObj={{ '{amount}': formatPrice(1500) }} as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-title-1" fallback={t('home.benefits.freeShipping')} as="p" className="font-label-md text-label-md text-onyx leading-normal" />
               <CmsText slug="home-benefits-desc-1" fallback={t('home.benefits.fastDelivery')} as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>

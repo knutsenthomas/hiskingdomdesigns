@@ -11,7 +11,7 @@ export default function Shipping() {
 
   useMeta(
     t('shipping.metaTitle'),
-    t('shipping.metaDesc', { amount: formatPrice(1500) })
+    t('shipping.metaDesc')
   );
 
   return (
@@ -70,26 +70,10 @@ export default function Shipping() {
           <div className="space-y-4 border-t border-slate-100 pt-6">
             <div className="flex justify-between border-b border-slate-100 pb-2">
               <CmsText
-                slug="shipping-row-title-1"
-                fallback="Fraktpris (Ordre over 1500 kr)"
-                as="span"
-                replaceObj={{ '{amount}': formatPrice(1500) }}
-                className="font-label-md text-onyx font-bold"
-              />
-              <CmsText
-                slug="shipping-row-val-1"
-                fallback="Gratis frakt"
-                as="span"
-                className="font-label-md text-terracotta font-bold"
-              />
-            </div>
-            <div className="flex justify-between border-b border-slate-100 pb-2">
-              <CmsText
                 slug="shipping-row-title-2"
-                fallback="Standardfrakt (Ordre under 1500 kr)"
+                fallback="Standardfrakt"
                 as="span"
-                replaceObj={{ '{amount}': formatPrice(1500) }}
-                className="font-body-md text-secondary"
+                className="font-label-md text-onyx font-bold"
               />
               <CmsText
                 slug="shipping-row-val-2"
