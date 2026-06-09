@@ -416,7 +416,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
           <div>
             <CmsText slug="home-categories-badge" fallback="Kategorier" as="span" className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold" />
-            <CmsText slug="home-categories-title" fallback="Utforsk vårt utvalg" as="h2" className="font-headline-lg text-2xl md:text-headline-lg text-onyx" />
+            <CmsText slug="home-categories-title" fallback="Utforsk vårt utvalg" as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx" />
           </div>
           <button 
             onClick={() => navigate('/products')}
@@ -489,7 +489,7 @@ export default function Home() {
             slug="home-bestsellers-title" 
             fallback="Våre bestselgere" 
             as="h2" 
-            className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 md:mb-16 text-onyx block" 
+            className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 md:mb-16 text-onyx block" 
           />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
             {bestsellers.slice(0, 4).map((product) => (
@@ -506,7 +506,7 @@ export default function Home() {
             slug="home-testimonials-title"
             fallback="Kundeuttalelser"
             as="h2"
-            className="font-headline-lg text-2xl md:text-headline-lg text-center mb-12 text-onyx block"
+            className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 text-onyx block"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
             {(testimonialsList.length > 0 ? testimonialsList : MOCK_TESTIMONIALS).map((item) => (
@@ -645,7 +645,7 @@ export default function Home() {
               slug="home-about-title" 
               fallback="Hva betyr His Kingdom Designs for oss?" 
               as="h2" 
-              className="font-headline-lg text-2xl md:text-headline-lg mb-6 text-onyx"
+              className="font-headline-lg text-2xl md:text-headline-lg font-bold mb-6 text-onyx"
             />
             <CmsText 
               slug="home-about-desc" 
@@ -686,7 +686,7 @@ export default function Home() {
       <section className="py-section-gap bg-white reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <div className="text-center mb-12">
-            <CmsText slug="home-instagram-title" fallback="Følg oss på Instagram" as="h2" className="font-headline-lg text-2xl md:text-headline-lg mb-4 text-onyx block" />
+            <CmsText slug="home-instagram-title" fallback="Følg oss på Instagram" as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold mb-4 text-onyx block" />
             <CmsText slug="home-instagram-desc" fallback="Se hvordan våre kunder bærer sin tro @hiskingdomdesigns" as="p" className="text-secondary font-body-md" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -733,7 +733,7 @@ export default function Home() {
               slug="home-newsletter-title"
               fallback="Bli med i vårt fellesskap"
               as="h2"
-              className="font-headline-lg text-2xl md:text-headline-lg text-parchment mb-4 block"
+              className="font-headline-lg text-2xl md:text-headline-lg font-bold text-parchment mb-4 block"
             />
             <CmsText
               slug="home-newsletter-desc"

@@ -1055,7 +1055,7 @@ export default function ProductDetails() {
             <span className="text-terracotta font-label-sm text-label-sm uppercase tracking-widest font-semibold block mb-1">
               {product.category} {product.gender && `• ${product.gender}`}
             </span>
-            <h1 className="font-headline-lg text-2xl md:text-headline-lg text-onyx mb-2">{product.name}</h1>
+            <h1 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx mb-2">{product.name}</h1>
             
             {/* Average Rating Stars shortcut */}
             {reviewsList.length > 0 && (
@@ -1628,7 +1628,7 @@ export default function ProductDetails() {
       {relatedProducts.length > 0 && (
         <section className="mt-section-gap border-t border-outline-variant/30 pt-16">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-2">
-            <h2 className="font-headline-lg text-2xl md:text-headline-lg text-onyx">Relaterte produkter</h2>
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx">Relaterte produkter</h2>
             <Link 
               to={`/category/${getSlugByCategoryName(product.category)}`} 
               className="text-terracotta font-label-md hover:underline underline-offset-4 font-bold"
