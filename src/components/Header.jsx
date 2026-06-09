@@ -349,7 +349,7 @@ export default function Header() {
 
             <Link 
               to="/profile?tab=wishlist"
-              className="p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center"
+              className="hidden sm:inline-flex p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center"
               aria-label="Ønskeliste"
             >
               <Heart size={20} />
