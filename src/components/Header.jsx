@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart, ChevronRight, ChevronLeft, Shirt, Palette, Coffee, Baby, Globe, ShoppingBag, Percent, ArrowRight } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
@@ -37,6 +37,7 @@ const getProfileImageUrl = (member) => {
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products } = useApp();
   const { cartCount, setIsCartDrawerOpen, isCartDrawerOpen } = useCart();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const [showRecoveryToast, setShowRecoveryToast] = useState(false);
@@ -51,8 +52,45 @@ export default function Header() {
       (p.description && p.description.toLowerCase().includes(query))
     ).slice(0, 5);
   }, [searchQuery, products]);
-  const [mobileExpandedGroup, setMobileExpandedGroup] = useState(null);
+  const [mobileActiveCategory, setMobileActiveCategory] = useState(null);
   const location = useLocation();
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+    setMobileActiveCategory(null);
+  };
+
+  const getCategoryIcon = (group) => {
+    switch (group) {
+      case 'Klær & Bekledning':
+        return <Shirt className="text-terracotta shrink-0" size={18} />;
+      case 'Bilder & Kunst':
+        return <Palette className="text-terracotta shrink-0" size={18} />;
+      case 'Tilbehør & Hjem':
+        return <Coffee className="text-terracotta shrink-0" size={18} />;
+      case 'Barn & Familie':
+        return <Baby className="text-terracotta shrink-0" size={18} />;
+      case 'Temaer & Språk':
+        return <Globe className="text-terracotta shrink-0" size={18} />;
+      default:
+        return <ShoppingBag className="text-terracotta shrink-0" size={18} />;
+    }
+  };
+
+  const getGroupCategorySlug = (group) => {
+    switch (group) {
+      case 'Klær & Bekledning':
+        return 'Klær';
+      case 'Bilder & Kunst':
+        return 'Bilder og plakater';
+      case 'Tilbehør & Hjem':
+        return 'Tilbehør';
+      case 'Barn & Familie':
+        return 'BARN & UNGDOM';
+      default:
+        return null;
+    }
+  };
   const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
   const [member, setMember] = useState(null);
 
@@ -104,6 +142,7 @@ export default function Header() {
     setMobileMenuOpen(false);
     setSearchOpen(false);
     setMegamenuOpen(false);
+    setMobileActiveCategory(null);
   }, [location.pathname, setMobileMenuOpen, setSearchOpen]);
 
   // Handle abandoned cart recovery toast
@@ -542,145 +581,294 @@ export default function Header() {
       )}
 
       {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] lg:hidden">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-onyx/40 backdrop-blur-xs" 
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          
-          {/* Menu Drawer */}
-          <nav className="fixed top-0 right-0 bottom-0 w-64 max-w-[80vw] bg-parchment shadow-2xl p-6 flex flex-col z-10 overflow-y-auto">
-            <div className="flex justify-between items-center mb-8">
-              <span className="font-bold text-onyx">Meny</span>
-              <button 
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-onyx hover:text-terracotta"
-              >
-                <X size={24} />
-              </button>
-            </div>
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-[100] lg:hidden">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 bg-onyx/45 backdrop-blur-md" 
+              onClick={closeMobileMenu}
+            />
+            
+            {/* Menu Drawer */}
+            <motion.nav 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.35, ease: 'easeOut' }}
+              className="fixed top-0 right-0 bottom-0 w-full max-w-[380px] bg-parchment shadow-2xl flex flex-col z-10 overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-5 border-b border-outline-variant/30 bg-white">
+                {mobileActiveCategory ? (
+                  <button 
+                    onClick={() => setMobileActiveCategory(null)}
+                    className="flex items-center gap-2 text-onyx/80 hover:text-terracotta font-semibold text-sm cursor-pointer select-none"
+                  >
+                    <ChevronLeft size={16} />
+                    <span>Tilbake</span>
+                  </button>
+                ) : (
+                  <span className="font-headline-md text-[#1B4965] font-extrabold text-base">Hovedmeny</span>
+                )}
+                <button 
+                  onClick={closeMobileMenu}
+                  className="text-onyx/70 hover:text-terracotta p-1 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+                  aria-label="Lukk meny"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
-            <div className="flex flex-col gap-3">
-              <Link 
-                to="/products"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-body-lg font-bold py-2 border-b border-outline-variant/30 text-onyx"
-              >
-                Alle Produkter
-              </Link>
-              
-              {Object.entries(categoryTaxonomy).map(([group, cats]) => {
-                const isExpanded = mobileExpandedGroup === group;
-                return (
-                  <div key={group} className="border-b border-outline-variant/30 py-2">
-                    <button
-                      onClick={() => toggleMobileGroup(group)}
-                      className="w-full flex items-center justify-between font-body-lg font-semibold text-onyx text-left py-1"
+              {/* Sliding Content Container */}
+              <div className="flex-grow overflow-y-auto px-6 py-5 no-scrollbar">
+                <AnimatePresence mode="wait">
+                  {mobileActiveCategory === null ? (
+                    <motion.div
+                      key="main-pane"
+                      initial={{ opacity: 0, x: -15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -15 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-6"
                     >
-                      <span>{group}</span>
-                      <ChevronDown 
-                        size={18} 
-                        className={`text-onyx/50 transition-transform duration-200 ${
-                          isExpanded ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    
-                    {isExpanded && (
-                      <ul className="mt-2 pl-4 space-y-2.5">
-                        {cats?.map(sub => {
+                      {/* Search Input inside Menu */}
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Søk etter t-skjorter, kopper..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              closeMobileMenu();
+                              navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+                            }
+                          }}
+                          className="w-full bg-white border border-outline-variant/60 rounded-xl pl-4 pr-10 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
+                        />
+                        <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-onyx/40" />
+                      </div>
+
+                      {/* Menu List */}
+                      <div className="flex flex-col gap-2">
+                        {/* Alle Produkter */}
+                        <Link 
+                          to="/products"
+                          onClick={closeMobileMenu}
+                          className="flex items-center justify-between p-3.5 bg-white border border-outline-variant/40 hover:border-terracotta/20 rounded-xl transition-all shadow-xs group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-[#1B4965]/10 flex items-center justify-center text-[#1B4965]">
+                              <ShoppingBag size={16} />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-xs font-extrabold text-onyx group-hover:text-terracotta transition-colors">Alle Produkter</p>
+                              <p className="text-[10px] text-secondary font-medium">Hele kolleksjonen vår</p>
+                            </div>
+                          </div>
+                          <ChevronRight size={16} className="text-onyx/40 group-hover:translate-x-0.5 transition-transform" />
+                        </Link>
+
+                        {/* Categories List */}
+                        {Object.entries(categoryTaxonomy).map(([group, cats]) => (
+                          <button
+                            key={group}
+                            onClick={() => setMobileActiveCategory(group)}
+                            className="flex items-center justify-between p-3.5 bg-white border border-outline-variant/40 hover:border-terracotta/20 rounded-xl transition-all shadow-xs group cursor-pointer text-left w-full"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-terracotta/10 flex items-center justify-center">
+                                {getCategoryIcon(group)}
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-onyx group-hover:text-terracotta transition-colors">{group}</p>
+                                <p className="text-[10px] text-secondary font-medium">{cats?.length || 0} underkategorier</p>
+                              </div>
+                            </div>
+                            <ChevronRight size={16} className="text-onyx/40 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        ))}
+
+                        {/* Salgskampanje */}
+                        <Link 
+                          to="/category/Salg"
+                          onClick={closeMobileMenu}
+                          className="flex items-center justify-between p-3.5 bg-rose-50/50 border border-rose-100 hover:border-rose-200 rounded-xl transition-all shadow-xs group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+                              <Percent size={16} />
+                            </div>
+                            <div>
+                              <p className="text-xs font-extrabold text-rose-800">Salgskampanje</p>
+                              <p className="text-[10px] text-rose-600/70 font-semibold uppercase tracking-wider">Opptil 40% rabatt</p>
+                            </div>
+                          </div>
+                          <ChevronRight size={16} className="text-rose-500/50 group-hover:translate-x-0.5 transition-transform" />
+                        </Link>
+                      </div>
+
+                      {/* Promo Box */}
+                      <div className="bg-gradient-to-br from-terracotta/10 to-[#1B4965]/5 border border-outline-variant/30 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+                        <div className="mb-3">
+                          <span className="bg-terracotta text-white font-label-sm text-[8px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full inline-block mb-2">
+                            Månedspakker
+                          </span>
+                          <h5 className="text-xs font-extrabold text-onyx mb-1 leading-normal">Kopp & Kos eller Klistermerker?</h5>
+                          <p className="text-[10px] text-secondary leading-normal">
+                            Abonner på våre populære månedspakker og få litt hverdagskos rett i postkassen!
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            closeMobileMenu();
+                            navigate('/#manedspakker');
+                          }}
+                          className="bg-[#1B4965] hover:bg-[#1B4965]/90 text-white font-label-md text-[10px] font-bold py-2 rounded-lg text-center active:scale-[0.98] transition-all cursor-pointer animate-pulse"
+                        >
+                          Utforsk månedspakker
+                        </button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="sub-pane"
+                      initial={{ opacity: 0, x: 15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 15 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-5"
+                    >
+                      <div>
+                        <span className="text-[10px] font-bold text-terracotta uppercase tracking-wider">Kategori</span>
+                        <h4 className="font-headline-md text-onyx font-extrabold text-base leading-tight mt-0.5">{mobileActiveCategory}</h4>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        {/* Se alle link */}
+                        {getGroupCategorySlug(mobileActiveCategory) && (
+                          <Link
+                            to={`/category/${getSlugByCategoryName(getGroupCategorySlug(mobileActiveCategory)) || getGroupCategorySlug(mobileActiveCategory)}`}
+                            onClick={closeMobileMenu}
+                            className="flex items-center justify-between p-3.5 bg-slate-50 border border-outline-variant/40 hover:bg-slate-100/80 rounded-xl transition-all cursor-pointer font-semibold text-xs text-onyx"
+                          >
+                            <span>Vis alle i denne kategorien</span>
+                            <ArrowRight size={14} className="text-onyx/50" />
+                          </Link>
+                        )}
+
+                        {/* List of subcategories */}
+                        {categoryTaxonomy[mobileActiveCategory]?.map(sub => {
                           const lower = sub.toLowerCase();
                           const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
                                           (lower.includes('bibelskole') || lower.includes('bible school') || lower.includes('evangeliesenter') || lower.includes('evangliesenter'));
+                          
                           if (isVarna) {
                             return (
-                              <li key={sub} className="flex flex-col gap-0.5 pl-2 py-0.5">
-                                <span className="text-[10px] font-bold text-onyx/45 uppercase tracking-wider">
+                              <div key={sub} className="flex flex-col gap-1 p-3.5 bg-white border border-outline-variant/40 rounded-xl">
+                                <span className="text-[8px] font-bold text-onyx/45 uppercase tracking-widest leading-none">
                                   Varna - Evangeliesenteret
                                 </span>
                                 <Link
                                   to={`/category/${getSlugByCategoryName(sub)}`}
-                                  onClick={() => setMobileMenuOpen(false)}
-                                  className="text-body-md text-secondary hover:text-terracotta transition-colors block pl-2 border-l border-terracotta/25 py-0.5"
+                                  onClick={closeMobileMenu}
+                                  className="text-xs font-bold text-onyx hover:text-terracotta transition-colors flex items-center justify-between"
                                 >
-                                  Bible School
+                                  <span>Bible School</span>
+                                  <ChevronRight size={14} className="text-onyx/30" />
                                 </Link>
-                              </li>
+                              </div>
                             );
                           }
+
                           return (
-                            <li key={sub}>
-                              <Link
-                                  to={`/category/${getSlugByCategoryName(sub)}`}
-                                  onClick={() => setMobileMenuOpen(false)}
-                                  className="text-body-md text-secondary hover:text-terracotta transition-colors block py-0.5"
-                              >
-                                {sub}
-                              </Link>
-                            </li>
+                            <Link
+                              key={sub}
+                              to={`/category/${getSlugByCategoryName(sub)}`}
+                              onClick={closeMobileMenu}
+                              className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-50/50 border border-outline-variant/40 rounded-xl transition-all cursor-pointer group"
+                            >
+                              <span className="text-xs font-bold text-onyx/80 group-hover:text-terracotta transition-colors">{sub}</span>
+                              <ChevronRight size={14} className="text-onyx/30 group-hover:translate-x-0.5 transition-transform" />
+                            </Link>
                           );
                         })}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })}
-
-              <Link 
-                to="/category/Salg"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-body-lg font-bold py-2 text-sale-red"
-              >
-                Salgskampanje
-              </Link>
-
-              <Link 
-                to="/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-body-lg font-bold py-2 border-t border-outline-variant/30 text-onyx flex items-center justify-between mt-4 pt-4"
-              >
-                <div className="flex items-center gap-2">
-                  {isLoggedIn ? (
-                    getProfileImageUrl(member) ? (
-                      <div className="w-6 h-6 rounded-full overflow-hidden border border-terracotta/40">
-                        <img 
-                          src={getProfileImageUrl(member)} 
-                          alt="Profil" 
-                          className="w-full h-full object-cover" 
-                        />
                       </div>
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center text-[10px] font-bold border border-terracotta/30">
-                        {member?.contactDetails?.firstName ? member.contactDetails.firstName[0].toUpperCase() : 'U'}
-                      </div>
-                    )
-                  ) : (
-                    <User size={20} className="text-terracotta" />
+                    </motion.div>
                   )}
-                  <span>Min Profil</span>
-                </div>
-                {isLoggedIn && (
-                  <span className="bg-emerald-50 text-emerald-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    Innlogget
-                  </span>
-                )}
-              </Link>
+                </AnimatePresence>
+              </div>
 
-              <Link 
-                to="/profile?tab=wishlist"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-body-lg font-bold py-2 border-b border-outline-variant/30 text-onyx flex items-center gap-2"
-              >
-                <Heart size={20} className="text-terracotta" />
-                <span>Min ønskeliste ({wishlist.length})</span>
-              </Link>
-            </div>
-          </nav>
-        </div>
-      )}
+              {/* Footer (Profile & Wishlist) */}
+              <div className="mt-auto border-t border-outline-variant/30 bg-white p-5 space-y-4">
+                <Link 
+                  to="/profile"
+                  onClick={closeMobileMenu}
+                  className="flex items-center justify-between group cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    {isLoggedIn ? (
+                      getProfileImageUrl(member) ? (
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-terracotta/40 shadow-xs">
+                          <img 
+                            src={getProfileImageUrl(member)} 
+                            alt="Profil" 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center text-xs font-extrabold border border-terracotta/30 shadow-xs">
+                          {member?.contactDetails?.firstName ? member.contactDetails.firstName[0].toUpperCase() : 'U'}
+                        </div>
+                      )
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-secondary">
+                        <User size={18} />
+                      </div>
+                    )}
+                    <div className="text-left">
+                      <p className="text-xs font-extrabold text-onyx group-hover:text-terracotta transition-colors leading-tight">
+                        {isLoggedIn ? (member?.contactDetails?.firstName || 'Medlem') : 'Min Profil'}
+                      </p>
+                      <p className="text-[10px] text-secondary font-medium mt-0.5">
+                        {isLoggedIn ? 'Innlogget medlem' : 'Logg inn / Registrer'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {isLoggedIn ? (
+                    <span className="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
+                      <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+                      Aktiv
+                    </span>
+                  ) : (
+                    <ChevronRight size={16} className="text-onyx/40" />
+                  )}
+                </Link>
+
+                <Link 
+                  to="/profile?tab=wishlist"
+                  onClick={closeMobileMenu}
+                  className="flex items-center justify-between p-3.5 bg-slate-50 border border-outline-variant/40 hover:border-terracotta/20 rounded-xl transition-all shadow-xs group cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Heart size={16} className="text-terracotta shrink-0" />
+                    <span className="text-xs font-bold text-onyx/80">Min ønskeliste</span>
+                  </div>
+                  <span className="bg-terracotta text-white text-[9px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    {wishlist.length}
+                  </span>
+                </Link>
+              </div>
+            </motion.nav>
+          </div>
+        )}
+      </AnimatePresence>
       <CartDrawer />
 
       {/* Abandoned Cart Recovery Toast */}
