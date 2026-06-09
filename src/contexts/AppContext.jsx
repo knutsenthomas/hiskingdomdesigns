@@ -932,7 +932,7 @@ export const AppProvider = ({ children }) => {
             images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
             isBestseller: isBestseller,
             isSale: isSale,
-            description: item.description?.replace(/<[^>]*>/g, '') || '',
+            description: item.description || '',
             subcategories: resolvedCollections,
             productOptions: item.productOptions,
             manageVariants: item.manageVariants,
@@ -1349,7 +1349,7 @@ export const AppProvider = ({ children }) => {
             
             const badge = prod.isBestseller ? ' ⭐ *Bestselger!*' : '';
             
-            return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${prod.description ? prod.description.substring(0, 110) + '...' : prod.category}*`;
+            return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${prod.description ? prod.description.replace(/<[^>]*>/g, '').substring(0, 110) + '...' : prod.category}*`;
           }).join('\n\n');
 
           reply = `${titleText}\n\n${itemsText}\n\n💡 Klikk på produktlenkene over for å se produktdetaljene, velge farger/størrelser og legge dem i handlekurven!`;

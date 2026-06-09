@@ -571,7 +571,7 @@ export default function ProductDetails() {
               images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
               isBestseller: false,
               isSale: isSale,
-              description: item.description?.replace(/<[^>]*>/g, '') || '',
+              description: item.description || '',
               subcategories: [],
               productOptions: item.productOptions,
               manageVariants: item.manageVariants,
@@ -699,7 +699,7 @@ export default function ProductDetails() {
   useMeta(
     product ? product.name : t('nav.products'),
     product && typeof product.description === 'string' 
-      ? product.description.substring(0, 155) 
+      ? product.description.replace(/<[^>]*>/g, '').substring(0, 155) 
       : t('home.metaDesc'),
     product ? { type: 'product', image: product.image, price: `${product.price} NOK` } : null
   );
@@ -715,7 +715,7 @@ export default function ProductDetails() {
         "@type": "Product",
         "name": product.name,
         "image": product.media?.mainMedia?.image?.url || product.media?.items?.[0]?.image?.url || '',
-        "description": product.description || 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
+        "description": (product.description || '').replace(/<[^>]*>/g, '') || 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
         "sku": product.sku || product._id,
         "offers": {
           "@type": "Offer",
@@ -1086,9 +1086,10 @@ export default function ProductDetails() {
 
           <div>
             <h4 className="font-label-md text-label-md text-onyx mb-2 uppercase tracking-wider">{t('product.descriptionTitle')}</h4>
-            <p className="font-body-md text-body-md text-secondary leading-relaxed">
-              {product.description || t('home.metaDesc')}
-            </p>
+            <div 
+              className="font-body-md text-body-md text-secondary leading-relaxed space-y-3 html-description"
+              dangerouslySetInnerHTML={{ __html: product.description || t('home.metaDesc') }}
+            />
           </div>
 
           {/* Bullet points for clothing products */}

@@ -299,10 +299,11 @@ export default function Home() {
       const productSlides = newestProducts.map(p => {
         const translatedP = translateProduct(p);
         const displayName = translatedP.name ? translatedP.name.split('|')[0].trim() : 'Nytt produkt';
+        const plainDesc = translatedP.description ? translatedP.description.replace(/<[^>]*>/g, '') : '';
         return {
           image: translatedP.image,
           title: `${t('home.newArrival')}${displayName}`,
-          desc: translatedP.description ? (translatedP.description.length > 150 ? translatedP.description.substring(0, 150) + '...' : translatedP.description) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
+          desc: plainDesc ? (plainDesc.length > 150 ? plainDesc.substring(0, 150) + '...' : plainDesc) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
           ctaText: t('home.slideProduct.cta'),
           ctaAction: () => navigate(`/product/${translatedP.id}`),
           isProduct: true,

@@ -79,3 +79,40 @@ html {
     transform: scale(1.0);
   }
 }
+
+/* Product HTML Description styling */
+.html-description p {
+  margin-bottom: 0.75rem;
+}
+.html-description p:last-child {
+  margin-bottom: 0;
+}
+.html-description ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.html-description ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.html-description li {
+  margin-bottom: 0.25rem;
+}
+.html-description table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+.html-description th,
+.html-description td {
+  border: 1px solid rgba(21, 26, 33, 0.15);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.html-description th {
+  background-color: rgba(21, 26, 33, 0.05);
+  font-weight: 600;
+}
