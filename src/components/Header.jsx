@@ -481,7 +481,7 @@ export default function Header() {
                       <li key={sub}>
                         <Link 
                           to={`/category/${getSlugByCategoryName(sub)}`} 
-                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block"
                         >
                           {t(sub)}
                         </Link>
