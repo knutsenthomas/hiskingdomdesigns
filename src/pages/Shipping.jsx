@@ -3,12 +3,15 @@ import { motion } from 'framer-motion';
 import { Truck, RotateCcw, AlertCircle, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CmsText from '@/components/CmsText';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function Shipping() {
+  const { t } = useLanguage();
+
   useMeta(
-    "Frakt og retur",
-    "Få all informasjon om leveringstider, fraktpriser (gratis frakt over 1500 kr) og den enkle returprosessen vår hos His Kingdom Designs."
+    t('shipping.metaTitle'),
+    t('shipping.metaDesc')
   );
 
   return (
@@ -234,7 +237,7 @@ export default function Shipping() {
               to="/products"
               className="bg-terracotta text-white px-8 py-4 rounded-xl font-label-md hover:bg-opacity-90 transition-all inline-block active:scale-95 font-bold shadow-md"
             >
-              Fortsett å handle
+              {t('shipping.continueShopping')}
             </Link>
           </div>
         </div>

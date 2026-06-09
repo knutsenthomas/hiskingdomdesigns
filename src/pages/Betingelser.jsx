@@ -2,12 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, CreditCard, ShoppingBag, Truck, RefreshCw, AlertCircle } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function Betingelser() {
+  const { t } = useLanguage();
+
   useMeta(
-    "Kjøpsbetingelser",
-    "Les kjøpsbetingelsene for His Kingdom Designs. Her finner du informasjon om angrerett, levering, betaling og reklamasjon."
+    t('terms.metaTitle'),
+    t('terms.metaDesc')
   );
 
   return (
@@ -150,7 +153,7 @@ export default function Betingelser() {
             as="p"
           />
           <p className="pt-2">
-            Ved returer, feil eller spørsmål knyttet til bestillinger, ta kontakt på <CmsText slug="terms-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />.
+            {t('terms.supportTextBefore')}<CmsText slug="terms-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />{t('terms.supportTextAfter')}
           </p>
         </section>
       </div>

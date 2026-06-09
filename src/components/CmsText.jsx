@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CmsText({ 
   slug, 
@@ -10,8 +11,15 @@ export default function CmsText({
   style = {}
 }) {
   const { cmsContent, updateCmsContent, isAdminEditing, showToast } = useApp();
+  const { t } = useLanguage();
   
   const getCmsText = () => {
+    if (!isAdminEditing) {
+      const translated = t(slug);
+      if (translated !== slug) {
+        return translated;
+      }
+    }
     return cmsContent?.[slug] || fallback;
   };
   

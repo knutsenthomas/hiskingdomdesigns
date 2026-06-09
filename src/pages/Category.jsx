@@ -2,18 +2,20 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ChevronRight, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 import useMeta from '@/hooks/useMeta';
 
 export default function Category() {
   const { products, isLoadingProducts, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName, wixCollections } = useApp();
+  const { t } = useLanguage();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
   
   useMeta(
-    categoryName || 'Kategorier',
-    `Utforsk vårt utvalg av produkter i kategorien ${categoryName || 'kategorier'} hos His Kingdom Designs. Finn bibelvers på klær, plakater og tilbehør.`
+    categoryName || t('category.metaTitle'),
+    t('category.metaDesc', { category: categoryName || t('category.metaTitle').toLowerCase() })
   );
 
   const sidebarRef = useRef(null);
@@ -236,14 +238,14 @@ export default function Category() {
   }, [filteredProducts, wixCollections, expandedGroups]);
 
   // Set page title for breadcrumb
-  const displayTitle = categoryName === 'Salg' ? 'Salgskampanje' : (categoryName || 'Alle produkter');
+  const displayTitle = categoryName === 'Salg' ? t('category.saleCampaign') : (categoryName || t('category.allProducts'));
 
   const filterSidebar = (
     <div className="space-y-8">
       {/* Category Filter - only show if not inside a specific category route */}
       {!categoryName && (
         <div>
-          <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Kategorier</h3>
+          <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('category.categories')}</h3>
           <div className="space-y-3">
             {Object.entries(categoryTaxonomy).map(([group, cats]) => {
               const isExpanded = expandedGroups[group];
@@ -315,7 +317,7 @@ export default function Category() {
 
       {/* Size Filter */}
       <div>
-        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Størrelse</h3>
+        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('product.size')}</h3>
         <div className="max-h-48 overflow-y-auto no-scrollbar border border-outline-variant/30 rounded-lg p-3 bg-white/40">
           <div className="grid grid-cols-4 gap-2">
             {availableSizes.map(size => {
@@ -342,7 +344,7 @@ export default function Category() {
 
       {/* Color Filter */}
       <div>
-        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Farge</h3>
+        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('product.color')}</h3>
         <div className="flex flex-wrap gap-3">
           {availableColors.map(color => {
             const isSelected = selectedColors.includes(color.name);
@@ -363,7 +365,7 @@ export default function Category() {
 
       {/* Price Filter */}
       <div>
-        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">Maks Pris</h3>
+        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('category.maxPrice')}</h3>
         <input 
           type="range"
           min="50"
@@ -385,7 +387,7 @@ export default function Category() {
         onClick={handleClearFilters}
         className="w-full bg-parchment border border-outline hover:border-terracotta hover:text-terracotta text-onyx py-3 rounded-lg font-label-md text-label-md transition-all active:scale-[0.98]"
       >
-        Nullstill filtre
+        {t('category.clearFilters')}
       </button>
     </div>
   );
@@ -401,13 +403,13 @@ export default function Category() {
       {/* Breadcrumbs */}
       <div className="mb-12">
         <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-4">
-          <Link to="/" className="hover:text-terracotta transition-colors">Hjem</Link>
+          <Link to="/" className="hover:text-terracotta transition-colors">{t('nav.home')}</Link>
           <ChevronRight size={14} className="text-secondary/60" />
           <span className="text-onyx font-bold">{displayTitle}</span>
         </nav>
         <h1 className="font-headline-xl text-3xl md:text-[48px] font-bold text-onyx mb-2 capitalize">{displayTitle}</h1>
         <p className="text-body-lg font-body-lg text-secondary w-full">
-          Utforsk vår kolleksjon av trosbaserte produkter designet for å inspirere og spre Guds ord i hverdagen.
+          {t('category.exploreDesc')}
         </p>
       </div>
 
@@ -415,7 +417,7 @@ export default function Category() {
         {isLoadingProducts ? (
           <div className="flex flex-col items-center justify-center py-32 w-full">
             <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-secondary font-semibold font-body-md">Henter produkter fra Wix...</p>
+            <p className="mt-4 text-secondary font-semibold font-body-md">{t('category.loading')}</p>
           </div>
         ) : (
           <>
@@ -436,20 +438,20 @@ export default function Category() {
                 className="flex items-center gap-2 bg-white border border-outline-variant px-4 py-2.5 rounded-lg text-sm font-semibold text-onyx hover:border-terracotta"
               >
                 <SlidersHorizontal size={16} />
-                <span>Filtrer produkter</span>
+                <span>{t('category.filterBtn')}</span>
               </button>
               
               <div className="flex items-center gap-2">
-                <span className="text-xs text-secondary">Sorter:</span>
+                <span className="text-xs text-secondary">{t('category.sortLabel')}</span>
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="bg-transparent border-none text-xs text-terracotta font-bold focus:ring-0 p-0 pr-6 cursor-pointer"
                 >
-                  <option value="Nyeste">Nyeste først</option>
-                  <option value="LavHøy">Pris: Lav til Høy</option>
-                  <option value="HøyLav">Pris: Høy til Lav</option>
-                  <option value="MestPopulær">Mest populære</option>
+                  <option value="Nyeste">{t('category.sort.newest')}</option>
+                  <option value="LavHøy">{t('category.sort.priceAsc')}</option>
+                  <option value="HøyLav">{t('category.sort.priceDesc')}</option>
+                  <option value="MestPopulær">{t('category.sort.popular')}</option>
                 </select>
               </div>
             </div>
@@ -459,19 +461,19 @@ export default function Category() {
               {/* Desktop Toolbar */}
               <div className="hidden lg:flex justify-between items-center mb-8 pb-4 border-b border-outline-variant/30">
                 <span className="font-label-sm text-label-sm text-secondary">
-                  Viser {filteredProducts.length} av {products.length} produkter
+                  {t('category.showingCount', { count: filteredProducts.length, total: products.length })}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="font-label-sm text-label-sm text-secondary">Sorter etter:</span>
+                  <span className="font-label-sm text-label-sm text-secondary">{t('category.sortByLabel')}</span>
                   <select 
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="bg-transparent border-none font-label-md text-label-md text-terracotta focus:ring-0 cursor-pointer"
                   >
-                    <option value="Nyeste">Nyeste først</option>
-                    <option value="LavHøy">Pris: Lav til Høy</option>
-                    <option value="HøyLav">Pris: Høy til Lav</option>
-                    <option value="MestPopulær">Mest populære</option>
+                    <option value="Nyeste">{t('category.sort.newest')}</option>
+                    <option value="LavHøy">{t('category.sort.priceAsc')}</option>
+                    <option value="HøyLav">{t('category.sort.priceDesc')}</option>
+                    <option value="MestPopulær">{t('category.sort.popular')}</option>
                   </select>
                 </div>
               </div>
@@ -486,15 +488,15 @@ export default function Category() {
               ) : (
                 <div className="bg-white rounded-2xl border border-outline-variant/50 p-16 text-center max-w-xl mx-auto mt-12">
                   <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">info</span>
-                  <h3 className="font-headline-md text-headline-md text-onyx mb-2">Ingen treff</h3>
+                  <h3 className="font-headline-md text-headline-md text-onyx mb-2">{t('category.noMatches')}</h3>
                   <p className="text-secondary font-body-md mb-8">
-                    Vi fant ingen produkter som matcher dine filtervalg eller søk. Prøv å nullstille filtrene eller søke etter noe annet.
+                    {t('category.noMatchesDesc')}
                   </p>
                   <button 
                     onClick={handleClearFilters}
                     className="bg-terracotta text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all"
                   >
-                    Vis alle produkter
+                    {t('category.showAllProducts')}
                   </button>
                 </div>
               )}
@@ -514,7 +516,7 @@ export default function Category() {
           {/* Drawer Panel */}
           <div className="fixed top-0 bottom-0 left-0 w-80 max-w-[85vw] bg-parchment shadow-2xl p-6 flex flex-col z-10 overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline-md text-headline-md text-onyx">Filtre</h3>
+              <h3 className="font-headline-md text-headline-md text-onyx">{t('category.filters')}</h3>
               <button 
                 onClick={() => setMobileFiltersOpen(false)}
                 className="text-onyx hover:text-terracotta"

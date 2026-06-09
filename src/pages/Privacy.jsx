@@ -2,12 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Eye, Lock, FileText } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function Privacy() {
+  const { t } = useLanguage();
+
   useMeta(
-    "Personvernerklæring",
-    "Les personvernerklæringen for His Kingdom Designs. Vi tar ditt personvern på alvor og sikrer dine personopplysninger."
+    t('privacy.metaTitle'),
+    t('privacy.metaDesc')
   );
 
   return (
@@ -142,7 +145,7 @@ export default function Privacy() {
             as="p"
           />
           <p className="pt-2">
-            For spørsmål angående ditt personvern eller innsynsbegjæringer, ta kontakt med oss på <CmsText slug="privacy-section-support" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />.
+            {t('privacy.supportTextBefore')}<CmsText slug="privacy-section-support" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />{t('privacy.supportTextAfter')}
           </p>
         </section>
       </div>

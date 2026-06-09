@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Search, HelpCircle } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 const FAQ_ITEMS = [
@@ -92,9 +93,11 @@ const FAQ_ITEMS = [
 ];
 
 export default function Faq() {
+  const { t } = useLanguage();
+
   useMeta(
-    "Ofte stilte spørsmål (FAQ)",
-    "Finn svar på ofte stilte spørsmål om frakt, leveringstider, betaling, størrelser og retur hos His Kingdom Designs."
+    t('faq.metaTitle'),
+    t('faq.metaDesc')
   );
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -151,7 +154,7 @@ export default function Faq() {
       <div className="relative max-w-xl mx-auto mb-16">
         <input 
           type="text"
-          placeholder="Søk i spørsmål og svar..."
+          placeholder={t('faq.placeholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-white border border-outline-variant/65 rounded-xl py-4 pl-12 pr-6 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-onyx shadow-sm placeholder:text-secondary/50"
@@ -221,7 +224,7 @@ export default function Faq() {
         ) : (
           <div className="text-center py-12">
             <HelpCircle size={48} className="text-terracotta/30 mx-auto mb-4" />
-            <p className="text-secondary font-body-md">Ingen spørsmål eller svar matchet søket ditt. Prøv et annet søkeord.</p>
+            <p className="text-secondary font-body-md">{t('faq.noMatches')}</p>
           </div>
         )}
       </div>
@@ -235,7 +238,7 @@ export default function Faq() {
           className="font-headline-md text-headline-md text-onyx font-bold"
         />
         <p className="font-body-md text-secondary leading-relaxed">
-          Send oss gjerne en e-post direkte på <CmsText slug="faq-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />. Vi svarer vanligvis innen en virkedag!
+          {t('faq.supportTextBefore')}<CmsText slug="faq-support-email" fallback="post@hiskingdomministry.no" as="strong" className="text-terracotta" />{t('faq.supportTextAfter')}
         </p>
       </div>
     </motion.main>

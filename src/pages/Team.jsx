@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Facebook, Instagram, Youtube } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 const TEAM_MEMBERS = [
@@ -37,9 +38,11 @@ const TEAM_MEMBERS = [
 ];
 
 export default function Team() {
+  const { t } = useLanguage();
+
   useMeta(
-    "Vårt team",
-    "Møt teamet bak His Kingdom Designs og His Kingdom Ministry. Vi brenner for å spre Guds ord og kjærlighet gjennom musikk, undervisning og unike designprodukter."
+    t('team.metaTitle'),
+    t('team.metaDesc')
   );
 
   return (
@@ -150,7 +153,7 @@ export default function Team() {
           />
           <div className="text-label-sm text-secondary space-y-2">
             <p>
-              <strong>Adresse: </strong>
+              <strong>{t('team.addressLabel')}</strong>
               <CmsText
                 slug="team-base-address"
                 fallback="Løkkeveien 3B, 4580 Lyngdal"
@@ -158,7 +161,7 @@ export default function Team() {
               />
             </p>
             <p>
-              <strong>E-post: </strong>
+              <strong>{t('team.emailLabel')}</strong>
               <CmsText
                 slug="team-base-email"
                 fallback="post@hiskingdomministry.no"

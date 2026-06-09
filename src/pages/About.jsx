@@ -3,12 +3,15 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Shield, Compass } from 'lucide-react';
 import CmsText from '@/components/CmsText';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function About() {
+  const { t } = useLanguage();
+
   useMeta(
-    "Om oss",
-    "Lær mer om His Kingdom Ministry og His Kingdom Designs. Vi driver med undervisning, bønn og misjon med base i Lyngdal, og tilbyr kristne produkter."
+    t('about.metaTitle'),
+    t('about.metaDesc')
   );
 
   return (
@@ -42,7 +45,7 @@ export default function About() {
           >
             His Kingdom Ministry
           </a>{' '}
-          er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.
+          {t('about.hkmDesc')}
         </p>
       </div>
 
@@ -80,7 +83,7 @@ export default function About() {
               to="/products"
               className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-label-md text-label-md hover:bg-opacity-90 transition-all active:scale-[0.98] shadow-lg"
             >
-              <span>Se produktene våre</span>
+              <span>{t('about.exploreBtn')}</span>
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -173,7 +176,7 @@ export default function About() {
               to="/faq" 
               className="bg-white text-onyx px-8 py-4 rounded-xl font-label-md hover:bg-terracotta hover:text-white transition-all inline-block active:scale-95 font-bold shadow-md"
             >
-              Les ofte stilte spørsmål
+              {t('about.readFaqBtn')}
             </Link>
           </div>
         </div>

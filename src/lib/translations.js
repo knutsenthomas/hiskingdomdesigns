@@ -285,7 +285,82 @@ export const translations = {
     'product.postersGuideDesc': 'Våre motiver og kunstplakater trykkes på matt, syrefritt premiumpapir av museumskvalitet. De leveres i standardformater som gjør det svært enkelt å finne matchende rammer i din lokale butikk.',
     'product.clothingTab': 'Klær',
     'product.capsTab': 'Hatter & Caps',
-    'product.postersTab': 'Plakater'
+    'product.postersTab': 'Plakater',
+
+    // Category Page
+    'category.metaTitle': 'Kategorier',
+    'category.metaDesc': 'Utforsk vårt utvalg av produkter i kategorien {category} hos His Kingdom Designs. Finn bibelvers på klær, plakater og tilbehør.',
+    'category.maxPrice': 'Maks pris',
+    'category.clearFilters': 'Nullstill filtre',
+    'category.saleCampaign': 'Salgskampanje',
+    'category.allProducts': 'Alle produkter',
+    'category.exploreDesc': 'Utforsk vår kolleksjon av trosbaserte produkter designet for å inspirere og spre Guds ord i hverdagen.',
+    'category.loading': 'Henter produkter fra Wix...',
+    'category.filterBtn': 'Filtrer produkter',
+    'category.sortLabel': 'Sorter:',
+    'category.sortByLabel': 'Sorter etter:',
+    'category.showingCount': 'Viser {count} av {total} produkter',
+    'category.noMatches': 'Ingen treff',
+    'category.noMatchesDesc': 'Vi fant ingen produkter som matcher dine filtervalg eller søk. Prøv å nullstille filtrene eller søke etter noe annet.',
+    'category.showAllProducts': 'Vis alle produkter',
+    'category.filters': 'Filtre',
+    'category.sort.newest': 'Nyeste først',
+    'category.sort.priceAsc': 'Pris: Lav til Høy',
+    'category.sort.priceDesc': 'Pris: Høy til Lav',
+    'category.sort.popular': 'Mest populære',
+
+    // About Page
+    'about.metaTitle': 'Om oss',
+    'about.metaDesc': 'Lær mer om His Kingdom Ministry og His Kingdom Designs. Vi driver med undervisning, bønn og misjon med base i Lyngdal, og tilbyr kristne produkter.',
+    'about.hkmDesc': 'er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.',
+    'about.exploreBtn': 'Se produktene våre',
+    'about.readFaqBtn': 'Les ofte stilte spørsmål',
+    'about-badge': 'Hvem er vi',
+    'about-title': 'His Kingdom Ministry & Designs',
+    'about-narrative-title': 'Vårt fokus og arbeid',
+    'about-narrative-p1': 'Vi ønsker å inspirere og utruste troende to å leve et liv i nær relasjon med Jesus. Som en del av vår tjeneste produserer vi en ukentlig podcast med andakter som gir åndelig påfyll i hverdagen, og vi arrangerer regelmessig ulike samlinger, bønnemøter og oppbyggelige seminarer.',
+    'about-narrative-p2': 'Gjennom nettbutikken His Kingdom Designs ønsker vi å tilby vakre, moderne og konkrete påminnelser om Guds ord som du kan bære med deg eller pynte hjemmet ditt med. Hvert eneste produkt er skapt for å starte gode samtaler og minne oss på Guds uendelige kjærlighet og løfter.',
+    'about-values-title': 'Vår Tjeneste',
+    'about-value-title-1': 'Bønn & Forbønn',
+    'about-value-desc-1': 'Vi brenner for forbønn og profetisk tjeneste. Vi ønsker å se mennesker bli satt i frihet og få oppleve Guds helbredende kraft.',
+    'about-value-title-2': 'Utrustning & Lære',
+    'about-value-desc-2': 'Gjennom seminarer, andakter og podcasten vår ønsker vi å gi sunn bibelsk undervisning som styrker din personlige vandring med Gud.',
+    'about-value-title-3': 'Kreativ Formidling',
+    'about-value-desc-3': 'Ved å forene estetisk vakkert design med troens budskap, skaper vi moderne t-skjorter, plakater og tilbehør som bærer Guds ord ut i hverdagen.',
+    'about-faq-banner-title': 'Har du spørsmål om oss eller våre produkter?',
+    'about-faq-banner-desc': 'Vi har samlet svar på de vanligste spørsmålene angående frakt, materialer, og våre abonnementspakker.',
+
+    // FAQ Page
+    'faq.metaTitle': 'Ofte stilte spørsmål (FAQ)',
+    'faq.metaDesc': 'Finn svar på ofte stilte spørsmål om frakt, leveringstider, betaling, størrelser og retur hos His Kingdom Designs.',
+    'faq.placeholder': 'Søk i spørsmål og svar...',
+    'faq.noMatches': 'Ingen spørsmål eller svar matchet søket ditt. Prøv et annet søkeord.',
+    'faq.exploreProducts': 'Se alle produkter',
+    'faq.supportTextBefore': 'Send oss gjerne en e-post direkte på ',
+    'faq.supportTextAfter': '. Vi svarer vanligvis innen en virkedag!',
+
+    // Shipping & Returns Page
+    'shipping.metaTitle': 'Frakt og retur',
+    'shipping.metaDesc': 'Få all informasjon om leveringstider, fraktpriser (gratis frakt over 1500 kr) og den enkle returprosessen vår hos His Kingdom Designs.',
+    'shipping.continueShopping': 'Fortsett å handle',
+
+    // Privacy Page
+    'privacy.metaTitle': 'Personvernerklæring',
+    'privacy.metaDesc': 'Les personvernerklæringen for His Kingdom Designs. Vi tar ditt personvern på alvor og sikrer dine personopplysninger.',
+    'privacy.supportTextBefore': 'For spørsmål angående ditt personvern eller innsynsbegjæringer, ta kontakt med oss på ',
+    'privacy.supportTextAfter': '.',
+
+    // Terms & Conditions Page
+    'terms.metaTitle': 'Kjøpsbetingelser',
+    'terms.metaDesc': 'Les kjøpsbetingelsene for His Kingdom Designs. Her finner du informasjon om angrerett, levering, betaling og reklamasjon.',
+    'terms.supportTextBefore': 'Ved returer, feil eller spørsmål knyttet til bestillinger, ta kontakt på ',
+    'terms.supportTextAfter': '.',
+
+    // Team Page
+    'team.metaTitle': 'Vårt team',
+    'team.metaDesc': 'Møt teamet bak His Kingdom Designs og His Kingdom Ministry. Vi brenner for å spre Guds ord og kjærlighet gjennom musikk, undervisning og unike designprodukter.',
+    'team.addressLabel': 'Adresse: ',
+    'team.emailLabel': 'E-post: '
   },
   en: {
     // Nav / Header
@@ -573,7 +648,82 @@ export const translations = {
     'product.postersGuideDesc': 'Our motifs and art posters are printed on matte, acid-free premium museum-quality paper. They are delivered in standard formats making it very easy to find matching frames in your local store.',
     'product.clothingTab': 'Clothing',
     'product.capsTab': 'Hats & Caps',
-    'product.postersTab': 'Posters'
+    'product.postersTab': 'Posters',
+
+    // Category Page
+    'category.metaTitle': 'Categories',
+    'category.metaDesc': 'Explore our range of products in the category {category} at His Kingdom Designs. Find Bible verses on clothing, posters, and accessories.',
+    'category.maxPrice': 'Max Price',
+    'category.clearFilters': 'Clear filters',
+    'category.saleCampaign': 'Sale Campaign',
+    'category.allProducts': 'All Products',
+    'category.exploreDesc': 'Explore our collection of faith-based products designed to inspire and spread God\'s word in daily life.',
+    'category.loading': 'Fetching products from Wix...',
+    'category.filterBtn': 'Filter products',
+    'category.sortLabel': 'Sort:',
+    'category.sortByLabel': 'Sort by:',
+    'category.showingCount': 'Showing {count} of {total} products',
+    'category.noMatches': 'No matches found',
+    'category.noMatchesDesc': 'We could not find any products matching your filters or search. Try to clear filters or search for something else.',
+    'category.showAllProducts': 'Show all products',
+    'category.filters': 'Filters',
+    'category.sort.newest': 'Newest first',
+    'category.sort.priceAsc': 'Price: Low to High',
+    'category.sort.priceDesc': 'Price: High to Low',
+    'category.sort.popular': 'Most popular',
+
+    // About Page
+    'about.metaTitle': 'About Us',
+    'about.metaDesc': 'Learn more about His Kingdom Ministry and His Kingdom Designs. We conduct teaching, prayer, and mission based in Lyngdal, and offer Christian products.',
+    'about.hkmDesc': 'is a Christian organization based in Lyngdal. We conduct teaching, prayer, and mission, and wish to help people grow in their faith.',
+    'about.exploreBtn': 'View our products',
+    'about.readFaqBtn': 'Read FAQ',
+    'about-badge': 'Who are we',
+    'about-title': 'His Kingdom Ministry & Designs',
+    'about-narrative-title': 'Our Focus & Work',
+    'about-narrative-p1': 'We wish to inspire and equip believers to live a life in close relation with Jesus. As part of our service, we produce a weekly podcast with devotionals that give spiritual replenishment in everyday life, and we regularly arrange various gatherings, prayer meetings and edifying seminars.',
+    'about-narrative-p2': 'Through the webshop His Kingdom Designs, we wish to offer beautiful, modern and tangible reminders of God\'s word that you can carry with you or decorate your home with. Every single product is created to start good conversations and remind us of God\'s infinite love and promises.',
+    'about-values-title': 'Our Ministry',
+    'about-value-title-1': 'Prayer & Intercession',
+    'about-value-desc-1': 'We are passionate about intercession and prophetic ministry. We wish to see people set free and experience God\'s healing power.',
+    'about-value-title-2': 'Equipping & Doctrine',
+    'about-value-desc-2': 'Through seminars, devotionals and our podcast, we wish to provide sound biblical teaching that strengthens your personal walk with God.',
+    'about-value-title-3': 'Creative Outreach',
+    'about-value-desc-3': 'By uniting aesthetically beautiful design with the message of faith, we create modern t-shirts, posters and accessories that carry God\'s word into everyday life.',
+    'about-faq-banner-title': 'Do you have questions about us or our products?',
+    'about-faq-banner-desc': 'We have gathered answers to the most common questions regarding shipping, materials, and our subscription packages.',
+
+    // FAQ Page
+    'faq.metaTitle': 'Frequently Asked Questions (FAQ)',
+    'faq.metaDesc': 'Find answers to frequently asked questions about shipping, delivery times, payment, sizes, and returns at His Kingdom Designs.',
+    'faq.placeholder': 'Search questions and answers...',
+    'faq.noMatches': 'No questions or answers matched your search query. Try another keyword.',
+    'faq.exploreProducts': 'View all products',
+    'faq.supportTextBefore': 'Feel free to email us directly at ',
+    'faq.supportTextAfter': '. We usually reply within one business day!',
+
+    // Shipping & Returns Page
+    'shipping.metaTitle': 'Shipping & Returns',
+    'shipping.metaDesc': 'Get all information about delivery times, shipping prices (free shipping over 1500 kr) and our simple return process at His Kingdom Designs.',
+    'shipping.continueShopping': 'Continue Shopping',
+
+    // Privacy Page
+    'privacy.metaTitle': 'Privacy Policy',
+    'privacy.metaDesc': 'Read the privacy policy for His Kingdom Designs. We take your privacy seriously and secure your personal data.',
+    'privacy.supportTextBefore': 'For questions regarding your privacy or data requests, please contact us at ',
+    'privacy.supportTextAfter': '.',
+
+    // Terms & Conditions Page
+    'terms.metaTitle': 'Terms & Conditions',
+    'terms.metaDesc': 'Read the terms and conditions for His Kingdom Designs. Here you will find information about returns, shipping, payments, and complaints.',
+    'terms.supportTextBefore': 'For returns, errors or questions regarding orders, please contact us at ',
+    'terms.supportTextAfter': '.',
+
+    // Team Page
+    'team.metaTitle': 'Our Team',
+    'team.metaDesc': 'Meet the team behind His Kingdom Designs and His Kingdom Ministry. We are passionate about spreading God\'s word and love.',
+    'team.addressLabel': 'Address: ',
+    'team.emailLabel': 'Email: '
   },
   es: {
     // Nav / Header
@@ -861,6 +1011,81 @@ export const translations = {
     'product.postersGuideDesc': 'Nuestros motivos y pósteres artísticos se imprimen en papel premium mate de calidad de museo, libre de ácido. Se entregan en formatos estándar, lo que facilita encontrar marcos a juego en tu tienda local.',
     'product.clothingTab': 'Ropa',
     'product.capsTab': 'Gorras y Sombreros',
-    'product.postersTab': 'Pósteres'
+    'product.postersTab': 'Pósteres',
+
+    // Category Page
+    'category.metaTitle': 'Categorías',
+    'category.metaDesc': 'Explore nuestra gama de productos en la categoría {category} en His Kingdom Designs. Encuentre versículos bíblicos en ropa, pósteres y accesorios.',
+    'category.maxPrice': 'Precio Máximo',
+    'category.clearFilters': 'Restablecer filtros',
+    'category.saleCampaign': 'Campaña de Ofertas',
+    'category.allProducts': 'Todos los productos',
+    'category.exploreDesc': 'Explore nuestra colección de productos basados en la fe diseñados para inspirar y difundir la palabra de Dios en la vida diaria.',
+    'category.loading': 'Cargando productos de Wix...',
+    'category.filterBtn': 'Filtrar productos',
+    'category.sortLabel': 'Ordenar:',
+    'category.sortByLabel': 'Ordenar por:',
+    'category.showingCount': 'Mostrando {count} de {total} productos',
+    'category.noMatches': 'Sin resultados',
+    'category.noMatchesDesc': 'No encontramos ningún producto que coincida con sus filtros o búsqueda. Intente restablecer los filtros o buscar otra cosa.',
+    'category.showAllProducts': 'Mostrar todos los productos',
+    'category.filters': 'Filtros',
+    'category.sort.newest': 'Más nuevos primero',
+    'category.sort.priceAsc': 'Precio: Menor a Mayor',
+    'category.sort.priceDesc': 'Precio: Mayor a Menor',
+    'category.sort.popular': 'Más populares',
+
+    // About Page
+    'about.metaTitle': 'Nosotros',
+    'about.metaDesc': 'Obtenga más información sobre His Kingdom Ministry y His Kingdom Designs. Llevamos a cabo enseñanza, oración y misión con sede en Lyngdal, y ofrecemos productos cristianos.',
+    'about.hkmDesc': 'es una organización cristiana con sede en Lyngdal. Llevamos a cabo enseñanza, oración y misión, y deseamos ayudar a las personas a crecer en su fe.',
+    'about.exploreBtn': 'Ver nuestros productos',
+    'about.readFaqBtn': 'Leer preguntas frecuentes',
+    'about-badge': 'Quiénes somos',
+    'about-title': 'His Kingdom Ministry & Designs',
+    'about-narrative-title': 'Nuestro Enfoque y Trabajo',
+    'about-narrative-p1': 'Deseamos inspirar y equipar a los creyentes para vivir una vida en estrecha relación con Jesús. Como parte de nuestro ministerio, producimos un podcast semanal con devocionales que brindan refrigerio espiritual en la vida diaria, y organizamos regularmente reuniones, reuniones de oración y seminarios edificantes.',
+    'about-narrative-p2': 'A través de la tienda web His Kingdom Designs, deseamos ofrecer recordatorios hermosos, modernos y tangibles de la palabra de Dios que pueda llevar consigo o decorar su hogar. Cada producto está creado para iniciar buenas conversaciones y recordarnos el infinito amor y las promesas de Dios.',
+    'about-values-title': 'Nuestro Ministerio',
+    'about-value-title-1': 'Oración e Intercesión',
+    'about-value-desc-1': 'Nos apasiona la intercesión y el ministerio profético. Deseamos ver a las personas ser liberadas y experimentar el poder sanador de Dios.',
+    'about-value-title-2': 'Equipamiento y Doctrina',
+    'about-value-desc-2': 'A través de seminarios, devocionales y nuestro podcast, deseamos proporcionar una enseñanza bíblica sana que fortalezca su caminar personal con Dios.',
+    'about-value-title-3': 'Difusión Creativa',
+    'about-value-desc-3': 'Al unir un diseño estéticamente hermoso con el mensaje de fe, creamos camisetas, pósteres y accesorios modernos que llevan la palabra de Dios a la vida cotidiana.',
+    'about-faq-banner-title': '¿Tiene preguntas sobre nosotros o nuestros productos?',
+    'about-faq-banner-desc': 'Hemos recopilado respuestas a las preguntas más comunes sobre envíos, materiales y nuestros paquetes de suscripción.',
+
+    // FAQ Page
+    'faq.metaTitle': 'Preguntas Frecuentes (FAQ)',
+    'faq.metaDesc': 'Encuentre respuestas a preguntas frecuentes sobre envíos, plazos de entrega, pagos, tallas y devoluciones en His Kingdom Designs.',
+    'faq.placeholder': 'Buscar preguntas y respuestas...',
+    'faq.noMatches': 'Ninguna pregunta o respuesta coincidió con su búsqueda. Intente con otra palabra clave.',
+    'faq.exploreProducts': 'Ver todos los productos',
+    'faq.supportTextBefore': 'No dude en enviarnos un correo electrónico directamente a ',
+    'faq.supportTextAfter': '. ¡Por lo general, respondemos dentro de un día hábil!',
+
+    // Shipping & Returns Page
+    'shipping.metaTitle': 'Envío y Devoluciones',
+    'shipping.metaDesc': 'Obtenga toda la información sobre los plazos de entrega, los precios de envío (envío gratuito a partir de 1500 kr) y nuestro sencillo proceso de devolución en His Kingdom Designs.',
+    'shipping.continueShopping': 'Seguir comprando',
+
+    // Privacy Page
+    'privacy.metaTitle': 'Política de privacidad',
+    'privacy.metaDesc': 'Lea la política de privacidad de His Kingdom Designs. Nos tomamos en serio su privacidad y aseguramos sus datos personales.',
+    'privacy.supportTextBefore': 'Para preguntas sobre su privacidad o solicitudes de acceso a datos, contáctenos en ',
+    'privacy.supportTextAfter': '.',
+
+    // Terms & Conditions Page
+    'terms.metaTitle': 'Términos y condiciones',
+    'terms.metaDesc': 'Lea los términos y condiciones de His Kingdom Designs. Aquí encontrará información sobre devoluciones, envíos, pagos y reclamaciones.',
+    'terms.supportTextBefore': 'Para devoluciones, errores o preguntas sobre pedidos, contáctenos en ',
+    'terms.supportTextAfter': '.',
+
+    // Team Page
+    'team.metaTitle': 'Nuestro equipo',
+    'team.metaDesc': 'Conozca al equipo detrás de His Kingdom Designs y His Kingdom Ministry. Nos apasiona difundir la palabra y el amor de Dios.',
+    'team.addressLabel': 'Dirección: ',
+    'team.emailLabel': 'Correo electrónico: '
   }
 };
