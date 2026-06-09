@@ -112,6 +112,49 @@ export default function Shipping() {
               />
             </div>
           </div>
+
+          <div className="border-t border-slate-100 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 pb-2">
+            <div className="space-y-3">
+              <CmsText
+                slug="shipping-europe-title"
+                fallback="Fraktpriser til Europa"
+                as="h3"
+                className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
+              />
+              <div className="grid grid-cols-2 gap-2 text-sm text-secondary">
+                <span className="border-b border-slate-50 pb-1">0 - 0.25 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(79)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">0.25 - 1.5 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(129)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">1.5 - 3.0 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(199)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">3.0 - 5.0 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(249)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <CmsText
+                slug="shipping-usa-title"
+                fallback="Fraktpriser til USA"
+                as="h3"
+                className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
+              />
+              <div className="grid grid-cols-2 gap-2 text-sm text-secondary">
+                <span className="border-b border-slate-50 pb-1">0 - 0.41 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(99)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">0.41 - 2.5 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(149)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">2.5 - 5.0 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(249)}</span>
+              </div>
+            </div>
+          </div>
           
           <div className="bg-parchment p-4 rounded-xl border border-outline-variant/30 flex gap-3 text-secondary text-sm">
             <AlertCircle size={18} className="text-terracotta shrink-0 mt-0.5" />

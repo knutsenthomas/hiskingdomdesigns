@@ -1233,12 +1233,21 @@ export const AppProvider = ({ children }) => {
       } 
       else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
         reply = '### 🚚 Frakt og Levering\n\n' +
-          '- Frakten beregnes ut fra vekt i kassen:\n' +
-          '  - Opptil 0.07 kg: **39 kr**\n' +
-          '  - 0.07 - 0.35 kg: **69 kr**\n' +
-          '  - 0.35 - 1.75 kg: **99 kr**\n' +
-          '  - 1.75 - 4.0 kg: **149 kr**\n' +
-          '  - Over 4.0 kg: **199 kr**\n' +
+          '**Frakt i Norge (vektbasert):**\n' +
+          '- Opptil 0.07 kg: **39 kr**\n' +
+          '- 0.07 - 0.35 kg: **69 kr**\n' +
+          '- 0.35 - 1.75 kg: **99 kr**\n' +
+          '- 1.75 - 4.0 kg: **149 kr**\n' +
+          '- Over 4.0 kg: **199 kr**\n\n' +
+          '**Frakt til Europa (vektbasert):**\n' +
+          '- Opptil 0.25 kg: **79 kr**\n' +
+          '- 0.25 - 1.5 kg: **129 kr**\n' +
+          '- 1.5 - 3.0 kg: **199 kr**\n' +
+          '- 3.0 - 5.0 kg: **249 kr**\n\n' +
+          '**Frakt til USA (vektbasert):**\n' +
+          '- Opptil 0.41 kg: **99 kr**\n' +
+          '- 0.41 - 2.5 kg: **149 kr**\n' +
+          '- 2.5 - 5.0 kg: **249 kr**\n\n' +
           '- Våre produkter produseres på bestilling. Klargjøring og produksjonstid er normalt **1-2 uker**.\n' +
           '- Total leveringstid er vanligvis **ca. 2 uker**.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';
