@@ -368,8 +368,21 @@ export const CartProvider = ({ children }) => {
             };
           }
         } else {
+          // If manageVariants is false, Wix requires the options choice descriptions (e.g. 'lilla'), not the hex values for colors!
+          const apiOptions = { ...selectedOptions };
+          if (item.productOptions) {
+            item.productOptions.forEach(opt => {
+              const currentValue = apiOptions[opt.name];
+              if (currentValue) {
+                const choice = opt.choices?.find(c => c.value === currentValue);
+                if (choice && choice.description && choice.value !== choice.description) {
+                  apiOptions[opt.name] = choice.description;
+                }
+              }
+            });
+          }
           catalogReference.options = {
-            options: selectedOptions
+            options: apiOptions
           };
         }
       }
