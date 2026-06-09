@@ -423,11 +423,23 @@ export default function Category() {
           <>
             {/* Desktop Sidebar */}
             <aside 
-              ref={sidebarRef}
-              className={`hidden lg:block w-64 flex-shrink-0 sticky transition-all duration-300 ${
-                isSidebarTaller ? 'bottom-8' : 'top-28'
-              }`}
+              className="hidden lg:block w-64 flex-shrink-0 sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto pr-2 filter-sidebar"
             >
+              <style>{`
+                .filter-sidebar::-webkit-scrollbar {
+                  width: 4px;
+                }
+                .filter-sidebar::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                .filter-sidebar::-webkit-scrollbar-thumb {
+                  background: rgba(27, 73, 101, 0.2);
+                  border-radius: 4px;
+                }
+                .filter-sidebar::-webkit-scrollbar-thumb:hover {
+                  background: rgba(27, 73, 101, 0.4);
+                }
+              `}</style>
               {filterSidebar}
             </aside>
 
