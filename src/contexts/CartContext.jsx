@@ -301,11 +301,11 @@ export const CartProvider = ({ children }) => {
         // Fallback: If selectedOptions is empty, build it from selectedSize & selectedColor
         if (Object.keys(selectedOptions).length === 0) {
           const sizeOpt = item.productOptions.find(o => {
-            const name = o.name?.trim().toLowerCase();
+            const name = (o.name || '').trim().toLowerCase();
             return name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.';
           });
           const colorOpt = item.productOptions.find(o => {
-            const name = o.name?.trim().toLowerCase();
+            const name = (o.name || '').trim().toLowerCase();
             return name === 'color' || name === 'farge';
           });
 

@@ -74,9 +74,11 @@ export default function CartDrawer() {
     setCheckoutError('');
 
     try {
-      // 1. Create the checkout from local cart items explicitly (standalone checkout)
-      let checkoutResult = await wixClient.checkout.createCheckout({
-        lineItems: mapCartItemsToWixLineItems(cartItems),
+      // 1. Force sync the local cart with Wix to guarantee they are identical
+      await forceSyncCartWithWix(cartItems);
+
+      // 2. Create the checkout from the synchronized current cart
+      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
         channelType: 'WEB'
       });
 
@@ -129,7 +131,11 @@ export default function CartDrawer() {
       }
     } catch (err) {
       console.error('CartDrawer Checkout error:', err);
-      console.error('Wix Checkout Error Details:', JSON.stringify(err.details || err));
+      try {
+        console.error('Wix Checkout Error Details:', JSON.stringify(err.details || err));
+      } catch (jsonErr) {
+        console.error('Wix Checkout Error Details (raw):', err.details || err);
+      }
       setCheckoutError('Kunne ikke opprette betaling. Vennligst gå til handlekurven.');
       setIsRedirecting(false);
     }
