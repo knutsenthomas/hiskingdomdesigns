@@ -159,7 +159,7 @@ export default function Betingelser() {
       </div>
       
       <div className="text-center text-xs text-secondary/60 mt-8">
-        Sist oppdatert: <CmsText slug="terms-updated" fallback="7. juni 2026" as="span" />
+        {t('general.lastUpdated')}: <CmsText slug="terms-updated" fallback="7. juni 2026" as="span" />
       </div>
     </motion.main>
   );

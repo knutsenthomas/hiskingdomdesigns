@@ -448,6 +448,7 @@ export const translations = {
     'terms-section-title-6': '6. Reklamasjon og mangler',
     'terms-section-desc-6': 'Dersom varen har en mangel eller det har oppstått en feil under transport, må du ta kontakt med oss så snart som mulig (innen rimelig tid) slik at vi kan ordne erstatning eller refusjon i henhold til forbrukerkjøpsloven.',
     'terms-support-email': 'post@hiskingdomministry.no',
+    'general.lastUpdated': 'Sist oppdatert',
     'terms-updated': '7. juni 2026',
 
     // Team page CMS keys
@@ -1152,6 +1153,7 @@ export const translations = {
     'terms-section-title-6': '6. Complaints and defects',
     'terms-section-desc-6': 'If the item has a defect or an error has occurred during transport, you must contact us as soon as possible (within a reasonable time) so that we can arrange a replacement or refund in accordance with the Consumer Purchase Act.',
     'terms-support-email': 'post@hiskingdomministry.no',
+    'general.lastUpdated': 'Last updated',
     'terms-updated': 'June 7, 2026',
 
     // Team page CMS keys
@@ -1856,6 +1858,7 @@ export const translations = {
     'terms-section-title-6': '6. Reclamaciones y defectos',
     'terms-section-desc-6': 'Si el artículo tiene un defecto o se ha producido un error durante el transporte, debe ponerse en contacto con nosotros lo antes posible (dentro de un plazo razonable) para que podamos organizar un reemplazo o reembolso de acuerdo con la Ley de Compra del Consumidor.',
     'terms-support-email': 'post@hiskingdomministry.no',
+    'general.lastUpdated': 'Última actualización',
     'terms-updated': '7 de junio de 2026',
 
     // Team page CMS keys

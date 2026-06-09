@@ -151,7 +151,7 @@ export default function Privacy() {
       </div>
       
       <div className="text-center text-xs text-secondary/60 mt-8">
-        Sist oppdatert: <CmsText slug="privacy-updated" fallback="6. juni 2026" as="span" />
+        {t('general.lastUpdated')}: <CmsText slug="privacy-updated" fallback="6. juni 2026" as="span" />
       </div>
     </motion.main>
   );
