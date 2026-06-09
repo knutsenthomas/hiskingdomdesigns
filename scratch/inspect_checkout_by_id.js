@@ -11,13 +11,17 @@ const wixClient = createClient({
 });
 
 async function main() {
-  const checkoutId = 'ca727402-4791-4549-90e5-9cf3226e9c23';
-  console.log('Fetching checkout:', checkoutId);
+  const checkoutId = 'ca727402-c56e-4b51-8973-c31e3956e548';
+  console.log(`Fetching checkout details for ID: ${checkoutId}...`);
   try {
     const res = await wixClient.checkout.getCheckout(checkoutId);
-    console.log('Checkout response:', JSON.stringify(res, null, 2));
+    console.log('Checkout retrieved:');
+    console.log(JSON.stringify(res, null, 2));
   } catch (err) {
     console.error('Failed to get checkout:', err.message);
+    if (err.details) {
+      console.error('Details:', JSON.stringify(err.details, null, 2));
+    }
   }
 }
 
