@@ -161,6 +161,22 @@ export default function Home() {
   // Loading state for plan checkout redirect
   const [subscribingId, setSubscribingId] = useState(null);
 
+  // Hero Carousel Images & State
+  const HERO_IMAGES = [
+    '/hero_fashion.png',
+    'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png',
+    'https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png'
+  ];
+
+  const [heroSlide, setHeroSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     async function fetchPlans() {
       try {
@@ -361,15 +377,30 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
-            alt="Hero faith fashion" 
-            className="w-full h-full object-cover" 
-            src="/hero_fashion.png"
-          />
-          <div className="absolute inset-0 bg-onyx/20"></div>
+          {HERO_IMAGES.map((img, idx) => (
+            <motion.div
+              key={img}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: heroSlide === idx ? 1 : 0 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <img 
+                alt={`Hero faith slide ${idx + 1}`} 
+                className="w-full h-full object-cover" 
+                src={img}
+              />
+            </motion.div>
+          ))}
+          {/* Cinema gradient overlay for extreme readability and visual depth */}
+          <div className="absolute inset-0 bg-gradient-to-r from-onyx/85 via-onyx/40 to-transparent"></div>
         </div>
         <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <div className="max-w-2xl text-white">
+            <div className="inline-flex items-center gap-2 bg-terracotta/25 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none">
+              <span>✨</span>
+              <span>Oppdag våre nye månedspakker!</span>
+            </div>
             <CmsText 
               slug="home-hero-title" 
               fallback="Bær troen med stolthet" 
@@ -385,9 +416,10 @@ export default function Home() {
             <div className="flex flex-wrap gap-4">
               <button 
                 onClick={() => navigate('/products')}
-                className="bg-terracotta hover:bg-primary-container text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer"
+                className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
               >
-                Se kolleksjonen
+                <span>Se kolleksjonen</span>
+                <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
               </button>
               <a 
                 href="#historie"
@@ -397,6 +429,20 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-8 left-8 sm:left-12 md:left-margin-desktop z-20 flex gap-2">
+          {HERO_IMAGES.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setHeroSlide(idx)}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                heroSlide === idx ? 'w-8 bg-terracotta' : 'w-2 bg-white/50 hover:bg-white'
+              }`}
+              title={`Gå til lysbilde ${idx + 1}`}
+            />
+          ))}
         </div>
       </section>
 
