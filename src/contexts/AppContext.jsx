@@ -1240,7 +1240,7 @@ export const AppProvider = ({ children }) => {
           '  - 1.75 - 4.0 kg: **149 kr**\n' +
           '  - Over 4.0 kg: **199 kr**\n' +
           '- Vi pakker og sender varer lynraskt – som regel **innen 24 timer** fra vårt lager i Lyngdal.\n' +
-          '- Leveringstid er normalt **2-4 virkedager** med Posten/Bring.\n\n' +
+          '- Leveringstid er normalt **2-4 virkedager**.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';
       } 
       else if (lower.includes('størrelse') || lower.includes('size') || lower.includes('passform')) {
@@ -1308,7 +1308,7 @@ export const AppProvider = ({ children }) => {
 
           // If they also asked about shipping/return, append a helpful tip
           if (lower.includes('frakt') || lower.includes('levering') || lower.includes('porto')) {
-            reply += '\n\n**PS:** Frakten beregnes ut fra vekt (fra 39 kr) med Bring/Posten.';
+            reply += '\n\n**PS:** Frakten beregnes ut fra vekt (fra 39 kr).';
           } else if (lower.includes('retur') || lower.includes('bytte')) {
             reply += '\n\n**PS:** Vi tilbyr **14 dagers angrerett** og enkel retur/bytte.';
           }
