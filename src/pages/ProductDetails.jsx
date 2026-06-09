@@ -1066,11 +1066,11 @@ export default function ProductDetails() {
 
             <div className="flex items-center gap-3">
               <span className="font-headline-md text-headline-md text-terracotta font-extrabold text-2xl">
-                {product.price} kr
+                {Math.round(product.price)} kr
               </span>
               {product.originalPrice && (
                 <span className="font-body-md text-body-md text-onyx/40 line-through">
-                  {product.originalPrice} kr
+                  {Math.round(product.originalPrice)} kr
                 </span>
               )}
             </div>

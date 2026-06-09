@@ -93,7 +93,7 @@ export default function ProductCard({ product }) {
       </Link>
 
       {/* Info */}
-      <div className="p-6 flex flex-col flex-grow justify-between">
+      <div className="p-4 sm:p-6 flex flex-col flex-grow justify-between">
         <div>
           <p className="font-label-sm text-label-sm text-terracotta mb-1 uppercase tracking-widest">
             {product.category} {product.gender && `• ${product.gender}`}
@@ -107,11 +107,11 @@ export default function ProductCard({ product }) {
 
         <div className="flex items-baseline flex-wrap gap-x-2 gap-y-0.5 mt-2">
           <span className="text-base sm:text-[18px] font-extrabold text-terracotta whitespace-nowrap">
-            {product.price} kr
+            {Math.round(product.price)} kr
           </span>
           {product.originalPrice && (
             <span className="text-[13px] sm:text-sm text-onyx/40 line-through font-normal whitespace-nowrap">
-              {product.originalPrice} kr
+              {Math.round(product.originalPrice)} kr
             </span>
           )}
         </div>
