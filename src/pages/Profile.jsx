@@ -1088,7 +1088,7 @@ export default function Profile() {
         <div className="flex-grow w-full min-w-0 space-y-8">
           
           {/* Tab selector */}
-          <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1">
+          <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1 no-scrollbar">
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
