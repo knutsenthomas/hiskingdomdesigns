@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useApp();
-  const { t, translateProduct } = useLanguage();
+  const { t, translateProduct, formatPrice } = useLanguage();
   const [added, setAdded] = useState(false);
   const isWishlisted = isInWishlist(product.id);
 
@@ -111,11 +111,11 @@ export default function ProductCard({ product }) {
 
         <div className="flex items-baseline flex-wrap gap-x-2 gap-y-0.5 mt-2">
           <span className="text-base sm:text-[18px] font-extrabold text-terracotta whitespace-nowrap">
-            {Math.round(translatedProduct.price)} kr
+            {formatPrice(translatedProduct.price)}
           </span>
           {translatedProduct.originalPrice && (
             <span className="text-[13px] sm:text-sm text-onyx/40 line-through font-normal whitespace-nowrap">
-              {Math.round(translatedProduct.originalPrice)} kr
+              {formatPrice(translatedProduct.originalPrice)}
             </span>
           )}
         </div>

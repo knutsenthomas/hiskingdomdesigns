@@ -34,6 +34,14 @@ export const LanguageProvider = ({ children }) => {
     return 'no'; // Default to Norwegian if nothing else matches
   });
 
+  const [detectedCountry, setDetectedCountry] = useState('NO');
+  const [rates, setRates] = useState({
+    NOK: 1,
+    USD: 0.1056,
+    EUR: 0.0916,
+    GBP: 0.0792
+  });
+
   const setLanguage = (newLang) => {
     if (['no', 'en', 'es'].includes(newLang)) {
       setLanguageState(newLang);
@@ -45,23 +53,25 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
-  // 2. Perform background geolocation check if no manual language is saved
+  // 2. Perform background geolocation check
   useEffect(() => {
     let active = true;
     const hasSavedLang = localStorage.getItem('hkd-language');
 
-    if (!hasSavedLang) {
-      console.log('No manual language saved. Detecting location via IP...');
-      fetch('https://ipapi.co/json/')
-        .then(res => {
-          if (!res.ok) throw new Error('Network response was not ok');
-          return res.json();
-        })
-        .then(data => {
-          if (!active) return;
-          const country = data.country_code || data.country; // e.g. "NO", "ES", "GB", "US"
-          if (country) {
-            console.log('Detected user country via IP:', country);
+    console.log('Detecting location via IP for currency/language...');
+    fetch('https://ipapi.co/json/')
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then(data => {
+        if (!active) return;
+        const country = data.country_code || data.country; // e.g. "NO", "ES", "GB", "US"
+        if (country) {
+          console.log('Detected user country:', country);
+          setDetectedCountry(country);
+          
+          if (!hasSavedLang) {
             if (country === 'ES') {
               console.log('Spanish location detected. Setting language to Spanish (es).');
               setLanguageState('es');
@@ -73,16 +83,89 @@ export const LanguageProvider = ({ children }) => {
               setLanguageState('en');
             }
           }
-        })
-        .catch(err => {
-          console.warn('Geolocation check failed, keeping browser locale fallback:', err);
-        });
-    }
+        }
+      })
+      .catch(err => {
+        console.warn('Geolocation check failed, keeping browser locale fallback:', err);
+      });
 
     return () => {
       active = false;
     };
   }, []);
+
+  // 3. Fetch real-time exchange rates
+  useEffect(() => {
+    console.log('Syncing live exchange rates from public API...');
+    fetch('https://open.er-api.com/v6/latest/NOK')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch exchange rates');
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.rates) {
+          setRates({
+            NOK: 1,
+            USD: data.rates.USD || 0.1056,
+            EUR: data.rates.EUR || 0.0916,
+            GBP: data.rates.GBP || 0.0792
+          });
+          console.log('Successfully updated exchange rates relative to NOK:', data.rates.USD, data.rates.EUR, data.rates.GBP);
+        }
+      })
+      .catch(err => {
+        console.warn('Could not fetch live exchange rates, using defaults:', err);
+      });
+  }, []);
+
+  // Determine active display currency
+  const getActiveCurrency = () => {
+    if (language === 'no') return 'NOK';
+    if (language === 'es') return 'EUR';
+    if (language === 'en') {
+      if (detectedCountry === 'GB') return 'GBP';
+      const euroZone = [
+        'AT', 'BE', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT',
+        'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES',
+        'AD', 'MC', 'SM', 'VA', 'ME', 'XK'
+      ];
+      if (euroZone.includes(detectedCountry)) return 'EUR';
+      return 'USD';
+    }
+    return 'NOK';
+  };
+
+  // Convert and format NOK price to active currency
+  const formatPrice = (priceInNok) => {
+    const amount = parseFloat(priceInNok);
+    if (isNaN(amount)) return '';
+
+    const currency = getActiveCurrency();
+    const rate = rates[currency] || 1;
+    const converted = amount * rate;
+
+    if (currency === 'NOK') {
+      return `${Math.round(converted)} kr`;
+    }
+
+    const formatterMap = {
+      USD: { locale: 'en-US', symbol: '$' },
+      EUR: { locale: 'es-ES', symbol: '€' },
+      GBP: { locale: 'en-GB', symbol: '£' }
+    };
+
+    const config = formatterMap[currency] || { locale: 'en-US', symbol: '$' };
+    try {
+      return new Intl.NumberFormat(config.locale, {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(converted);
+    } catch (e) {
+      return `${config.symbol}${converted.toFixed(2)}`;
+    }
+  };
 
   // Simple static text translation function
   const t = (key, params = {}) => {
@@ -107,7 +190,9 @@ export const LanguageProvider = ({ children }) => {
       language,
       setLanguage,
       t,
-      translateProduct
+      translateProduct,
+      formatPrice,
+      getActiveCurrency
     }}>
       {children}
     </LanguageContext.Provider>

@@ -38,7 +38,7 @@ const getProfileImageUrl = (member) => {
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products } = useApp();
   const { cartCount, setIsCartDrawerOpen, isCartDrawerOpen } = useCart();
-  const { language, setLanguage, t, translateProduct } = useLanguage();
+  const { language, setLanguage, t, translateProduct, formatPrice } = useLanguage();
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -603,11 +603,11 @@ export default function Header() {
                             </div>
                             <div className="text-right flex-shrink-0">
                               <span className="font-bold text-sm text-terracotta">
-                                {p.price} kr
+                                {formatPrice(p.price)}
                               </span>
                               {p.originalPrice && (
                                 <p className="text-[10px] text-onyx/40 line-through">
-                                  {p.originalPrice} kr
+                                  {formatPrice(p.originalPrice)}
                                 </p>
                               )}
                             </div>

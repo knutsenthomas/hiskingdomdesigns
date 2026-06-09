@@ -8,7 +8,7 @@ import { wixClient } from '@/lib/wix';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CartDrawer() {
-  const { t, translateProduct } = useLanguage();
+  const { t, translateProduct, formatPrice, getActiveCurrency } = useLanguage();
   const { 
     cartItems, 
     isCartDrawerOpen, 
@@ -179,7 +179,7 @@ export default function CartDrawer() {
               <div className="px-6 py-4 bg-terracotta/5 border-b border-terracotta/10 text-xs text-onyx">
                 {amountToFreeShipping > 0 ? (
                   <p className="mb-2 font-medium">
-                    {t('cart.progressToFreeShipping', { amount: amountToFreeShipping })}
+                    {t('cart.progressToFreeShipping', { amount: formatPrice(amountToFreeShipping) })}
                   </p>
                 ) : (
                   <p className="mb-2 font-medium text-emerald-800 flex items-center gap-1">
@@ -315,7 +315,7 @@ export default function CartDrawer() {
 
                         {/* Price */}
                         <div className="text-right shrink-0">
-                          <span className="font-semibold text-sm text-terracotta">{item.price * item.quantity} kr</span>
+                          <span className="font-semibold text-sm text-terracotta">{formatPrice(item.price * item.quantity)}</span>
                         </div>
                       </div>
                     </div>
@@ -330,11 +330,17 @@ export default function CartDrawer() {
               <div className="border-t border-outline-variant/30 p-6 bg-parchment/10 space-y-4 shrink-0">
                 <div className="flex items-center justify-between text-onyx">
                   <span className="text-sm font-semibold">{t('cart.subtotal')}</span>
-                  <span className="font-headline-md text-headline-md text-onyx font-extrabold">{subtotal} kr</span>
+                  <span className="font-headline-md text-headline-md text-onyx font-extrabold">{formatPrice(subtotal)}</span>
                 </div>
                 <p className="text-[11px] text-secondary">
                   {t('cart.drawerShippingNotice')}
                 </p>
+
+                {getActiveCurrency() !== 'NOK' && (
+                  <p className="text-[10px] text-amber-700 font-medium leading-relaxed bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/40">
+                    {t('cart.checkoutDisclaimer')}
+                  </p>
+                )}
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   {/* Se handlekurv */}

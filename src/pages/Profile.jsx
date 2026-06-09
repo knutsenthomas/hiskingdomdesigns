@@ -95,7 +95,7 @@ const getProfileImageUrl = (member) => {
 let isExchangingTokens = false;
 
 export default function Profile() {
-  const { language, t } = useLanguage();
+  const { language, t, formatPrice } = useLanguage();
   useMeta(
     t('profile.metaTitle') || "Min konto",
     t('profile.metaDesc') || "Administrer din profil, se dine ordre, administrer adresser, lojalitetspoeng og verv venner hos His Kingdom Designs."
@@ -1188,7 +1188,7 @@ export default function Profile() {
                           <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
                             <div>
                               <span className="text-xs text-secondary block">{t('profile.total')}</span>
-                              <span className="font-label-md text-onyx font-bold">{totalStr} kr</span>
+                              <span className="font-label-md text-onyx font-bold">{formatPrice(totalStr)}</span>
                             </div>
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                               <span className="bg-green-100 text-green-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider text-center">
@@ -1270,7 +1270,7 @@ export default function Profile() {
                           <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
                             <div>
                               <span className="text-xs text-secondary block">{t('profile.monthlyPrice')}</span>
-                              <span className="font-label-md text-terracotta font-bold">{subPrice} kr/{t('home.subscription.month')}</span>
+                              <span className="font-label-md text-terracotta font-bold">{formatPrice(subPrice)}/{t('home.subscription.month')}</span>
                             </div>
                             <span className="bg-emerald-100 text-emerald-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                               {translateStatus(sub.status)}
@@ -1306,7 +1306,7 @@ export default function Profile() {
                           <h4 className="font-headline-md text-onyx font-bold text-sm line-clamp-1">
                             <Link to={`/product/${item.id}`} className="hover:text-terracotta transition-colors">{item.name}</Link>
                           </h4>
-                          <span className="font-label-md text-terracotta font-semibold text-xs mt-1 block">{item.price} kr</span>
+                          <span className="font-label-md text-terracotta font-semibold text-xs mt-1 block">{formatPrice(item.price)}</span>
                         </div>
                         <div className="flex gap-3 mt-2">
                           <button
@@ -1823,7 +1823,7 @@ export default function Profile() {
                       </div>
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
                         <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.bonusPaid')}</span>
-                        <span className="text-2xl font-extrabold text-green-600">325 kr</span>
+                        <span className="text-2xl font-extrabold text-green-600">{formatPrice(325)}</span>
                       </div>
                     </div>
 
@@ -1848,7 +1848,7 @@ export default function Profile() {
                                 <td className="p-3">
                                   <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.paid')}</span>
                                 </td>
-                                <td className="p-3 text-right text-green-600 font-bold">120 kr</td>
+                                <td className="p-3 text-right text-green-600 font-bold">{formatPrice(120)}</td>
                               </tr>
                               <tr>
                                 <td className="p-3">#HKD-4985</td>
@@ -1856,7 +1856,7 @@ export default function Profile() {
                                 <td className="p-3">
                                   <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.paid')}</span>
                                 </td>
-                                <td className="p-3 text-right text-green-600 font-bold">85 kr</td>
+                                <td className="p-3 text-right text-green-600 font-bold">{formatPrice(85)}</td>
                               </tr>
                               <tr>
                                 <td className="p-3">#HKD-5044</td>
@@ -1864,7 +1864,7 @@ export default function Profile() {
                                 <td className="p-3">
                                   <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.pending')}</span>
                                 </td>
-                                <td className="p-3 text-right text-amber-600 font-bold">120 kr</td>
+                                <td className="p-3 text-right text-amber-600 font-bold">{formatPrice(120)}</td>
                               </tr>
                             </tbody>
                           </table>

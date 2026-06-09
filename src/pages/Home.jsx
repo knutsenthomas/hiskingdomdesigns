@@ -139,7 +139,7 @@ const CATEGORY_SETS = [
 ];
 
 export default function Home() {
-  const { t, translateProduct, language } = useLanguage();
+  const { t, translateProduct, language, formatPrice } = useLanguage();
 
   useMeta(
     t('home.metaTitle'),
@@ -843,7 +843,7 @@ export default function Home() {
                       </p>
                       <div className="flex items-baseline gap-0.5 mb-4">
                         <span className="text-lg font-black text-terracotta">
-                          {priceVal} {currencyVal}
+                          {formatPrice(priceVal)}
                         </span>
                         <span className="text-secondary text-[10px]">
                           /{isRecurring ? t('home.subscription.month') : t('home.subscription.oneTime')}

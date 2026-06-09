@@ -306,7 +306,7 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
 }
 
 export default function ProductDetails() {
-  const { t, translateProduct, language } = useLanguage();
+  const { t, translateProduct, language, formatPrice } = useLanguage();
   const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
@@ -1072,11 +1072,11 @@ export default function ProductDetails() {
 
             <div className="flex items-center gap-3">
               <span className="font-headline-md text-headline-md text-terracotta font-extrabold text-2xl">
-                {Math.round(product.price)} kr
+                {formatPrice(product.price)}
               </span>
               {product.originalPrice && (
                 <span className="font-body-md text-body-md text-onyx/40 line-through">
-                  {Math.round(product.originalPrice)} kr
+                  {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>

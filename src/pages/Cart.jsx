@@ -8,7 +8,7 @@ import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Cart() {
-  const { t, translateProduct } = useLanguage();
+  const { t, translateProduct, formatPrice, getActiveCurrency } = useLanguage();
 
   useMeta(
     t('cart.metaTitle'),
@@ -349,7 +349,7 @@ export default function Cart() {
                   type="submit" 
                   className="flex-grow bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md text-center"
                 >
-                  {t('cart.completeOrder', { total })}
+                  {t('cart.completeOrder', { total: formatPrice(total) })}
                 </button>
               </div>
             </form>
@@ -436,7 +436,7 @@ export default function Cart() {
                       {/* Pricing */}
                       <div className="text-right min-w-[100px] flex-shrink-0">
                         <span className="font-headline-md text-headline-md text-terracotta text-lg font-bold">
-                          {item.price * item.quantity} kr
+                          {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
                     </div>
@@ -467,7 +467,7 @@ export default function Cart() {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between font-body-md text-secondary">
                 <span>{t('cart.subtotal')}</span>
-                <span className="font-bold text-onyx">{subtotal} kr</span>
+                <span className="font-bold text-onyx">{formatPrice(subtotal)}</span>
               </div>
               {appliedCoupon && (
                 <div className="flex justify-between font-body-md text-emerald-600">
@@ -481,7 +481,7 @@ export default function Cart() {
                       ({t('cart.remove')})
                     </button>
                   </span>
-                  <span className="font-bold">-{appliedCoupon.discount} kr</span>
+                  <span className="font-bold">-{formatPrice(appliedCoupon.discount)}</span>
                 </div>
               )}
               {appliedGiftCard && (
@@ -496,13 +496,13 @@ export default function Cart() {
                       ({t('cart.remove')})
                     </button>
                   </span>
-                  <span className="font-bold">-{appliedGiftCard.amount} kr</span>
+                  <span className="font-bold">-{formatPrice(appliedGiftCard.amount)}</span>
                 </div>
               )}
               <div className="flex justify-between font-body-md text-secondary">
                 <span>{t('cart.shipping')}</span>
                 <span className="font-bold text-onyx">
-                  {shipping === 0 ? t('cart.free') : `${shipping} kr`}
+                  {shipping === 0 ? t('cart.free') : formatPrice(shipping)}
                 </span>
               </div>
               
@@ -510,7 +510,7 @@ export default function Cart() {
               
               <div className="flex justify-between font-headline-md text-headline-md text-onyx text-xl">
                 <span>{t('cart.total')}</span>
-                <span className="text-terracotta font-extrabold">{total} kr</span>
+                <span className="text-terracotta font-extrabold">{formatPrice(total)}</span>
               </div>
             </div>
 
@@ -718,7 +718,7 @@ export default function Cart() {
                                   )}
                                 </div>
                                 <span className="font-bold text-terracotta text-sm">
-                                  {rate.cost === 0 ? t('cart.free') : `${rate.cost} kr`}
+                                  {rate.cost === 0 ? t('cart.free') : formatPrice(rate.cost)}
                                 </span>
                               </div>
                             );
@@ -738,25 +738,32 @@ export default function Cart() {
             )}
 
             {checkoutStep !== 'billing' && (
-              <button 
-                onClick={handleCheckout}
-                disabled={isRedirecting}
-                className={`w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 ${
-                  isRedirecting ? 'opacity-75 cursor-not-allowed' : ''
-                }`}
-              >
-                {isRedirecting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>{t('cart.creatingCheckout')}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{t('cart.checkout')}</span>
-                    <ArrowRight size={16} />
-                  </>
+              <>
+                {getActiveCurrency() !== 'NOK' && (
+                  <p className="text-[11px] text-amber-700 font-medium leading-relaxed bg-amber-50/60 p-3 rounded-xl border border-amber-200/40 mb-4 text-left">
+                    {t('cart.checkoutDisclaimer')}
+                  </p>
                 )}
-              </button>
+                <button 
+                  onClick={handleCheckout}
+                  disabled={isRedirecting}
+                  className={`w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 ${
+                    isRedirecting ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isRedirecting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{t('cart.creatingCheckout')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{t('cart.checkout')}</span>
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </>
             )}
 
             <div className="space-y-4">
