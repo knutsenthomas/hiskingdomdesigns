@@ -4,7 +4,7 @@ import { db } from '@/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useApp } from '@/contexts/AppContext';
 import useMeta from '@/hooks/useMeta';
-import { ShieldAlert, ShieldCheck, Users, BarChart3, Mail, MapPin, Share2, ClipboardList, Check, X, Search, RefreshCw } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Users, BarChart3, Mail, MapPin, Share2, ClipboardList, Check, X, Search, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Admin() {
@@ -23,6 +23,7 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [expandedId, setExpandedId] = useState(null);
 
   // Helper to safely extract email from Wix member object
   const getMemberEmail = (memberObj) => {
@@ -293,6 +294,7 @@ export default function Admin() {
               onClick={() => {
                 setActiveSubTab('pending');
                 setSearchQuery('');
+                setExpandedId(null);
               }}
               className={`px-4 py-2 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'pending' ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
@@ -304,6 +306,7 @@ export default function Admin() {
               onClick={() => {
                 setActiveSubTab('approved');
                 setSearchQuery('');
+                setExpandedId(null);
               }}
               className={`px-4 py-2 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'approved' ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
@@ -349,94 +352,129 @@ export default function Admin() {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-3">
             <AnimatePresence mode="popLayout">
-              {filteredApplications.map((app) => (
-                <motion.div
-                  key={app.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-slate-50 rounded-2xl border border-outline-variant/20 p-6 space-y-4 hover:border-[#1B4965]/20 hover:shadow-sm transition-all"
-                >
-                  {/* Top details and Action buttons */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-onyx text-base">{app.name}</span>
-                        {app.status === 'approved' && (
-                          <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 border border-emerald-200 shadow-sm">
-                            <Check size={8} strokeWidth={3} />
-                            Godkjent
+              {filteredApplications.map((app) => {
+                const isExpanded = expandedId === app.id;
+                return (
+                  <motion.div
+                    key={app.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-slate-50 rounded-2xl border border-outline-variant/20 p-4 hover:border-[#1B4965]/20 hover:shadow-sm transition-all"
+                  >
+                    {/* Compact row (clickable header) */}
+                    <div 
+                      onClick={() => setExpandedId(isExpanded ? null : app.id)}
+                      className="flex justify-between items-center cursor-pointer select-none"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="space-y-0.5 text-left">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-onyx text-sm md:text-base">{app.name}</span>
+                            {app.status === 'approved' ? (
+                              <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 border border-emerald-200">
+                                <Check size={8} strokeWidth={3} />
+                                Godkjent
+                              </span>
+                            ) : (
+                              <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border border-amber-200">
+                                Søknad
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-secondary flex items-center gap-1.5 text-xs font-medium">
+                            <Mail size={12} className="shrink-0 text-[#1B4965]" />
+                            {app.email}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        {app.appliedAt && (
+                          <span className="text-[10px] text-secondary/60 hidden sm:inline">
+                            {new Date(app.appliedAt).toLocaleDateString('no-NO')}
                           </span>
                         )}
+                        <div className="text-secondary hover:text-[#1B4965] p-1 rounded-lg hover:bg-slate-100/50 transition-colors">
+                          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        </div>
                       </div>
-                      <a href={`mailto:${app.email}`} className="text-secondary hover:text-[#1B4965] transition-colors flex items-center gap-1.5 font-medium text-xs">
-                        <Mail size={12} className="shrink-0" />
-                        {app.email}
-                      </a>
                     </div>
 
-                    <div className="flex gap-2 w-full sm:w-fit shrink-0">
-                      {activeSubTab === 'pending' && (
-                        <button
-                          onClick={() => handleApprove(app.id, app.name)}
-                          className="flex-grow sm:flex-grow-0 bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    {/* Detailed info (expands on click) */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
                         >
-                          <Check size={14} />
-                          <span>Godkjenn</span>
-                        </button>
+                          <div className="pt-4 border-t border-slate-100/60 space-y-4 mt-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-left">
+                              <div className="space-y-1">
+                                <span className="font-bold text-onyx flex items-center gap-1.5 text-xs text-secondary">
+                                  <MapPin size={12} className="text-[#1B4965]" />
+                                  Adresse:
+                                </span>
+                                <p className="text-secondary pl-4.5 font-medium">{app.address}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="font-bold text-onyx flex items-center gap-1.5 text-xs text-secondary">
+                                  <Share2 size={12} className="text-[#1B4965]" />
+                                  Sosiale Medier-kontoer:
+                                </span>
+                                <p className="text-secondary pl-4.5 font-medium">{app.socialMedia}</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-1 text-left">
+                              <span className="font-bold text-onyx flex items-center gap-1.5 text-xs text-secondary">
+                                <ClipboardList size={12} className="text-[#1B4965]" />
+                                Søkers begrunnelse:
+                              </span>
+                              <p className="text-secondary leading-relaxed bg-white p-4 rounded-xl border border-slate-200/50 pl-4 text-xs">
+                                {app.motivation}
+                              </p>
+                            </div>
+
+                            {app.appliedAt && (
+                              <div className="text-[10px] text-secondary/60 text-right">
+                                Søkt: {new Date(app.appliedAt).toLocaleDateString('no-NO')} kl. {new Date(app.appliedAt).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            )}
+
+                            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100/50">
+                              {activeSubTab === 'pending' && (
+                                <button
+                                  onClick={() => handleApprove(app.id, app.name)}
+                                  className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                                >
+                                  <Check size={14} />
+                                  <span>Godkjenn søknad</span>
+                                </button>
+                              )}
+                              
+                              <button
+                                onClick={() => handleReject(app.id, app.name)}
+                                className="bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs px-4 py-2 rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                              >
+                                <X size={14} />
+                                <span>{activeSubTab === 'pending' ? 'Avvis søknad' : 'Fjern affiliate'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
                       )}
-                      
-                      <button
-                        onClick={() => handleReject(app.id, app.name)}
-                        className="flex-grow sm:flex-grow-0 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <X size={14} />
-                        <span>{activeSubTab === 'pending' ? 'Avvis' : 'Fjern affiliate'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Body details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-xs">
-                    <div className="space-y-1">
-                      <span className="font-bold text-onyx flex items-center gap-1.5 text-xs text-secondary">
-                        <MapPin size={12} className="text-[#1B4965]" />
-                        Adresse:
-                      </span>
-                      <p className="text-secondary pl-4.5 font-medium">{app.address}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="font-bold text-onyx flex items-center gap-1.5 text-xs text-secondary">
-                        <Share2 size={12} className="text-[#1B4965]" />
-                        Sosiale Medier-kontoer:
-                      </span>
-                      <p className="text-secondary pl-4.5 font-medium">{app.socialMedia}</p>
-                    </div>
-                  </div>
-
-                  {/* Motivation / Reason */}
-                  <div className="border-t border-slate-100 pt-4 space-y-1">
-                    <span className="font-bold text-onyx flex items-center gap-1.5 text-xs text-secondary">
-                      <ClipboardList size={12} className="text-[#1B4965]" />
-                      Søkers begrunnelse:
-                    </span>
-                    <p className="text-secondary leading-relaxed bg-white p-4 rounded-xl border border-slate-200/50 pl-4">
-                      {app.motivation}
-                    </p>
-                  </div>
-                  
-                  {/* Applied Timestamp */}
-                  {app.appliedAt && (
-                    <div className="text-[10px] text-secondary/60 text-right pt-1">
-                      Søkt: {new Date(app.appliedAt).toLocaleDateString('no-NO')} kl. {new Date(app.appliedAt).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </div>
         )}
