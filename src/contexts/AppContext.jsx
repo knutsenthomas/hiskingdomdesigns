@@ -1248,6 +1248,11 @@ export const AppProvider = ({ children }) => {
           '- Opptil 0.41 kg: **99 kr**\n' +
           '- 0.41 - 2.5 kg: **149 kr**\n' +
           '- 2.5 - 5.0 kg: **249 kr**\n\n' +
+          '**Frakt til resten av verden (vektbasert):**\n' +
+          '- Opptil 0.49 kg: **99 kr**\n' +
+          '- 0.49 - 2.0 kg: **199 kr**\n' +
+          '- 2.0 - 5.0 kg: **299 kr**\n' +
+          '- 5.0 - 10.0 kg: **499 kr**\n\n' +
           '- Våre produkter produseres på bestilling. Klargjøring og produksjonstid er normalt **1-2 uker**.\n' +
           '- Total leveringstid er vanligvis **ca. 2 uker**.\n\n' +
           '💡 Er det noe spesifikt du ønsker å bestille i dag?';

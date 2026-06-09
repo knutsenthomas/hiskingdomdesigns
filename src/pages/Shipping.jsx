@@ -113,7 +113,7 @@ export default function Shipping() {
             </div>
           </div>
 
-          <div className="border-t border-slate-100 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 pb-2">
+          <div className="border-t border-slate-100 pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-2">
             <div className="space-y-3">
               <CmsText
                 slug="shipping-europe-title"
@@ -152,6 +152,28 @@ export default function Shipping() {
                 
                 <span className="border-b border-slate-50 pb-1">2.5 - 5.0 kg:</span>
                 <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(249)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <CmsText
+                slug="shipping-world-title"
+                fallback="Resten av verden"
+                as="h3"
+                className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
+              />
+              <div className="grid grid-cols-2 gap-2 text-sm text-secondary">
+                <span className="border-b border-slate-50 pb-1">0 - 0.49 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(99)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">0.49 - 2.0 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(199)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">2.0 - 5.0 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(299)}</span>
+                
+                <span className="border-b border-slate-50 pb-1">5.0 - 10.0 kg:</span>
+                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(499)}</span>
               </div>
             </div>
           </div>
