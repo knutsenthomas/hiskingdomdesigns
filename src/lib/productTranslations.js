@@ -1,3 +1,5 @@
+import { translations } from './translations';
+
 // Product Translations Dictionary mapping specific products by ID or name keywords
 export const productTranslations = {
   // Exact ID mappings
@@ -239,19 +241,27 @@ export const productTranslations = {
   ]
 };
 
-// Main function to get translated product fields (name and description)
+// Main function to get translated product fields (name, description and category)
 export function getTranslatedProduct(product, language) {
   if (!product) return product;
   const lang = (language || 'no').toLowerCase();
 
+  const dict = translations[lang] || translations['no'];
+  const translatedCategory = product.category 
+    ? (dict[product.category] || dict[`category.${product.category.toLowerCase()}`] || translations['no'][product.category] || product.category)
+    : product.category;
+
+  const makeTranslated = (name, desc) => ({
+    ...product,
+    name: name || product.name,
+    description: desc || product.description,
+    category: translatedCategory
+  });
+
   // 1. Check if we have an exact ID match
   if (productTranslations.ids[product.id] && productTranslations.ids[product.id][lang]) {
     const translation = productTranslations.ids[product.id][lang];
-    return {
-      ...product,
-      name: translation.name || product.name,
-      description: translation.description || product.description
-    };
+    return makeTranslated(translation.name, translation.description);
   }
 
   // 2. Check name keywords fallbacks
@@ -259,22 +269,14 @@ export function getTranslatedProduct(product, language) {
     const match = productTranslations.keywords.find(k => k.pattern.test(product.name));
     if (match && match.translations[lang]) {
       const translation = match.translations[lang];
-      // When translating the name, keep "Nyhet: " prefix if the name is modified in the context of the hero
-      return {
-        ...product,
-        name: translation.name || product.name,
-        description: translation.description || product.description
-      };
+      return makeTranslated(translation.name, translation.description);
     }
   }
 
   // 3. Fallback: If Norwegian, clean name of pipe details for better presentation as default
   if (lang === 'no' && product.name && product.name.includes('|')) {
-    return {
-      ...product,
-      name: product.name.split('|')[0].trim()
-    };
+    return makeTranslated(product.name.split('|')[0].trim(), product.description);
   }
 
-  return product;
+  return makeTranslated(product.name, product.description);
 }

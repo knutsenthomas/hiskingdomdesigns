@@ -14,8 +14,8 @@ export default function Category() {
   const categoryName = getCategoryNameBySlug(categorySlug);
   
   useMeta(
-    categoryName || t('category.metaTitle'),
-    t('category.metaDesc', { category: categoryName || t('category.metaTitle').toLowerCase() })
+    categoryName ? t(categoryName) : t('category.metaTitle'),
+    t('category.metaDesc', { category: (categoryName ? t(categoryName) : t('category.metaTitle')).toLowerCase() })
   );
 
   const sidebarRef = useRef(null);
@@ -238,7 +238,7 @@ export default function Category() {
   }, [filteredProducts, wixCollections, expandedGroups]);
 
   // Set page title for breadcrumb
-  const displayTitle = categoryName === 'Salg' ? t('category.saleCampaign') : (categoryName || t('category.allProducts'));
+  const displayTitle = categoryName === 'Salg' ? t('category.saleCampaign') : (categoryName ? t(categoryName) : t('category.allProducts'));
 
   const filterSidebar = (
     <div className="space-y-8">
