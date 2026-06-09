@@ -11,7 +11,7 @@ const wixClient = createClient({
 });
 
 async function main() {
-  const checkoutId = 'ca727402-c56e-4b51-8973-c31e3956e548';
+  const checkoutId = 'ca727402-e693-448b-a2bf-41ac2d960fd3';
   console.log(`Fetching checkout details for ID: ${checkoutId}...`);
   try {
     const res = await wixClient.checkout.getCheckout(checkoutId);

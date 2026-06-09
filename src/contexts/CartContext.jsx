@@ -349,13 +349,12 @@ export const CartProvider = ({ children }) => {
       clearTimeout(timer);
     };
   }, [serializedCartItems]);
-
   const resolveProductDetails = async (productId) => {
     if (productCache[productId]) {
       return productCache[productId];
     }
     try {
-      const res = await staticWixClient.products.getProduct(productId);
+      const res = await wixClient.products.getProduct(productId);
       if (res && res.product) {
         productCache[productId] = res.product;
         return res.product;
