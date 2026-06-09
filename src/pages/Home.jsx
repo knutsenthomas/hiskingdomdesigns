@@ -240,7 +240,7 @@ export default function Home() {
     }
     try {
       const redirectSession = await wixClient.redirects.createRedirectSession({
-        pricingPlanCheckout: {
+        paidPlansCheckout: {
           planId: plan._id,
         },
         callbacks: {
