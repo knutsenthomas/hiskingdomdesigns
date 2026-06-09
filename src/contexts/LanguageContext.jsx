@@ -159,11 +159,11 @@ export const LanguageProvider = ({ children }) => {
       return new Intl.NumberFormat(config.locale, {
         style: 'currency',
         currency: currency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       }).format(converted);
     } catch (e) {
-      return `${config.symbol}${converted.toFixed(2)}`;
+      return `${config.symbol}${Math.round(converted)}`;
     }
   };
 

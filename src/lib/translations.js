@@ -203,7 +203,7 @@ export const translations = {
     'home.slide2.cta': 'Utforsk butikken',
     'home.slideProduct.cta': 'Se produktet',
     'home.benefits.freeShipping': 'Gratis frakt over {amount}',
-    'home.benefits.fastDelivery': 'Rask levering til hele landet',
+    'home.benefits.fastDelivery': 'Rask levering til hele verden',
     'home.benefits.returnPolicy': '14 dagers angrerett',
     'home.benefits.easyReturn': 'Enkel retur hvis du ombestemmer deg',
     'home.benefits.secureDelivery': 'Trygg levering',
@@ -546,7 +546,7 @@ export const translations = {
 
     // Home Page CMS Benefits Banner Slugs
     'home-benefits-title-1': 'Gratis frakt over {amount}',
-    'home-benefits-desc-1': 'Levering til hele landet',
+    'home-benefits-desc-1': 'Levering til hele verden',
     'home-benefits-title-2': '14 dagers angrerett',
     'home-benefits-desc-2': 'Må returneres i samme stand som du mottok dem',
     'home-benefits-title-3': 'Leveranse',
@@ -902,7 +902,7 @@ export const translations = {
     'home.slide2.cta': 'Explore Shop',
     'home.slideProduct.cta': 'View Product',
     'home.benefits.freeShipping': 'Free shipping over {amount}',
-    'home.benefits.fastDelivery': 'Fast shipping nationwide',
+    'home.benefits.fastDelivery': 'Fast shipping worldwide',
     'home.benefits.returnPolicy': '14-day return policy',
     'home.benefits.easyReturn': 'Easy returns if you change your mind',
     'home.benefits.secureDelivery': 'Secure delivery',
@@ -1245,7 +1245,7 @@ export const translations = {
 
     // Home Page CMS Benefits Banner Slugs
     'home-benefits-title-1': 'Free shipping over {amount}',
-    'home-benefits-desc-1': 'Delivery nationwide',
+    'home-benefits-desc-1': 'Shipping worldwide',
     'home-benefits-title-2': '14-day return policy',
     'home-benefits-desc-2': 'Must be returned in the same condition as received',
     'home-benefits-title-3': 'Delivery',
@@ -1601,7 +1601,7 @@ export const translations = {
     'home.slide2.cta': 'Explorar tienda',
     'home.slideProduct.cta': 'Ver producto',
     'home.benefits.freeShipping': 'Envío gratis en compras superiores a {amount}',
-    'home.benefits.fastDelivery': 'Envío rápido a todo el país',
+    'home.benefits.fastDelivery': 'Envío rápido a todo el mundo',
     'home.benefits.returnPolicy': 'Política de devolución de 14 días',
     'home.benefits.easyReturn': 'Devoluciones fáciles si cambias de opinión',
     'home.benefits.secureDelivery': 'Entrega segura',
@@ -1944,7 +1944,7 @@ export const translations = {
 
     // Home Page CMS Benefits Banner Slugs
     'home-benefits-title-1': 'Envío gratis en compras superiores a {amount}',
-    'home-benefits-desc-1': 'Envío a todo el país',
+    'home-benefits-desc-1': 'Envío a todo el mundo',
     'home-benefits-title-2': 'Política de devolución de 14 días',
     'home-benefits-desc-2': 'Debe ser devuelto en el mismo estado en que se recibió',
     'home-benefits-title-3': 'Entrega',
