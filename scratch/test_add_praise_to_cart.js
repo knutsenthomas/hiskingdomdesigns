@@ -40,7 +40,7 @@ async function main() {
         catalogItemId: tshirtId,
         options: {
           options: {
-            "Farge": "Lilla",
+            "Farge": "#a211e1",
             "Størrelse": "XS"
           }
         }

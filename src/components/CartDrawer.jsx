@@ -81,9 +81,8 @@ export default function CartDrawer() {
         console.warn('Wix Cart sync failed before checkout creation:', syncErr);
       }
 
-      // 2. Create the checkout using standalone API with explicit line items to avoid empty cached checkouts
-      let checkoutResult = await wixClient.checkout.createCheckout({
-        lineItems: await mapCartItemsToWixLineItems(cartItems),
+      // 2. Create the checkout directly from the Wix currentCart
+      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
         channelType: 'WEB'
       });
 

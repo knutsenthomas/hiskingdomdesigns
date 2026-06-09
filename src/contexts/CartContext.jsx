@@ -372,11 +372,19 @@ export const CartProvider = ({ children }) => {
         catalogItemId: item.id
       };
 
-      // Always resolve options and variants from the static (Norwegian) Wix client to prevent drops
-      const fullProduct = await resolveProductDetails(item.id);
-      let productOptions = fullProduct ? fullProduct.productOptions : item.productOptions;
-      let manageVariants = fullProduct ? fullProduct.manageVariants : item.manageVariants;
-      let variants = fullProduct ? fullProduct.variants : item.variants;
+      // Use cached product options and variants if available, otherwise fetch dynamically
+      let productOptions = item.productOptions;
+      let manageVariants = item.manageVariants;
+      let variants = item.variants;
+
+      if (!productOptions || !variants || variants.length === 0) {
+        const fullProduct = await resolveProductDetails(item.id);
+        if (fullProduct) {
+          productOptions = fullProduct.productOptions;
+          manageVariants = fullProduct.manageVariants;
+          variants = fullProduct.variants;
+        }
+      }
 
       // Handle options
       if (productOptions && productOptions.length > 0) {
