@@ -7,11 +7,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function Shipping() {
-  const { t } = useLanguage();
+  const { t, formatPrice } = useLanguage();
 
   useMeta(
     t('shipping.metaTitle'),
-    t('shipping.metaDesc')
+    t('shipping.metaDesc', { amount: formatPrice(1500) })
   );
 
   return (
@@ -73,6 +73,7 @@ export default function Shipping() {
                 slug="shipping-row-title-1"
                 fallback="Fraktpris (Ordre over 1500 kr)"
                 as="span"
+                replaceObj={{ '{amount}': formatPrice(1500) }}
                 className="font-label-md text-onyx font-bold"
               />
               <CmsText
@@ -87,12 +88,14 @@ export default function Shipping() {
                 slug="shipping-row-title-2"
                 fallback="Standardfrakt (Ordre under 1500 kr)"
                 as="span"
+                replaceObj={{ '{amount}': formatPrice(1500) }}
                 className="font-body-md text-secondary"
               />
               <CmsText
                 slug="shipping-row-val-2"
                 fallback="Fra 39 kr (vektbasert)"
                 as="span"
+                replaceObj={{ '{amount}': formatPrice(39) }}
                 className="font-label-md text-onyx"
               />
             </div>

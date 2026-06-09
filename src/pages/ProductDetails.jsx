@@ -1364,7 +1364,7 @@ export default function ProductDetails() {
               </button>
             </div>
             <p className="text-center text-[11px] text-secondary/80 select-none font-medium leading-normal">
-              {t('product.benefits')}
+              {t('product.benefits', { amount: formatPrice(1500) })}
             </p>
           </div>
 
