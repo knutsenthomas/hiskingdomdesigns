@@ -729,7 +729,7 @@ export default function Header() {
                             closeMobileMenu();
                             navigate('/#manedspakker');
                           }}
-                          className="bg-[#1B4965] hover:bg-[#1B4965]/90 text-white font-label-md text-[10px] font-bold py-2 rounded-lg text-center active:scale-[0.98] transition-all cursor-pointer"
+                          className="bg-terracotta hover:bg-[#bd4f2a] text-white font-label-md text-[10px] font-bold py-2 rounded-lg text-center active:scale-[0.98] transition-all cursor-pointer"
                         >
                           Utforsk månedspakker
                         </button>
