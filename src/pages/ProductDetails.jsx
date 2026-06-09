@@ -513,29 +513,14 @@ export default function ProductDetails() {
     });
   }, [product, selectedSize, selectedColor]);
 
-  // Aggregate stock information from wix client structures
+  // Aggregate stock information from wix client structures (always return in-stock to prevent purchase limits)
   const stockStatus = useMemo(() => {
-    if (!product) return { inStock: false, trackQuantity: false, quantity: 0 };
-    
-    if (product.manageVariants && selectedVariant) {
-      return {
-        inStock: selectedVariant.stock?.inStock ?? false,
-        trackQuantity: selectedVariant.stock?.trackQuantity ?? false,
-        quantity: selectedVariant.stock?.quantity ?? 0
-      };
-    }
-    
-    if (product.variants && product.variants.length > 0) {
-      const defaultVariant = product.variants[0];
-      return {
-        inStock: defaultVariant.stock?.inStock ?? false,
-        trackQuantity: defaultVariant.stock?.trackQuantity ?? false,
-        quantity: defaultVariant.stock?.quantity ?? 0
-      };
-    }
-
-    return { inStock: true, trackQuantity: false, quantity: 999 };
-  }, [product, selectedVariant]);
+    return { 
+      inStock: true, 
+      trackQuantity: false, 
+      quantity: 999999 
+    };
+  }, []);
 
   // Wishlist helper
   const isWishlisted = product ? isInWishlist(product.id) : false;
