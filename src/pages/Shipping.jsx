@@ -121,18 +121,23 @@ export default function Shipping() {
                 as="h3"
                 className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
               />
-              <div className="grid grid-cols-2 gap-2 text-sm text-secondary">
-                <span className="border-b border-slate-50 pb-1">0 - 0.25 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(79)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">0.25 - 1.5 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(129)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">1.5 - 3.0 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(199)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">3.0 - 5.0 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(249)}</span>
+              <div className="space-y-2 text-sm text-secondary">
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">0 - 0.25 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(79)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">0.25 - 1.5 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(129)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">1.5 - 3.0 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(199)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">3.0 - 5.0 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(249)}</span>
+                </div>
               </div>
             </div>
 
@@ -143,15 +148,19 @@ export default function Shipping() {
                 as="h3"
                 className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
               />
-              <div className="grid grid-cols-2 gap-2 text-sm text-secondary">
-                <span className="border-b border-slate-50 pb-1">0 - 0.41 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(99)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">0.41 - 2.5 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(149)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">2.5 - 5.0 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(249)}</span>
+              <div className="space-y-2 text-sm text-secondary">
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">0 - 0.41 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(99)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">0.41 - 2.5 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(149)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">2.5 - 5.0 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(249)}</span>
+                </div>
               </div>
             </div>
 
@@ -162,18 +171,23 @@ export default function Shipping() {
                 as="h3"
                 className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
               />
-              <div className="grid grid-cols-2 gap-2 text-sm text-secondary">
-                <span className="border-b border-slate-50 pb-1">0 - 0.49 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(99)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">0.49 - 2.0 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(199)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">2.0 - 5.0 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(299)}</span>
-                
-                <span className="border-b border-slate-50 pb-1">5.0 - 10.0 kg:</span>
-                <span className="font-semibold text-onyx text-right border-b border-slate-50 pb-1">{formatPrice(499)}</span>
+              <div className="space-y-2 text-sm text-secondary">
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">0 - 0.49 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(99)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">0.49 - 2.0 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(199)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">2.0 - 5.0 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(299)}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100/50 pb-1.5">
+                  <span className="whitespace-nowrap">5.0 - 10.0 kg:</span>
+                  <span className="font-semibold text-onyx">{formatPrice(499)}</span>
+                </div>
               </div>
             </div>
           </div>
