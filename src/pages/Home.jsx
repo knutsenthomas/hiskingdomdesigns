@@ -528,6 +528,8 @@ export default function Home() {
     };
   }, []);
 
+  const currentSlide = slides[heroSlide] || slides[0] || {};
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -558,57 +560,54 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-onyx/85 via-onyx/40 to-transparent"></div>
         </div>
         <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={heroSlide}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4 }}
-              className="max-w-2xl text-white"
+          <motion.div
+            key={heroSlide}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="max-w-2xl text-white"
+          >
+            <button 
+              onClick={() => scrollToSection('manedspakker')}
+              className="inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
             >
+              <span>✨</span>
+              <span>{t('home.newMonthlyPacks')}</span>
+            </button>
+            {currentSlide.isProduct ? (
+              <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+                {currentSlide.title}
+              </h1>
+            ) : (
+              <CmsText 
+                slug={heroSlide === 0 ? "home-hero-title" : "home-hero-title-2"} 
+                fallback={currentSlide.title || "Bær troen med stolthet"} 
+                as="h1" 
+                className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+              />
+            )}
+            {currentSlide.isProduct ? (
+              <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-3">
+                {currentSlide.desc}
+              </p>
+            ) : (
+              <CmsText 
+                slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
+                fallback={currentSlide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
+                as="p" 
+                className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed"
+              />
+            )}
+            <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => scrollToSection('manedspakker')}
-                className="inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
+                onClick={currentSlide.ctaAction}
+                className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>✨</span>
-                <span>{t('home.newMonthlyPacks')}</span>
+                <span>{currentSlide.ctaText}</span>
+                <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
               </button>
-              {slides[heroSlide]?.isProduct ? (
-                <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
-                  {slides[heroSlide]?.title}
-                </h1>
-              ) : (
-                <CmsText 
-                  slug={heroSlide === 0 ? "home-hero-title" : "home-hero-title-2"} 
-                  fallback={slides[heroSlide]?.title || "Bær troen med stolthet"} 
-                  as="h1" 
-                  className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-                />
-              )}
-              {slides[heroSlide]?.isProduct ? (
-                <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-3">
-                  {slides[heroSlide]?.desc}
-                </p>
-              ) : (
-                <CmsText 
-                  slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
-                  fallback={slides[heroSlide]?.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
-                  as="p" 
-                  className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed"
-                />
-              )}
-              <div className="flex flex-wrap gap-4">
-                <button 
-                  onClick={slides[heroSlide]?.ctaAction}
-                  className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>{slides[heroSlide]?.ctaText}</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+            </div>
+          </motion.div>
         </div>
 
         {/* Slide Indicators */}
