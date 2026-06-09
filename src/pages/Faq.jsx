@@ -93,7 +93,7 @@ const FAQ_ITEMS = [
 ];
 
 export default function Faq() {
-  const { t } = useLanguage();
+  const { t, formatPrice } = useLanguage();
 
   useMeta(
     t('faq.metaTitle'),
@@ -209,6 +209,7 @@ export default function Faq() {
                               <CmsText
                                 slug={item.aSlug}
                                 fallback={item.a}
+                                replaceObj={item.aSlug === 'faq-shipping-a2' ? { '{amount}': formatPrice(1500), '{standardAmount}': formatPrice(39) } : null}
                                 as="p"
                               />
                             </div>
