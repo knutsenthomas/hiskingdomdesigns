@@ -442,32 +442,7 @@ export default function ProductDetails() {
       console.error('Failed to parse local reviews', e);
     }
 
-    // Default mock reviews if there are no API or local reviews
-    let defaultMocks = [];
-    if (apiReviews.length === 0 && localReviews.length === 0) {
-      const dates = ['2026-05-15', '2026-05-28', '2026-06-02'];
-      const names = ['Kari Nordmann', 'Ole Hansen', 'Maria Pedersen'];
-      const clothingMocks = [
-        { title: 'Helt fantastisk kvalitet!', body: 'Stoffet er utrolig mykt og behagelig. Trykket ser profesjonelt ut og falmer ikke vask. Anbefales på det varmeste!', rating: 5 },
-        { title: 'Fin genser, god passform', body: 'Normal i størrelsen. Genseren er behagelig å gå med, og budskapet er nydelig. Kommer til å kjøpe mer herfra!', rating: 5 },
-        { title: 'Veldig fornøyd', body: 'Rask levering og god kvalitet på klærne. His Kingdom Designs leverer solid service og trygg handel.', rating: 4 }
-      ];
-      const stickerMocks = [
-        { title: 'Perfekt på vannflasken', body: 'Tåler oppvaskmaskin kjempebra uten å løsne eller falme. Kjempefine farger!', rating: 5 },
-        { title: 'Gode budskap', body: 'Har limt disse på bøkene og PC-en min. De gir god oppmuntring i hverdagen.', rating: 5 },
-        { title: 'Fine farger', body: 'Klistremerkene ser nøyaktig ut som på bildet. Veldig fornøyd med kjøpet.', rating: 4 }
-      ];
-      const defaultMocksSource = product?.category === 'Klær' ? clothingMocks : (product?.category === 'Klistermerker' ? stickerMocks : clothingMocks);
-
-      defaultMocks = defaultMocksSource.map((m, idx) => ({
-        _id: `mock-${idx}`,
-        author: { authorName: names[idx] },
-        content: { title: m.title, body: m.body, rating: m.rating },
-        _createdDate: new Date(dates[idx]).toISOString()
-      }));
-    }
-
-    const allReviews = [...localReviews, ...apiReviews, ...defaultMocks];
+    const allReviews = [...localReviews, ...apiReviews];
     setReviewsList(allReviews);
 
     // Calculate average and distribution
