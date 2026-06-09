@@ -488,6 +488,7 @@ export const translations = {
     'Barn & Familie': 'Barn & Familie',
     'Temaer & Språk': 'Temaer & Språk',
     'Varna - Evangeliesenteret': 'Varna - Evangeliesenteret',
+    'Varna - Evangeliesenteret Bibelskole': 'Varna - Evangeliesenteret Bibelskole',
     
     // Wix Subcategories
     'Clothing': 'Klær',
@@ -1191,6 +1192,7 @@ export const translations = {
     'Barn & Familie': 'Kids & Family',
     'Temaer & Språk': 'Themes & Languages',
     'Varna - Evangeliesenteret': 'Varna - Evangelism Center',
+    'Varna - Evangeliesenteret Bibelskole': 'Varna - Evangelism Center Bible School',
     
     // Wix Subcategories
     'Clothing': 'Clothing',
@@ -1894,6 +1896,7 @@ export const translations = {
     'Barn & Familie': 'Niños y Familia',
     'Temaer & Språk': 'Temas e Idiomas',
     'Varna - Evangeliesenteret': 'Varna - Centro de Evangelización',
+    'Varna - Evangeliesenteret Bibelskole': 'Varna - Centro de Evangelización Escuela Bíblica',
     
     // Wix Subcategories
     'Clothing': 'Ropa',

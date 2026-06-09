@@ -477,36 +477,16 @@ export default function Header() {
                 <div className="col-span-4 lg:col-span-3 xl:col-span-2">
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Temaer & Språk')}</h4>
                   <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
-                    {categoryTaxonomy['Temaer & Språk']?.map(sub => {
-                      const lower = sub.toLowerCase();
-                      const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
-                                      (lower.includes('bibelskole') || lower.includes('bible school') || lower.includes('evangeliesenter') || lower.includes('evangliesenter'));
-                      if (isVarna) {
-                        return (
-                          <li key={sub} className="flex flex-col gap-0.5 mt-0.5">
-                            <span className="text-[10px] font-bold text-onyx/45 uppercase tracking-wider">
-                              {t('Varna - Evangeliesenteret')}
-                            </span>
-                            <Link 
-                              to={`/category/${getSlugByCategoryName(sub)}`} 
-                              className="text-sm text-onyx/75 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block pl-2 border-l border-terracotta/25"
-                            >
-                              {t('Bible School')}
-                            </Link>
-                          </li>
-                        );
-                      }
-                      return (
-                        <li key={sub}>
-                          <Link 
-                            to={`/category/${getSlugByCategoryName(sub)}`} 
-                            className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
-                          >
-                            {t(sub)}
-                          </Link>
-                        </li>
-                      );
-                    })}
+                    {categoryTaxonomy['Temaer & Språk']?.map(sub => (
+                      <li key={sub}>
+                        <Link 
+                          to={`/category/${getSlugByCategoryName(sub)}`} 
+                          className="text-sm text-onyx/70 hover:text-terracotta hover:translate-x-1 transition-all duration-300 inline-block whitespace-nowrap"
+                        >
+                          {t(sub)}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </div>
  
@@ -821,41 +801,17 @@ export default function Header() {
                         )}
 
                         {/* List of subcategories */}
-                        {categoryTaxonomy[mobileActiveCategory]?.map(sub => {
-                          const lower = sub.toLowerCase();
-                          const isVarna = (lower.includes('varna') || lower.includes('varne')) && 
-                                          (lower.includes('bibelskole') || lower.includes('bible school') || lower.includes('evangeliesenter') || lower.includes('evangliesenter'));
-                          
-                          if (isVarna) {
-                            return (
-                              <div key={sub} className="flex flex-col gap-1 p-3.5 bg-white border border-outline-variant/40 rounded-xl">
-                                <span className="text-[8px] font-bold text-onyx/45 uppercase tracking-widest leading-none">
-                                  {t('Varna - Evangeliesenteret')}
-                                </span>
-                                <Link
-                                  to={`/category/${getSlugByCategoryName(sub)}`}
-                                  onClick={closeMobileMenu}
-                                  className="text-xs font-bold text-onyx hover:text-terracotta transition-colors flex items-center justify-between"
-                                >
-                                  <span>{t('Bible School')}</span>
-                                  <ChevronRight size={14} className="text-onyx/30" />
-                                </Link>
-                              </div>
-                            );
-                          }
-
-                          return (
-                            <Link
-                              key={sub}
-                              to={`/category/${getSlugByCategoryName(sub)}`}
-                              onClick={closeMobileMenu}
-                              className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-50/50 border border-outline-variant/40 rounded-xl transition-all cursor-pointer group"
-                            >
-                              <span className="text-xs font-bold text-onyx/80 group-hover:text-terracotta transition-colors">{t(sub)}</span>
-                              <ChevronRight size={14} className="text-onyx/30 group-hover:translate-x-0.5 transition-transform" />
-                            </Link>
-                          );
-                        })}
+                        {categoryTaxonomy[mobileActiveCategory]?.map(sub => (
+                          <Link
+                            key={sub}
+                            to={`/category/${getSlugByCategoryName(sub)}`}
+                            onClick={closeMobileMenu}
+                            className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-50/50 border border-outline-variant/40 rounded-xl transition-all cursor-pointer group"
+                          >
+                            <span className="text-xs font-bold text-onyx/80 group-hover:text-terracotta transition-colors">{t(sub)}</span>
+                            <ChevronRight size={14} className="text-onyx/30 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        ))}
                       </div>
                     </motion.div>
                   )}
