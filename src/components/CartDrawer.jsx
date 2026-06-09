@@ -37,6 +37,15 @@ export default function CartDrawer() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isCartDrawerOpen, setIsCartDrawerOpen]);
 
+  // Reset redirect state if user navigates back to page with CartDrawer
+  useEffect(() => {
+    const handlePageShow = () => {
+      setIsRedirecting(false);
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   // Disable body scroll when drawer is open
   useEffect(() => {
     if (isCartDrawerOpen) {

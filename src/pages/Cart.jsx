@@ -58,6 +58,15 @@ export default function Cart() {
     } catch (e) {}
   }, []);
 
+  // Reset redirect state if user navigates back to Cart page
+  useEffect(() => {
+    const handlePageShow = () => {
+      setIsRedirecting(false);
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   // Auto-prefill and calculate shipping from logged-in member's saved address on mount
   useEffect(() => {
     async function loadMemberAddress() {

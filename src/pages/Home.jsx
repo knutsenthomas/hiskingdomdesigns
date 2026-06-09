@@ -236,6 +236,15 @@ export default function Home() {
     fetchInstagramFeed();
   }, []);
 
+  // Reset subscribing state if user navigates back to Home page
+  useEffect(() => {
+    const handlePageShow = () => {
+      setSubscribingId(null);
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   const handleSubscribe = async (plan) => {
     if (plan._id.startsWith('mock-')) {
       alert(`Takk for din interesse i abonnementsplanen "${plan.name}"! Siden dette er en testbutikk, er denne abonnementsfunksjonen for øyeblikket i demomodus.`);
