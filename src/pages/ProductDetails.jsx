@@ -1429,11 +1429,9 @@ export default function ProductDetails() {
 
           {/* Shipping / Trust details */}
           <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
-            <div className="flex items-start gap-3 text-secondary">
-              <Truck size={18} className="text-terracotta shrink-0 mt-0.5" />
-              <span className="text-label-sm font-label-sm leading-relaxed">
-                Hvert produkt produseres unikt for deg etter bestilling for å skåne miljøet og sikre høyeste kvalitet – normalt levert på ca. 2 uker med sporing.
-              </span>
+            <div className="flex items-center gap-3 text-secondary">
+              <Truck size={18} className="text-terracotta shrink-0" />
+              <span className="text-label-sm font-label-sm">Normal leveringstid er ca 2 uker</span>
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
