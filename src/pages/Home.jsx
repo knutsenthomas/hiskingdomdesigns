@@ -397,10 +397,18 @@ export default function Home() {
         </div>
         <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <div className="max-w-2xl text-white">
-            <div className="inline-flex items-center gap-2 bg-terracotta/25 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none">
+            <button 
+              onClick={() => {
+                const element = document.getElementById('manedspakker');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
+            >
               <span>✨</span>
               <span>Oppdag våre nye månedspakker!</span>
-            </div>
+            </button>
             <CmsText 
               slug="home-hero-title" 
               fallback="Bær troen med stolthet" 
@@ -599,7 +607,7 @@ export default function Home() {
       </section>
 
       {/* Subscription Packages */}
-      <section className="bg-white py-section-gap overflow-hidden reveal-on-scroll">
+      <section id="manedspakker" className="bg-white py-section-gap overflow-hidden reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="w-full lg:w-1/2 relative">
             <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
