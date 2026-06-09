@@ -513,7 +513,7 @@ export default function Header() {
                       <Link 
                         to="/products"
                         onClick={() => setMegamenuOpen(false)}
-                        className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
+                        className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white text-xs py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                       >
                         {t('nav.explore_shop')}
                       </Link>
@@ -563,7 +563,7 @@ export default function Header() {
                   <Link 
                     to="/products"
                     onClick={() => setMegamenuOpen(false)}
-                    className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white font-label-md text-label-md py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
+                    className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white text-xs py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                   >
                     {t('nav.explore_shop')}
                   </Link>
