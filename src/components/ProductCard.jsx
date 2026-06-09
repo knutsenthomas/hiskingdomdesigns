@@ -105,12 +105,12 @@ export default function ProductCard({ product }) {
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 mt-2">
-          <span className="font-headline-md text-headline-md text-terracotta font-extrabold">
+        <div className="flex items-baseline flex-wrap gap-x-2 gap-y-0.5 mt-2">
+          <span className="text-base sm:text-[18px] font-extrabold text-terracotta whitespace-nowrap">
             {product.price} kr
           </span>
           {product.originalPrice && (
-            <span className="font-body-md text-body-md text-onyx/40 line-through">
+            <span className="text-[13px] sm:text-sm text-onyx/40 line-through font-normal whitespace-nowrap">
               {product.originalPrice} kr
             </span>
           )}
