@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler, X } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import ProductCard from '@/components/ProductCard';
@@ -1096,6 +1096,23 @@ export default function ProductDetails() {
     loadReviews();
   };
 
+  const imagesList = product.images && product.images.length > 0 ? product.images : [product.image];
+  const currentImageIndex = imagesList.indexOf(activeImage || product.image);
+
+  const handlePrevImage = (e) => {
+    e.stopPropagation();
+    if (imagesList.length <= 1) return;
+    const newIndex = (currentImageIndex - 1 + imagesList.length) % imagesList.length;
+    setActiveImage(imagesList[newIndex]);
+  };
+
+  const handleNextImage = (e) => {
+    e.stopPropagation();
+    if (imagesList.length <= 1) return;
+    const newIndex = (currentImageIndex + 1) % imagesList.length;
+    setActiveImage(imagesList[newIndex]);
+  };
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 15 }}
@@ -1117,13 +1134,35 @@ export default function ProductDetails() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Gallery Column */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="bg-white rounded-xl overflow-hidden shadow-sm aspect-square md:aspect-[4/5] flex items-center justify-center p-8 border border-outline-variant/35">
+        <div className="lg:col-span-6 flex flex-col gap-4">
+          <div className="relative group bg-white rounded-xl overflow-hidden shadow-sm aspect-square md:aspect-[4/5] max-h-[500px] md:max-h-[550px] lg:max-h-[600px] flex items-center justify-center p-8 border border-outline-variant/35">
             <img 
               alt={product.name} 
-              className="max-w-full max-h-full object-contain rounded-lg hover:scale-[1.03] transition-transform duration-500" 
+              className="max-w-full max-h-full object-contain rounded-lg hover:scale-[1.02] transition-transform duration-500" 
               src={getOptimizedWixImageUrl(activeImage || product.image, 600, 750)}
             />
+            
+            {/* Image navigation arrows */}
+            {imagesList.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePrevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-onyx w-10 h-10 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:scale-105 active:scale-95 z-10"
+                  aria-label="Forrige bilde"
+                >
+                  <ChevronLeft size={20} className="text-[#1B4965]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-onyx w-10 h-10 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:scale-105 active:scale-95 z-10"
+                  aria-label="Neste bilde"
+                >
+                  <ChevronRight size={20} className="text-[#1B4965]" />
+                </button>
+              </>
+            )}
           </div>
           {/* Thumbnails (for visual complete design look and active image switching) */}
           {product.images && product.images.length > 0 && (
@@ -1135,6 +1174,7 @@ export default function ProductDetails() {
                     key={idx}
                     type="button"
                     onClick={() => setActiveImage(imgUrl)}
+                    onMouseEnter={() => setActiveImage(imgUrl)}
                     className={`w-20 h-20 rounded-lg p-1.5 flex-shrink-0 cursor-pointer shadow-sm border-2 transition-all outline-none ${
                       isActive 
                         ? 'border-terracotta bg-white scale-[1.02]' 
@@ -1155,7 +1195,7 @@ export default function ProductDetails() {
         </div>
 
         {/* Info Column */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className="lg:col-span-6 flex flex-col gap-6">
           <div>
             <span className="text-terracotta font-label-sm text-label-sm uppercase tracking-widest font-semibold block mb-1">
               {product.category} {product.gender && `• ${product.gender}`}
