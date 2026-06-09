@@ -13,7 +13,7 @@ const TEAM_MEMBERS = [
     slugRole: 'team-member-role-hilde',
     slugBio: 'team-member-bio-hilde',
     avatar: 'HKK',
-    image: 'https://static.wixstatic.com/media/db4f96_f1a7f17d0fe846069396b87f38497068~mv2.jpg/v1/fill/w_300,h_400,al_c,q_80,usm_0.66_1.00_0.01/IMG_8972_edited%20(1).jpg',
+    image: 'https://static.wixstatic.com/media/db4f96_f1a7f17d0fe846069396b87f38497068~mv2.jpg/v1/fill/w_300,h_400,al_t,q_80,usm_0.66_1.00_0.01/IMG_8972_edited%20(1).jpg',
     color: 'bg-terracotta/10 text-terracotta border-terracotta/20',
     socials: [
       { icon: <Instagram size={16} />, url: 'https://www.instagram.com/freedomisathand/', label: 'Instagram' },
@@ -90,7 +90,7 @@ export default function Team() {
               <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-6 border border-outline-variant/20 shadow-inner bg-slate-50">
                 <img 
                   alt={member.name} 
-                  className="w-full h-full object-cover hover:scale-102 transition-transform duration-300" 
+                  className="w-full h-full object-cover object-[center_18%] hover:scale-102 transition-transform duration-300" 
                   src={member.image}
                   onError={(e) => {
                     e.target.style.display = 'none';

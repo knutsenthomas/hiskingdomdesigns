@@ -1044,7 +1044,7 @@ export default function Profile() {
               <img 
                 src={getProfileImageUrl(member)} 
                 alt={displayName} 
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover object-[center_18%]" 
               />
             ) : (
               displayInitials

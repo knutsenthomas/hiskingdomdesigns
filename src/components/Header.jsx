@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, ChevronDown, Heart, ChevronRight, ChevronLeft, Shirt, Palette, Coffee, Baby, Globe, ShoppingBag, Percent, ArrowRight } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
@@ -43,6 +43,19 @@ export default function Header() {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
+  const hoverTimeoutRef = useRef(null);
+
+  const handleMegamenuOpen = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setMegamenuOpen(true);
+    }, 150);
+  };
+
+  const handleMegamenuClose = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setMegamenuOpen(false);
+  };
   const [showRecoveryToast, setShowRecoveryToast] = useState(false);
 
   const searchResults = useMemo(() => {
@@ -219,10 +232,10 @@ export default function Header() {
             {/* Collapsible Megamenu Link */}
             <div 
               className="h-full flex items-center"
-              onMouseEnter={() => setMegamenuOpen(true)}
-              onMouseLeave={() => setMegamenuOpen(false)}
+              onMouseLeave={handleMegamenuClose}
             >
               <button
+                onMouseEnter={handleMegamenuOpen}
                 className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all flex items-center gap-1 cursor-pointer focus:outline-none relative group ${
                   megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                 }`}
@@ -329,7 +342,7 @@ export default function Header() {
                     <img 
                       src={getProfileImageUrl(member)} 
                       alt="Profil" 
-                      className="w-full h-full object-cover" 
+                      className="w-full h-full object-cover object-[center_18%]" 
                     />
                   </div>
                 ) : (
@@ -401,8 +414,8 @@ export default function Header() {
               transition={{ duration: 0.25, ease: 'easeOut' }}
               className="absolute left-0 right-0 w-full bg-white/95 backdrop-blur-md border-b border-onyx/5 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.06)] z-40 py-8 px-6 xl:px-margin-desktop"
               style={{ top: isScrolled ? '64px' : '80px' }}
-              onMouseEnter={() => setMegamenuOpen(true)}
-              onMouseLeave={() => setMegamenuOpen(false)}
+              onMouseEnter={handleMegamenuOpen}
+              onMouseLeave={handleMegamenuClose}
             >
               <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-4 xl:grid-cols-7 gap-y-10 gap-x-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
@@ -832,7 +845,7 @@ export default function Header() {
                           <img 
                             src={getProfileImageUrl(member)} 
                             alt="Profil" 
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-cover object-[center_18%]" 
                           />
                         </div>
                       ) : (
