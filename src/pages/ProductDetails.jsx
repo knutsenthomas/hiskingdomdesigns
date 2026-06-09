@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import useMeta from '@/hooks/useMeta';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const parseHex = (hexStr) => {
   let hex = hexStr.replace('#', '');
@@ -145,6 +146,7 @@ export const resolveColor = (rawName) => {
 };
 
 function SizeGuideContent({ defaultTab = 'clothing' }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (
@@ -159,8 +161,8 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
               : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
           }`}
         >
-          <span className="hidden sm:inline">👚 Klær (T-skjorte / Hoodie)</span>
-          <span className="inline sm:hidden">👚 Klær</span>
+          <span className="hidden sm:inline">👚 {t('product.clothingTab')}</span>
+          <span className="inline sm:hidden">👚 {t('product.clothingTab')}</span>
         </button>
         <button
           onClick={() => setActiveTab('caps')}
@@ -170,8 +172,8 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
               : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
           }`}
         >
-          <span className="hidden sm:inline">🧢 Hatter & Caps</span>
-          <span className="inline sm:hidden">🧢 Hatter/Caps</span>
+          <span className="hidden sm:inline">🧢 {t('product.capsTab')}</span>
+          <span className="inline sm:hidden">🧢 {t('product.capsTab')}</span>
         </button>
         <button
           onClick={() => setActiveTab('posters')}
@@ -181,8 +183,8 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
               : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
           }`}
         >
-          <span className="hidden sm:inline">🖼️ Plakat-formater</span>
-          <span className="inline sm:hidden">🖼️ Plakater</span>
+          <span className="hidden sm:inline">🖼️ {t('product.postersTab')}</span>
+          <span className="inline sm:hidden">🖼️ {t('product.postersTab')}</span>
         </button>
       </div>
 
@@ -190,11 +192,11 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
       <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed text-secondary custom-scrollbar flex-1">
         {activeTab === 'clothing' && (
           <div className="space-y-4">
-            <p className="italic">Våre klær er laget av 100% bomull eller blanding av bomull og polyester og har en behagelig, normal skandinavisk passform (true to size). Vi tilbyr størrelser opp til 3XL på de fleste av våre plagg, og utvalgte plagg opp til 5XL. Vi anbefaler å vaske på 30 grader med vrangen ut for at motivet skal holde seg best mulig.</p>
+            <p className="italic">{t('product.clothingGuideDesc')}</p>
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3">Størrelse</th>
+                  <th className="py-2.5 px-3">{t('product.size')}</th>
                   <th className="py-2.5 px-3">Bredde (A)</th>
                   <th className="py-2.5 px-3">Lengde (B)</th>
                 </tr>
@@ -228,16 +230,16 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
               </tbody>
             </table>
             <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mt-2">
-              <p className="font-semibold text-onyx mb-1 text-[10px] uppercase">Hvordan måle?</p>
-              <p><strong>Bredde (A):</strong> Mål på tvers av brystet, 2 cm under armhulene, mens plagget ligger flatt.</p>
-              <p><strong>Lengde (B):</strong> Mål fra det høyeste punktet på skulderen og helt ned til nederste kant.</p>
+              <p className="font-semibold text-onyx mb-1 text-[10px] uppercase">{t('product.howToMeasure')}</p>
+              <p>{t('product.widthMeasure')}</p>
+              <p>{t('product.lengthMeasure')}</p>
             </div>
           </div>
         )}
 
         {activeTab === 'caps' && (
           <div className="space-y-4">
-            <p className="italic">Våre hatter og caps er utstyrt med en justerbar stropp eller snapback-spenne bak, noe som gjør at de passer de aller fleste hodeformer og størrelser perfekt.</p>
+            <p className="italic">{t('product.capsGuideDesc')}</p>
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
@@ -264,7 +266,7 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
 
         {activeTab === 'posters' && (
           <div className="space-y-4">
-            <p className="italic">Våre motiver og kunstplakater trykkes på matt, syrefritt premiumpapir av museumskvalitet. De leveres i standardformater som gjør det svært enkelt å finne matchende rammer i din lokale butikk.</p>
+            <p className="italic">{t('product.postersGuideDesc')}</p>
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
@@ -304,6 +306,7 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
 }
 
 export default function ProductDetails() {
+  const { t, translateProduct, language } = useLanguage();
   const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
@@ -353,8 +356,11 @@ export default function ProductDetails() {
     return products.find(p => p.id === productId);
   }, [products, productId]);
 
-  // Use contextProduct if available, otherwise fallback to fetchedProduct
-  const product = contextProduct || fetchedProduct;
+  // Use contextProduct if available, otherwise fallback to fetchedProduct (translated dynamically)
+  const productRaw = contextProduct || fetchedProduct;
+  const product = useMemo(() => {
+    return translateProduct(productRaw);
+  }, [productRaw, translateProduct]);
 
   // Find the selected variant matching selectedSize and selectedColor
   const selectedVariant = useMemo(() => {
@@ -691,10 +697,10 @@ export default function ProductDetails() {
   }, [selectedSize, selectedColor, product]);
 
   useMeta(
-    product ? product.name : 'Produktdetaljer',
+    product ? product.name : t('nav.products'),
     product && typeof product.description === 'string' 
       ? product.description.substring(0, 155) 
-      : 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
+      : t('home.metaDesc'),
     product ? { type: 'product', image: product.image, price: `${product.price} NOK` } : null
   );
 
@@ -1059,7 +1065,7 @@ export default function ProductDetails() {
                   ))}
                 </div>
                 <span className="text-xs text-secondary font-semibold group-hover:text-terracotta transition-colors">
-                  {averageRating} ({reviewsList.length} {reviewsList.length === 1 ? 'omtale' : 'omtaler'})
+                  {averageRating} ({reviewsList.length} {reviewsList.length === 1 ? t('product.review') : t('product.reviewsPlural')})
                 </span>
               </div>
             )}
@@ -1079,9 +1085,9 @@ export default function ProductDetails() {
           <div className="h-px bg-outline-variant/50 w-full" />
 
           <div>
-            <h4 className="font-label-md text-label-md text-onyx mb-2 uppercase tracking-wider">Beskrivelse</h4>
+            <h4 className="font-label-md text-label-md text-onyx mb-2 uppercase tracking-wider">{t('product.descriptionTitle')}</h4>
             <p className="font-body-md text-body-md text-secondary leading-relaxed">
-              {product.description || 'Et premium produkt fra His Kingdom Designs. Designet for å bringe håp og tro inn i hverdagen.'}
+              {product.description || t('home.metaDesc')}
             </p>
           </div>
 
@@ -1090,11 +1096,11 @@ export default function ProductDetails() {
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-body-md text-onyx">
                 <span className="material-symbols-outlined text-terracotta text-lg select-none">check_circle</span>
-                <span>100% bomull eller bomull/polyester-blanding</span>
+                <span>{t('product.cottonBullet')}</span>
               </li>
               <li className="flex items-center gap-2 text-body-md text-onyx">
                 <span className="material-symbols-outlined text-terracotta text-lg select-none">check_circle</span>
-                <span>Premium kvalitet, myk passform</span>
+                <span>{t('product.qualityBullet')}</span>
               </li>
             </ul>
           )}
@@ -1102,7 +1108,7 @@ export default function ProductDetails() {
           {/* Color Selector */}
           {product.colorNames && product.colorNames.length > 0 && product.colors && product.colors.length > 0 && (
             <div className="space-y-3">
-              <span className="font-label-md text-label-md text-onyx">Farge: <strong className="text-terracotta">{selectedColor}</strong></span>
+              <span className="font-label-md text-label-md text-onyx">{t('product.color')}: <strong className="text-terracotta">{selectedColor}</strong></span>
               <div className="flex gap-3">
                 {product.colors.map((colorHex, idx) => {
                   const colorName = product.colorNames[idx];
@@ -1127,14 +1133,14 @@ export default function ProductDetails() {
           {product.sizes && product.sizes.length > 0 && (
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="font-label-md text-label-md text-onyx">Størrelse</span>
+                <span className="font-label-md text-label-md text-onyx">{t('product.size')}</span>
                 <button 
                   type="button" 
                   onClick={() => setIsSizeGuideOpen(true)}
                   className="text-label-sm text-terracotta hover:underline flex items-center gap-1 cursor-pointer font-semibold"
                 >
                   <Ruler size={14} />
-                  Størrelsesguide
+                  {t('product.sizeGuide')}
                 </button>
               </div>
               <div className="grid grid-cols-4 gap-2">
@@ -1175,7 +1181,7 @@ export default function ProductDetails() {
                   const isColor = nameLower === 'color' || nameLower === 'farge';
                   
                   if (isSize || isColor) return null;
-
+ 
                   return (
                     <div key={opt.name} className="space-y-2">
                       <span className="font-label-md text-label-md text-onyx block">{opt.name}</span>
@@ -1214,7 +1220,7 @@ export default function ProductDetails() {
                         type="button"
                         onClick={() => {
                           setCustomTextModes(prev => ({ ...prev, [field.title]: 'random' }));
-                          setCustomTextFieldValues(prev => ({ ...prev, [field.title]: 'Tilfeldig' }));
+                          setCustomTextFieldValues(prev => ({ ...prev, [field.title]: t('product.randomText') }));
                         }}
                         className={`flex-1 py-3 px-3 border rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all select-none cursor-pointer outline-none active:scale-[0.98] ${
                           currentMode === 'random'
@@ -1222,7 +1228,7 @@ export default function ProductDetails() {
                             : 'border-outline text-secondary hover:border-terracotta/40 hover:text-onyx bg-white'
                         }`}
                       >
-                        Overlat motivet til oss
+                        {t('product.leaveMotif')}
                       </button>
                       <button
                         type="button"
@@ -1236,7 +1242,7 @@ export default function ProductDetails() {
                             : 'border-outline text-secondary hover:border-terracotta/40 hover:text-onyx bg-white'
                         }`}
                       >
-                        Jeg vil velge eget motiv
+                        {t('product.chooseMotif')}
                       </button>
                     </div>
 
@@ -1254,8 +1260,8 @@ export default function ProductDetails() {
                               type="text"
                               maxLength={field.maxLength || 500}
                               required={field.mandatory && currentMode === 'custom'}
-                              value={customTextFieldValues[field.title] === 'Tilfeldig' ? '' : (customTextFieldValues[field.title] || '')}
-                              placeholder="F.eks. ønske om bibelvers, tekst eller plassering..."
+                              value={customTextFieldValues[field.title] === t('product.randomText') ? '' : (customTextFieldValues[field.title] || '')}
+                              placeholder={t('product.customTextPlaceholder')}
                               onChange={(e) => {
                                 const val = e.target.value;
                                 setCustomTextFieldValues(prev => ({
@@ -1267,7 +1273,7 @@ export default function ProductDetails() {
                             />
                             {field.mandatory && (
                               <p className="text-[10px] text-secondary/70 mt-1">
-                                Vennligst oppgi ønsket motiv/tekst da dette feltet er obligatorisk.
+                                {t('product.mandatoryText')}
                               </p>
                             )}
                           </div>
@@ -1282,7 +1288,7 @@ export default function ProductDetails() {
 
           {/* Quantity Selector */}
           <div className="space-y-3">
-            <span className="font-label-md text-label-md text-onyx">Antall</span>
+            <span className="font-label-md text-label-md text-onyx">{t('product.quantity')}</span>
             <div className="flex items-center border border-outline rounded-lg w-max overflow-hidden bg-white">
               <button 
                 onClick={() => setQty(prev => Math.max(1, prev - 1))}
@@ -1307,18 +1313,18 @@ export default function ProductDetails() {
             {stockStatus.trackQuantity && stockStatus.quantity > 0 && stockStatus.quantity <= 5 && (
               <p className="text-xs font-semibold text-orange-600 flex items-center gap-1.5 mt-1 select-none">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse"></span>
-                Kun {stockStatus.quantity} igjen på lager!
+                {t('product.onlyLeftInStock', { count: stockStatus.quantity })}
               </p>
             )}
             {!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0) ? (
               <p className="text-xs font-semibold text-red-600 flex items-center gap-1.5 mt-1 select-none">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                Utsolgt i denne fargen/størrelsen.
+                {t('product.outOfStockVariant')}
               </p>
             ) : (
               <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5 mt-1 select-none">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                På lager - klar til sending innen 24t
+                {t('product.inStockShipping')}
               </p>
             )}
           </div>
@@ -1336,29 +1342,29 @@ export default function ProductDetails() {
                 }`}
               >
                 {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
-                  <span>Utsolgt</span>
+                  <span>{t('product.outOfStock')}</span>
                 ) : added ? (
                   <>
                     <Check size={18} />
-                    <span>Lagt til!</span>
+                    <span>{t('product.addedToCart')}</span>
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={18} />
-                    <span>Legg i handlekurv</span>
+                    <span>{t('product.addToCart')}</span>
                   </>
                 )}
               </button>
               <button
                 onClick={() => toggleWishlist(product)}
                 className="p-4 border border-outline hover:border-terracotta text-terracotta rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center shrink-0 active:scale-95"
-                title={isWishlisted ? "Fjern fra ønskelisten" : "Legg i ønskelisten"}
+                title={isWishlisted ? t('product.wishlistRemove') : t('product.wishlistAdd')}
               >
                 <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
               </button>
             </div>
             <p className="text-center text-[11px] text-secondary/80 select-none font-medium leading-normal">
-              ✓ Fri frakt over 1500 kr | ✓ 14 dagers åpent kjøp | ✓ Trygg betaling med Vipps & kort
+              {t('product.benefits')}
             </p>
           </div>
 
@@ -1367,14 +1373,14 @@ export default function ProductDetails() {
             <div className="mt-4 p-5 bg-slate-50 border border-outline-variant/30 rounded-xl space-y-3">
               <h4 className="font-label-md text-label-md text-onyx font-bold flex items-center gap-2">
                 <span className="material-symbols-outlined text-terracotta text-lg">mail</span>
-                Meld meg når varen er på lager
+                {t('product.notifyWhenInStock')}
               </h4>
               <p className="text-xs text-secondary leading-relaxed">
-                Vi sender deg en automatisk e-post så snart vi har varen tilbake på lager.
+                {t('product.notifyDesc')}
               </p>
               {backInStockSuccess ? (
                 <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
-                  ✓ Suksess! Vi sender deg e-post når produktet er tilgjengelig.
+                  {t('product.notifySuccess')}
                 </div>
               ) : (
                 <form onSubmit={handleBackInStockSubmit} className="flex gap-2">
@@ -1392,7 +1398,7 @@ export default function ProductDetails() {
                     disabled={backInStockLoading}
                     className="bg-terracotta text-white font-label-md text-xs px-4 py-2 rounded-lg font-bold hover:brightness-105 active:scale-95 transition-all shadow-sm"
                   >
-                    {backInStockLoading ? 'Sender...' : 'Meld meg'}
+                    {backInStockLoading ? t('footer.sending') : t('product.notifySubmit')}
                   </button>
                 </form>
               )}
@@ -1406,11 +1412,11 @@ export default function ProductDetails() {
           <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
             <div className="flex items-center gap-3 text-secondary">
               <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">Normal leveringstid er ca 2 uker</span>
+              <span className="text-label-sm font-label-sm">{t('product.deliveryTime')}</span>
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">Trygg og kryptert betaling med Vipps / Kort</span>
+              <span className="text-label-sm font-label-sm">{t('product.securePayment')}</span>
             </div>
           </div>
         </div>
@@ -1420,14 +1426,14 @@ export default function ProductDetails() {
       <section id="reviews-section" className="mt-20 border-t border-outline-variant/30 pt-16">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h2 className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold">Kundeomtaler</h2>
-            <p className="text-secondary font-body-md text-sm mt-1">Hva våre kunder mener om {product.name}</p>
+            <h2 className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold">{t('product.reviews')}</h2>
+            <p className="text-secondary font-body-md text-sm mt-1">{t('product.reviewsSub', { name: product.name })}</p>
           </div>
           <button
             onClick={() => setShowReviewForm(!showReviewForm)}
             className="bg-[#1B4965] text-white hover:bg-[#153a50] px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors active:scale-95 shadow-sm"
           >
-            {showReviewForm ? 'Lukk skjema' : 'Skriv en omtale'}
+            {showReviewForm ? (language === 'es' ? 'Cerrar formulario' : language === 'en' ? 'Close form' : 'Lukk skjema') : t('product.reviewFormTitle')}
           </button>
         </div>
 
@@ -1439,14 +1445,14 @@ export default function ProductDetails() {
             exit={{ opacity: 0, y: -10 }}
             className="mb-10 p-6 bg-slate-50 border border-outline-variant/30 rounded-xl max-w-xl shadow-sm"
           >
-            <h3 className="font-headline-md text-lg text-onyx mb-4 font-bold">Skriv din vurdering</h3>
+            <h3 className="font-headline-md text-lg text-onyx mb-4 font-bold">{t('product.reviewFormTitle')}</h3>
             <form onSubmit={handleReviewSubmit} className="block space-y-4">
               <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">Ditt Navn</label>
+                <label className="block text-xs font-semibold text-secondary mb-1">{t('product.reviewNamePlaceholder')}</label>
                 <input
                   type="text"
                   required
-                  placeholder="F.eks. Ola Nordmann"
+                  placeholder={language === 'es' ? 'Ej. Juan Pérez' : language === 'en' ? 'E.g. John Doe' : 'F.eks. Ola Nordmann'}
                   value={reviewName}
                   onChange={(e) => setReviewName(e.target.value)}
                   disabled={isSubmittingReview}
@@ -1456,7 +1462,7 @@ export default function ProductDetails() {
               </div>
 
               <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">Din Vurdering (1-5 stjerner)</label>
+                <label className="block text-xs font-semibold text-secondary mb-1">{language === 'es' ? 'Tu valoración (1-5 estrellas)' : language === 'en' ? 'Your rating (1-5 stars)' : 'Din vurdering (1-5 stjerner)'}</label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -1477,11 +1483,11 @@ export default function ProductDetails() {
               </div>
 
               <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">Overskrift</label>
+                <label className="block text-xs font-semibold text-secondary mb-1">{language === 'es' ? 'Título' : language === 'en' ? 'Title' : 'Overskrift'}</label>
                 <input
                   type="text"
                   required
-                  placeholder="Oppsummer din opplevelse..."
+                  placeholder={language === 'es' ? 'Resume tu experiencia...' : language === 'en' ? 'Summarize your experience...' : 'Oppsummer din opplevelse...'}
                   value={reviewTitle}
                   onChange={(e) => setReviewTitle(e.target.value)}
                   disabled={isSubmittingReview}
@@ -1491,11 +1497,11 @@ export default function ProductDetails() {
               </div>
 
               <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">Omtale</label>
+                <label className="block text-xs font-semibold text-secondary mb-1">{language === 'es' ? 'Opinión' : language === 'en' ? 'Review' : 'Omtale'}</label>
                 <textarea
                   required
                   rows={4}
-                  placeholder="Fortell oss hva du syns om kvaliteten, passformen eller designet..."
+                  placeholder={language === 'es' ? 'Cuéntanos qué te parece la calidad...' : language === 'en' ? 'Tell us what you think about the quality...' : 'Fortell oss hva du syns om kvaliteten...'}
                   value={reviewBody}
                   onChange={(e) => setReviewBody(e.target.value)}
                   disabled={isSubmittingReview}
@@ -1509,7 +1515,7 @@ export default function ProductDetails() {
                 disabled={isSubmittingReview}
                 className="block w-full bg-terracotta text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider hover:brightness-105 active:scale-95 transition-all shadow-md"
               >
-                {isSubmittingReview ? 'Sender inn...' : 'Send omtale'}
+                {isSubmittingReview ? t('product.reviewSubmitting') : t('product.reviewSubmitBtn')}
               </button>
 
               {reviewSubmitError && (
@@ -1521,7 +1527,7 @@ export default function ProductDetails() {
 
         {reviewSubmitSuccess && (
           <div className="mb-6 p-4 bg-emerald-50 text-emerald-800 text-xs rounded-lg border border-emerald-200 font-medium">
-            ✓ Takk for din omtale! Din vurdering har blitt sendt inn og er nå synlig på siden.
+            {t('product.reviewSuccess')}
           </div>
         )}
 
@@ -1543,7 +1549,7 @@ export default function ProductDetails() {
                 ))}
               </div>
               <p className="text-xs text-secondary font-medium uppercase tracking-wider">
-                Basert på {reviewsList.length} {reviewsList.length === 1 ? 'omtale' : 'omtaler'}
+                {language === 'es' ? 'Basado en' : language === 'en' ? 'Based on' : 'Basert på'} {reviewsList.length} {reviewsList.length === 1 ? t('product.review') : t('product.reviewsPlural')}
               </p>
             </div>
 
@@ -1554,7 +1560,7 @@ export default function ProductDetails() {
                 const percentage = reviewsList.length > 0 ? (count / reviewsList.length) * 100 : 0;
                 return (
                   <div key={rating} className="flex items-center gap-3 text-xs">
-                    <span className="font-semibold text-secondary w-12 text-right">{rating} stjerner</span>
+                    <span className="font-semibold text-secondary w-12 text-right">{rating} {language === 'es' ? 'estrellas' : language === 'en' ? 'stars' : 'stjerner'}</span>
                     <div className="flex-grow h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-amber-500 rounded-full transition-all duration-500" 
@@ -1571,12 +1577,12 @@ export default function ProductDetails() {
 
         {/* Review list */}
         {isLoadingReviews ? (
-          <div className="py-10 text-center text-secondary font-semibold text-sm">Henter omtaler...</div>
+          <div className="py-10 text-center text-secondary font-semibold text-sm">{language === 'es' ? 'Obteniendo opiniones...' : language === 'en' ? 'Fetching reviews...' : 'Henter omtaler...'}</div>
         ) : reviewsList.length === 0 ? (
           <div className="py-12 text-center text-secondary bg-slate-50/55 rounded-xl border border-dashed border-outline-variant/40">
             <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">rate_review</span>
-            <p className="font-semibold text-sm">Ingen omtaler ennå</p>
-            <p className="text-xs text-secondary/75 mt-0.5">Vær den første til å dele din mening om dette produktet!</p>
+            <p className="font-semibold text-sm">{t('product.noReviews')}</p>
+            <p className="text-xs text-secondary/75 mt-0.5">{language === 'es' ? '¡Sé el primero en compartir tu opinión sobre este producto!' : language === 'en' ? 'Be the first to share your opinion about this product!' : 'Vær den første til å dele din mening om dette produktet!'}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -1606,7 +1612,7 @@ export default function ProductDetails() {
                       try {
                         const d = new Date(rev._createdDate || Date.now());
                         if (!isNaN(d.getTime())) {
-                          const rawDate = d.toLocaleDateString('no-NO', {
+                          const rawDate = d.toLocaleDateString(language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'no-NO', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
@@ -1618,7 +1624,7 @@ export default function ProductDetails() {
                           return parts.join(' ');
                         }
                       } catch (e) {}
-                      return 'Nylig omtale';
+                      return language === 'es' ? 'Opinión reciente' : language === 'en' ? 'Recent review' : 'Nylig omtale';
                     })()}
                   </span>
                 </div>
@@ -1631,10 +1637,10 @@ export default function ProductDetails() {
                 {/* Review Author */}
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold select-none">
                   <span className="material-symbols-outlined text-sm">person</span>
-                  <span>Skrevet av {rev.author?.authorName || 'Anonym'}</span>
+                  <span>{language === 'es' ? 'Escrito por' : language === 'en' ? 'Written by' : 'Skrevet av'} {rev.author?.authorName || 'Anonym'}</span>
                   {rev._id.startsWith('mock') && (
                     <span className="text-[9px] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
-                      Verifisert Kjøper
+                      {language === 'es' ? 'Comprador Verificado' : language === 'en' ? 'Verified Buyer' : 'Verifisert Kjøper'}
                     </span>
                   )}
                 </div>
@@ -1644,7 +1650,7 @@ export default function ProductDetails() {
                   <div className="mt-4 p-4 bg-slate-50 border-l-2 border-terracotta rounded-r-lg space-y-1">
                     <div className="flex items-center gap-1.5 text-[10px] text-terracotta font-bold uppercase tracking-wider">
                       <span className="material-symbols-outlined text-xs">storefront</span>
-                      <span>Svar fra His Kingdom Designs</span>
+                      <span>{language === 'es' ? 'Respuesta de His Kingdom Designs' : language === 'en' ? 'Reply from His Kingdom Designs' : 'Svar fra His Kingdom Designs'}</span>
                     </div>
                     <p className="text-xs text-secondary leading-relaxed font-body-md italic">
                       "{rev.reply.body}"
@@ -1661,12 +1667,12 @@ export default function ProductDetails() {
       {relatedProducts.length > 0 && (
         <section className="mt-section-gap border-t border-outline-variant/30 pt-16">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-2">
-            <h2 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx">Relaterte produkter</h2>
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx">{language === 'es' ? 'Productos relacionados' : language === 'en' ? 'Related products' : 'Relaterte produkter'}</h2>
             <Link 
               to={`/category/${getSlugByCategoryName(product.category)}`} 
               className="text-terracotta font-label-md hover:underline underline-offset-4 font-bold"
             >
-              Se alle {product.category.toLowerCase()}
+              {language === 'es' ? 'Ver todos en' : language === 'en' ? 'View all in' : 'Se alle'} {product.category.toLowerCase()}
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-gutter">
@@ -1699,7 +1705,7 @@ export default function ProductDetails() {
               <div className="px-6 py-5 border-b border-outline-variant/20 flex justify-between items-center bg-slate-50 shrink-0">
                 <div className="flex items-center gap-2.5 text-terracotta">
                   <Ruler size={18} />
-                  <h3 className="font-bold text-sm text-onyx">Størrelsesguide</h3>
+                  <h3 className="font-bold text-sm text-onyx">{t('product.sizeGuide')}</h3>
                 </div>
                 <button
                   onClick={() => setIsSizeGuideOpen(false)}

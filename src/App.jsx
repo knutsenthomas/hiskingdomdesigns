@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AppProvider } from '@/contexts/AppContext';
 import { CartProvider } from '@/contexts/CartContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HkmChatWidget from '@/components/HkmChatWidget';
@@ -168,14 +169,16 @@ function MainLayout() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AppProvider>
-        <CartProvider>
-          <Router>
-            <ScrollToTop />
-            <MainLayout />
-          </Router>
-        </CartProvider>
-      </AppProvider>
+      <LanguageProvider>
+        <AppProvider>
+          <CartProvider>
+            <Router>
+              <ScrollToTop />
+              <MainLayout />
+            </Router>
+          </CartProvider>
+        </AppProvider>
+      </LanguageProvider>
     </ErrorBoundary>
   );
 }

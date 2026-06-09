@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 import { getOptimizedWixImageUrl } from '@/lib/media';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const MOCK_TESTIMONIALS = [
   {
@@ -65,6 +66,7 @@ const FALLBACK_INSTAGRAM_FEED = [
 
 const CATEGORIES = {
   klaer: {
+    key: 'klaer',
     title: 'Klær',
     titleSlug: 'category-title-klaer',
     descSlug: 'category-desc-klaer',
@@ -73,6 +75,7 @@ const CATEGORIES = {
     image: 'https://static.wixstatic.com/media/db4f96_b5ef7d88759f4cd5b3dd5ff78f8dfc18~mv2.png'
   },
   klistermerker: {
+    key: 'klistermerker',
     title: 'Klistermerker',
     titleSlug: 'category-title-klistermerker',
     descSlug: 'category-desc-klistermerker',
@@ -81,6 +84,7 @@ const CATEGORIES = {
     image: 'https://static.wixstatic.com/media/3a1544_fd343ead0a094799aac08e7f17391ce5~mv2.jpg'
   },
   plakater: {
+    key: 'plakater',
     title: 'Plakater',
     titleSlug: 'category-title-plakater',
     descSlug: 'category-desc-plakater',
@@ -89,6 +93,7 @@ const CATEGORIES = {
     image: 'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png'
   },
   totebag: {
+    key: 'totebag',
     title: 'Handlenett',
     titleSlug: 'category-title-totebag',
     descSlug: 'category-desc-totebag',
@@ -97,6 +102,7 @@ const CATEGORIES = {
     image: 'https://static.wixstatic.com/media/db4f96_2811fd2828c44989805355a5de7f69a2~mv2.png'
   },
   caps: {
+    key: 'caps',
     title: 'Hatter & Caps',
     titleSlug: 'category-title-caps',
     descSlug: 'category-desc-caps',
@@ -105,6 +111,7 @@ const CATEGORIES = {
     image: 'https://static.wixstatic.com/media/db4f96_d199592e63bf4e9e9040add0ceb0b586~mv2.png'
   },
   kopper: {
+    key: 'kopper',
     title: 'Kopper & Flasker',
     titleSlug: 'category-title-kopper',
     descSlug: 'category-desc-kopper',
@@ -132,9 +139,11 @@ const CATEGORY_SETS = [
 ];
 
 export default function Home() {
+  const { t, translateProduct, language } = useLanguage();
+
   useMeta(
-    "Hjem",
-    "His Kingdom Designs tilbyr lekre kristne motiver på t-skjorter, hoodies, caps og plakater. Finn dine favorittbibelvers trykket på premium materialer."
+    t('home.metaTitle'),
+    t('home.metaDesc')
   );
 
   const { products, isLoadingProducts } = useApp();
@@ -176,22 +185,109 @@ export default function Home() {
 
   const [heroSlide, setHeroSlide] = useState(0);
 
+  // Category translation helper
+  const getCategoryTranslation = (category) => {
+    const mappings = {
+      klaer: { title: t('category.clothing'), desc: t('category.clothing.desc') },
+      klistermerker: { title: t('category.stickers'), desc: t('category.stickers.desc') },
+      plakater: { title: t('category.posters'), desc: t('category.posters.desc') },
+      totebag: { title: t('category.totebags'), desc: t('category.totebags.desc') },
+      caps: { title: t('category.caps'), desc: t('category.caps.desc') },
+      kopper: { title: t('category.mugs'), desc: t('category.mugs.desc') }
+    };
+    return mappings[category.key] || { title: category.title, desc: category.fallbackDesc };
+  };
+
+  // Testimonials translation helper
+  const getTranslatedTestimonial = (item) => {
+    if (language === 'no') return item;
+    
+    const esReviews = {
+      'e1ba5a6c-d6b3-45d2-a543-15fb5147cdf8': {
+        title: '¡Excelente versículo bíblico!',
+        body: 'Me gusta que el versículo bíblico esté tanto en la espalda como en el frente con letra pequeña. El texto me recuerda dejar que el Espíritu Santo guíe mi vida. La impresión es grande y hermosa en la espalda.'
+      },
+      'de6ba802-88fc-4182-a35c-318f6e6db083': {
+        title: '¡Excelente impresión!',
+        body: 'La camiseta es de buen tamaño y la tela es excelente. Me gustó mucho la impresión y me encanta el color azul de la camiseta.'
+      },
+      'd70acda0-1f5c-444c-87cf-c073f8d41f3a': {
+        title: 'Camiseta femenina y hermosa',
+        body: 'Diseño muy elegante y la impresión fue sorprendentemente suave. Estoy muy satisfecha. Compré la camiseta blanca talla M. Genial que sea una camiseta entallada para mujer.'
+      }
+    };
+    
+    const enReviews = {
+      'e1ba5a6c-d6b3-45d2-a543-15fb5147cdf8': {
+        title: 'Great Bible Verse!',
+        body: 'I like that the Bible verse is printed both on the back and in small font on the front. The text reminds me to let the Holy Spirit guide my life. The print is large and nice on the back.'
+      },
+      'de6ba802-88fc-4182-a35c-318f6e6db083': {
+        title: 'Great Print!',
+        body: 'The t-shirt is true to size and the fabric is good. I really liked the print and love the blue color of the shirt.'
+      },
+      'd70acda0-1f5c-444c-87cf-c073f8d41f3a': {
+        title: 'Feminine and Lovely T-shirt',
+        body: 'Very stylish design and the print was surprisingly soft on the t-shirt. I am very satisfied. Bought a white t-shirt size M.'
+      }
+    };
+
+    const translationSet = language === 'es' ? esReviews : enReviews;
+    if (translationSet[item._id]) {
+      return {
+        ...item,
+        content: {
+          ...item.content,
+          title: translationSet[item._id].title,
+          body: translationSet[item._id].body
+        }
+      };
+    }
+    return item;
+  };
+
+  // Plan translation helper
+  const getTranslatedPlan = (plan) => {
+    if (language === 'no') return plan;
+    if (plan._id === 'mock-plan-1') {
+      return {
+        ...plan,
+        name: language === 'es' ? 'Club de Pegatinas' : 'Sticker Club',
+        description: language === 'es' ? 'Recibe 5 pegatinas únicas y alentadoras en tu buzón cada mes.' : 'Get 5 unique and encouraging stickers straight to your mailbox every month.',
+        benefits: language === 'es' 
+          ? ['5 pegatinas únicas al mes', 'Envío gratis incluido', 'Diseños exclusivos', 'Compromiso de 1 mes (mín. 2 paquetes)']
+          : ['5 unique stickers/mo', 'Free shipping included', 'Exclusive designs', '1-month commitment (min. 2 packs)']
+      };
+    }
+    if (plan._id === 'mock-plan-2') {
+      return {
+        ...plan,
+        name: language === 'es' ? 'Taza y Calidez' : 'Mug & Cozy',
+        description: language === 'es' ? 'Cada mes te enviamos una taza nueva con un mensaje de fe y café/té.' : 'Every month we send you a brand new mug with a faith message and coffee/tea.',
+        benefits: language === 'es'
+          ? ['1 taza premium al mes', 'Café o té seleccionado', 'Envío gratis incluido', 'Compromiso de 1 mes (mín. 2 paquetes)']
+          : ['1 premium mug/mo', 'Selected coffee or tea', 'Free shipping included', '1-month commitment (min. 2 packs)']
+      };
+    }
+    return plan;
+  };
+
   // Dynamic Hero Slides combining brand content and the newest products
   const slides = useMemo(() => {
     const defaultSlides = [
       {
         image: '/hero_fashion.png',
-        title: 'Bær troen med stolthet',
-        desc: 'Inspirerende design skapt for å dele Guds ord gjennom moderne mote og tilbehør. Oppdag vår nyeste kolleksjon i dag.',
-        ctaText: 'Se kolleksjonen',
+        title: t('home.slide1.title'),
+        desc: t('home.slide1.desc'),
+        ctaText: t('home.slide1.cta'),
         ctaAction: () => navigate('/products'),
         isProduct: false
       },
       {
         image: 'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png',
-        title: 'Skapt med formål',
-        desc: 'Våre produkter er designet for å minne deg om Guds kjærlighet og dele troen med folk rundt deg.',
-        ctaText: 'Utforsk butikken',
+        title: t('home.slide2.title'),
+        desc: t('home.slide2.desc'),
+        ctaText: t('home.slide2.cta'),
         ctaAction: () => navigate('/products'),
         isProduct: false
       }
@@ -201,15 +297,16 @@ export default function Home() {
       // Products are fetched sorted descending by createdDate, so the first products are the newest
       const newestProducts = products.slice(0, 2);
       const productSlides = newestProducts.map(p => {
-        const displayName = p.name ? p.name.split('|')[0].trim() : 'Nytt produkt';
+        const translatedP = translateProduct(p);
+        const displayName = translatedP.name ? translatedP.name.split('|')[0].trim() : 'Nytt produkt';
         return {
-          image: p.image,
-          title: `Nyhet: ${displayName}`,
-          desc: p.description ? (p.description.length > 150 ? p.description.substring(0, 150) + '...' : p.description) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
-          ctaText: 'Se produktet',
-          ctaAction: () => navigate(`/product/${p.id}`),
+          image: translatedP.image,
+          title: `${t('home.newArrival')}${displayName}`,
+          desc: translatedP.description ? (translatedP.description.length > 150 ? translatedP.description.substring(0, 150) + '...' : translatedP.description) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
+          ctaText: t('home.slideProduct.cta'),
+          ctaAction: () => navigate(`/product/${translatedP.id}`),
           isProduct: true,
-          productId: p.id
+          productId: translatedP.id
         };
       });
 
@@ -217,7 +314,7 @@ export default function Home() {
     }
 
     return defaultSlides;
-  }, [products, navigate]);
+  }, [products, navigate, t, translateProduct]);
 
   useEffect(() => {
     if (heroSlide >= slides.length) {
@@ -318,7 +415,12 @@ export default function Home() {
 
   const handleSubscribe = async (plan) => {
     if (plan._id.startsWith('mock-')) {
-      alert(`Takk for din interesse i abonnementsplanen "${plan.name}"! Siden dette er en testbutikk, er denne abonnementsfunksjonen for øyeblikket i demomodus.`);
+      const msg = language === 'es' 
+        ? `¡Gracias por tu interés en el plan de suscripción "${getTranslatedPlan(plan).name}"! Como esta es una tienda de prueba, esta función de suscripción está actualmente en modo de demostración.`
+        : language === 'en'
+        ? `Thank you for your interest in the "${getTranslatedPlan(plan).name}" subscription plan! As this is a test store, this subscription feature is currently in demo mode.`
+        : `Takk for din interesse i abonnementsplanen "${plan.name}"! Siden dette er en testbutikk, er denne abonnementsfunksjonen for øyeblikket i demomodus.`;
+      alert(msg);
       return;
     }
     setSubscribingId(plan._id);
@@ -340,7 +442,12 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Subscription redirect error:', err);
-      alert('Det oppstod en feil ved opprettelse av abonnement. Vennligst prøv igjen.');
+      const errMsg = language === 'es'
+        ? 'Ocurrió un error al crear la suscripción. Por favor, inténtalo de nuevo.'
+        : language === 'en'
+        ? 'An error occurred while creating the subscription. Please try again.'
+        : 'Det oppstod en feil ved opprettelse av abonnement. Vennligst prøv igjen.';
+      alert(errMsg);
       setSubscribingId(null);
     }
   };
@@ -359,7 +466,7 @@ export default function Home() {
       setTimeout(() => setNewsletterSubscribed(false), 5000);
     } catch (err) {
       console.error('Error subscribing email to Wix CRM from Home page:', err);
-      setNewsletterError('Det oppstod en feil. Vennligst prøv igjen.');
+      setNewsletterError(t('home.newsletter.error'));
     } finally {
       setNewsletterLoading(false);
     }
@@ -395,8 +502,8 @@ export default function Home() {
     }
   ];
 
-  // Filter out bestsellers
-  const bestsellers = products.filter(p => p.isBestseller);
+  // Filter out bestsellers and translate them dynamically
+  const bestsellers = products.filter(p => p.isBestseller).map(p => translateProduct(p));
 
   useEffect(() => {
     // Intersection Observer for reveal-on-scroll animations
@@ -465,7 +572,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
               >
                 <span>✨</span>
-                <span>Oppdag våre nye månedspakker!</span>
+                <span>{t('home.newMonthlyPacks')}</span>
               </button>
               {slides[heroSlide]?.isProduct ? (
                 <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
@@ -525,22 +632,22 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">local_shipping</span>
             <div className="min-w-0">
-              <CmsText slug="home-benefits-title-1" fallback="Gratis frakt over 1500 kr" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
-              <CmsText slug="home-benefits-desc-1" fallback="Rask levering til hele landet" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
+              <CmsText slug="home-benefits-title-1" fallback={t('home.benefits.freeShipping')} as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-1" fallback={t('home.benefits.fastDelivery')} as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">assignment_return</span>
             <div className="min-w-0">
-              <CmsText slug="home-benefits-title-2" fallback="14 dagers angrerett" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
-              <CmsText slug="home-benefits-desc-2" fallback="Enkel retur hvis du ombestemmer deg" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
+              <CmsText slug="home-benefits-title-2" fallback={t('home.benefits.returnPolicy')} as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-2" fallback={t('home.benefits.easyReturn')} as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">package</span>
             <div className="min-w-0">
-              <CmsText slug="home-benefits-title-3" fallback="Trygg levering" as="p" className="font-label-md text-label-md text-onyx leading-normal" />
-              <CmsText slug="home-benefits-desc-3" fallback="Normal leveringstid: ca. 2 uker" as="p" className="text-label-sm text-secondary leading-normal mt-1" />
+              <CmsText slug="home-benefits-title-3" fallback={t('home.benefits.secureDelivery')} as="p" className="font-label-md text-label-md text-onyx leading-normal" />
+              <CmsText slug="home-benefits-desc-3" fallback={t('home.benefits.deliveryTime')} as="p" className="text-label-sm text-secondary leading-normal mt-1" />
             </div>
           </div>
         </div>
@@ -550,14 +657,14 @@ export default function Home() {
       <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto py-section-gap reveal-on-scroll">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
           <div>
-            <CmsText slug="home-categories-badge" fallback="Kategorier" as="span" className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold" />
-            <CmsText slug="home-categories-title" fallback="Utforsk vårt utvalg" as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx" />
+            <CmsText slug="home-categories-badge" fallback={t('nav.categories')} as="span" className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold" />
+            <CmsText slug="home-categories-title" fallback={t('nav.promo_title')} as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx" />
           </div>
           <button 
             onClick={() => navigate('/products')}
             className="text-terracotta font-label-md text-label-md flex items-center gap-2 hover:underline underline-offset-4 font-bold group cursor-pointer"
           >
-            Se alle kategorier <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
+            {t('home.categories.allBtn')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
           </button>
         </div>
         
@@ -568,15 +675,15 @@ export default function Home() {
             className="md:col-span-8 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer aspect-[16/10] md:aspect-auto md:h-[500px]"
           >
             <img 
-              alt={`${currentSet.large.title} collection`} 
+              alt={`${getCategoryTranslation(currentSet.large).title} collection`} 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               src={getOptimizedWixImageUrl(currentSet.large.image, 800, 500)}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-8">
-              <CmsText slug={currentSet.large.titleSlug} fallback={currentSet.large.title} as="h3" className="text-white font-headline-md text-headline-md mb-2" />
-              <CmsText slug={currentSet.large.descSlug} fallback={currentSet.large.fallbackDesc} as="p" className="text-white/80 font-body-md text-body-md mb-4 max-w-sm" />
+              <CmsText slug={currentSet.large.titleSlug} fallback={getCategoryTranslation(currentSet.large).title} as="h3" className="text-white font-headline-md text-headline-md mb-2" />
+              <CmsText slug={currentSet.large.descSlug} fallback={getCategoryTranslation(currentSet.large).desc} as="p" className="text-white/80 font-body-md text-body-md mb-4 max-w-sm" />
               <span className="w-fit bg-white text-onyx px-5 py-2.5 rounded font-label-md text-label-md group-hover:bg-terracotta group-hover:text-white transition-colors duration-300">
-                Handle nå
+                {t('home.categories.shopNow')}
               </span>
             </div>
           </div>
@@ -588,13 +695,13 @@ export default function Home() {
               className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer"
             >
               <img 
-                alt={`${currentSet.small1.title} category`} 
+                alt={`${getCategoryTranslation(currentSet.small1).title} category`} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 src={getOptimizedWixImageUrl(currentSet.small1.image, 600, 400)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
-                <CmsText slug={currentSet.small1.titleSlug} fallback={currentSet.small1.title} as="h3" className="text-white font-headline-md text-headline-md" />
-                <CmsText slug={currentSet.small1.descSlug} fallback={currentSet.small1.fallbackDesc} as="p" className="text-white/70 text-label-sm mt-1" />
+                <CmsText slug={currentSet.small1.titleSlug} fallback={getCategoryTranslation(currentSet.small1).title} as="h3" className="text-white font-headline-md text-headline-md" />
+                <CmsText slug={currentSet.small1.descSlug} fallback={getCategoryTranslation(currentSet.small1).desc} as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
             </div>
             
@@ -604,13 +711,13 @@ export default function Home() {
               className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer"
             >
               <img 
-                alt={`${currentSet.small2.title} category`} 
+                alt={`${getCategoryTranslation(currentSet.small2).title} category`} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 src={getOptimizedWixImageUrl(currentSet.small2.image, 600, 400)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
-                <CmsText slug={currentSet.small2.titleSlug} fallback={currentSet.small2.title} as="h3" className="text-white font-headline-md text-headline-md" />
-                <CmsText slug={currentSet.small2.descSlug} fallback={currentSet.small2.fallbackDesc} as="p" className="text-white/70 text-label-sm mt-1" />
+                <CmsText slug={currentSet.small2.titleSlug} fallback={getCategoryTranslation(currentSet.small2).title} as="h3" className="text-white font-headline-md text-headline-md" />
+                <CmsText slug={currentSet.small2.descSlug} fallback={getCategoryTranslation(currentSet.small2).desc} as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
             </div>
           </div>
@@ -622,7 +729,7 @@ export default function Home() {
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <CmsText 
             slug="home-bestsellers-title" 
-            fallback="Våre bestselgere" 
+            fallback={t('home.bestsellers.title')} 
             as="h2" 
             className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 md:mb-16 text-onyx block" 
           />
@@ -639,34 +746,37 @@ export default function Home() {
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <CmsText
             slug="home-testimonials-title"
-            fallback="Kundeuttalelser"
+            fallback={t('home.testimonials.title')}
             as="h2"
             className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 text-onyx block"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-            {(testimonialsList.length > 0 ? testimonialsList : MOCK_TESTIMONIALS).map((item) => (
-              <div 
-                key={item._id} 
-                className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between hover:shadow-md transition-all duration-300"
-              >
-                <div>
-                  <div className="flex text-terracotta mb-4">
-                    {[...Array(item.content?.rating || 5)].map((_, i) => (
-                      <Star key={i} size={18} fill="currentColor" />
-                    ))}
+            {(testimonialsList.length > 0 ? testimonialsList : MOCK_TESTIMONIALS).map((item) => {
+              const translatedItem = getTranslatedTestimonial(item);
+              return (
+                <div 
+                  key={translatedItem._id} 
+                  className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between hover:shadow-md transition-all duration-300"
+                >
+                  <div>
+                    <div className="flex text-terracotta mb-4">
+                      {[...Array(translatedItem.content?.rating || 5)].map((_, i) => (
+                        <Star key={i} size={18} fill="currentColor" />
+                      ))}
+                    </div>
+                    {translatedItem.content?.title && (
+                      <h4 className="font-bold text-sm text-onyx mb-2">{translatedItem.content.title}</h4>
+                    )}
+                    <p className="font-body-md text-body-md italic mb-6 text-onyx/80 leading-relaxed">
+                      {translatedItem.content?.body}
+                    </p>
                   </div>
-                  {item.content?.title && (
-                    <h4 className="font-bold text-sm text-onyx mb-2">{item.content.title}</h4>
-                  )}
-                  <p className="font-body-md text-body-md italic mb-6 text-onyx/80 leading-relaxed">
-                    {item.content?.body}
+                  <p className="font-label-md text-label-md text-onyx font-bold">
+                    - {translatedItem.author?.authorName || 'Anonym'}
                   </p>
                 </div>
-                <p className="font-label-md text-label-md text-onyx font-bold">
-                  - {item.author?.authorName || 'Anonym'}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -685,26 +795,27 @@ export default function Home() {
           <div className="w-full lg:w-1/2">
             <CmsText 
               slug="home-subscription-badge" 
-              fallback="Månedspakker" 
+              fallback={t('home.subscription.badge')} 
               as="span" 
               className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold"
             />
             <CmsText 
               slug="home-subscription-title" 
-              fallback="Litt hverdagskos rett i postkassen" 
+              fallback={t('home.subscription.title')} 
               as="h2" 
               className="font-headline-xl text-2xl md:text-3xl lg:text-[40px] mb-4 text-onyx font-extrabold"
               style={{ lineHeight: '1.2' }}
             />
             <CmsText
               slug="home-subscription-desc"
-              fallback="Velg mellom våre populære abonnementsløsninger som Kopp & Kos eller Klistermerkeklubben. Perfekt som en gave."
+              fallback={t('home.subscription.desc')}
               as="p"
               className="font-body-md text-body-md mb-8 text-secondary leading-relaxed"
             />
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-              {(plansList.length > 0 ? plansList : MOCK_PLANS).map((plan) => {
+              {(plansList.length > 0 ? plansList : MOCK_PLANS).map((p) => {
+                const plan = getTranslatedPlan(p);
                 const planId = plan._id;
                 const priceVal = plan.price?.amount || plan.pricing?.price?.value || '0';
                 const currencyVal = plan.price?.currency || plan.pricing?.price?.currency || 'kr';
@@ -720,7 +831,7 @@ export default function Home() {
                   >
                     {plan.popular && (
                       <span className="absolute -top-3 left-4 bg-terracotta text-white text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
-                        Populær
+                        {t('home.subscription.popular')}
                       </span>
                     )}
                     <div>
@@ -735,7 +846,7 @@ export default function Home() {
                           {priceVal} {currencyVal}
                         </span>
                         <span className="text-secondary text-[10px]">
-                          /{isRecurring ? 'mnd' : 'engang'}
+                          /{isRecurring ? t('home.subscription.month') : t('home.subscription.oneTime')}
                         </span>
                       </div>
                       
@@ -763,10 +874,10 @@ export default function Home() {
                       {subscribingId === planId ? (
                         <>
                           <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                          <span>Vennligst vent...</span>
+                          <span>{t('home.subscription.loading')}</span>
                         </>
                       ) : (
-                        'Abonner nå'
+                        t('home.subscription.subscribe')
                       )}
                     </button>
                   </div>
@@ -786,13 +897,13 @@ export default function Home() {
             </div>
             <CmsText 
               slug="home-about-title" 
-              fallback="Hva betyr His Kingdom Designs for oss?" 
+              fallback={t('home.about.title')} 
               as="h2" 
               className="font-headline-lg text-2xl md:text-headline-lg font-bold mb-6 text-onyx"
             />
             <CmsText 
               slug="home-about-desc" 
-              fallback="Vi tror på kraften i de små tingene. En t-skjorte som starter en samtale, et klistermerke som gir oppmuntring på en grå dag, eller en plakat som minner oss på Guds trofasthet i hjemmet. Vår misjon er å skape vakre, moderne produkter som bærer et evig budskap." 
+              fallback={t('home.about.desc')} 
               as="p" 
               className="font-body-lg text-body-lg text-secondary leading-relaxed"
             />
@@ -802,24 +913,24 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
                 <Award size={24} />
               </div>
-              <CmsText slug="home-value-title-1" fallback="Kvalitet" as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
-              <CmsText slug="home-value-desc-1" fallback="Nøye utvalgte materialer for lang holdbarhet." as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
+              <CmsText slug="home-value-title-1" fallback={t('home.values.quality.title')} as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-desc-1" fallback={t('home.values.quality.desc')} as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
             
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
                 <BookOpen size={24} />
               </div>
-              <CmsText slug="home-value-title-2" fallback="Budskap" as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
-              <CmsText slug="home-value-desc-2" fallback="Bibelsk forankret og moderne designet." as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
+              <CmsText slug="home-value-title-2" fallback={t('home.values.message.title')} as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-desc-2" fallback={t('home.values.message.desc')} as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
 
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
                 <Users size={24} />
               </div>
-              <CmsText slug="home-value-title-3" fallback="Fellesskap" as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
-              <CmsText slug="home-value-desc-3" fallback="Bygget for å inspirere og dele troen." as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
+              <CmsText slug="home-value-title-3" fallback={t('home.values.community.title')} as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-desc-3" fallback={t('home.values.community.desc')} as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
           </div>
         </div>
@@ -829,8 +940,8 @@ export default function Home() {
       <section className="py-section-gap bg-white reveal-on-scroll">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <div className="text-center mb-12">
-            <CmsText slug="home-instagram-title" fallback="Følg oss på Instagram" as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold mb-4 text-onyx block" />
-            <CmsText slug="home-instagram-desc" fallback="Se hvordan våre kunder bærer sin tro @hiskingdomdesigns" as="p" className="text-secondary font-body-md" />
+            <CmsText slug="home-instagram-title" fallback={t('home.instagram.title')} as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold mb-4 text-onyx block" />
+            <CmsText slug="home-instagram-desc" fallback={t('home.instagram.desc')} as="p" className="text-secondary font-body-md" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {instagramFeed.map((item, index) => (
@@ -874,20 +985,20 @@ export default function Home() {
           <div className="relative z-10 max-w-2xl mx-auto">
             <CmsText
               slug="home-newsletter-title"
-              fallback="Bli med i vårt fellesskap"
+              fallback={t('home.newsletter.title')}
               as="h2"
               className="font-headline-lg text-2xl md:text-headline-lg font-bold text-parchment mb-4 block"
             />
             <CmsText
               slug="home-newsletter-desc"
-              fallback="Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nyheter om nye kolleksjoner."
+              fallback={t('home.newsletter.desc')}
               as="p"
               className="font-body-md text-body-md text-parchment/70 mb-10"
             />
             <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row gap-4 justify-center">
               <input 
                 className="bg-white/10 border border-white/20 text-white px-6 py-4 rounded-lg focus:outline-none focus:border-terracotta transition-colors placeholder:text-white/40 w-full sm:max-w-md disabled:opacity-50" 
-                placeholder="Din e-postadresse" 
+                placeholder={t('home.newsletter.emailPlaceholder')} 
                 type="email"
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
@@ -899,16 +1010,16 @@ export default function Home() {
                 type="submit"
                 disabled={newsletterLoading}
               >
-                {newsletterLoading ? 'Sender...' : 'Meld meg på'}
+                {newsletterLoading ? t('home.newsletter.sending') : t('home.newsletter.subscribeBtn')}
               </button>
             </form>
             {newsletterSubscribed && (
-              <p className="text-green-400 text-xs mt-3 animate-pulse">Takk! Du er nå påmeldt nyhetsbrevet.</p>
+              <p className="text-green-400 text-xs mt-3 animate-pulse">{t('home.newsletter.success')}</p>
             )}
             {newsletterError && (
               <p className="text-red-400 text-xs mt-3">{newsletterError}</p>
             )}
-            <CmsText slug="home-newsletter-privacy" fallback="Vi respekterer ditt personvern. Avmeld deg når som helst." as="p" className="text-label-sm text-parchment/40 mt-4" />
+            <CmsText slug="home-newsletter-privacy" fallback={t('home.newsletter.privacy')} as="p" className="text-label-sm text-parchment/40 mt-4" />
           </div>
         </div>
       </section>

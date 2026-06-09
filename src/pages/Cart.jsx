@@ -5,11 +5,14 @@ import { useCart } from '@/contexts/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import useMeta from '@/hooks/useMeta';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Cart() {
+  const { t, translateProduct } = useLanguage();
+
   useMeta(
-    "Handlekurv",
-    "Gå til kassen og betal trygt og enkelt. Se over produktene dine i handlekurven hos His Kingdom Designs."
+    t('cart.metaTitle'),
+    t('cart.metaDesc')
   );
 
   const {
@@ -210,15 +213,15 @@ export default function Cart() {
               check_circle
             </span>
           </div>
-          <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">Takk for din bestilling!</h2>
+          <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">{t('cart.thankYou')}</h2>
           <p className="text-secondary font-body-md mb-8 leading-relaxed">
-            Vi har mottatt din bestilling og sender en bekreftelse på e-post om kort tid. Normal leveringstid i Norge er ca. 2 uker (produksjonstid og frakt).
+            {t('cart.orderConfirmation')}
           </p>
           <button 
             onClick={() => navigate('/')}
             className="w-full bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md"
           >
-            Fortsett å handle
+            {t('cart.continueShopping')}
           </button>
         </div>
       </motion.main>
@@ -235,16 +238,16 @@ export default function Cart() {
         className="max-w-xl mx-auto py-40 px-4 text-center"
       >
         <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">shopping_cart</span>
-        <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">Handlekurven din er tom</h2>
+        <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">{t('cart.empty')}</h2>
         <p className="text-secondary font-body-md mb-8">
-          Du har ikke lagt til noen produkter i handlekurven ennå. Utforsk kolleksjonene våre for å finne noe du liker!
+          {t('cart.emptyDesc')}
         </p>
         <Link 
           to="/products"
           className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md"
         >
           <ArrowLeft size={16} />
-          <span>Utforsk produktene våre</span>
+          <span>{t('cart.exploreProducts')}</span>
         </Link>
       </motion.main>
     );
@@ -260,7 +263,7 @@ export default function Cart() {
       className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-margin-mobile md:px-margin-desktop py-28"
     >
       <h1 className="font-headline-lg text-headline-lg mb-10 text-onyx">
-        {checkoutStep === 'billing' ? 'Kasse & Betaling' : 'Din Handlekurv'}
+        {checkoutStep === 'billing' ? t('cart.checkoutAndPayment') : t('cart.title')}
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
@@ -270,49 +273,49 @@ export default function Cart() {
             /* Checkout Billing Form */
             <form onSubmit={handleCheckoutSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 space-y-6">
               <h3 className="font-headline-md text-headline-md text-onyx border-b border-slate-100 pb-4">
-                Leveringsinformasjon
+                {t('cart.deliveryInfo')}
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">Fornavn *</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.firstName')}</label>
                   <input type="text" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">Etternavn *</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.lastName')}</label>
                   <input type="text" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-onyx uppercase mb-2">Adresse *</label>
+                <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.address')}</label>
                 <input type="text" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-1">
-                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">Postnummer *</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.postalCode')}</label>
                   <input type="text" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">Poststed *</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.city')}</label>
                   <input type="text" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">E-postadresse *</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.email')}</label>
                   <input type="email" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">Telefonnummer *</label>
+                  <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.phone')}</label>
                   <input type="tel" required className="w-full bg-slate-50 border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta" />
                 </div>
               </div>
 
               <h3 className="font-headline-md text-headline-md text-onyx border-b border-slate-100 pb-4 pt-4">
-                Velg betalingsmetode
+                {t('cart.choosePaymentMethod')}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -320,15 +323,15 @@ export default function Cart() {
                   <input type="radio" name="payment" defaultChecked className="text-terracotta focus:ring-terracotta" />
                   <div>
                     <span className="font-bold text-sm block">Vipps</span>
-                    <span className="text-xs text-secondary">Rask betaling med Vipps på mobil</span>
+                    <span className="text-xs text-secondary">{t('cart.vippsDesc')}</span>
                   </div>
                 </label>
 
                 <label className="flex items-center gap-4 border border-outline-variant/60 rounded-xl p-4 cursor-pointer hover:border-terracotta transition-colors bg-slate-50">
                   <input type="radio" name="payment" className="text-terracotta focus:ring-terracotta" />
                   <div>
-                    <span className="font-bold text-sm block">Betalingskort</span>
-                    <span className="text-xs text-secondary">Visa, Mastercard og American Express</span>
+                    <span className="font-bold text-sm block">{t('footer.payment')}</span>
+                    <span className="text-xs text-secondary">{t('cart.cardDesc')}</span>
                   </div>
                 </label>
               </div>
@@ -340,13 +343,13 @@ export default function Cart() {
                   className="flex items-center gap-2 border border-outline hover:border-terracotta hover:text-terracotta px-6 py-4 rounded-xl font-semibold transition-all"
                 >
                   <ArrowLeft size={16} />
-                  <span>Tilbake til handlekurv</span>
+                  <span>{t('cart.backToCart')}</span>
                 </button>
                 <button 
                   type="submit" 
                   className="flex-grow bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md text-center"
                 >
-                  Fullfør bestilling ({total} kr)
+                  {t('cart.completeOrder', { total })}
                 </button>
               </div>
             </form>
@@ -354,88 +357,91 @@ export default function Cart() {
             /* Cart Product List */
             <>
               <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div 
-                    key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} 
-                    className="bg-white p-6 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col md:flex-row gap-6 items-center"
-                  >
-                    <div className="w-full md:w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-parchment flex items-center justify-center p-2 border border-outline-variant/20">
-                      <img 
-                        alt={item.name} 
-                        className="w-full h-full object-contain rounded" 
-                        src={item.image} 
-                      />
-                    </div>
-                    
-                    <div className="flex-grow text-center md:text-left">
-                      <h3 className="font-headline-md text-headline-md text-onyx text-[18px]">
-                        <Link to={`/product/${item.id}`} className="hover:text-terracotta transition-colors">
-                          {item.name}
-                        </Link>
-                      </h3>
-                      <div className="text-secondary text-sm mt-1">
-                        {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
-                          <span>Størrelse: <span className="font-semibold text-onyx">{item.selectedSize}</span></span>
-                        )}
-                        {((item.colors && item.colors.length > 0 && !item.colorNames.includes('Terracotta')) || item.selectedColor !== 'Terracotta') && (
-                          <span> | Farge: <span className="font-semibold text-onyx">{item.selectedColor}</span></span>
-                        )}
-                        {item.selectedOptions && Object.entries(item.selectedOptions).map(([optName, optVal]) => {
-                          const nameLower = optName.toLowerCase();
-                          const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
-                          const isColor = nameLower === 'color' || nameLower === 'farge';
-                          if (isSize || isColor) return null;
-                          return (
-                            <span key={optName}> | {optName}: <span className="font-semibold text-onyx">{optVal}</span></span>
-                          );
-                        })}
+                {cartItems.map((item) => {
+                  const translatedItem = translateProduct(item);
+                  return (
+                    <div 
+                      key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} 
+                      className="bg-white p-6 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col md:flex-row gap-6 items-center"
+                    >
+                      <div className="w-full md:w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-parchment flex items-center justify-center p-2 border border-outline-variant/20">
+                        <img 
+                          alt={translatedItem.name} 
+                          className="w-full h-full object-contain rounded" 
+                          src={item.image} 
+                        />
                       </div>
-                      {item.customTextFields && item.customTextFields.length > 0 && (
-                        <div className="mt-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100/70 text-xs text-secondary max-w-md">
-                          {item.customTextFields.map(field => (
-                            <div key={field.title}>
-                              <strong className="text-onyx font-semibold">{field.title}:</strong> {field.value === 'Tilfeldig' ? 'Vilkårlig motiv (vi velger for deg)' : field.value}
-                            </div>
-                          ))}
-                        </div>
-                      )}
                       
-                      <button 
-                        onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
-                        className="text-terracotta text-label-md font-label-md mt-2 inline-flex items-center gap-1 hover:underline"
-                      >
-                        <Trash2 size={14} /> 
-                        <span>Fjern</span>
-                      </button>
-                    </div>
+                      <div className="flex-grow text-center md:text-left">
+                        <h3 className="font-headline-md text-headline-md text-onyx text-[18px]">
+                          <Link to={`/product/${item.id}`} className="hover:text-terracotta transition-colors">
+                            {translatedItem.name}
+                          </Link>
+                        </h3>
+                        <div className="text-secondary text-sm mt-1">
+                          {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
+                            <span>{t('product.size')}: <span className="font-semibold text-onyx">{item.selectedSize}</span></span>
+                          )}
+                          {((item.colors && item.colors.length > 0 && !item.colorNames.includes('Terracotta')) || item.selectedColor !== 'Terracotta') && (
+                            <span> | {t('product.color')}: <span className="font-semibold text-onyx">{item.selectedColor}</span></span>
+                          )}
+                          {item.selectedOptions && Object.entries(item.selectedOptions).map(([optName, optVal]) => {
+                            const nameLower = optName.toLowerCase();
+                            const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+                            const isColor = nameLower === 'color' || nameLower === 'farge';
+                            if (isSize || isColor) return null;
+                            return (
+                              <span key={optName}> | {optName}: <span className="font-semibold text-onyx">{optVal}</span></span>
+                            );
+                          })}
+                        </div>
+                        {item.customTextFields && item.customTextFields.length > 0 && (
+                          <div className="mt-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100/70 text-xs text-secondary max-w-md">
+                            {item.customTextFields.map(field => (
+                              <div key={field.title}>
+                                <strong className="text-onyx font-semibold">{field.title}:</strong> {field.value === 'Tilfeldig' ? t('product.leaveMotif') : field.value}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <button 
+                          onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
+                          className="text-terracotta text-label-md font-label-md mt-2 inline-flex items-center gap-1 hover:underline font-semibold"
+                        >
+                          <Trash2 size={14} /> 
+                          <span>{t('cart.remove')}</span>
+                        </button>
+                      </div>
 
-                    {/* Quantity Selector */}
-                    <div className="flex items-center gap-3 bg-parchment p-1.5 rounded-full border border-outline-variant/60">
-                      <button 
-                        onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
-                        className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors font-bold"
-                      >
-                        -
-                      </button>
-                      <span className="font-bold min-w-[20px] text-center text-sm">
-                        {item.quantity}
-                      </span>
-                      <button 
-                        onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
-                        className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors font-bold"
-                      >
-                        +
-                      </button>
-                    </div>
+                      {/* Quantity Selector */}
+                      <div className="flex items-center gap-3 bg-parchment p-1.5 rounded-full border border-outline-variant/60">
+                        <button 
+                          onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
+                          className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors font-bold"
+                        >
+                          -
+                        </button>
+                        <span className="font-bold min-w-[20px] text-center text-sm">
+                          {item.quantity}
+                        </span>
+                        <button 
+                          onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
+                          className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full transition-colors font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
 
-                    {/* Pricing */}
-                    <div className="text-right min-w-[100px] flex-shrink-0">
-                      <span className="font-headline-md text-headline-md text-terracotta text-lg font-bold">
-                        {item.price * item.quantity} kr
-                      </span>
+                      {/* Pricing */}
+                      <div className="text-right min-w-[100px] flex-shrink-0">
+                        <span className="font-headline-md text-headline-md text-terracotta text-lg font-bold">
+                          {item.price * item.quantity} kr
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Back to Shopping Button */}
@@ -445,7 +451,7 @@ export default function Cart() {
                   className="inline-flex items-center gap-2 text-terracotta font-label-md hover:underline group font-bold"
                 >
                   <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-                  <span>Fortsett å handle</span>
+                  <span>{t('cart.continueShopping')}</span>
                 </Link>
               </div>
             </>
@@ -456,23 +462,23 @@ export default function Cart() {
         <aside className="lg:col-span-4 sticky top-28">
           <div className="bg-white p-8 rounded-2xl shadow-md border border-outline-variant/20">
             <h2 className="font-headline-md text-headline-md mb-6 border-b border-parchment pb-4 text-onyx">
-              Oppsummering
+              {t('cart.summary')}
             </h2>
             <div className="space-y-4 mb-8">
               <div className="flex justify-between font-body-md text-secondary">
-                <span>Subtotal</span>
+                <span>{t('cart.subtotal')}</span>
                 <span className="font-bold text-onyx">{subtotal} kr</span>
               </div>
               {appliedCoupon && (
                 <div className="flex justify-between font-body-md text-emerald-600">
                   <span className="flex items-center gap-1">
-                    Rabatt ({appliedCoupon.code})
+                    {t('cart.discount')} ({appliedCoupon.code})
                     <button 
                       onClick={removeCoupon} 
                       className="text-[10px] text-red-500 hover:underline hover:text-red-700 font-normal cursor-pointer"
                       title="Fjern rabattkode"
                     >
-                      (Fjern)
+                      ({t('cart.remove')})
                     </button>
                   </span>
                   <span className="font-bold">-{appliedCoupon.discount} kr</span>
@@ -481,29 +487,29 @@ export default function Cart() {
               {appliedGiftCard && (
                 <div className="flex justify-between font-body-md text-emerald-600">
                   <span className="flex items-center gap-1">
-                    Gavekort ({appliedGiftCard.obfuscatedCode || appliedGiftCard.code})
+                    {t('cart.giftCard')} ({appliedGiftCard.obfuscatedCode || appliedGiftCard.code})
                     <button 
                       onClick={removeGiftCard} 
                       className="text-[10px] text-red-500 hover:underline hover:text-red-700 font-normal cursor-pointer"
                       title="Fjern gavekort"
                     >
-                      (Fjern)
+                      ({t('cart.remove')})
                     </button>
                   </span>
                   <span className="font-bold">-{appliedGiftCard.amount} kr</span>
                 </div>
               )}
               <div className="flex justify-between font-body-md text-secondary">
-                <span>Frakt</span>
+                <span>{t('cart.shipping')}</span>
                 <span className="font-bold text-onyx">
-                  {shipping === 0 ? 'Gratis' : `${shipping} kr`}
+                  {shipping === 0 ? t('cart.free') : `${shipping} kr`}
                 </span>
               </div>
               
               <div className="h-px bg-parchment w-full my-4" />
               
               <div className="flex justify-between font-headline-md text-headline-md text-onyx text-xl">
-                <span>Total</span>
+                <span>{t('cart.total')}</span>
                 <span className="text-terracotta font-extrabold">{total} kr</span>
               </div>
             </div>
@@ -515,10 +521,10 @@ export default function Cart() {
                   <div className="mb-4 p-4 rounded-xl border border-[#1B4965]/20 bg-[#1B4965]/5 text-left space-y-2">
                     <div className="flex items-center gap-2 text-[#1B4965] font-bold text-xs">
                       <span className="material-symbols-outlined text-sm">redeem</span>
-                      <span>Venn-rabatt tilgjengelig!</span>
+                      <span>{t('cart.referralAvailable')}</span>
                     </div>
                     <p className="text-[11px] text-secondary leading-relaxed">
-                      Du ble invitert av en venn og får 10% rabatt på din første bestilling.
+                      {t('cart.referralDesc')}
                     </p>
                     <button
                       type="button"
@@ -527,11 +533,11 @@ export default function Cart() {
                       }}
                       className="bg-[#1B4965] text-white hover:opacity-95 active:scale-95 transition-all text-[10px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-lg shadow-sm w-full cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      <span>Aktiver 10% rabatt</span>
+                      <span>{t('cart.activateDiscount')}</span>
                     </button>
                   </div>
                 )}
-                <span className="block text-xs font-semibold text-onyx uppercase mb-2">Rabattkode</span>
+                <span className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.couponPlaceholder')}</span>
                 <form 
                   onSubmit={async (e) => {
                     e.preventDefault();
@@ -546,7 +552,7 @@ export default function Cart() {
                   <input 
                     type="text" 
                     name="couponInput"
-                    placeholder="Skriv rabattkode..." 
+                    placeholder={t('cart.couponInputPlaceholder')} 
                     disabled={isApplyingCoupon}
                     className="flex-grow bg-slate-50 border border-outline-variant rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta disabled:opacity-50 text-onyx" 
                   />
@@ -555,7 +561,7 @@ export default function Cart() {
                     disabled={isApplyingCoupon}
                     className="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
                   >
-                    {isApplyingCoupon ? 'Sjekker...' : 'Bruk'}
+                    {isApplyingCoupon ? t('cart.checking') : t('cart.apply')}
                   </button>
                 </form>
                 {couponError && (
@@ -564,7 +570,7 @@ export default function Cart() {
                 {appliedCoupon && (
                   <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                     <span className="material-symbols-outlined text-[12px] font-bold">done</span>
-                    Kupong aktivert! Du sparer {appliedCoupon.discount} kr.
+                    {t('cart.couponApplied', { amount: appliedCoupon.discount })}
                   </p>
                 )}
               </div>
@@ -573,7 +579,7 @@ export default function Cart() {
             {/* Gift Card Form */}
             {checkoutStep !== 'billing' && (
               <div className="mb-6 pt-4 border-t border-slate-100">
-                <span className="block text-xs font-semibold text-onyx uppercase mb-2">Gavekort</span>
+                <span className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.giftCard')}</span>
                 <form 
                   onSubmit={async (e) => {
                     e.preventDefault();
@@ -588,7 +594,7 @@ export default function Cart() {
                   <input 
                     type="text" 
                     name="giftCardInput"
-                    placeholder="Skriv gavekortkode..." 
+                    placeholder={t('cart.giftCardPlaceholder')} 
                     disabled={isApplyingGiftCard}
                     className="flex-grow bg-slate-50 border border-outline-variant rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta disabled:opacity-50 text-onyx" 
                   />
@@ -597,7 +603,7 @@ export default function Cart() {
                     disabled={isApplyingGiftCard}
                     className="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
                   >
-                    {isApplyingGiftCard ? 'Sjekker...' : 'Bruk'}
+                    {isApplyingGiftCard ? t('cart.checking') : t('cart.apply')}
                   </button>
                 </form>
                 {giftCardError && (
@@ -606,7 +612,7 @@ export default function Cart() {
                 {appliedGiftCard && (
                   <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                     <span className="material-symbols-outlined text-[12px] font-bold">done</span>
-                    Gavekort aktivert! Verdi: {appliedGiftCard.amount} kr.
+                    {t('cart.giftCardApplied', { amount: appliedGiftCard.amount })}
                   </p>
                 )}
               </div>
@@ -615,7 +621,7 @@ export default function Cart() {
             {/* Shipping & Tax Estimator */}
             {checkoutStep !== 'billing' && (
               <div className="mb-6 pt-4 border-t border-slate-100">
-                <span className="block text-xs font-semibold text-onyx uppercase mb-2">Beregn frakt & avgifter</span>
+                <span className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.estimateShipping')}</span>
                 <form 
                   onSubmit={async (e) => {
                     e.preventDefault();
@@ -627,36 +633,36 @@ export default function Cart() {
                   className="block space-y-2.5"
                 >
                   <div className="block">
-                    <label className="block text-[10px] text-secondary font-medium mb-1">Land</label>
+                    <label className="block text-[10px] text-secondary font-medium mb-1">{t('cart.country')}</label>
                     <select 
                       name="countrySelect"
                       className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
                     >
-                      <option value="NO">Norge</option>
-                      <option value="SE">Sverige</option>
-                      <option value="DK">Danmark</option>
+                      <option value="NO">{t('cart.norway')}</option>
+                      <option value="SE">{t('cart.sweden')}</option>
+                      <option value="DK">{t('cart.denmark')}</option>
                     </select>
                   </div>
                   
                   <div className="block">
-                    <label className="block text-[10px] text-secondary font-medium mb-1">Postnummer</label>
+                    <label className="block text-[10px] text-secondary font-medium mb-1">{t('cart.postalCode')}</label>
                     <input 
                       type="text" 
                       name="postalInput"
                       required
-                      placeholder="F.eks. 4580" 
+                      placeholder={t('cart.postalPlaceholder')} 
                       defaultValue={shippingAddress?.postalCode || ''}
                       className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" 
                     />
                   </div>
 
                   <div className="block">
-                    <label className="block text-[10px] text-secondary font-medium mb-1">Poststed</label>
+                    <label className="block text-[10px] text-secondary font-medium mb-1">{t('cart.city')}</label>
                     <input 
                       type="text" 
                       name="cityInput"
                       required
-                      placeholder="F.eks. Lyngdal" 
+                      placeholder={t('cart.cityPlaceholder')} 
                       defaultValue={shippingAddress?.city || ''}
                       className="block w-full bg-slate-50 border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" 
                     />
@@ -667,7 +673,7 @@ export default function Cart() {
                     disabled={isEstimating}
                     className="block w-full bg-slate-800 text-white font-bold py-2 rounded-lg text-xs hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
                   >
-                    {isEstimating ? 'Beregner...' : 'Beregn frakt'}
+                    {isEstimating ? t('cart.checking') : t('cart.calculateShipping')}
                   </button>
                 </form>
                 {estimateError && (
@@ -678,20 +684,20 @@ export default function Cart() {
                     <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between text-xs">
                       <div className="text-emerald-800 font-medium flex items-center gap-1.5">
                         <span className="material-symbols-outlined text-[16px]">done</span>
-                        <span>Frakt beregnet for {shippingAddress ? `${shippingAddress.postalCode} ${shippingAddress.city}` : 'Norge'}!</span>
+                        <span>{t('cart.shippingEstimatedFor', { postal: shippingAddress?.postalCode || '', city: shippingAddress?.city || '' })}</span>
                       </div>
                       <button 
                         onClick={clearEstimation}
                         className="text-[10px] text-secondary hover:text-red-500 hover:underline font-semibold"
                       >
-                        Nullstill
+                        {t('cart.clear')}
                       </button>
                     </div>
 
                     {/* Display actual shipping methods from Wix */}
                     {estimatedRates && estimatedRates.length > 0 && (
                       <div className="space-y-2.5">
-                        <span className="block text-[10px] font-semibold text-onyx uppercase tracking-wider">Fraktalternativer</span>
+                        <span className="block text-[10px] font-semibold text-onyx uppercase tracking-wider">{t('cart.shippingOptions')}</span>
                         <div className="space-y-2">
                           {estimatedRates.map((rate) => {
                             const isSelected = selectedShippingRate?.code === rate.code;
@@ -708,11 +714,11 @@ export default function Cart() {
                                 <div>
                                   <span className="font-bold block text-onyx">{rate.title}</span>
                                   {rate.deliveryTime && (
-                                    <span className="text-[10px] text-secondary/70">Forventet levering: {rate.deliveryTime}</span>
+                                    <span className="text-[10px] text-secondary/70">{t('cart.estimatedDelivery', { time: rate.deliveryTime })}</span>
                                   )}
                                 </div>
                                 <span className="font-bold text-terracotta text-sm">
-                                  {rate.cost === 0 ? 'Gratis' : `${rate.cost} kr`}
+                                  {rate.cost === 0 ? t('cart.free') : `${rate.cost} kr`}
                                 </span>
                               </div>
                             );
@@ -742,11 +748,11 @@ export default function Cart() {
                 {isRedirecting ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Oppretter kasse...</span>
+                    <span>{t('cart.creatingCheckout')}</span>
                   </>
                 ) : (
                   <>
-                    <span>Gå til kassen</span>
+                    <span>{t('cart.checkout')}</span>
                     <ArrowRight size={16} />
                   </>
                 )}
@@ -755,7 +761,7 @@ export default function Cart() {
 
             <div className="space-y-4">
               <p className="text-center text-label-sm font-label-sm text-secondary tracking-widest uppercase">
-                Sikre betalingsmetoder
+                {t('cart.securePaymentMethods')}
               </p>
               <div className="flex justify-center gap-3 opacity-50 grayscale hover:opacity-75 transition-opacity">
                 <span className="bg-orange-500 rounded px-2 py-1 text-[9px] text-white font-bold select-none">VIPPS</span>
@@ -769,11 +775,11 @@ export default function Cart() {
           <div className="mt-6 flex flex-col gap-4 px-4">
             <div className="flex items-center gap-3 text-secondary">
               <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">Gratis frakt over 1500 kr</span>
+              <span className="text-label-sm font-label-sm">{t('home.benefits.freeShipping')}</span>
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">14 dagers angrerett og retur</span>
+              <span className="text-label-sm font-label-sm">{t('home.benefits.returnPolicy')}</span>
             </div>
           </div>
         </aside>
@@ -796,9 +802,9 @@ export default function Cart() {
               <div className="absolute top-0 left-0 w-16 h-16 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
             </div>
             <div className="space-y-2 select-none">
-              <h3 className="font-headline-md text-lg text-onyx font-bold">Sikker betaling</h3>
+              <h3 className="font-headline-md text-lg text-onyx font-bold">{t('cart.securePayment')}</h3>
               <p className="text-xs text-secondary leading-relaxed">
-                Vennligst vent mens vi gjør klar kassen din...
+                {t('cart.pleaseWaitCheckout')}
               </p>
             </div>
           </div>

@@ -147,15 +147,18 @@ const renderRichText = (text, isAssistant) => {
   return <div className="space-y-1">{renderedElements}</div>;
 };
 
-const QUICK_REPLIES = [
-  { text: "Hva er leveringstiden?", label: "🚚 Leveringstid" },
-  { text: "Hvordan gjør jeg en retur?", label: "🔄 Retur & Bytte" },
-  { text: "Har dere gratis frakt?", label: "🎁 Gratis frakt" },
-  { text: "Hvilke størrelser tilbyr dere?", label: "📏 Størrelsesguide" }
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function HkmChatWidget() {
+  const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+
+  const QUICK_REPLIES = [
+    { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel') },
+    { text: t('chat.quickReply.returns'), label: t('chat.quickReply.returnsLabel') },
+    { text: t('chat.quickReply.freeShipping'), label: t('chat.quickReply.freeShippingLabel') },
+    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') }
+  ];
   const [inputText, setInputText] = useState('');
   const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext } = useApp();
   const chatBodyRef = useRef(null);
@@ -625,10 +628,10 @@ export default function HkmChatWidget() {
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">HKD Assistent</h3>
+                  <h3 className="font-semibold text-sm">{t('chat.title')}</h3>
                   <span className="text-[10px] text-white/80 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-400 inline-block rounded-full animate-pulse"></span>
-                    Tilkoblet butikken
+                    {t('chat.connected')}
                   </span>
                 </div>
               </div>
@@ -651,7 +654,7 @@ export default function HkmChatWidget() {
                     : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
                 }`}
               >
-                AI Assistent
+                {t('chat.aiMode')}
               </button>
               <button
                 type="button"
@@ -669,7 +672,7 @@ export default function HkmChatWidget() {
                     : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
                 }`}
               >
-                Kundeservice (Live)
+                {t('chat.liveMode')}
               </button>
             </div>
 
@@ -696,7 +699,7 @@ export default function HkmChatWidget() {
                             ? 'bg-terracotta text-white rounded-tr-none' 
                             : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
                         }`}>
-                          {renderRichText(msg.text, msg.sender === 'assistant')}
+                          {renderRichText(msg.id === 'msg-init-1' ? t('chat.welcome') : msg.text, msg.sender === 'assistant')}
                         </div>
                         
                         <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
@@ -730,20 +733,17 @@ export default function HkmChatWidget() {
                   <div className="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center">
                     <span className="material-symbols-outlined text-xl select-none">error_outline</span>
                   </div>
-                  <h4 className="font-bold text-xs text-onyx">Kunne ikke koble til Live Chat</h4>
+                  <h4 className="font-bold text-xs text-onyx">{t('chat.connectionErrorTitle')}</h4>
                   <p className="text-[11px] text-secondary leading-relaxed">
                     {chatError.includes('403') ? (
-                      <>
-                        Live Chat-tjenesten mangler tillatelser i Wix Dashboard. 
-                        Vennligst gå til <a href="https://dev.wix.com" target="_blank" rel="noopener noreferrer" className="text-terracotta underline font-semibold">dev.wix.com</a> og legg til tillatelsen <strong>Manage Inbox Messages</strong> for denne appen.
-                      </>
+                      t('chat.permissionError')
                     ) : (
                       chatError
                     )}
                   </p>
-                  <p className="text-[11px] text-secondary leading-relaxed font-semibold">
-                    Du kan kontakte oss direkte på e-post: <a href="mailto:post@hiskingdomministry.no" className="text-terracotta underline">post@hiskingdomministry.no</a>.
-                  </p>
+                  <div className="text-[11px] text-secondary leading-relaxed font-semibold">
+                    {renderRichText(t('chat.emailContactDesc'), true)}
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
@@ -752,7 +752,7 @@ export default function HkmChatWidget() {
                     }}
                     className="w-full bg-[#1B4965] text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
-                    Bruk AI Assistent i stedet
+                    {t('chat.useAiFallback')}
                   </button>
                 </div>
               ) : needsContactInfo ? (
@@ -765,13 +765,13 @@ export default function HkmChatWidget() {
                   className="p-4 bg-white rounded-2xl border border-outline-variant/30 space-y-4 shadow-sm text-left"
                   style={{ display: 'block' }}
                 >
-                  <h4 className="font-bold text-xs text-onyx mb-1">Kundeservice Chat</h4>
+                  <h4 className="font-bold text-xs text-onyx mb-1">{t('chat.liveChatTitle')}</h4>
                   <p className="text-[11px] text-secondary leading-relaxed mb-4">
-                    Vennligst oppgi navn og e-postadresse slik at vi kan hjelpe deg og lagre henvendelsen i vårt system.
+                    {t('chat.guestFormDesc')}
                   </p>
                   
                   <div className="block">
-                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">Ditt Navn</label>
+                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">{t('chat.yourName')}</label>
                     <input
                       type="text"
                       required
@@ -783,7 +783,7 @@ export default function HkmChatWidget() {
                   </div>
 
                   <div className="block mt-3">
-                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">E-postadresse</label>
+                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">{t('chat.emailAddress')}</label>
                     <input
                       type="email"
                       required
@@ -799,13 +799,13 @@ export default function HkmChatWidget() {
                     disabled={isCreatingConv}
                     className="w-full bg-[#1B4965] text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
-                    {isCreatingConv ? 'Starter samtale...' : 'Start samtale'}
+                    {isCreatingConv ? t('chat.startingConversation') : t('chat.startConversation')}
                   </button>
                 </form>
               ) : isCreatingConv ? (
                 <div className="flex flex-col items-center justify-center py-12 space-y-3">
                   <div className="w-8 h-8 border-3 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-xs text-secondary font-semibold">Kobler deg til innboksen...</p>
+                  <p className="text-xs text-secondary font-semibold">{t('chat.startingConversation')}</p>
                 </div>
               ) : (
                 /* Live Chat Messages list */
@@ -813,8 +813,8 @@ export default function HkmChatWidget() {
                   {liveMessages.length === 0 ? (
                     <div className="text-center py-12 text-secondary/60 text-xs font-medium space-y-1">
                       <span className="material-symbols-outlined text-3xl opacity-40">chat</span>
-                      <p>Samtalen er startet.</p>
-                      <p>Skriv en melding under for å kontakte oss!</p>
+                      <p>{t('chat.convStarted')}</p>
+                      <p>{t('chat.convStartedDesc')}</p>
                     </div>
                   ) : (
                     liveMessages.map((msg) => (
@@ -879,7 +879,7 @@ export default function HkmChatWidget() {
                 <div className="relative w-full">
                   <input
                     type="text"
-                    placeholder={chatMode === 'ai' ? "Skriv din melding her..." : "Skriv din melding til butikken..."}
+                    placeholder={chatMode === 'ai' ? t('chat.aiPlaceholder') : t('chat.livePlaceholder')}
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     disabled={isCreatingConv || (chatMode === 'live' && needsContactInfo)}

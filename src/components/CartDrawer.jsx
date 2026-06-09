@@ -5,8 +5,10 @@ import { X, Plus, Minus, Trash2, ArrowRight, ShoppingCart, Lock } from 'lucide-r
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { wixClient } from '@/lib/wix';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CartDrawer() {
+  const { t, translateProduct } = useLanguage();
   const { 
     cartItems, 
     isCartDrawerOpen, 
@@ -158,7 +160,7 @@ export default function CartDrawer() {
             <div className="px-6 py-5 border-b border-outline-variant/30 flex items-center justify-between bg-parchment/30">
               <div className="flex items-center gap-2.5">
                 <ShoppingCart size={20} className="text-terracotta" />
-                <h2 className="font-headline-md text-headline-md text-onyx font-bold">Handlekurv</h2>
+                <h2 className="font-headline-md text-headline-md text-onyx font-bold">{t('nav.cart')}</h2>
                 <span className="bg-terracotta/10 text-terracotta text-xs font-bold px-2 py-0.5 rounded-full">
                   {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
@@ -177,12 +179,12 @@ export default function CartDrawer() {
               <div className="px-6 py-4 bg-terracotta/5 border-b border-terracotta/10 text-xs text-onyx">
                 {amountToFreeShipping > 0 ? (
                   <p className="mb-2 font-medium">
-                    Du er <strong className="text-terracotta font-bold">{amountToFreeShipping} kr</strong> unna <strong className="text-primary-dark">gratis frakt</strong>!
+                    {t('cart.progressToFreeShipping', { amount: amountToFreeShipping })}
                   </p>
                 ) : (
                   <p className="mb-2 font-medium text-emerald-800 flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm font-bold">check_circle</span>
-                    Gratulerer! Du har oppnådd **gratis frakt**.
+                    {t('cart.freeShippingAchieved')}
                   </p>
                 )}
                 <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
@@ -208,9 +210,9 @@ export default function CartDrawer() {
                     <ShoppingCart size={32} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-onyx text-base">Kurven er tom</h3>
+                    <h3 className="font-bold text-onyx text-base">{t('cart.empty')}</h3>
                     <p className="text-xs text-secondary/70 mt-1 max-w-[240px] mx-auto">
-                      Du har ikke lagt til noen produkter i handlekurven din ennå.
+                      {t('cart.emptyDrawerDesc')}
                     </p>
                   </div>
                   <button
@@ -220,94 +222,96 @@ export default function CartDrawer() {
                     }}
                     className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-opacity-95 active:scale-95 transition-all shadow-md"
                   >
-                    Utforsk butikken
+                    {t('cart.exploreProducts')}
                   </button>
                 </div>
               ) : (
-                cartItems.map((item) => (
-                  <div 
-                    key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
-                    className="flex gap-4 p-3 border border-outline-variant/30 rounded-xl bg-white hover:border-outline-variant transition-all"
-                  >
-                    {/* Item Image */}
-                    <div className="w-20 h-20 bg-parchment rounded-lg overflow-hidden shrink-0 border border-slate-100">
-                      <img
-                        src={getOptimizedWixImageUrl(item.image, 160, 160)}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-
-                    {/* Item info */}
-                    <div className="flex-1 flex flex-col justify-between min-w-0">
-                      <div>
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="font-bold text-sm text-onyx line-clamp-1 hover:text-terracotta transition-colors">
-                            <Link 
-                              to={`/product/${item.id}`}
-                              onClick={() => setIsCartDrawerOpen(false)}
-                            >
-                              {item.name}
-                            </Link>
-                          </h4>
-                          <button
-                            onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
-                            className="text-secondary/50 hover:text-red-500 transition-colors p-0.5 hover:bg-slate-50 rounded"
-                            title="Fjern vare"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                        
-                        <div className="text-[10px] text-secondary mt-0.5 uppercase tracking-wide">
-                          {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
-                            <span>Størrelse: <span className="font-bold text-onyx">{item.selectedSize}</span> • </span>
-                          )}
-                          {((item.colors && item.colors.length > 0 && !item.colorNames.includes('Terracotta')) || item.selectedColor !== 'Terracotta') && (
-                            <span>Farge: <span className="font-bold text-onyx">{item.selectedColor}</span> • </span>
-                          )}
-                          {item.selectedOptions && Object.entries(item.selectedOptions).map(([optName, optVal]) => {
-                            const nameLower = optName.toLowerCase();
-                            const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
-                            const isColor = nameLower === 'color' || nameLower === 'farge';
-                            if (isSize || isColor) return null;
-                            return (
-                              <span key={optName}>
-                                {optName}: <span className="font-bold text-onyx">{optVal}</span> • </span>
-                            );
-                          })}
-                        </div>
-                        {item.customTextFields && item.customTextFields.length > 0 && (
-                          <div className="mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100/70 text-[10px] text-secondary lowercase first-letter:uppercase normal-case">
-                            {item.customTextFields.map(field => (
-                              <div key={field.title}>
-                                <strong className="text-onyx font-semibold">{field.title}:</strong> {field.value === 'Tilfeldig' ? 'Vilkårlig motiv (vi velger for deg)' : field.value}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                cartItems.map((item) => {
+                  const translatedItem = translateProduct(item);
+                  return (
+                    <div 
+                      key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
+                      className="flex gap-4 p-3 border border-outline-variant/30 rounded-xl bg-white hover:border-outline-variant transition-all"
+                    >
+                      {/* Item Image */}
+                      <div className="w-20 h-20 bg-parchment rounded-lg overflow-hidden shrink-0 border border-slate-100">
+                        <img
+                          src={getOptimizedWixImageUrl(item.image, 160, 160)}
+                          alt={translatedItem.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
                       </div>
 
-                      <div className="flex items-end justify-between mt-2">
-                        {/* Qty Selector */}
-                        <div className="flex items-center border border-outline rounded-lg bg-slate-50 scale-90 -ml-2 select-none">
-                          <button
-                            onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
-                            className="p-1.5 hover:text-terracotta transition-colors"
-                            title="Reduser antall"
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="w-8 text-center text-xs font-semibold text-onyx">{item.quantity}</span>
-                          <button
-                            onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
-                            className="p-1.5 hover:text-terracotta transition-colors"
-                            title="Øk antall"
-                          >
-                            <Plus size={12} />
-                          </button>
+                      {/* Item info */}
+                      <div className="flex-1 flex flex-col justify-between min-w-0">
+                        <div>
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="font-bold text-sm text-onyx line-clamp-1 hover:text-terracotta transition-colors">
+                              <Link 
+                                to={`/product/${item.id}`}
+                                onClick={() => setIsCartDrawerOpen(false)}
+                              >
+                                {translatedItem.name}
+                              </Link>
+                            </h4>
+                            <button
+                              onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
+                              className="text-secondary/50 hover:text-red-500 transition-colors p-0.5 hover:bg-slate-50 rounded"
+                              title={t('cart.remove')}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                          
+                          <div className="text-[10px] text-secondary mt-0.5 uppercase tracking-wide">
+                            {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
+                              <span>{t('product.size')}: <span className="font-bold text-onyx">{item.selectedSize}</span> • </span>
+                            )}
+                            {((item.colors && item.colors.length > 0 && !item.colorNames.includes('Terracotta')) || item.selectedColor !== 'Terracotta') && (
+                              <span>{t('product.color')}: <span className="font-bold text-onyx">{item.selectedColor}</span> • </span>
+                            )}
+                            {item.selectedOptions && Object.entries(item.selectedOptions).map(([optName, optVal]) => {
+                              const nameLower = optName.toLowerCase();
+                              const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+                              const isColor = nameLower === 'color' || nameLower === 'farge';
+                              if (isSize || isColor) return null;
+                              return (
+                                <span key={optName}>
+                                  {optName}: <span className="font-bold text-onyx">{optVal}</span> • </span>
+                              );
+                            })}
+                          </div>
+                          {item.customTextFields && item.customTextFields.length > 0 && (
+                            <div className="mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100/70 text-[10px] text-secondary lowercase first-letter:uppercase normal-case">
+                              {item.customTextFields.map(field => (
+                                <div key={field.title}>
+                                  <strong className="text-onyx font-semibold">{field.title}:</strong> {field.value === 'Tilfeldig' ? t('product.leaveMotif') : field.value}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
+
+                        <div className="flex items-end justify-between mt-2">
+                          {/* Qty Selector */}
+                          <div className="flex items-center border border-outline rounded-lg bg-slate-50 scale-90 -ml-2 select-none">
+                            <button
+                              onClick={() => decrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
+                              className="p-1.5 hover:text-terracotta transition-colors"
+                              title={t('cart.decrement')}
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="w-8 text-center text-xs font-semibold text-onyx">{item.quantity}</span>
+                            <button
+                              onClick={() => incrementQuantity(item.id, item.selectedSize, item.selectedColor, item.selectedOptions, item.customTextFields)}
+                              className="p-1.5 hover:text-terracotta transition-colors"
+                              title={t('cart.increment')}
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
 
                         {/* Price */}
                         <div className="text-right shrink-0">
@@ -316,7 +320,8 @@ export default function CartDrawer() {
                       </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
 
@@ -324,11 +329,11 @@ export default function CartDrawer() {
             {cartItems.length > 0 && (
               <div className="border-t border-outline-variant/30 p-6 bg-parchment/10 space-y-4 shrink-0">
                 <div className="flex items-center justify-between text-onyx">
-                  <span className="text-sm font-semibold">Subtotal</span>
-                  <span className="font-headline-md text-headline-md text-terracotta font-extrabold">{subtotal} kr</span>
+                  <span className="text-sm font-semibold">{t('cart.subtotal')}</span>
+                  <span className="font-headline-md text-headline-md text-onyx font-extrabold">{subtotal} kr</span>
                 </div>
                 <p className="text-[11px] text-secondary">
-                  Frakt og eventuelle rabattkoder beregnes i neste steg. Vi støtter sikker utsjekk med Vipps og kort.
+                  {t('cart.drawerShippingNotice')}
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
@@ -340,7 +345,7 @@ export default function CartDrawer() {
                     }}
                     className="border border-outline hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
                   >
-                    Se handlekurv
+                    {t('cart.viewCart')}
                   </button>
 
                   {/* Kassen / Gå til betaling */}
@@ -352,11 +357,11 @@ export default function CartDrawer() {
                     {isRedirecting ? (
                       <>
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Sender...
+                        {t('cart.sending')}
                       </>
                     ) : (
                       <>
-                        Til kassen
+                        {t('cart.checkout')}
                         <Lock size={12} />
                       </>
                     )}
@@ -383,9 +388,9 @@ export default function CartDrawer() {
               <div className="absolute top-0 left-0 w-16 h-16 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
             </div>
             <div className="space-y-2 select-none">
-              <h3 className="font-headline-md text-lg text-onyx font-bold">Sikker betaling</h3>
+              <h3 className="font-headline-md text-lg text-onyx font-bold">{t('cart.securePayment')}</h3>
               <p className="text-xs text-secondary leading-relaxed">
-                Vennligst vent mens vi gjør klar kassen din...
+                {t('cart.pleaseWaitCheckout')}
               </p>
             </div>
           </div>

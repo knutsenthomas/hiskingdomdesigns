@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { CreditCard, Heart, Mail, ShieldCheck, Copy, ExternalLink, Check, Instagram, Facebook } from 'lucide-react';
 import CmsText from '@/components/CmsText';
 import { wixClient } from '@/lib/wix';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,7 +53,7 @@ export default function Footer() {
       setTimeout(() => setSubscribed(false), 5000);
     } catch (err) {
       console.error('Error subscribing email to Wix CRM:', err);
-      setError('Det oppstod en feil. Vennligst prøv igjen.');
+      setError(t('footer.subscribeError'));
     } finally {
       setLoading(false);
     }
@@ -75,7 +77,7 @@ export default function Footer() {
           </Link>
           <CmsText
             slug="footer-brand-desc"
-            fallback="Vi skaper moderne kristne klær, plakater og tilbehør som kombinerer tro og stil for å spre Guds ord i hverdagen."
+            fallback={t('footer.brandDesc')}
             as="p"
             className="font-body-md text-body-md text-parchment/70 leading-relaxed"
           />
@@ -106,7 +108,7 @@ export default function Footer() {
                     ? 'bg-terracotta text-white scale-105 shadow-md shadow-terracotta/20' 
                     : 'bg-white/5 hover:bg-terracotta hover:text-white text-parchment/60'
                 }`}
-                aria-label="E-post meny"
+                aria-label={t('footer.emailMenu')}
                 aria-expanded={emailMenuOpen}
               >
                 <Mail size={16} />
@@ -123,7 +125,7 @@ export default function Footer() {
                     className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold hover:bg-slate-50 transition-colors w-full text-left"
                   >
                     <ExternalLink size={14} className="text-secondary/70" />
-                    <span>Send e-post direkte</span>
+                    <span>{t('footer.emailDirect')}</span>
                   </a>
                   
                   <button 
@@ -133,12 +135,12 @@ export default function Footer() {
                     {copied ? (
                       <>
                         <Check size={14} className="text-green-600" />
-                        <span className="text-green-600 font-bold">Kopiert!</span>
+                        <span className="text-green-600 font-bold">{t('footer.copied')}</span>
                       </>
                     ) : (
                       <>
                         <Copy size={14} className="text-secondary/70" />
-                        <span>Kopier e-postadresse</span>
+                        <span>{t('footer.copyAddress')}</span>
                       </>
                     )}
                   </button>
@@ -150,64 +152,64 @@ export default function Footer() {
 
         {/* Explore Column */}
         <div className="lg:col-span-2">
-          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Utforsk</h4>
+          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.explore')}</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
-              <Link to="/products" className="text-parchment/80 hover:text-terracotta transition-colors">Alle Produkter</Link>
+              <Link to="/products" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
             </li>
             <li>
-              <Link to="/category/Klær" className="text-parchment/80 hover:text-terracotta transition-colors">Klær</Link>
+              <Link to="/category/Klær" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.clothing')}</Link>
             </li>
             <li>
-              <Link to="/category/Klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">Klistermerker</Link>
+              <Link to="/category/Klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.stickers')}</Link>
             </li>
             <li>
-              <Link to="/category/Plakater" className="text-parchment/80 hover:text-terracotta transition-colors">Plakater</Link>
+              <Link to="/category/Plakater" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.posters')}</Link>
             </li>
             <li>
-              <Link to="/category/Tilbehør" className="text-parchment/80 hover:text-terracotta transition-colors">Tilbehør</Link>
+              <Link to="/category/Tilbehør" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.accessories')}</Link>
             </li>
           </ul>
         </div>
 
         {/* Customer Info Column */}
         <div className="lg:col-span-3">
-          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Kundeservice</h4>
+          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.customerService')}</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
-              <Link to="/team" className="text-parchment/80 hover:text-terracotta transition-colors">Møt teamet</Link>
+              <Link to="/team" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.meetTeam')}</Link>
             </li>
             <li>
-              <Link to="/about" className="text-parchment/80 hover:text-terracotta transition-colors">Hvem er vi</Link>
+              <Link to="/about" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.whoAreWe')}</Link>
             </li>
             <li>
-              <Link to="/shipping" className="text-parchment/80 hover:text-terracotta transition-colors">Frakt og retur</Link>
+              <Link to="/shipping" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.shippingReturns')}</Link>
             </li>
             <li>
-              <Link to="/faq" className="text-parchment/80 hover:text-terracotta transition-colors">Ofte stilte spørsmål</Link>
+              <Link to="/faq" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.faq')}</Link>
             </li>
             <li>
-              <Link to="/privacy" className="text-parchment/80 hover:text-terracotta transition-colors">Personvernerklæring</Link>
+              <Link to="/privacy" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.privacyPolicy')}</Link>
             </li>
             <li>
-              <Link to="/betingelser" className="text-parchment/80 hover:text-terracotta transition-colors">Kjøpsbetingelser</Link>
+              <Link to="/betingelser" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.terms')}</Link>
             </li>
           </ul>
         </div>
 
         {/* Newsletter Column */}
         <div className="lg:col-span-3">
-          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">Nyhetsbrev</h4>
+          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.newsletter')}</h4>
           <CmsText
             slug="footer-newsletter-desc"
-            fallback="Meld deg på vårt nyhetsbrev for eksklusive tilbud, inspirerende ord og nye kolleksjoner."
+            fallback={t('footer.newsletterDesc')}
             as="p"
             className="text-body-md font-body-md text-parchment/70 mb-4 leading-relaxed"
           />
           <form onSubmit={handleSubscribe} className="flex gap-2">
             <input 
               type="email"
-              placeholder="Din e-post"
+              placeholder={t('footer.emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
@@ -219,18 +221,18 @@ export default function Footer() {
               disabled={loading}
               className="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider font-bold shrink-0 whitespace-nowrap disabled:opacity-50"
             >
-              {loading ? 'Sender...' : 'Bli med'}
+              {loading ? t('footer.sending') : t('footer.subscribeBtn')}
             </button>
           </form>
           {subscribed && (
-            <p className="text-green-400 text-xs mt-2 animate-pulse">Takk! Du er nå påmeldt nyhetsbrevet.</p>
+            <p className="text-green-400 text-xs mt-2 animate-pulse">{t('footer.subscribeSuccess')}</p>
           )}
           {error && (
             <p className="text-red-400 text-xs mt-2">{error}</p>
           )}
           
           <div className="mt-8">
-            <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-3">Betaling</p>
+            <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-3">{t('footer.payment')}</p>
             <div className="flex gap-3 justify-center md:justify-start items-center">
               <img 
                 src="/vipps.svg" 
@@ -253,7 +255,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10 pt-8 text-center text-label-sm text-parchment/40 px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
-        <p>&copy; {new Date().getFullYear()} His Kingdom Designs. Alle rettigheter reservert.</p>
+        <p>&copy; {new Date().getFullYear()} His Kingdom Designs. {t('footer.allRightsReserved')}</p>
       </div>
     </footer>
   );
