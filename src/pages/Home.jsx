@@ -200,15 +200,18 @@ export default function Home() {
     if (products && products.length > 0) {
       // Products are fetched sorted descending by createdDate, so the first products are the newest
       const newestProducts = products.slice(0, 2);
-      const productSlides = newestProducts.map(p => ({
-        image: p.image,
-        title: `Nyhet: ${p.name}`,
-        desc: p.description ? (p.description.length > 150 ? p.description.substring(0, 150) + '...' : p.description) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
-        ctaText: 'Se produktet',
-        ctaAction: () => navigate(`/product/${p.id}`),
-        isProduct: true,
-        productId: p.id
-      }));
+      const productSlides = newestProducts.map(p => {
+        const displayName = p.name ? p.name.split('|')[0].trim() : 'Nytt produkt';
+        return {
+          image: p.image,
+          title: `Nyhet: ${displayName}`,
+          desc: p.description ? (p.description.length > 150 ? p.description.substring(0, 150) + '...' : p.description) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
+          ctaText: 'Se produktet',
+          ctaAction: () => navigate(`/product/${p.id}`),
+          isProduct: true,
+          productId: p.id
+        };
+      });
 
       return [defaultSlides[0], ...productSlides, defaultSlides[1]];
     }
