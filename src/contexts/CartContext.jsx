@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { wixClient } from '@/lib/wix';
+import { resolveColor } from '@/lib/colors';
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
 export const CartContext = createContext({});
@@ -14,6 +15,44 @@ export const useCart = () => {
 
 // Cache to avoid duplicate fetch calls for same product ID when mapping cart items
 const productCache = {};
+
+const normalizeSelectedOptions = (selectedOptions, productOptions) => {
+  const normalized = { ...selectedOptions };
+  if (!productOptions) return normalized;
+
+  productOptions.forEach(opt => {
+    const nameLower = opt.name?.trim().toLowerCase();
+    const isColor = nameLower === 'color' || nameLower === 'farge';
+    const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
+
+    const currentValue = normalized[opt.name];
+    if (currentValue) {
+      if (isColor) {
+        // Resolve the user's selected color to a standard name
+        const selectedResolved = resolveColor(currentValue);
+        // Find a choice in the option that resolves to the same standard name
+        const match = opt.choices?.find(c => {
+          const choiceResolved = resolveColor(c.value);
+          return choiceResolved.name === selectedResolved.name;
+        });
+        if (match) {
+          normalized[opt.name] = match.value;
+        }
+      } else if (isSize) {
+        // For sizes, compare value or description case-insensitively
+        const match = opt.choices?.find(c => 
+          c.value?.toLowerCase() === currentValue.toLowerCase() ||
+          c.description?.toLowerCase() === currentValue.toLowerCase()
+        );
+        if (match) {
+          normalized[opt.name] = match.value;
+        }
+      }
+    }
+  });
+
+  return normalized;
+};
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
@@ -373,6 +412,9 @@ export const CartProvider = ({ children }) => {
             selectedOptions[colorOpt.name] = colorChoice.value;
           }
         }
+
+        // Normalize selectedOptions to align local values with original database values
+        selectedOptions = normalizeSelectedOptions(selectedOptions, productOptions);
 
         // Safety net: Ensure EVERY required product option has a value selected.
         // If an option is missing from selectedOptions, fallback to its first choice!
