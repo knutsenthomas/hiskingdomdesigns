@@ -487,9 +487,9 @@ export default function Header() {
                 </div>
  
                 {/* Column 5 & 6: Temaer & Språk */}
-                <div className="col-span-4 lg:col-span-3 xl:col-span-2 bg-gradient-to-br from-slate-50/60 to-parchment/30 border border-outline-variant/40 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="col-span-4 lg:col-span-3 xl:col-span-2">
                   <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Temaer & Språk')}</h4>
-                  <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-x-6 gap-y-2.5 w-full">
+                  <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 gap-x-6 gap-y-2 2xl:gap-y-3 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => (
                       <li key={sub}>
                         <Link 
