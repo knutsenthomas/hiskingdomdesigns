@@ -496,12 +496,6 @@ export default function Home() {
                   <span>{slides[heroSlide]?.ctaText}</span>
                   <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
                 </button>
-                <button 
-                  onClick={() => scrollToSection('historie')}
-                  className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white px-8 py-4 rounded font-label-md text-label-md transition-all text-center flex items-center justify-center hover:scale-[1.02] duration-300 cursor-pointer"
-                >
-                  Vår historie
-                </button>
               </div>
             </motion.div>
           </AnimatePresence>
