@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { wixClient } from '@/lib/wix';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import ProductSkeleton from '@/components/ProductSkeleton';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 import { getOptimizedWixImageUrl } from '@/lib/media';
@@ -140,6 +140,19 @@ export default function Home() {
   const { products, isLoadingProducts } = useApp();
   const navigate = useNavigate();
 
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 96; // Offset to clear fixed header
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
   const currentSet = CATEGORY_SETS[dayOfWeek];
@@ -161,21 +174,60 @@ export default function Home() {
   // Loading state for plan checkout redirect
   const [subscribingId, setSubscribingId] = useState(null);
 
-  // Hero Carousel Images & State
-  const HERO_IMAGES = [
-    '/hero_fashion.png',
-    'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png',
-    'https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png'
-  ];
-
   const [heroSlide, setHeroSlide] = useState(0);
+
+  // Dynamic Hero Slides combining brand content and the newest products
+  const slides = useMemo(() => {
+    const defaultSlides = [
+      {
+        image: '/hero_fashion.png',
+        title: 'Bær troen med stolthet',
+        desc: 'Inspirerende design skapt for å dele Guds ord gjennom moderne mote og tilbehør. Oppdag vår nyeste kolleksjon i dag.',
+        ctaText: 'Se kolleksjonen',
+        ctaAction: () => navigate('/products'),
+        isProduct: false
+      },
+      {
+        image: 'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png',
+        title: 'Skapt med formål',
+        desc: 'Våre produkter er designet for å minne deg om Guds kjærlighet og dele troen med folk rundt deg.',
+        ctaText: 'Utforsk butikken',
+        ctaAction: () => navigate('/products'),
+        isProduct: false
+      }
+    ];
+
+    if (products && products.length > 0) {
+      // Products are fetched sorted descending by createdDate, so the first products are the newest
+      const newestProducts = products.slice(0, 2);
+      const productSlides = newestProducts.map(p => ({
+        image: p.image,
+        title: `Nyhet: ${p.name}`,
+        desc: p.description ? (p.description.length > 150 ? p.description.substring(0, 150) + '...' : p.description) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
+        ctaText: 'Se produktet',
+        ctaAction: () => navigate(`/product/${p.id}`),
+        isProduct: true,
+        productId: p.id
+      }));
+
+      return [defaultSlides[0], ...productSlides, defaultSlides[1]];
+    }
+
+    return defaultSlides;
+  }, [products, navigate]);
+
+  useEffect(() => {
+    if (heroSlide >= slides.length) {
+      setHeroSlide(0);
+    }
+  }, [slides.length, heroSlide]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+      setHeroSlide((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   useEffect(() => {
     async function fetchPlans() {
@@ -377,9 +429,9 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {HERO_IMAGES.map((img, idx) => (
+          {slides.map((slide, idx) => (
             <motion.div
-              key={img}
+              key={slide.image + idx}
               initial={{ opacity: 0 }}
               animate={{ opacity: heroSlide === idx ? 1 : 0 }}
               transition={{ duration: 1.2, ease: "easeInOut" }}
@@ -388,7 +440,7 @@ export default function Home() {
               <img 
                 alt={`Hero faith slide ${idx + 1}`} 
                 className="w-full h-full object-cover" 
-                src={img}
+                src={slide.image}
               />
             </motion.div>
           ))}
@@ -396,52 +448,68 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-onyx/85 via-onyx/40 to-transparent"></div>
         </div>
         <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-          <div className="max-w-2xl text-white">
-            <button 
-              onClick={() => {
-                const element = document.getElementById('manedspakker');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className="inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={heroSlide}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.4 }}
+              className="max-w-2xl text-white"
             >
-              <span>✨</span>
-              <span>Oppdag våre nye månedspakker!</span>
-            </button>
-            <CmsText 
-              slug="home-hero-title" 
-              fallback="Bær troen med stolthet" 
-              as="h1" 
-              className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md"
-            />
-            <CmsText 
-              slug="home-hero-desc" 
-              fallback="Inspirerende design skapt for å dele Guds ord gjennom moderne mote og tilbehør. Oppdag vår nyeste kolleksjon i dag." 
-              as="p" 
-              className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed"
-            />
-            <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => navigate('/products')}
-                className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                onClick={() => scrollToSection('manedspakker')}
+                className="inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
               >
-                <span>Se kolleksjonen</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                <span>✨</span>
+                <span>Oppdag våre nye månedspakker!</span>
               </button>
-              <a 
-                href="#historie"
-                className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white px-8 py-4 rounded font-label-md text-label-md transition-all text-center flex items-center justify-center hover:scale-[1.02] duration-300"
-              >
-                Vår historie
-              </a>
-            </div>
-          </div>
+              {slides[heroSlide]?.isProduct ? (
+                <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+                  {slides[heroSlide]?.title}
+                </h1>
+              ) : (
+                <CmsText 
+                  slug={heroSlide === 0 ? "home-hero-title" : "home-hero-title-2"} 
+                  fallback={slides[heroSlide]?.title || "Bær troen med stolthet"} 
+                  as="h1" 
+                  className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                />
+              )}
+              {slides[heroSlide]?.isProduct ? (
+                <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-3">
+                  {slides[heroSlide]?.desc}
+                </p>
+              ) : (
+                <CmsText 
+                  slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
+                  fallback={slides[heroSlide]?.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
+                  as="p" 
+                  className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed"
+                />
+              )}
+              <div className="flex flex-wrap gap-4">
+                <button 
+                  onClick={slides[heroSlide]?.ctaAction}
+                  className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>{slides[heroSlide]?.ctaText}</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                </button>
+                <button 
+                  onClick={() => scrollToSection('historie')}
+                  className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white px-8 py-4 rounded font-label-md text-label-md transition-all text-center flex items-center justify-center hover:scale-[1.02] duration-300 cursor-pointer"
+                >
+                  Vår historie
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Slide Indicators */}
         <div className="absolute bottom-8 left-8 sm:left-12 md:left-margin-desktop z-20 flex gap-2">
-          {HERO_IMAGES.map((_, idx) => (
+          {slides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setHeroSlide(idx)}
@@ -607,7 +675,7 @@ export default function Home() {
       </section>
 
       {/* Subscription Packages */}
-      <section id="manedspakker" className="bg-white py-section-gap overflow-hidden reveal-on-scroll">
+      <section id="manedspakker" className="bg-white py-section-gap overflow-hidden reveal-on-scroll scroll-mt-24">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="w-full lg:w-1/2 relative">
             <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
@@ -713,7 +781,7 @@ export default function Home() {
       </section>
 
       {/* Brand Story & Values */}
-      <section id="historie" className="py-section-gap bg-parchment reveal-on-scroll">
+      <section id="historie" className="py-section-gap bg-parchment reveal-on-scroll scroll-mt-24">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto text-center">
           <div className="max-w-[800px] mx-auto mb-12">
             <div className="w-20 h-20 mb-8 flex items-center justify-center mx-auto overflow-hidden">

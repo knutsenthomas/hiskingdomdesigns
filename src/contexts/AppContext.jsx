@@ -690,14 +690,14 @@ export const AppProvider = ({ children }) => {
 
         let allItems = [];
         try {
-          const firstPage = await wixClient.products.queryProducts().limit(100).find();
+          const firstPage = await wixClient.products.queryProducts().descending('createdDate').limit(100).find();
           allItems = [...firstPage.items];
           const totalCount = firstPage.totalCount || 0;
           if (totalCount > 100) {
             const totalPages = Math.ceil(totalCount / 100);
             const promises = [];
             for (let i = 1; i < totalPages; i++) {
-              promises.push(wixClient.products.queryProducts().limit(100).skip(i * 100).find());
+              promises.push(wixClient.products.queryProducts().descending('createdDate').limit(100).skip(i * 100).find());
             }
             const results = await Promise.all(promises);
             results.forEach(res => {
@@ -745,14 +745,14 @@ export const AppProvider = ({ children }) => {
               localStorage.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsDataRetry));
             } catch (e) {}
 
-            const firstPageRetry = await wixClient.products.queryProducts().limit(100).find();
+            const firstPageRetry = await wixClient.products.queryProducts().descending('createdDate').limit(100).find();
             allItems = [...firstPageRetry.items];
             const totalCountRetry = firstPageRetry.totalCount || 0;
             if (totalCountRetry > 100) {
               const totalPagesRetry = Math.ceil(totalCountRetry / 100);
               const promisesRetry = [];
               for (let i = 1; i < totalPagesRetry; i++) {
-                promisesRetry.push(wixClient.products.queryProducts().limit(100).skip(i * 100).find());
+                promisesRetry.push(wixClient.products.queryProducts().descending('createdDate').limit(100).skip(i * 100).find());
               }
               const resultsRetry = await Promise.all(promisesRetry);
               resultsRetry.forEach(res => {
@@ -903,7 +903,8 @@ export const AppProvider = ({ children }) => {
             productOptions: item.productOptions,
             manageVariants: item.manageVariants,
             variants: item.variants,
-            customTextFields: item.customTextFields || []
+            customTextFields: item.customTextFields || [],
+            createdDate: item.createdDate || item._createdDate || null
           };
         });
 
@@ -940,6 +941,8 @@ export const AppProvider = ({ children }) => {
     };
 
     fetchWixData();
+    const interval = setInterval(fetchWixData, 30000); // Check for backend changes every 30 seconds
+    return () => clearInterval(interval);
   }, []);
   
   // Chat Assistant State
