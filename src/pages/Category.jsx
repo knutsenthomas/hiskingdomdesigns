@@ -423,21 +423,15 @@ export default function Category() {
           <>
             {/* Desktop Sidebar */}
             <aside 
-              className="hidden lg:block w-64 flex-shrink-0 sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto pr-2 filter-sidebar"
+              className="hidden lg:block w-64 flex-shrink-0 sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto filter-sidebar"
             >
               <style>{`
+                .filter-sidebar {
+                  -ms-overflow-style: none;  /* IE and Edge */
+                  scrollbar-width: none;  /* Firefox */
+                }
                 .filter-sidebar::-webkit-scrollbar {
-                  width: 4px;
-                }
-                .filter-sidebar::-webkit-scrollbar-track {
-                  background: transparent;
-                }
-                .filter-sidebar::-webkit-scrollbar-thumb {
-                  background: rgba(27, 73, 101, 0.2);
-                  border-radius: 4px;
-                }
-                .filter-sidebar::-webkit-scrollbar-thumb:hover {
-                  background: rgba(27, 73, 101, 0.4);
+                  display: none; /* Chrome, Safari and Opera */
                 }
               `}</style>
               {filterSidebar}
