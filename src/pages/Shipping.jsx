@@ -117,7 +117,7 @@ export default function Shipping() {
             <div className="space-y-3">
               <CmsText
                 slug="shipping-europe-title"
-                fallback="Fraktpriser til Europa"
+                fallback="Frakt til Europa"
                 as="h3"
                 className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
               />
@@ -144,7 +144,7 @@ export default function Shipping() {
             <div className="space-y-3">
               <CmsText
                 slug="shipping-usa-title"
-                fallback="Fraktpriser til USA"
+                fallback="Frakt til USA"
                 as="h3"
                 className="font-label-md text-onyx font-bold text-xs uppercase tracking-wider text-terracotta"
               />
