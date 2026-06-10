@@ -149,6 +149,44 @@ const renderRichText = (text, isAssistant) => {
 
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Safe localStorage wrapper to prevent crashes in private browsing / restricted contexts
+const safeStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn(`[SafeStorage] Failed to read key "${key}":`, e);
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn(`[SafeStorage] Failed to write key "${key}":`, e);
+    }
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn(`[SafeStorage] Failed to remove key "${key}":`, e);
+    }
+  }
+};
+
+// Robust UUID v4 generator with Web Crypto API and Math.random fallback
+const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 export default function HkmChatWidget() {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -169,8 +207,16 @@ export default function HkmChatWidget() {
   const [liveMessages, setLiveMessages] = useState([]);
   const [isLiveTyping, setIsLiveTyping] = useState(false);
   const [conversationId, setConversationId] = useState(() => {
-    const stored = localStorage.getItem('hkd-inbox-conv-id');
+    const stored = safeStorage.getItem('hkd-inbox-conv-id');
     return (stored && stored !== 'undefined' && stored !== 'null') ? stored : null;
+  });
+  const [chatParticipant, setChatParticipant] = useState(() => {
+    try {
+      const stored = safeStorage.getItem('hkd-inbox-participant');
+      return (stored && stored !== 'undefined' && stored !== 'null') ? JSON.parse(stored) : null;
+    } catch (e) {
+      return null;
+    }
   });
   const [member, setMember] = useState(null);
   const [contactEmail, setContactEmail] = useState('');
@@ -208,12 +254,14 @@ export default function HkmChatWidget() {
   // Clear old conversationId from localStorage to migrate to contactId-based routing
   useEffect(() => {
     try {
-      const chatVersion = localStorage.getItem('hkd-chat-version');
+      const chatVersion = safeStorage.getItem('hkd-chat-version');
       if (chatVersion !== '3') {
         console.log('Migrating chat to version 3 (REST contactId resolution): clearing old conversationId');
-        localStorage.removeItem('hkd-inbox-conv-id');
-        localStorage.setItem('hkd-chat-version', '3');
+        safeStorage.removeItem('hkd-inbox-conv-id');
+        safeStorage.removeItem('hkd-inbox-participant');
+        safeStorage.setItem('hkd-chat-version', '3');
         setConversationId(null);
+        setChatParticipant(null);
       }
     } catch (e) {
       console.warn('Failed to migrate chat version in localStorage:', e);
@@ -263,8 +311,8 @@ export default function HkmChatWidget() {
         payload.email = emailToUse;
         payload.name = nameToUse;
       } else {
-        const anonId = localStorage.getItem('hkd-chat-anon-id') || crypto.randomUUID();
-        localStorage.setItem('hkd-chat-anon-id', anonId);
+        const anonId = safeStorage.getItem('hkd-chat-anon-id') || generateUUID();
+        safeStorage.setItem('hkd-chat-anon-id', anonId);
         payload.anonymousVisitorId = anonId;
       }
 
@@ -286,8 +334,13 @@ export default function HkmChatWidget() {
 
       if (apiRes && apiRes.conversation) {
         const convId = apiRes.conversation._id;
+        const participant = apiRes.conversation.participant;
         setConversationId(convId);
-        localStorage.setItem('hkd-inbox-conv-id', convId);
+        safeStorage.setItem('hkd-inbox-conv-id', convId);
+        if (participant) {
+          setChatParticipant(participant);
+          safeStorage.setItem('hkd-inbox-participant', JSON.stringify(participant));
+        }
         setNeedsContactInfo(false);
         fetchLiveMessages(convId);
       }
@@ -317,7 +370,9 @@ export default function HkmChatWidget() {
         }).then(async (r) => {
           if (!r.ok) {
             const errJson = await r.json().catch(() => ({}));
-            throw new Error(errJson.error || `HTTP error ${r.status}`);
+            const err = new Error(errJson.error || `HTTP error ${r.status}`);
+            err.status = r.status;
+            throw err;
           }
           return r.json();
         }),
@@ -364,11 +419,20 @@ export default function HkmChatWidget() {
       }
     } catch (err) {
       console.warn('Failed to fetch messages from Wix Inbox:', err);
-      const errStr = err.message || '';
-      if (errStr.includes('400') || errStr.includes('404') || errStr.includes('conversation_id')) {
+      const errStr = (err.message || '').toLowerCase();
+      const isStale = 
+        err.status === 404 || 
+        err.status === 400 || 
+        errStr.includes('not found') || 
+        errStr.includes('invalid') || 
+        errStr.includes('conversation');
+      
+      if (isStale) {
         console.warn('Resetting invalid Wix Inbox conversationId:', convId);
         setConversationId(null);
-        localStorage.removeItem('hkd-inbox-conv-id');
+        setChatParticipant(null);
+        safeStorage.removeItem('hkd-inbox-conv-id');
+        safeStorage.removeItem('hkd-inbox-participant');
       }
     }
   };
@@ -482,8 +546,8 @@ export default function HkmChatWidget() {
           payload.email = contactEmail;
           payload.name = contactName;
         } else {
-          const anonId = localStorage.getItem('hkd-chat-anon-id') || crypto.randomUUID();
-          localStorage.setItem('hkd-chat-anon-id', anonId);
+          const anonId = safeStorage.getItem('hkd-chat-anon-id') || generateUUID();
+          safeStorage.setItem('hkd-chat-anon-id', anonId);
           payload.anonymousVisitorId = anonId;
         }
 
@@ -505,8 +569,13 @@ export default function HkmChatWidget() {
 
         if (apiRes && apiRes.conversation) {
           activeConvId = apiRes.conversation._id;
+          const participant = apiRes.conversation.participant;
           setConversationId(activeConvId);
-          localStorage.setItem('hkd-inbox-conv-id', activeConvId);
+          safeStorage.setItem('hkd-inbox-conv-id', activeConvId);
+          if (participant) {
+            setChatParticipant(participant);
+            safeStorage.setItem('hkd-inbox-participant', JSON.stringify(participant));
+          }
           setNeedsContactInfo(false);
         } else {
           throw new Error('Kunne ikke opprette samtale');
@@ -520,6 +589,17 @@ export default function HkmChatWidget() {
       setIsCreatingConv(false);
     }
 
+    const getSenderPayload = () => {
+      if (chatParticipant) return chatParticipant;
+      if (wixClient.auth.loggedIn() && member) {
+        const contactId = member.contactId || member.contact?._id;
+        if (contactId) return { contactId };
+      }
+      const anonId = safeStorage.getItem('hkd-chat-anon-id');
+      if (anonId) return { anonymousVisitorId: anonId };
+      return undefined;
+    };
+
     const optMsg = {
       id: `msg-user-opt-${Date.now()}`,
       sender: 'user',
@@ -532,6 +612,7 @@ export default function HkmChatWidget() {
       const messagePayload = {
         direction: 'PARTICIPANT_TO_BUSINESS',
         visibility: 'BUSINESS_AND_PARTICIPANT',
+        sender: getSenderPayload(),
         content: {
           basic: {
             items: [
@@ -551,7 +632,10 @@ export default function HkmChatWidget() {
         }).then(async (r) => {
           if (!r.ok) {
             const errJson = await r.json().catch(() => ({}));
-            throw new Error(errJson.error || `HTTP error ${r.status}`);
+            const err = new Error(errJson.error || `HTTP error ${r.status}`);
+            err.status = r.status;
+            err.details = errJson.details || errJson.error;
+            throw err;
           }
           return r.json();
         }),
@@ -588,7 +672,10 @@ export default function HkmChatWidget() {
             }).then(async (r) => {
               if (!r.ok) {
                 const errJson = await r.json().catch(() => ({}));
-                throw new Error(errJson.error || `HTTP error ${r.status}`);
+                const err = new Error(errJson.error || `HTTP error ${r.status}`);
+                err.status = r.status;
+                err.details = errJson.details || errJson.error;
+                throw err;
               }
               return r.json();
             }),
@@ -605,11 +692,23 @@ export default function HkmChatWidget() {
 
     } catch (err) {
       console.error('Failed to send message to Wix Inbox:', err);
-      const errStr = err.message || '';
-      if (errStr.includes('400') || errStr.includes('404') || errStr.includes('conversation_id')) {
-        console.warn('Resetting invalid Wix Inbox conversationId on send failure:', activeConvId);
+      const errStr = (err.message || '').toLowerCase();
+      const errDetails = (JSON.stringify(err.details) || '').toLowerCase();
+      const isStaleConv = 
+        err.status === 404 || 
+        err.status === 400 ||
+        errStr.includes('not found') ||
+        errStr.includes('invalid') ||
+        errStr.includes('conversation') ||
+        errDetails.includes('not_found') ||
+        errDetails.includes('invalid');
+
+      if (isStaleConv) {
+        console.warn('Resetting invalid/stale Wix Inbox conversationId on send failure:', activeConvId);
         setConversationId(null);
-        localStorage.removeItem('hkd-inbox-conv-id');
+        setChatParticipant(null);
+        safeStorage.removeItem('hkd-inbox-conv-id');
+        safeStorage.removeItem('hkd-inbox-participant');
       }
     }
   };
@@ -704,8 +803,10 @@ export default function HkmChatWidget() {
                   onClick={() => {
                     if (window.confirm(language === 'en' ? 'Are you sure you want to start a new conversation?' : (language === 'es' ? '¿Estás seguro de que deseas iniciar una nueva conversación?' : 'Er du sikker på at du vil starte en ny samtale? Dette vil tømme samtalen i nettleseren din.'))) {
                       setConversationId(null);
+                      setChatParticipant(null);
                       setLiveMessages([]);
-                      localStorage.removeItem('hkd-inbox-conv-id');
+                      safeStorage.removeItem('hkd-inbox-conv-id');
+                      safeStorage.removeItem('hkd-inbox-participant');
                       if (!wixClient.auth.loggedIn()) {
                         setNeedsContactInfo(true);
                       } else {
