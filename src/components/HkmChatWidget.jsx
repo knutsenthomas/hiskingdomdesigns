@@ -165,7 +165,7 @@ export default function HkmChatWidget() {
   const location = useLocation();
 
   // Live Chat / Inbox Integration States
-  const [chatMode, setChatMode] = useState('ai'); // 'ai' | 'live'
+  const [chatMode, setChatMode] = useState('live'); // 'ai' | 'live'
   const [liveMessages, setLiveMessages] = useState([]);
   const [conversationId, setConversationId] = useState(() => {
     const stored = localStorage.getItem('hkd-inbox-conv-id');
@@ -621,8 +621,8 @@ export default function HkmChatWidget() {
             transition={{ duration: 0.2 }}
             className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
           >
-            {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
-            <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
+            {/* Header - Mørkeblå (#1B4965) */}
+            <div className="bg-[#1B4965] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
@@ -640,39 +640,6 @@ export default function HkmChatWidget() {
                 className="p-1 hover:bg-white/10 text-white/80 hover:text-white transition-colors rounded-full"
               >
                 <span className="material-symbols-outlined text-lg select-none">close</span>
-              </button>
-            </div>
-
-            {/* Mode Selector Tab Bar */}
-            <div className="flex shrink-0 bg-slate-50 text-xs font-semibold select-none">
-              <button
-                type="button"
-                onClick={() => setChatMode('ai')}
-                className={`flex-1 py-3 text-center border-r border-outline-variant/30 transition-all ${
-                  chatMode === 'ai' 
-                    ? 'bg-white text-[#1B4965] font-bold border-b-2 border-[#1B4965]' 
-                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
-                }`}
-              >
-                {t('chat.aiMode')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setChatMode('live');
-                  if (!wixClient.auth.loggedIn() && !conversationId) {
-                    setNeedsContactInfo(true);
-                  } else if (wixClient.auth.loggedIn() && !conversationId) {
-                    startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
-                  }
-                }}
-                className={`flex-1 py-3 text-center transition-all ${
-                  chatMode === 'live' 
-                    ? 'bg-white text-[#1B4965] font-bold border-b-2 border-[#1B4965]' 
-                    : 'text-secondary hover:text-onyx hover:bg-slate-100/60 border-b-2 border-outline-variant/40'
-                }`}
-              >
-                {t('chat.liveMode')}
               </button>
             </div>
 
@@ -776,11 +743,15 @@ export default function HkmChatWidget() {
                     type="button"
                     onClick={() => {
                       setChatError('');
-                      setChatMode('ai');
+                      if (!wixClient.auth.loggedIn() && !conversationId) {
+                        setNeedsContactInfo(true);
+                      } else {
+                        startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
+                      }
                     }}
                     className="w-full bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
-                    {t('chat.useAiFallback')}
+                    {language === 'en' ? 'Try again' : (language === 'es' ? 'Intentar de nuevo' : 'Prøv igjen')}
                   </button>
                 </div>
               ) : needsContactInfo ? (
