@@ -187,6 +187,20 @@ const generateUUID = () => {
   });
 };
 
+const isOutsideOpeningHours = () => {
+  const now = new Date();
+  const day = now.getDay(); // 0 = Søndag, 6 = Lørdag, 1-5 = Man-Fre
+  const hour = now.getHours();
+  
+  // Stengt i helger
+  if (day === 0 || day === 6) return true;
+  
+  // Stengt før 08:00 og etter 16:00
+  if (hour < 8 || hour >= 16) return true;
+  
+  return false;
+};
+
 export default function HkmChatWidget() {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -645,11 +659,20 @@ export default function HkmChatWidget() {
       // Refresh messages so the user message has its real Wix status
       fetchLiveMessages(activeConvId);
 
-      // Trigger local AI response and send to Wix Inbox
       setIsLiveTyping(true);
       setTimeout(async () => {
         try {
-          const aiReply = generateAiResponseText(textToSend);
+          let aiReply = generateAiResponseText(textToSend);
+          
+          if (isOutsideOpeningHours()) {
+            const closedNotice = language === 'en'
+              ? '*Note: Customer service is currently closed (hours: Mon-Fri 08:00-16:00). We will review your message as soon as we are back! Here is an automated response:* \n\n'
+              : (language === 'es'
+                ? '*Nota: El servicio de atención al cliente está cerrado actualmente (horario: Lun-Vie 08:00-16:00). ¡Revisaremos tu mensaje tan pronto como regresemos! Aquí hay una respuesta automática:* \n\n'
+                : '*Merk: Kundeservice er stengt nå (åpningstid: man–fre 08:00–16:00). Vi svarer deg så fort vi er tilbake! Her er et automatisk svar:* \n\n');
+            aiReply = closedNotice + aiReply;
+          }
+
           const aiMessagePayload = {
             direction: 'BUSINESS_TO_PARTICIPANT',
             visibility: 'BUSINESS_AND_PARTICIPANT',
@@ -769,8 +792,8 @@ export default function HkmChatWidget() {
             transition={{ duration: 0.2 }}
             className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
           >
-            {/* Header - Mørkeblå farge (#1B4965) */}
-            <div className="bg-[#1B4965] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
+            {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
+            <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
@@ -822,6 +845,23 @@ export default function HkmChatWidget() {
               ref={chatBodyRef}
               className="hkm-chat-body flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50 custom-scrollbar"
             >
+              {isOutsideOpeningHours() && (
+                <div className="bg-orange-50 border border-orange-200/40 rounded-xl p-3 text-[11px] text-secondary leading-relaxed flex items-start gap-2.5 shadow-sm mb-4 select-none shrink-0">
+                  <span className="material-symbols-outlined text-[#d17d39] text-base shrink-0 mt-0.5 select-none">
+                    schedule
+                  </span>
+                  <div>
+                    <strong className="text-onyx block mb-0.5 font-bold">
+                      {language === 'en' ? 'We are currently offline' : (language === 'es' ? 'Estamos fuera de horario' : 'Vi er ikke tilstede nå')}
+                    </strong>
+                    {language === 'en' 
+                      ? 'Our customer support hours are Monday–Friday 08:00–16:00. You can still send a message, and we will reply as soon as we are back! 😊' 
+                      : (language === 'es' 
+                        ? 'Nuestro horario de atención es de lunes a viernes de 08:00 a 16:00. ¡Aún puedes dejarnos un mensaje y te responderemos tan pronto como regresemos! 😊' 
+                        : 'Våre åpningstider for kundeservice er mandag–fredag 08:00–16:00. Du kan fortsatt sende oss meldinger, så svarer vi deg på e-post eller her i chatten så fort vi er tilbake! 😊')}
+                  </div>
+                </div>
+              )}
               {chatMode === 'ai' ? (
                 <>
                   {assistantMessages.map((msg) => (
