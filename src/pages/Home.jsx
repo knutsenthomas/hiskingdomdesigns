@@ -907,8 +907,8 @@ export default function Home() {
             />
             <div className="mt-8 flex justify-center">
               <Link 
-                to="/team" 
-                className="inline-flex items-center gap-2 bg-[#1B4965] hover:bg-[#1B4965]/90 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-[0.98] hover:shadow-md"
+                to="/about" 
+                className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta/90 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-[0.98] hover:shadow-md"
               >
                 <span>{t('home.about.linkText')}</span>
                 <ArrowRight size={16} />
