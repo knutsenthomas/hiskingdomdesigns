@@ -54,14 +54,14 @@ const parseInlineStyles = (text, isAssistant) => {
       const content = token.slice(2, -2);
       return (
         <strong key={index} className={`font-bold ${isAssistant ? 'text-terracotta' : 'text-white'}`}>
-          {content}
+          {parseInlineStyles(content, isAssistant)}
         </strong>
       );
     } else if (token.startsWith('*') && token.endsWith('*')) {
       const content = token.slice(1, -1);
       return (
         <em key={index} className={`italic font-medium ${isAssistant ? 'text-onyx/80' : 'text-white/90'}`}>
-          {content}
+          {parseInlineStyles(content, isAssistant)}
         </em>
       );
     }

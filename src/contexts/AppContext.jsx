@@ -1382,7 +1382,7 @@ export const AppProvider = ({ children }) => {
             reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} for kids\n\n` +
               `Unfortunately, we do not have **${typeLabel}** for children in our standard collection at the moment.\n\n` +
               altText +
-              `💡 **Custom order?** If you would like a ${typeLabel.slice(0, -1) || typeLabel} (or another product) with one of our unique faith designs, please feel free to **[contact us by email](mailto:post@hiskingdomministry.no)**! We can often make customizations and print special orders upon request.`;
+              `💡 **Custom order?** If you would like a ${typeLabel.slice(0, -1) || typeLabel} (or another product) with one of our unique faith designs, please feel free to contact us by **[email](mailto:post@hiskingdomministry.no)**! We can often make customizations and print special orders upon request.`;
           } else if (language === 'es') {
             let altText = '';
             if (kidProducts.length > 0) {
@@ -1392,7 +1392,7 @@ export const AppProvider = ({ children }) => {
             reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} para niños\n\n` +
               `Lamentablemente, no tenemos **${typeLabel}** para niños en nuestra colección estándar en este momento.\n\n` +
               altText +
-              `💡 **¿Pedido personalizado?** Si deseas una ${typeLabel.slice(0, -1) || typeLabel} (u otro producto) con uno de nuestros diseños de fe únicos, ¡no dudes en **[contactarnos por correo electrónico](mailto:post@hiskingdomministry.no)**! A menudo podemos realizar personalizaciones e imprimir pedidos especiales bajo petición.`;
+              `💡 **¿Pedido personalizado?** Si deseas una ${typeLabel.slice(0, -1) || typeLabel} (u otro producto) con uno de nuestros diseños de fe únicos, ¡no dudes en contactarnos por **[correo electrónico](mailto:post@hiskingdomministry.no)**! A menudo podemos realizar personalizaciones e imprimir pedidos especiales bajo petición.`;
           } else { // 'no' / default
             let altText = '';
             if (kidProducts.length > 0) {
@@ -1402,7 +1402,7 @@ export const AppProvider = ({ children }) => {
             reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} til barn\n\n` +
               `Vi har dessverre ikke **${typeLabel}** for barn i vårt faste sortiment akkurat nå.\n\n` +
               altText +
-              `💡 **Spesialbestilling?** Dersom du ønsker en ${typeLabel.slice(0, -1) || typeLabel} (eller et annet produkt) med et av våre unike trosdesign, må du gjerne **[kontakte oss på e-post](mailto:post@hiskingdomministry.no)**! Vi kan ofte gjøre tilpasninger og trykke spesielle bestillinger på forespørsel.`;
+              `💡 **Spesialbestilling?** Dersom du ønsker en ${typeLabel.slice(0, -1) || typeLabel} (eller et annet produkt) med et av våre unike trosdesign, må du gjerne kontakte oss på **[e-post](mailto:post@hiskingdomministry.no)**! Vi kan ofte gjøre tilpasninger og trykke spesielle bestillinger på forespørsel.`;
           }
         } else {
           // General alternative products (bestsellers)
@@ -1417,7 +1417,7 @@ export const AppProvider = ({ children }) => {
             reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
               `Unfortunately, we do not have **${typeLabel}** in our standard collection at the moment.\n\n` +
               altText +
-              `💡 **Custom order?** If you would like a ${typeLabel.slice(0, -1) || typeLabel} (or another product) with one of our unique faith designs, please feel free to **[contact us by email](mailto:post@hiskingdomministry.no)**! We can often make customizations and print special orders upon request.`;
+              `💡 **Custom order?** If you would like a ${typeLabel.slice(0, -1) || typeLabel} (or another product) with one of our unique faith designs, please feel free to contact us by **[email](mailto:post@hiskingdomministry.no)**! We can often make customizations and print special orders upon request.`;
           } else if (language === 'es') {
             let altText = '';
             if (bestsellers.length > 0) {
@@ -1427,7 +1427,7 @@ export const AppProvider = ({ children }) => {
             reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
               `Lamentablemente, no tenemos **${typeLabel}** en nuestra colección estándar en este momento.\n\n` +
               altText +
-              `💡 **¿Pedido personalizado?** Si deseas una ${typeLabel.slice(0, -1) || typeLabel} (u otro producto) con uno de nuestros diseños de fe únicos, ¡no dudes en **[contactarnos por correo electrónico](mailto:post@hiskingdomministry.no)**! A menudo podemos realizar personalizaciones e imprimir pedidos especiales bajo petición.`;
+              `💡 **¿Pedido personalizado?** Si deseas una ${typeLabel.slice(0, -1) || typeLabel} (u otro product) con uno de nuestros diseños de fe únicos, ¡no dudes en contactarnos por **[correo electrónico](mailto:post@hiskingdomministry.no)**! A menudo podemos realizar personalizaciones e imprimir pedidos especiales bajo petición.`;
           } else { // 'no' / default
             let altText = '';
             if (bestsellers.length > 0) {
@@ -1437,7 +1437,7 @@ export const AppProvider = ({ children }) => {
             reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
               `Vi har dessverre ikke **${typeLabel}** i vårt faste sortiment akkurat nå.\n\n` +
               altText +
-              `💡 **Spesialbestilling?** Dersom du ønsker en ${typeLabel.slice(0, -1) || typeLabel} med et av våre unike trosdesign, må du gjerne **[kontakte oss på e-post](mailto:post@hiskingdomministry.no)**! Vi kan ofte gjøre tilpasninger og trykke spesielle bestillinger på forespørsel.`;
+              `💡 **Spesialbestilling?** Dersom du ønsker en ${typeLabel.slice(0, -1) || typeLabel} med et av våre unike trosdesign, må du gjerne kontakte oss på **[e-post](mailto:post@hiskingdomministry.no)**! Vi kan ofte gjøre tilpasninger og trykke spesielle bestillinger på forespørsel.`;
           }
         }
       }
