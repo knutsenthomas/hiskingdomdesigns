@@ -11,6 +11,17 @@ import useMeta from '@/hooks/useMeta';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+const smartTruncate = (text, maxLength = 150) => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  let truncated = text.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > maxLength * 0.7) {
+    truncated = truncated.substring(0, lastSpace);
+  }
+  return truncated.replace(/[,;.\-\s]+$/, '') + '...';
+};
+
 const MOCK_TESTIMONIALS = [
   {
     _id: 'e1ba5a6c-d6b3-45d2-a543-15fb5147cdf8',
@@ -309,7 +320,7 @@ export default function Home() {
         return {
           image: translatedP.image,
           title: `${t('home.newArrival')}${displayName}`,
-          desc: plainDesc ? (plainDesc.length > 150 ? plainDesc.substring(0, 150) + '...' : plainDesc) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
+          desc: plainDesc ? smartTruncate(plainDesc, 140) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
           ctaText: t('home.slideProduct.cta'),
           ctaAction: () => navigate(`/product/${translatedP.id}`),
           isProduct: true,
@@ -588,7 +599,7 @@ export default function Home() {
               <span>{t('home.newMonthlyPacks')}</span>
             </button>
             {currentSlide.isProduct ? (
-              <h1 className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+              <h1 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
                 {currentSlide.title}
               </h1>
             ) : (
@@ -596,7 +607,7 @@ export default function Home() {
                 slug={heroSlide === 0 ? "home-hero-title" : "home-hero-title-2"} 
                 fallback={currentSlide.title || "Bær troen med stolthet"} 
                 as="h1" 
-                className="font-headline-xl font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
               />
             )}
             {currentSlide.isProduct ? (
