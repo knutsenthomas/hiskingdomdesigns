@@ -149,6 +149,38 @@ const CATEGORY_SETS = [
   { large: CATEGORIES.kopper, small1: CATEGORIES.caps, small2: CATEGORIES.plakater }
 ];
 
+const getFirstTwoSentences = (str) => {
+  if (!str) return str;
+  const cleanStr = str.replace(/\s+/g, ' ').trim();
+  const sentences = [];
+  let currentStart = 0;
+  
+  // Matches a period, question mark, exclamation mark, or an ellipsis, followed by a space or end of string.
+  const boundaryRegex = /(?:\.{3,}|[!?.])(?=\s|$)/g;
+  
+  let match;
+  while ((match = boundaryRegex.exec(cleanStr)) !== null) {
+    const endPos = match.index + match[0].length;
+    const sentence = cleanStr.substring(currentStart, endPos).trim();
+    if (sentence) {
+      sentences.push(sentence);
+    }
+    currentStart = endPos;
+    if (sentences.length >= 2) {
+      break;
+    }
+  }
+  
+  if (sentences.length < 2 && currentStart < cleanStr.length) {
+    const remaining = cleanStr.substring(currentStart).trim();
+    if (remaining) {
+      sentences.push(remaining);
+    }
+  }
+  
+  return sentences.join(' ');
+};
+
 export default function Home() {
   const { t, translateProduct, language, formatPrice } = useLanguage();
 
@@ -361,7 +393,8 @@ export default function Home() {
           }
           
           if (cleanParagraphs.length > 0) {
-            descResult = cleanParagraphs.join(' ').trim();
+            const joined = cleanParagraphs.join(' ').trim();
+            descResult = getFirstTwoSentences(joined);
           }
         }
 
