@@ -6,8 +6,14 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
 
-      // Get consent from localStorage if already saved
-      const consent = localStorage.getItem('hkd-cookie-consent');
+      // Get consent from localStorage if already saved, with fallback for private browsing
+      let consent = 'denied';
+      try {
+        consent = localStorage.getItem('hkd-cookie-consent');
+      } catch (e) {
+        console.warn('LocalStorage access blocked:', e);
+      }
+
       gtag('consent', 'default', {
         'ad_storage': consent === 'all' ? 'granted' : 'denied',
         'analytics_storage': consent === 'all' ? 'granted' : 'denied',
