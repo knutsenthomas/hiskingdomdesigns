@@ -760,7 +760,7 @@ export default function Cart() {
                 <button 
                   onClick={handleCheckout}
                   disabled={isRedirecting}
-                  className={`w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 ${
+                  className={`w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-3 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 ${
                     isRedirecting ? 'opacity-75 cursor-not-allowed' : ''
                   }`}
                 >
@@ -775,6 +775,13 @@ export default function Cart() {
                       <ArrowRight size={16} />
                     </>
                   )}
+                </button>
+                <button
+                  onClick={() => navigate('/products')}
+                  className="w-full bg-transparent hover:bg-parchment/60 text-secondary border border-outline-variant/60 py-4 rounded-xl font-label-md text-label-md active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft size={16} />
+                  <span>{t('cart.continueShopping')}</span>
                 </button>
               </>
             )}
