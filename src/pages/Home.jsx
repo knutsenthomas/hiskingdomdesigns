@@ -659,7 +659,7 @@ export default function Home() {
               />
             )}
             {currentSlide.isProduct ? (
-              <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-4 md:line-clamp-2">
+              <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
                 {currentSlide.desc}
               </p>
             ) : (
@@ -667,7 +667,7 @@ export default function Home() {
                 slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
                 fallback={currentSlide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
                 as="p" 
-                className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed"
+                className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
               />
             )}
             <div className="flex flex-wrap gap-4">
