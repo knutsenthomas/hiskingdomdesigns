@@ -704,7 +704,7 @@ export default function ProductDetails() {
           "@type": "Offer",
           "url": window.location.href,
           "priceCurrency": "NOK",
-          "price": product.price?.price || 0,
+          "price": product.price || 0,
           "availability": product.stock?.inventoryStatus === 'IN_STOCK' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
         }
       };
