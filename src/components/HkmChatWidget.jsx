@@ -537,6 +537,10 @@ export default function HkmChatWidget() {
 
   // Scroll to the top of the newest reply
   const messagesToScroll = chatMode === 'ai' ? assistantMessages : liveMessages;
+  const messagesLength = messagesToScroll.length;
+  const lastMessageId = messagesLength > 0 ? messagesToScroll[messagesLength - 1]?.id : '';
+  const lastMessageText = messagesLength > 0 ? messagesToScroll[messagesLength - 1]?.text : '';
+
   useEffect(() => {
     if (isOpen) {
       const scrollTimer = setTimeout(() => {
@@ -554,7 +558,7 @@ export default function HkmChatWidget() {
       }, 100);
       return () => clearTimeout(scrollTimer);
     }
-  }, [messagesToScroll, isAssistantTyping, isLiveTyping, isOpen]);
+  }, [messagesLength, lastMessageId, lastMessageText, isAssistantTyping, isLiveTyping, isOpen]);
 
   // Dynamic DOM text scraper to extract context from active page
   useEffect(() => {
