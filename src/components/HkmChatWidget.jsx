@@ -732,16 +732,7 @@ export default function HkmChatWidget() {
       setIsLiveTyping(true);
       setTimeout(async () => {
         try {
-          let aiReply = generateAiResponseText(textToSend);
-          
-          if (isOutsideOpeningHours()) {
-            const closedNotice = language === 'en'
-              ? '*Note: Customer service is currently closed (hours: Mon-Fri 08:00-16:00). We will review your message as soon as we are back! Here is an automated response:* \n\n'
-              : (language === 'es'
-                ? '*Nota: El servicio de atención al cliente está cerrado actualmente (horario: Lun-Vie 08:00-16:00). ¡Revisaremos tu mensaje tan pronto como regresemos! Aquí hay una respuesta automática:* \n\n'
-                : '*Merk: Kundeservice er stengt nå (åpningstid: man–fre 08:00–16:00). Vi svarer deg så fort vi er tilbake! Her er et automatisk svar:* \n\n');
-            aiReply = closedNotice + aiReply;
-          }
+          const aiReply = generateAiResponseText(textToSend);
 
           const aiMessagePayload = {
             direction: 'BUSINESS_TO_PARTICIPANT',
