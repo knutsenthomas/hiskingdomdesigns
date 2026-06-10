@@ -315,6 +315,8 @@ export default function Home() {
         if (translatedP.description) {
           const formatted = translatedP.description
             .replace(/<\/p>|<\/li>|<div>|<br\s*\/?>/gi, '\n')
+            .replace(/\.-/g, '.\n-') // Insert newline before dash bullet glued to preceding sentence
+            .replace(/\s+-\s+/g, '\n- ') // Insert newline before standard space-dash-space bullet
             .replace(/<[^>]*>/g, '')
             .replace(/&nbsp;/g, ' ')
             .replace(/\u00A0/g, ' ');
