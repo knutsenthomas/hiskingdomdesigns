@@ -676,6 +676,34 @@ export default function HkmChatWidget() {
               </button>
             </div>
 
+            {/* Reset Conversation Bar for Live Chat */}
+            {chatMode === 'live' && conversationId && !chatError && !needsContactInfo && (
+              <div className="bg-orange-50/70 border-b border-[#d17d39]/10 px-4 py-2 text-[10px] text-secondary flex items-center justify-between select-none shrink-0 pointer-events-auto">
+                <span className="flex items-center gap-1.5 font-medium text-onyx/70">
+                  <span className="w-1.5 h-1.5 bg-[#d17d39] rounded-full"></span>
+                  Aktiv samtale (Wix Inbox)
+                </span>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(language === 'en' ? 'Are you sure you want to start a new conversation?' : (language === 'es' ? '¿Estás seguro de que deseas iniciar una nueva conversación?' : 'Er du sikker på at du vil starte en ny samtale? Dette vil tømme samtalen i nettleseren din.'))) {
+                      setConversationId(null);
+                      setLiveMessages([]);
+                      localStorage.removeItem('hkd-inbox-conv-id');
+                      if (!wixClient.auth.loggedIn()) {
+                        setNeedsContactInfo(true);
+                      } else {
+                        startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
+                      }
+                    }
+                  }}
+                  className="text-terracotta hover:underline font-bold transition-all active:scale-95 cursor-pointer"
+                >
+                  {language === 'en' ? 'Start new chat' : (language === 'es' ? 'Iniciar nueva' : 'Start ny samtale')}
+                </button>
+              </div>
+            )}
+
             {/* Chat Body - Scroll with Offset Context */}
             <div 
               ref={chatBodyRef}
@@ -750,7 +778,7 @@ export default function HkmChatWidget() {
                       setChatError('');
                       setChatMode('ai');
                     }}
-                    className="w-full bg-[#1B4965] text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                    className="w-full bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
                     {t('chat.useAiFallback')}
                   </button>
@@ -797,7 +825,7 @@ export default function HkmChatWidget() {
                   <button
                     type="submit"
                     disabled={isCreatingConv}
-                    className="w-full bg-[#1B4965] text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
+                    className="w-full bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                   >
                     {isCreatingConv ? t('chat.startingConversation') : t('chat.startConversation')}
                   </button>
