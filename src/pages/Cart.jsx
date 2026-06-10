@@ -37,6 +37,7 @@ export default function Cart() {
     removeGiftCard,
     mapCartItemsToWixLineItems,
     forceSyncCartWithWix,
+    prefetchedCheckoutUrl,
     isEstimated,
     isEstimating,
     estimateError,
@@ -107,6 +108,12 @@ export default function Cart() {
   const handleCheckout = async () => {
     setIsRedirecting(true);
     setErrorMessage('');
+
+    if (prefetchedCheckoutUrl) {
+      console.log('Redirecting instantly using prefetched checkout URL.');
+      window.location.href = prefetchedCheckoutUrl;
+      return;
+    }
 
     try {
       // 1. Force sync the local cart with Wix to guarantee they are identical (defensive)
