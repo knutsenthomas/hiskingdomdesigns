@@ -461,13 +461,7 @@ export default function HkmChatWidget() {
     setInputText('');
   };
 
-  const handleLiveMessageSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-
-    const textToSend = inputText.trim();
-    setInputText('');
-
+  const sendLiveChatMessage = async (textToSend) => {
     let activeConvId = conversationId;
 
     if (!activeConvId) {
@@ -572,6 +566,15 @@ export default function HkmChatWidget() {
         localStorage.removeItem('hkd-inbox-conv-id');
       }
     }
+  };
+
+  const handleLiveMessageSubmit = async (e) => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+
+    const textToSend = inputText.trim();
+    setInputText('');
+    await sendLiveChatMessage(textToSend);
   };
 
   return (
@@ -857,7 +860,7 @@ export default function HkmChatWidget() {
                       if (chatMode === 'ai') {
                         sendAssistantMessage(reply.text);
                       } else {
-                        setInputText(reply.text);
+                        sendLiveChatMessage(reply.text);
                       }
                     }}
                     className="flex-shrink-0 bg-white border border-outline-variant/60 hover:border-[#1B4965] hover:text-[#1B4965] text-onyx text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer flex items-center gap-1"
