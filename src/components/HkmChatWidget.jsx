@@ -621,8 +621,8 @@ export default function HkmChatWidget() {
             transition={{ duration: 0.2 }}
             className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
           >
-            {/* Header - Mørkeblå (#1B4965) */}
-            <div className="bg-[#1B4965] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
+            {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
+            <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
