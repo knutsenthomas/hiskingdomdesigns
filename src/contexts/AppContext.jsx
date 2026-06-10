@@ -1271,9 +1271,10 @@ export const AppProvider = ({ children }) => {
     // 1. Prioritize specific customer service topics to prevent false matches on helper words
     if (lower.includes('retur') || lower.includes('bytte') || lower.includes('fortre')) {
       reply = '### 🔄 Enkel Retur & Bytte\n\n' +
-        '- Hos oss har du alltid **14 dagers angrefrist** i tråd med angrerettsloven fra du mottar varen.\n' +
-        '- Produktet må være ubrukt og i originalemballasjen.\n' +
-        '- Du kan enkelt kontakte vår kundeservice på **post@hiskingdomministry.no** for å motta en returetikett.\n\n' +
+        '- Hos oss har du alltid **14 dagers angrerett** i tråd med angrerettsloven fra du mottar varen.\n' +
+        '- Produktet må være ubrukt, i original stand og i originalemballasjen.\n' +
+        '- Du må selv dekke returportoen med mindre annet er avtalt, i henhold til våre kjøpsbetingelser.\n' +
+        '- Ta kontakt med vår kundeservice på **post@hiskingdomministry.no** for å få veiledning om returadresse.\n\n' +
         '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
     } 
     else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
@@ -1355,6 +1356,34 @@ export const AppProvider = ({ children }) => {
         '- Vi brenner for å spre evangeliet og samarbeider gjerne med kristne influencere, ambassadører og profiler i sosiale medier!\n' +
         '- Hvis du ønsker å bli ambassadør eller inngå et samarbeid, vil vi gjerne høre fra deg.\n\n' +
         '💡 Send oss en e-post på **post@hiskingdomministry.no** med en kort beskrivelse av deg selv og lenker til dine profiler, så tar vi kontakt!';
+    }
+    else if (lower.includes('skadet') || lower.includes('ødelagt') || lower.includes('feilvare') || lower.includes('reklamasjon') || lower.includes('hull') || lower.includes('feil trykk') || lower.includes('reklamere') || lower.includes('mangel')) {
+      reply = '### ⚠️ Reklamasjon & Feil på varen\n\n' +
+        '- Dersom produktet du mottok har en feil, mangel, hull, eller hvis det har oppstått skade under transport, ordner vi selvfølgelig opp!\n' +
+        '- Du trenger som regel **ikke å sende varen tilbake** til oss ved skade eller produksjonsfeil.\n' +
+        '- Send oss en e-post på **post@hiskingdomministry.no** med en kort beskrivelse og **et bilde av feilen/skaden**, samt ordrenummeret ditt.\n\n' +
+        '💡 Vi sender deg et nytt erstatningsprodukt eller refunderer beløpet så raskt som mulig i henhold til forbrukerkjøpsloven!';
+    }
+    else if (lower.includes('hente') || lower.includes('hente selv') || lower.includes('lyngdal') || lower.includes('henteadresse') || lower.includes('fysisk butikk') || lower.includes('butikk')) {
+      reply = '### 📍 Hente selv / Fysisk butikk\n\n' +
+        '- Vi har dessverre **ikke mulighet for at du kan hente varene selv** på vår adresse i Lyngdal, og vi har heller ikke en fysisk butikk.\n' +
+        '- Alle bestillinger produseres på bestilling og sendes direkte hjem til deg eller til ditt nærmeste hentested med Posten.\n\n' +
+        '💡 Frakten beregnes automatisk i kassen basert på vekt (fra kun 39 kr).';
+    }
+    else if (lower.includes('avbestille') || lower.includes('kansellere') || lower.includes('endre ordre') || lower.includes('stoppe') || lower.includes('angre kjøp')) {
+      reply = '### ⏱️ Endre eller avbestille ordre\n\n' +
+        '- Siden produktene våre produseres på bestilling (print-on-demand), settes produksjonen raskt i gang etter bestilling.\n' +
+        '- Hvis du oppdager at du har bestilt feil størrelse eller ønsker å avbestille, må du sende en e-post til **post@hiskingdomministry.no** så fort som mulig.\n' +
+        '- Hvis ordren din ikke har gått til trykk ennå, hjelper vi deg gjerne med å endre eller kansellere bestillingen.\n\n' +
+        '💡 Husk å oppgi ordrenummeret ditt i e-posten for raskest mulig hjelp!';
+    }
+    else if (lower.includes('vaske') || lower.includes('krympe') || lower.includes('tørketrommel') || lower.includes('stryke') || lower.includes('vaskeråd')) {
+      reply = '### 🧼 Vask & Bevaring av trykket\n\n' +
+        'For at trykket og plagget skal holde seg pent vask etter vask, anbefaler vi følgende vaskeråd:\n' +
+        '- Vask plaggene på **30-40 grader med vrangen ut**.\n' +
+        '- Unngå bruk av tørketrommel, da varmen kan skade trykket over tid.\n' +
+        '- **Stryk aldri direkte på trykket**; stryk eventuelt plagget på vrangen med lav varme.\n\n' +
+        '💡 Våre trykk er av høy kvalitet og vannbaserte, og følger du disse rådene holder de seg fine utrolig lenge!';
     }
     else if (matchedUnavailable && !hasProduct) {
       const isKids = 
