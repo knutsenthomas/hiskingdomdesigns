@@ -299,7 +299,13 @@ export default function Home() {
       const productSlides = newestProducts.map(p => {
         const translatedP = translateProduct(p);
         const displayName = translatedP.name ? translatedP.name.split('|')[0].trim() : 'Nytt produkt';
-        const plainDesc = translatedP.description ? translatedP.description.replace(/<[^>]*>/g, '') : '';
+        const plainDesc = translatedP.description 
+          ? translatedP.description
+              .replace(/<[^>]*>/g, '')
+              .replace(/&nbsp;/g, ' ')
+              .replace(/\u00A0/g, ' ')
+              .trim() 
+          : '';
         return {
           image: translatedP.image,
           title: `${t('home.newArrival')}${displayName}`,
