@@ -284,6 +284,9 @@ export const CartProvider = ({ children }) => {
       const updatedWixLineItems = updatedWixCart.lineItems || [];
       
       // 2. Add or update remaining items
+      const itemsToUpdate = [];
+      const itemsToAdd = [];
+
       for (const loc of localMapped) {
         const wixMatch = updatedWixLineItems.find(wixItem => {
           const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
@@ -303,23 +306,36 @@ export const CartProvider = ({ children }) => {
         
         if (wixMatch) {
           if (wixMatch.quantity !== loc.quantity) {
-            console.log(`Updating quantity for Wix line item ${wixMatch._id} to ${loc.quantity}`);
-            await wixClient.currentCart.updateCurrentCartLineItemQuantity([
-              {
-                _id: wixMatch._id,
-                quantity: loc.quantity
-              }
-            ]);
+            itemsToUpdate.push({
+              _id: wixMatch._id,
+              quantity: loc.quantity
+            });
           }
         } else {
-          console.log('Adding item to Wix cart:', loc);
-          await wixClient.currentCart.addToCurrentCart({
-            lineItems: [loc]
-          });
+          itemsToAdd.push(loc);
         }
       }
+
+      let finalCart = updatedWixCart;
+
+      // Batch quantity updates in a single API call
+      if (itemsToUpdate.length > 0) {
+        console.log('Batch updating quantities in Wix cart:', itemsToUpdate);
+        const res = await wixClient.currentCart.updateCurrentCartLineItemQuantity(itemsToUpdate);
+        finalCart = res.cart || res;
+      }
+
+      // Batch item additions in a single API call
+      if (itemsToAdd.length > 0) {
+        console.log('Batch adding items to Wix cart:', itemsToAdd);
+        const res = await wixClient.currentCart.addToCurrentCart({
+          lineItems: itemsToAdd
+        });
+        finalCart = res.cart || res;
+      }
+
       console.log('Force Wix cart synchronization complete.');
-      return await wixClient.currentCart.getCurrentCart();
+      return finalCart;
     } catch (err) {
       console.error('Error during forceSyncCartWithWix:', err);
       throw err;
