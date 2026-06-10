@@ -88,6 +88,52 @@ export const CartProvider = ({ children }) => {
 
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
 
+  const [appliedCoupon, setAppliedCoupon] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hkd-applied-coupon');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [couponError, setCouponError] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (appliedCoupon) {
+        localStorage.setItem('hkd-applied-coupon', JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem('hkd-applied-coupon');
+      }
+    } catch (e) {
+      console.error('Failed to save applied coupon to localStorage', e);
+    }
+  }, [appliedCoupon]);
+
+  const [appliedGiftCard, setAppliedGiftCard] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hkd-applied-giftcard');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [giftCardError, setGiftCardError] = useState('');
+  const [isApplyingGiftCard, setIsApplyingGiftCard] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (appliedGiftCard) {
+        localStorage.setItem('hkd-applied-giftcard', JSON.stringify(appliedGiftCard));
+      } else {
+        localStorage.removeItem('hkd-applied-giftcard');
+      }
+    } catch (e) {
+      console.error('Failed to save applied giftcard to localStorage', e);
+    }
+  }, [appliedGiftCard]);
+
   useEffect(() => {
     try {
       localStorage.setItem('hkd-cart-items', JSON.stringify(cartItems));
@@ -199,28 +245,7 @@ export const CartProvider = ({ children }) => {
     setCouponError('');
   };
 
-  const [appliedCoupon, setAppliedCoupon] = useState(() => {
-    try {
-      const saved = localStorage.getItem('hkd-applied-coupon');
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      return null;
-    }
-  });
-  const [couponError, setCouponError] = useState('');
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
-  useEffect(() => {
-    try {
-      if (appliedCoupon) {
-        localStorage.setItem('hkd-applied-coupon', JSON.stringify(appliedCoupon));
-      } else {
-        localStorage.removeItem('hkd-applied-coupon');
-      }
-    } catch (e) {
-      console.error('Failed to save applied coupon to localStorage', e);
-    }
-  }, [appliedCoupon]);
 
   const forceSyncCartWithWix = async (items = cartItems) => {
     try {
@@ -646,28 +671,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const [appliedGiftCard, setAppliedGiftCard] = useState(() => {
-    try {
-      const saved = localStorage.getItem('hkd-applied-giftcard');
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      return null;
-    }
-  });
-  const [giftCardError, setGiftCardError] = useState('');
-  const [isApplyingGiftCard, setIsApplyingGiftCard] = useState(false);
 
-  useEffect(() => {
-    try {
-      if (appliedGiftCard) {
-        localStorage.setItem('hkd-applied-giftcard', JSON.stringify(appliedGiftCard));
-      } else {
-        localStorage.removeItem('hkd-applied-giftcard');
-      }
-    } catch (e) {
-      console.error('Failed to save applied giftcard to localStorage', e);
-    }
-  }, [appliedGiftCard]);
 
   const applyGiftCardCode = async (code) => {
     if (!code || code.trim() === '') return false;
