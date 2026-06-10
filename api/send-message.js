@@ -45,8 +45,10 @@ export default async function handler(req, res) {
 
     console.log('Backend sending message to conversation:', conversationId);
     
+    const direction = message.direction || 'PARTICIPANT_TO_BUSINESS';
+    
     let sender = message.sender;
-    if (!sender) {
+    if (!sender && direction === 'PARTICIPANT_TO_BUSINESS') {
       try {
         console.log('Backend resolving participant/sender for conversation:', conversationId);
         const convDetails = await wixClient.inboxConversations.getConversation(conversationId);
@@ -62,7 +64,7 @@ export default async function handler(req, res) {
     // Ensure direction, visibility and sender are correctly set
     const formattedMessage = {
       ...message,
-      direction: message.direction || 'PARTICIPANT_TO_BUSINESS',
+      direction,
       visibility: message.visibility || 'BUSINESS_AND_PARTICIPANT',
       ...(sender ? { sender } : {})
     };
