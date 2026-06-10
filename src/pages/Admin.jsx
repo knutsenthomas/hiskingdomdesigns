@@ -234,7 +234,7 @@ export default function Admin() {
             <ShieldCheck size={14} />
             <span>Admin-konsoll</span>
           </div>
-          <h1 className="font-headline-xl text-headline-xl font-bold">Administrasjon</h1>
+          <h1 className="font-headline-xl text-3xl md:text-headline-xl font-bold">Administrasjon</h1>
           <p className="text-slate-100 text-xs max-w-md">
             Behandle affiliate markedsførere, godkjenn nye søknader, og hold oversikt over samarbeidspartnere.
           </p>

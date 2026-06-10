@@ -34,7 +34,7 @@ export default function About() {
           slug="about-title"
           fallback="His Kingdom Ministry & Designs"
           as="h1"
-          className="font-headline-xl text-headline-xl text-onyx mb-6"
+          className="font-headline-xl text-3xl md:text-headline-xl text-onyx mb-6"
         />
         <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
           <a 

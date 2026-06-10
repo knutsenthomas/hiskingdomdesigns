@@ -65,7 +65,7 @@ export default function Team() {
           slug="team-title"
           fallback="Møt hjertene bak tjenesten"
           as="h1"
-          className="font-headline-xl text-headline-xl text-onyx mb-6"
+          className="font-headline-xl text-3xl md:text-headline-xl text-onyx mb-6"
         />
         <CmsText
           slug="team-desc"
