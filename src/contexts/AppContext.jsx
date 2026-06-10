@@ -1269,12 +1269,12 @@ export const AppProvider = ({ children }) => {
     }
 
     // 1. Prioritize specific customer service topics to prevent false matches on helper words
-    if (lower.includes('retur') || lower.includes('bytte') || lower.includes('fortre')) {
+    if (lower.includes('retur') || lower.includes('bytte') || lower.includes('angre') || lower.includes('angrerett') || lower.includes('fortre')) {
       reply = '### 🔄 Enkel Retur & Bytte\n\n' +
         '- Hos oss har du alltid **14 dagers angrerett** i tråd med angrerettsloven fra du mottar varen.\n' +
         '- Produktet må være ubrukt, i original stand og i originalemballasjen.\n' +
         '- Du må selv dekke returportoen med mindre annet er avtalt, i henhold til våre kjøpsbetingelser.\n' +
-        '- Ta kontakt med vår kundeservice på **post@hiskingdomministry.no** for å få veiledning om returadresse.\n\n' +
+        '- Bruk returseddelen som fulgte med i pakken, eller ta kontakt med oss på **post@hiskingdomministry.no** for å få tilsendt en ny eller få veiledning om returadresse.\n\n' +
         '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
     } 
     else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
@@ -1315,7 +1315,7 @@ export const AppProvider = ({ children }) => {
         '- Våre klær er laget av **100% bomull eller en behagelig blanding av bomull og polyester**.\n' +
         '- Dette gir en utrolig myk følelse mot huden, god pusteevne og lang holdbarhet.\n' +
         '- Trykkene våre er vannbaserte og holdbare, slik at de holder formen vask etter vask uten å sprekke.\n\n' +
-        '💡 Vi anbefaler å vaske plaggene på **30-40 grader med vrangen ut** for å bevare trykket best mulig.';
+        '💡 Vi anbefaler å vaske plaggene på **30 grader med innsiden ut (vrangen ut)** for å bevare trykket best mulig.';
     } 
     else if (lower.includes('betaling') || lower.includes('vipps') || lower.includes('kort') || lower.includes('visa')) {
       reply = '### 💳 Sikker Betaling\n\n' +
@@ -1380,7 +1380,7 @@ export const AppProvider = ({ children }) => {
     else if (lower.includes('vaske') || lower.includes('krympe') || lower.includes('tørketrommel') || lower.includes('stryke') || lower.includes('vaskeråd')) {
       reply = '### 🧼 Vask & Bevaring av trykket\n\n' +
         'For at trykket og plagget skal holde seg pent vask etter vask, anbefaler vi følgende vaskeråd:\n' +
-        '- Vask plaggene på **30-40 grader med vrangen ut**.\n' +
+        '- Vask plaggene på **30 grader med innsiden ut (vrangen ut)**.\n' +
         '- Unngå bruk av tørketrommel, da varmen kan skade trykket over tid.\n' +
         '- **Stryk aldri direkte på trykket**; stryk eventuelt plagget på vrangen med lav varme.\n\n' +
         '💡 Våre trykk er av høy kvalitet og vannbaserte, og følger du disse rådene holder de seg fine utrolig lenge!';
