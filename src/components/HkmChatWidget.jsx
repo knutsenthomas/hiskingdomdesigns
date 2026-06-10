@@ -769,18 +769,14 @@ export default function HkmChatWidget() {
             transition={{ duration: 0.2 }}
             className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
           >
-            {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
-            <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
+            {/* Header - Mørkeblå farge (#1B4965) */}
+            <div className="bg-[#1B4965] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm">{t('chat.title')}</h3>
-                  <span className="text-[10px] text-white/80 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-green-400 inline-block rounded-full animate-pulse"></span>
-                    {t('chat.connected')}
-                  </span>
                 </div>
               </div>
               <button 
