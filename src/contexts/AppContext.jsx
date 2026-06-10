@@ -1349,7 +1349,7 @@ export const AppProvider = ({ children }) => {
       reply = '### 🛡️ Om His Kingdom Designs\n\n' +
         '- Vårt formål er å spre Guds ord gjennom vakker og moderne design som oppmuntrer i hverdagen og starter gode samtaler.\n' +
         '- His Kingdom Designs drives på frivillig basis av organisasjonen **His Kingdom Ministry**.\n' +
-        '- Alt overskudd fra salget går direkte til å **støtte misjonsarbeid og lokalt barne- og ungdomsarbeid**.\n\n' +
+        '- Alt overskudd fra salget går direkte til å **støtte misjonsarbeid og drift av organisasjonen**.\n\n' +
         '💡 Ved å handle hos oss er du med på å utgjøre en forskjell!';
     }
     else if (lower.includes('gavekort') || lower.includes('giftcard') || lower.includes('gift card') || lower.includes('presang')) {
