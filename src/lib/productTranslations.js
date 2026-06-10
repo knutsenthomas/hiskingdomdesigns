@@ -1,4 +1,4 @@
-import { translations } from './translations';
+import { translations } from './translations.js';
 
 // Product Translations Dictionary mapping specific products by ID or name keywords
 export const productTranslations = {
@@ -152,6 +152,51 @@ export const productTranslations = {
       es: {
         name: 'Camiseta de tirantes Guard your Heart',
         description: 'Camiseta de tirantes unisex ligera y cómoda con el hermoso diseño "Guard your Heart". Perfecta para días cálidos o entrenamientos.'
+      }
+    },
+    // 5 BIG size Stickers Monthly
+    '834c1b89-4c2d-ddc2-8f03-3f55a4586408': {
+      no: {
+        name: 'Månedlig abonnement på 5 store klistremerker',
+        description: 'Månedlig abonnement på 5 store klistremerker (5,5 - 8 cm). Du får 10% rabatt og betaler 45 kr per måned + frakt (49 kr i Norge). I denne pakken får du: - månedens 5 store klistremerker på engelsk/norsk (avhengig av hvilket land du er fra) - månedens bibelvers/tekst sammen med et studie på engelsk/norsk (avhengig av hvilket land du er fra) - du får også en overraskelsesgave i den første forsendelsen, og deretter hver 6. måned. Med denne pakken kan du både lære av Guds ord, dekorere tingene dine eller gi vakre bibelklistremerker som gave til noen du er glad i. Overskuddet vårt går til misjon og kristent arbeid i Norge og internasjonalt. Abonnementet har én måneds oppsigelsestid. Du kan avslutte abonnementet når du selv ønsker. Det eneste du forplikter deg til er to bestillinger (første bestilling og oppsigelsesbestillingen).'
+      },
+      en: {
+        name: '5 BIG size Stickers Monthly',
+        description: 'MONTHLY SUBSCRIPTION OF 5 BIG STICKERS  (5,5 - 8cm)You have a 10% discount and pay 45NOK per month + shipping (49kr i Norge).  In this package you get:- the 5 big stickers of the month in English/Norwegian, (depending on what country you are from)- the Bible verse/passage of the month along with a study in English/Norwegian (depending on what country you are from)- You also get a surprise gift in the first shipment, and every 6 months after that. With this package you can both learn from God\'s word, decorate your things or give beautiful Bible Stickers away as gifts to someone you love.  Our profits go to missions and Christian work in Norway and internationally.  The subscription has an one month\'s notice. You can cancel the subscription whenever you want. The only thing you are committed to is two orders (First order and the cancellation order).'
+      },
+      es: {
+        name: 'Suscripción mensual de 5 pegatinas grandes',
+        description: 'Suscripción mensual de 5 pegatinas grandes (5,5 - 8 cm). Tienes un 10% de descuento y pagas 45 NOK al mes + envío (49 kr en Noruega). En este paquete recibes: - las 5 pegatinas grandes del mes en inglés/noruego (según el país de donde seas) - el versículo/pasaje bíblico del mes junto con un estudio en inglés/noruego (según el país de donde seas) - también recibes un regalo sorpresa en el primer envío, y cada 6 meses después de eso. Con este paquete puedes aprender de la palabra de Dios, decorar tus cosas o regalar hermosas pegatinas bíblicas a alguien que amas. Nuestras ganancias se destinan a misiones y trabajo cristiano en Noruega y a nivel internacional. La suscripción tiene un mes de preaviso. Puedes cancelar la suscripción cuando quieras. Lo único a lo que te comprometes es a dos pedidos (el primer pedido y el pedido de cancelación).'
+      }
+    },
+    // Monthly English T-shirt subscription
+    '981a3735-b209-5083-5a36-747fc1382288': {
+      no: {
+        name: 'Månedlig t-skjorte-abonnement',
+        description: 'Månedlig abonnement på t-skjorter. Du betaler 349 kr per måned + frakt (49 kr i Norge). I denne pakken får du: - månedens t-skjorte - et engelsk bibelklistremerke - månedens bibelvers med et studie. - Du får også en overraskelsesgave i den første forsendelsen, og deretter hver 3. måned. Med denne månedlige pakken kan du lære av Guds ord, kle deg med et kristent budskap og spre hans ord hvor enn du går. Du vil få tilsendt månedens t-skjorte i din ønskede størrelse. Farger kan variere. Vi leverer kvalitetssikrede unisex t-skjorter med et kristent budskap på engelsk. Overskuddet vårt går til misjon og kristent arbeid i Norge og internasjonalt. Abonnementet har én måneds oppsigelsestid. Du kan avslutte abonnementet når du selv ønsker. Det eneste du forplikter deg til er to bestillinger (første bestilling og oppsigelsesbestillingen).'
+      },
+      en: {
+        name: 'Monthly English T-shirt subscription',
+        description: 'Monthly subscription of Tshirts.You pay 349NOK per month + shipping (49kr i Norge)In this package you get:-the t-shirt of the month- one English Bible sticker- the Bible verse of the month with a study.- You also get a surprise gift in the first shipment, and every 3 months after that. With this monthly package you can learn from God\'s word, dress with a Christian message and spread His word wherever you go.  You will be sent the T-shirt of the month in your desired size. Colors may vary. We deliver unisex quality t-shirts with a Christian message in English.Our profits go to missions and Christian work in Norway and internationally.  The subscription has an one month\'s notice. You can cancel the subscription whenever you want. The only thing you are committed to is two orders (First order and cancellation order).'
+      },
+      es: {
+        name: 'Suscripción mensual de camisetas',
+        description: 'Suscripción mensual de camisetas. Pagas 349 NOK al mes + envío (49 kr en Noruega). En este paquete recibes: - la camiseta del mes - una pegatina bíblica en inglés - el versículo bíblico del mes con un estudio. - También recibes un regalo sorpresa en el primer envío, y cada 3 meses después de eso. Con este paquete mensual puedes aprender de la palabra de Dios, vestirte con un mensaje cristiano y difundir su palabra dondequiera que vayas. Se te enviará la camiseta del mes en la talla deseada. Los colores pueden variar. Entregamos camisetas unisex de calidad con un mensaje cristiano en inglés. Nuestras ganancias se destinan a misiones y trabajo cristiano en Noruega y a nivel internacional. La suscripción tiene un mes de preaviso. Puedes cancelar la suscripción cuando quieras. Lo único a lo que te comprometes es a dos pedidos (el primer pedido y el pedido de cancelación).'
+      }
+    },
+    // Monthly coffee cup subscription
+    '84b670b9-1d94-173d-5dc5-6b8b391c1eae': {
+      no: {
+        name: 'Månedlig kaffekopp-abonnement',
+        description: 'Månedlig abonnement på kaffekopp. Du betaler 179 kr per måned + frakt (99 kr i Norge) – 10% rabatt på ordinær pris. I denne pakken får du: månedens kopp (engelsk/norsk), ett engelsk/norsk bibelklistremerke (avhengig av hvilket land du er fra) og månedens bibelvers med et studie. På denne måten kan du både lære av Guds ord, drikke morgenkaffen med et kristent budskap og meditere på hans ord uansett hvor du er. Du får også en overraskelsesgave i den første forsendelsen, og deretter hver 3. måned. Overskuddet vårt går til misjon og kristent arbeid i Norge og internasjonalt. Abonnementet har én måneds oppsigelsestid. Du kan avslutte abonnementet når du selv ønsker. Det eneste du forplikter deg til er to bestillinger (første bestilling og oppsigelsesbestillingen).'
+      },
+      en: {
+        name: 'Monthly coffee cup subscription',
+        description: 'Monthly subscription of Coffee cup.You pay 179NOK per month + shipping (99kr for Norge) 10% discount of normal price. In this package you get: the cup/mug of the month English/Norwegian, one English/Norwegian Bible sticker (depending on what country you are from) and the Bible verse of the month with a study. This way you can both learn from God\'s word, drink your morning coffee with a Christian message and meditate on His word wherever you are.  You also get a surprise gift in the first shipment, and every 3 months after that. Our profits go to missions and Christian work in Norway and internationally.  The subscription has an one month\'s notice. You can cancel the subscription whenever you want. The only thing you are committed to is two orders (First order and the cancellation order).'
+      },
+      es: {
+        name: 'Suscripción mensual de tazas de café',
+        description: 'Suscripción mensual de taza de café. Pagas 179 NOK al mes + envío (99 kr en Noruega) – 10% de descuento sobre el precio normal. En este paquete recibes: la taza del mes (inglés/noruego), una pegatina bíblica en inglés/noruego (según el país de donde seas) y el versículo bíblico del mes con un estudio. De esta manera puedes aprender de la palabra de Dios, tomar tu café de la mañana con un mensaje cristiano y meditar en su palabra dondequiera que estés. También recibes un regalo sorpresa en el primer envío, y cada 3 meses después de eso. Nuestras ganancias se destinan a misiones y trabajo cristiano en Noruega y a nivel internacional. La suscripción tiene un mes de preaviso. Puedes cancelar la suscripción cuando quieras. Lo único a lo que te comprometes es a dos pedidos (el primer pedido y el pedido de cancelación).'
       }
     }
   },
@@ -916,18 +961,78 @@ const cleanAndTranslateDesc = (desc, lang) => {
 
   if (lang === 'no') {
     const replacements = [
-      { en: /\bthis beautiful ceramic mug is perfect for any event of the day\b/gi, no: 'Denne vakre keramiske koppen er perfekt for enhver anledning i hverdagen' },
-      { en: /\byour morning coffee, a hot chocolate, or any other hot beverage\b/gi, no: 'morgenkaffen, en varm kakao, eller annen varm drikke' },
-      { en: /\bthe mug is glossy white and the prints come out beautifully and vividly\b/gi, no: 'Koppen har en glansfull finish som gjør at motivene fremstår klare og levende' },
-      { en: /\bthe print retains its quality and luster when used in both microwave and dishwasher\b/gi, no: 'Trykket beholder sin høye kvalitet og glans ved bruk i både mikrobølgeovn og oppvaskmaskin' },
-      { en: /\bceramic 11oz mug\b/gi, no: 'Keramisk kopp (325 ml)' },
-      { en: /\bdishwasher and microwave safe\b/gi, no: 'Tåler oppvaskmaskin og mikrobølgeovn' },
+      // Kopp-spesifikke setninger (mug)
+      { en: /\bthis beautiful ceramic mug is perfect for any event of the day\.?/gi, no: 'Denne vakre keramiske koppen er perfekt for enhver anledning i hverdagen.' },
+      { en: /\byour morning coffee, a hot chocolate, or any other hot beverage( you enjoy)?\.?/gi, no: 'morgenkaffen, en varm kakao, eller annen varm drikke.' },
+      { en: /\bthe mug is glossy white and the prints come out beautifully and vividly( on it)?\.?/gi, no: 'Koppen har en glansfull finish som gjør at motivene fremstår klare og levende.' },
+      { en: /\bthe print retains its quality and luster when used in both microwaves? and (the )?dishwasher\.?/gi, no: 'Trykket beholder sin høye kvalitet og glans ved bruk i både mikrobølgeovn og oppvaskmaskin.' },
+      { en: /\bceramic 11oz mug\.?/gi, no: 'Keramisk kopp (325 ml).' },
+      { en: /\bdishwasher and microwave safe\.?/gi, no: 'Tåler oppvaskmaskin og mikrobølgeovn.' },
       { en: /\bunisex t-shirt\b/gi, no: 'unisex t-skjorte' },
       { en: /\bmade of 100% ring-spun cotton\b/gi, no: 'laget av 100% kjemmet bomull' },
       { en: /\bsoft and comfy\b/gi, no: 'myk og behagelig' },
       { en: /\bdouble stitching on the neckline and sleeves add more durability\b/gi, no: 'dobbeltsøm i hals og ermer gir økt slitestyrke' },
       { en: /\bhigh quality\b/gi, no: 'høy kvalitet' },
-      { en: /\bperfect for\b/gi, no: 'perfekt for' }
+      { en: /\bperfect for\b/gi, no: 'perfekt for' },
+      
+      // Faith Over Fear & Mustard Seed
+      { en: /\bif you have faith like a mustard seed\s*(\.{2,4})?/gi, no: 'Om dere har tro som et sennepsfrø...' },
+      { en: /\bfaith like a mustard seed\s*(\.{2,4})?/gi, no: 'Tro som et sennepsfrø...' },
+      
+      // Barnegenser (Kids sweatshirt)
+      { en: /\ba comfortable and eco-friendly sweatshirt for kids made from a blend of cotton and recycled polyester\.?/gi, no: 'En komfortabel og miljøvennlig genser for barn, laget av en blanding av bomull og resirkulert polyester.' },
+      { en: /\b80% cotton \/ 20% recycled polyester blend\.?/gi, no: '80% bomull og 20% resirkulert polyester.' },
+      { en: /\bbrushed fleece lining for added warmth\.?/gi, no: 'Børstet fleecefôr for ekstra varme.' },
+      { en: /\bribbed cuffs and hem for a snug fit\.?/gi, no: 'Ribbestrikkede mansjetter og nederkant for en god passform.' },
+      { en: /\bavailable in multiple colors\.?/gi, no: 'Tilgjengelig i flere farger.' },
+      { en: /\bdurable and soft fabric\.?/gi, no: 'Slitesterkt og mykt stoff.' },
+
+      // Totebag / Handlenett
+      { en: /\bcover all your grab and go needs with these long handle tote bags while being eco-conscious\.?/gi, no: 'Dekk alle dine behov på farten med disse miljøvennlige handlenettene med lange håndtak.' },
+      { en: /\bthese tote bags feature reinforced stitching on handles for more stability\.?/gi, no: 'Disse handlenettene har forsterkede sømmer på håndtakene for økt stabilitet.' },
+      { en: /\b(the unique|the) designs will stand out on these 100% cotton fabric tote bags\.?/gi, no: 'Designet vil skille seg ut på disse handlenettene i 100% bomull.' },
+      { en: /\breinforced stitching on handles\.?/gi, no: 'Forsterkede sømmer på håndtakene.' },
+      { en: /\blarge printable area for front & back\.?/gi, no: 'Stort trykkområde på for- og baksiden.' },
+      { en: /\blarge printable area for front &amp; back\.?/gi, no: 'Stort trykkområde på for- og baksiden.' },
+      { en: /\bcapacity 10 litres\.?/gi, no: 'Kapasitet: 10 liter.' },
+      { en: /\b100% cotton\.?/gi, no: '100% bomull.' },
+      { en: /\b3 - 5 oz\/yard², 100 - 170 g\/m²\.?/gi, no: '100 - 170 g/m².' },
+      { en: /\bany whites in your design will be treated as transparent in the printing process for the natural color tote bags. please keep this in mind to ensure optimal results\.?/gi, no: 'Eventuelle hvite partier i designet vil bli behandlet som transparente i trykkprosessen på naturfargede handlenett. Vennligst husk dette for optimalt resultat.' },
+
+      // Sweatshirts (Gildan 18000 etc.)
+      { en: /\ba heavy blend sweatshirt\b/gi, no: 'En genser i kraftig kvalitet.' },
+      { en: /\bcrafted from a soft blend of 50% cotton and 50% polyester\b/gi, no: 'Laget av en myk blanding av 50% bomull og 50% polyester.' },
+      { en: /\bfeatures air jet yarn for a softer feel and reduced pilling\b/gi, no: 'Laget med luftspunnet garn for en mykere følelse og mindre nupping.' },
+      { en: /\bdouble-needle stitching at shoulder, armhole, neck, waistband, and cuffs\b/gi, no: 'Doble sømmer ved skuldre, ermehull, hals, linning og mansjetter.' },
+      { en: /\b1x1 rib with spandex for enhanced stretch and recovery\b/gi, no: '1x1 ribbestrikk med spandex for økt elastisitet og formfasthet.' },
+      { en: /\bclassic fit for everyday comfort\b/gi, no: 'Klassisk passform for hverdagsbruk.' },
+
+      // Sweatshirt SF000
+      { en: /\bmaterial composition:\b/gi, no: 'Materiale:' },
+      { en: /\b80% ringspun us cotton, 20% polyester\b/gi, no: '80% ringspunnet amerikansk bomull, 20% polyester.' },
+      { en: /\b2-end ringspun cotton face fleece, made with 80% sustainably and fairly grown usa cotton\b/gi, no: '2-tråds ringspunnet bomullsoverflate, laget med 80% bærekraftig og rettferdig dyrket USA-bomull.' },
+      { en: /\b1x1 rib with spandex cuffs and bottom band for enhanced stretch and recovery, dropped shoulder\b/gi, no: '1x1 ribb med spandex på mansjetter og nederkant for økt elastisitet, samt senkede skuldre.' },
+      { en: /\bdouble-needle topstitching throughout\b/gi, no: 'Doble stikninger over hele plagget.' },
+      { en: /\bclassic fit with a tubular body\b/gi, no: 'Klassisk passform med rundstrikket bol.' },
+
+      // Poster-detaljer (plakater)
+      { en: /\bexperience art that feels silky to the touch with our high-quality, lighter-weight, classic semi-glossy paper\.?/gi, no: 'Opplev kunst som føles silkemyk med vårt klassiske halvblanke papir av høy kvalitet og lavere vekt.' },
+      { en: /\bposter made on our lighter-weight, uncoated classic matte paper\. The perfect option to stand the test of time:?/gi, no: 'Plakat laget på vårt lettere, ubestrøkede klassiske matte papir. Det perfekte valget for å vare over tid:' },
+      { en: /\bpaper finishing: semi-glossy, enhances colors with a subtle shine\.?/gi, no: 'Papirfinish: Halvblank, fremhever farger med en subtil glans.' },
+      { en: /\bpaper finishing: matte, smooth, non-reflective surface\.?/gi, no: 'Papirfinish: Matt, glatt, ikke-reflekterende overflate.' },
+      { en: /\bpaper weight: 170 gsm \(65 lb\), thickness: 0.19 mm \(7.5 mils\), sturdy and durable\.?/gi, no: 'Papirvekt: 170 g/m² (65 lb), tykkelse: 0,19 mm (7,5 mils), solid og slitesterkt.' },
+      { en: /\bsustainable paper: fsc-certified or equivalent for sustainability\.?/gi, no: 'Bærekraftig papir: FSC-sertifisert eller tilsvarende for bærekraft.' },
+
+      // Generelle linjer
+      { en: /\bdesigned by ([^,.\-]+) for his kingdom designs(,\s*[a-zA-Z]+\s*\d{4})?\.?/gi, no: 'Designet av $1 for His Kingdom Designs.' },
+      { en: /\bdesigned by Jaana Särg-Raani for His Kingdom Designs(,\s*[a-zA-Z]+\s*\d{4})?\.?/gi, no: 'Designet av Jaana Särg-Raani for His Kingdom Designs.' },
+      { en: /\bworld wide shipping\.?/gi, no: 'Global frakt.' },
+      { en: /\bglobal shipping, including oceania, us & ca\.?/gi, no: 'Global frakt, inkludert Oseania, USA og Canada.' },
+      { en: /\bglobal shipping, including us & ca\.?/gi, no: 'Global frakt, inkludert USA og Canada.' },
+      { en: /\bglobal shipping\.?/gi, no: 'Global frakt.' },
+      { en: /\binternational shipping, including us & ca\.?/gi, no: 'Global frakt, inkludert USA og Canada.' },
+      { en: /\bmug height 96mm, bottom diameter 80mm\.?/gi, no: 'Koppehøyde 96 mm, bunndiameter 80 mm.' },
+      { en: /\bproduct safety tests conducted by independent third party laboratories\.?/gi, no: 'Produktsikkerhetstester utført av uavhengige tredjepartslaboratorier.' }
     ];
 
     replacements.forEach(r => {
@@ -935,16 +1040,76 @@ const cleanAndTranslateDesc = (desc, lang) => {
     });
   } else if (lang === 'es') {
     const replacements = [
-      { en: /\bthis beautiful ceramic mug is perfect for any event of the day\b/gi, es: 'Esta hermosa taza de cerámica es perfecta para cualquier momento del día' },
-      { en: /\byour morning coffee, a hot chocolate, or any other hot beverage\b/gi, es: 'su café de la mañana, un chocolate caliente o cualquier otra bebida caliente' },
-      { en: /\bthe mug is glossy white and the prints come out beautifully and vividly\b/gi, es: 'La taza es de color blanco brillante y los diseños se muestran de forma clara y vívida' },
-      { en: /\bthe print retains its quality and luster when used in both microwave and dishwasher\b/gi, es: 'El diseño conserva su alta calidad y brillo tanto en el microondas como en el lavavajillas' },
-      { en: /\bceramic 11oz mug\b/gi, es: 'Taza de cerámica (325 ml)' },
-      { en: /\bdishwasher and microwave safe\b/gi, es: 'Apta para lavavajillas y microondas' },
+      // Kopp-spesifikke setninger (mug)
+      { en: /\bthis beautiful ceramic mug is perfect for any event of the day\.?/gi, es: 'Esta hermosa taza de cerámica es perfecta para cualquier momento del día.' },
+      { en: /\byour morning coffee, a hot chocolate, or any other hot beverage( you enjoy)?\.?/gi, es: 'su café de la mañana, un chocolate caliente o cualquier otra bebida caliente.' },
+      { en: /\bthe mug is glossy white and the prints come out beautifully and vividly( on it)?\.?/gi, es: 'La taza es de color blanco brillante y los diseños se muestran de forma clara y vívida.' },
+      { en: /\bthe print retains its quality and luster when used in both microwaves? and (the )?dishwasher\.?/gi, es: 'El diseño conserva su alta calidad y brillo tanto en el microondas como en el lavavajillas.' },
+      { en: /\bceramic 11oz mug\.?/gi, es: 'Taza de cerámica (325 ml).' },
+      { en: /\bdishwasher and microwave safe\.?/gi, es: 'Apta para lavavajillas y microondas.' },
       { en: /\bunisex t-shirt\b/gi, es: 'camiseta unisex' },
       { en: /\bmade of 100% ring-spun cotton\b/gi, es: 'hecha de 100% algodón hilado en anillo' },
       { en: /\bsoft and comfy\b/gi, es: 'suave y cómoda' },
-      { en: /\bdouble stitching on the neckline and sleeves add more durability\b/gi, es: 'doble costura en el cuello y las mangas para mayor durabilidad' }
+      { en: /\bdouble stitching on the neckline and sleeves add more durability\b/gi, es: 'doble costura en el cuello y las mangas para mayor durabilidad' },
+
+      // Faith Over Fear & Mustard Seed
+      { en: /\bif you have faith like a mustard seed\s*(\.{2,4})?/gi, es: 'Si tienen fe como un grano de mostaza...' },
+      { en: /\bfaith like a mustard seed\s*(\.{2,4})?/gi, es: 'Fe como un grano de mostaza...' },
+      
+      // Barnegenser (Kids sweatshirt)
+      { en: /\ba comfortable and eco-friendly sweatshirt for kids made from a blend of cotton and recycled polyester\.?/gi, es: 'Una sudadera cómoda y ecológica para niños hecha de una mezcla de algodón y poliéster reciclado.' },
+      { en: /\b80% cotton \/ 20% recycled polyester blend\.?/gi, es: 'Mezcla de 80% algodón y 20% poliéster reciclado.' },
+      { en: /\bbrushed fleece lining for added warmth\.?/gi, es: 'Forro de felpa cepillada para mayor calidez.' },
+      { en: /\bribbed cuffs and hem for a snug fit\.?/gi, es: 'Puños y dobladillo acanalados para un ajuste ceñido.' },
+      { en: /\bavailable in multiple colors\.?/gi, es: 'Disponible en múltiples colores.' },
+      { en: /\bdurable and soft fabric\.?/gi, es: 'Tejido suave y duradero.' },
+
+      // Totebag / Handlenett
+      { en: /\bcover all your grab and go needs with these long handle tote bags while being eco-conscious\.?/gi, es: 'Cubre todas tus necesidades sobre la marcha con estas bolsas de tela con asas largas mientras cuidas el medio ambiente.' },
+      { en: /\bthese tote bags feature reinforced stitching on handles for more stability\.?/gi, es: 'Estas bolsas de tela cuentan con costuras reforzadas en las asas para mayor estabilidad.' },
+      { en: /\b(the unique|the) designs will stand out on these 100% cotton fabric tote bags\.?/gi, es: 'Los diseños únicos destacarán en estas bolsas de tela de algodón 100%.' },
+      { en: /\breinforced stitching on handles\.?/gi, es: 'Costuras reforzadas en las asas.' },
+      { en: /\blarge printable area for front & back\.?/gi, es: 'Gran área de impresión para el frente y la espalda.' },
+      { en: /\blarge printable area for front &amp; back\.?/gi, es: 'Gran área de impresión para el frente y la espalda.' },
+      { en: /\bcapacity 10 litres\.?/gi, es: 'Capacidad: 10 litros.' },
+      { en: /\b100% cotton\.?/gi, es: '100% algodón.' },
+      { en: /\b3 - 5 oz\/yard², 100 - 170 g\/m²\.?/gi, es: '100 - 170 g/m².' },
+      { en: /\bany whites in your design will be treated as transparent in the printing process for the natural color tote bags. please keep this in mind to ensure optimal results\.?/gi, es: 'Cualquier color blanco en su diseño se tratará como transparente en el proceso de impresión para las bolsas de tela de color natural. Tenga esto en cuenta para garantizar resultados óptimos.' },
+
+      // Sweatshirts (Gildan 18000 etc.)
+      { en: /\ba heavy blend sweatshirt\b/gi, es: 'Una sudadera de mezcla pesada.' },
+      { en: /\bcrafted from a soft blend of 50% cotton and 50% polyester\b/gi, es: 'Hecha de una mezcla suave de 50% algodón y 50% poliéster.' },
+      { en: /\bfeatures air jet yarn for a softer feel and reduced pilling\b/gi, es: 'Hecha con hilo de chorro de aire para una sensación más suave y menos pelusa.' },
+      { en: /\bdouble-needle stitching at shoulder, armhole, neck, waistband, and cuffs\b/gi, es: 'Doble costura en hombros, sisas, cuello, cinturilla y puños.' },
+      { en: /\b1x1 rib with spandex for enhanced stretch and recovery\b/gi, es: 'Canalé 1x1 con spandex para mayor elasticidad y recuperación.' },
+      { en: /\bclassic fit for everyday comfort\b/gi, es: 'Ajuste clásico para comodidad diaria.' },
+
+      // Sweatshirt SF000
+      { en: /\bmaterial composition:\b/gi, es: 'Composición del material:' },
+      { en: /\b80% ringspun us cotton, 20% polyester\b/gi, es: '80% algodón estadounidense hilado en anillo, 20% poliéster.' },
+      { en: /\b2-end ringspun cotton face fleece, made with 80% sustainably and fairly grown usa cotton\b/gi, es: 'Felpa exterior de algodón hilado en anillo de 2 cabos, hecha con 80% de algodón de EE. UU. cultivado de manera sostenible y justa.' },
+      { en: /\b1x1 rib with spandex cuffs and bottom band for enhanced stretch and recovery, dropped shoulder\b/gi, es: 'Canalé 1x1 con puños de spandex y banda inferior para mayor elasticidad y recuperación, hombro caído.' },
+      { en: /\bdouble-needle topstitching throughout\b/gi, es: 'Doble costura en toda la prenda.' },
+      { en: /\bclassic fit with a tubular body\b/gi, es: 'Ajuste clásico con cuerpo tubular.' },
+
+      // Poster-detaljer (plakater)
+      { en: /\bexperience art that feels silky to the touch with our high-quality, lighter-weight, classic semi-glossy paper\.?/gi, es: 'Disfruta de obras de arte que se sienten sedosas al tacto con nuestro papel semi-brillante clásico de alta calidad y peso ligero.' },
+      { en: /\bposter made on our lighter-weight, uncoated classic matte paper\. The perfect option to stand the test of time:?/gi, es: 'Póster fabricado en nuestro papel mate clásico sin revestimiento de menor peso. La opción perfecta para resistir el paso del tiempo:' },
+      { en: /\bpaper finishing: semi-glossy, enhances colors with a subtle shine\.?/gi, es: 'Acabado del papel: Semi-brillante, realza los colores con un brillo sutil.' },
+      { en: /\bpaper finishing: matte, smooth, non-reflective surface\.?/gi, es: 'Acabado del papel: Mate, superficie lisa y no reflectante.' },
+      { en: /\bpaper weight: 170 gsm \(65 lb\), thickness: 0.19 mm \(7.5 mils\), sturdy and durable\.?/gi, es: 'Peso del papel: 170 gsm (65 lb), grosor: 0.19 mm (7.5 mils), resistente y duradero.' },
+      { en: /\bsustainable paper: fsc-certified or equivalent for sustainability\.?/gi, es: 'Papel sostenible: Certificado FSC o equivalente para la sostenibilidad.' },
+
+      // Generelle linjer
+      { en: /\bdesigned by ([[^,.\-]+) for his kingdom designs(,\s*[a-zA-Z]+\s*\d{4})?\.?/gi, es: 'Diseñado por $1 para His Kingdom Designs.' },
+      { en: /\bdesigned by Jaana Särg-Raani for His Kingdom Designs(,\s*[a-zA-Z]+\s*\d{4})?\.?/gi, es: 'Diseñado por Jaana Särg-Raani para His Kingdom Designs.' },
+      { en: /\bworld wide shipping\.?/gi, es: 'Envío mundial.' },
+      { en: /\bglobal shipping, including oceania, us & ca\.?/gi, es: 'Envío mundial, incluidos Oceanía, EE. UU. y Canadá.' },
+      { en: /\bglobal shipping, including us & ca\.?/gi, es: 'Envío mundial, incluidos EE. UU. y Canadá.' },
+      { en: /\bglobal shipping\.?/gi, es: 'Envío mundial.' },
+      { en: /\binternational shipping, including us & ca\.?/gi, es: 'Envío internacional, incluidos EE. UU. y Canadá.' },
+      { en: /\bmug height 96mm, bottom diameter 80mm\.?/gi, es: 'Altura de la taza 96 mm, diámetro de la base 80 mm.' },
+      { en: /\bproduct safety tests conducted by independent third party laboratories\.?/gi, es: 'Pruebas de seguridad del producto realizadas por laboratorios independientes de terceros.' }
     ];
 
     replacements.forEach(r => {
