@@ -399,7 +399,7 @@ export default function Home() {
         }
 
         return {
-          image: translatedP.image,
+          image: getOptimizedWixImageUrl(translatedP.image, 1600, 1000),
           title: `${t('home.newArrival')}${displayName}`,
           desc: descResult,
           ctaText: t('home.slideProduct.cta'),
@@ -1076,7 +1076,8 @@ export default function Home() {
                 <img 
                   alt={`Instagram feed ${index + 1}`} 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                  src={item.mediaUrl}
+                  src={getOptimizedWixImageUrl(item.mediaUrl, 400, 400)}
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-onyx/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <span className="material-symbols-outlined text-white text-3xl">favorite</span>
