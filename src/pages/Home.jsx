@@ -320,7 +320,7 @@ export default function Home() {
         return {
           image: translatedP.image,
           title: `${t('home.newArrival')}${displayName}`,
-          desc: plainDesc ? smartTruncate(plainDesc, 140) : 'Oppdag vårt nyeste tilskudd i butikken nå!',
+          desc: plainDesc || 'Oppdag vårt nyeste tilskudd i butikken nå!',
           ctaText: t('home.slideProduct.cta'),
           ctaAction: () => navigate(`/product/${translatedP.id}`),
           isProduct: true,
@@ -611,7 +611,7 @@ export default function Home() {
               />
             )}
             {currentSlide.isProduct ? (
-              <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-3">
+              <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-2 md:line-clamp-none">
                 {currentSlide.desc}
               </p>
             ) : (

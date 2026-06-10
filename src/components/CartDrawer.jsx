@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, Trash2, ArrowRight, ShoppingCart, Lock } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ArrowRight, ArrowLeft, ShoppingCart, Lock } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { wixClient } from '@/lib/wix';
@@ -329,23 +329,12 @@ export default function CartDrawer() {
                   </p>
                 )}
 
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                  {/* Se handlekurv */}
-                  <button
-                    onClick={() => {
-                      setIsCartDrawerOpen(false);
-                      navigate('/cart');
-                    }}
-                    className="border border-outline hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
-                  >
-                    {t('cart.viewCart')}
-                  </button>
-
+                <div className="space-y-3 pt-2">
                   {/* Kassen / Gå til betaling */}
                   <button
                     onClick={handleDirectCheckout}
                     disabled={isRedirecting}
-                    className="bg-terracotta hover:bg-opacity-95 text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
+                    className="w-full bg-terracotta hover:bg-opacity-95 text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
                   >
                     {isRedirecting ? (
                       <>
@@ -359,6 +348,27 @@ export default function CartDrawer() {
                       </>
                     )}
                   </button>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Se handlekurv */}
+                    <button
+                      onClick={() => {
+                        setIsCartDrawerOpen(false);
+                        navigate('/cart');
+                      }}
+                      className="border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
+                    >
+                      {t('cart.viewCart')}
+                    </button>
+
+                    {/* Fortsett å handle */}
+                    <button
+                      onClick={() => setIsCartDrawerOpen(false)}
+                      className="border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
+                    >
+                      {t('cart.continueShopping')}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
