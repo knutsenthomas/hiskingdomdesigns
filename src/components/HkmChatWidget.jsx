@@ -160,13 +160,14 @@ export default function HkmChatWidget() {
     { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') }
   ];
   const [inputText, setInputText] = useState('');
-  const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext } = useApp();
+  const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext, generateAiResponseText } = useApp();
   const chatBodyRef = useRef(null);
   const location = useLocation();
 
   // Live Chat / Inbox Integration States
   const [chatMode, setChatMode] = useState('live'); // 'ai' | 'live'
   const [liveMessages, setLiveMessages] = useState([]);
+  const [isLiveTyping, setIsLiveTyping] = useState(false);
   const [conversationId, setConversationId] = useState(() => {
     const stored = localStorage.getItem('hkd-inbox-conv-id');
     return (stored && stored !== 'undefined' && stored !== 'null') ? stored : null;
@@ -405,7 +406,7 @@ export default function HkmChatWidget() {
       }, 100);
       return () => clearTimeout(scrollTimer);
     }
-  }, [messagesToScroll, isAssistantTyping, isOpen]);
+  }, [messagesToScroll, isAssistantTyping, isLiveTyping, isOpen]);
 
   // Dynamic DOM text scraper to extract context from active page
   useEffect(() => {
@@ -556,7 +557,52 @@ export default function HkmChatWidget() {
         }),
         5000
       );
+      
+      // Refresh messages so the user message has its real Wix status
       fetchLiveMessages(activeConvId);
+
+      // Trigger local AI response and send to Wix Inbox
+      setIsLiveTyping(true);
+      setTimeout(async () => {
+        try {
+          const aiReply = generateAiResponseText(textToSend);
+          const aiMessagePayload = {
+            direction: 'BUSINESS_TO_PARTICIPANT',
+            visibility: 'BUSINESS_AND_PARTICIPANT',
+            content: {
+              basic: {
+                items: [
+                  {
+                    text: aiReply
+                  }
+                ]
+              }
+            }
+          };
+
+          await fetchWithTimeout(
+            fetch(`${host}/api/send-message`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ conversationId: activeConvId, message: aiMessagePayload })
+            }).then(async (r) => {
+              if (!r.ok) {
+                const errJson = await r.json().catch(() => ({}));
+                throw new Error(errJson.error || `HTTP error ${r.status}`);
+              }
+              return r.json();
+            }),
+            5000
+          );
+          
+          fetchLiveMessages(activeConvId);
+        } catch (aiErr) {
+          console.error('Failed to send automated AI response to Wix Inbox:', aiErr);
+        } finally {
+          setIsLiveTyping(false);
+        }
+      }, 1500);
+
     } catch (err) {
       console.error('Failed to send message to Wix Inbox:', err);
       const errStr = err.message || '';
@@ -835,7 +881,9 @@ export default function HkmChatWidget() {
                               ? 'bg-terracotta text-white rounded-tr-none' 
                               : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
                           }`}>
-                            <p className="text-sm">{msg.text}</p>
+                            <div className="text-sm select-text">
+                              {renderRichText(msg.text, msg.sender !== 'user')}
+                            </div>
                           </div>
                           
                           <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
@@ -844,6 +892,24 @@ export default function HkmChatWidget() {
                         </div>
                       </div>
                     ))
+                  )}
+
+                  {/* Typing dots for Live Chat AI responder */}
+                  {isLiveTyping && (
+                    <div className="hkm-message typing flex gap-2 mr-auto justify-start max-w-[85%]">
+                      <span className="material-symbols-outlined text-[#1B4965] text-lg mt-0.5 shrink-0 self-start">
+                        support_agent
+                      </span>
+                      <div className="flex flex-col items-start">
+                        <div className="px-4 py-3 rounded-2xl bg-white border border-outline-variant/60 rounded-tl-none flex items-center shadow-sm">
+                          <div className="hkm-typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </>
               )}
