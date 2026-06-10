@@ -50,7 +50,9 @@ export default function CmsVisualToggle() {
     isDevelopment ||
     window.location.search.includes('admin=true');
 
-  if (!isAdminUser) {
+  const isProfilePage = location.pathname === '/profile';
+
+  if (!isAdminUser || (!isProfilePage && !isAdminEditing)) {
     return null;
   }
 

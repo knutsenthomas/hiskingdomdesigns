@@ -56,7 +56,7 @@ export default function Header() {
       setMegamenuOpen(false);
     }, 200); // 200ms delay to bridge the physical gap between header and dropdown panel
   };
-  const [showRecoveryToast, setShowRecoveryToast] = useState(false);
+
 
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.trim().length < 2) return [];
@@ -161,22 +161,18 @@ export default function Header() {
     setMobileActiveCategory(null);
   }, [location.pathname, setMobileMenuOpen, setSearchOpen]);
 
-  // Handle abandoned cart recovery toast
+  // Warn user when trying to close/reload the tab with items in their cart
   useEffect(() => {
-    const hasShown = sessionStorage.getItem('hkd-recovery-toast-shown');
-    if (!hasShown && cartCount > 0) {
-      if (location.pathname !== '/cart') {
-        const timer = setTimeout(() => {
-          setShowRecoveryToast(true);
-          sessionStorage.setItem('hkd-recovery-toast-shown', 'true');
-        }, 3000); // Elegant 3-second delay on entry
-        return () => clearTimeout(timer);
-      } else {
-        // User is already on the cart page, so don't show it now or later in this session
-        sessionStorage.setItem('hkd-recovery-toast-shown', 'true');
+    const handleBeforeUnload = (e) => {
+      if (cartCount > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
       }
-    }
-  }, [cartCount, location.pathname]);
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [cartCount]);
 
   const toggleMobileGroup = (group) => {
     setMobileExpandedGroup(prev => prev === group ? null : group);
@@ -970,59 +966,7 @@ export default function Header() {
       </AnimatePresence>
       <CartDrawer />
 
-      {/* Abandoned Cart Recovery Toast */}
-      <AnimatePresence>
-        {showRecoveryToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-20 left-4 right-4 md:bottom-6 md:left-6 md:right-auto md:w-96 bg-white/95 backdrop-blur-md border border-outline-variant/40 shadow-2xl rounded-2xl p-4 z-[98] flex flex-col gap-3 pointer-events-auto"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-terracotta/10 flex items-center justify-center text-terracotta shrink-0">
-                  <ShoppingCart size={20} />
-                </div>
-                <div>
-                  <h4 className="font-headline-md text-sm font-bold text-[#1B4965]">Gjenværende varer</h4>
-                  <p className="text-[10px] text-secondary font-semibold uppercase tracking-widest">Handlekurv</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowRecoveryToast(false)}
-                className="text-secondary hover:text-onyx p-1 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
-                aria-label="Lukk"
-              >
-                <X size={16} />
-              </button>
-            </div>
 
-            <p className="text-xs text-secondary leading-relaxed">
-              Du har varer liggende igjen i handlekurven din fra forrige besøk. Ønsker du å fullføre kjøpet?
-            </p>
-
-            <div className="flex gap-2.5 mt-1">
-              <button
-                onClick={() => setShowRecoveryToast(false)}
-                className="flex-1 bg-slate-50 border border-outline-variant/60 hover:bg-slate-100 text-onyx py-2 rounded-xl font-label-md text-xs font-semibold active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                Fortsett å handle
-              </button>
-              <button
-                onClick={() => {
-                  setShowRecoveryToast(false);
-                  setIsCartDrawerOpen(true);
-                }}
-                className="flex-1 bg-terracotta hover:bg-terracotta/90 text-white py-2 rounded-xl font-label-md text-xs font-bold shadow-md shadow-terracotta/20 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                Fullfør kjøpet
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
