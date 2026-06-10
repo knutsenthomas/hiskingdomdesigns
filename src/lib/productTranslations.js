@@ -324,12 +324,18 @@ export function getTranslatedProduct(product, language) {
     ? (dict[product.category] || dict[`category.${product.category.toLowerCase()}`] || translations['no'][product.category] || product.category)
     : product.category;
 
-  const makeTranslated = (name, desc) => ({
-    ...product,
-    name: name || product.name,
-    description: desc || product.description,
-    category: translatedCategory
-  });
+  const makeTranslated = (name, desc) => {
+    let cleanName = name || product.name || '';
+    if (typeof cleanName === 'string') {
+      cleanName = cleanName.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
+    }
+    return {
+      ...product,
+      name: cleanName,
+      description: desc || product.description,
+      category: translatedCategory
+    };
+  };
 
   // 1. Check if we have an exact ID match
   if (productTranslations.ids[product.id] && productTranslations.ids[product.id][lang]) {
