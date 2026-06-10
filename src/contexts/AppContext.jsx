@@ -843,7 +843,8 @@ export const AppProvider = ({ children }) => {
               const rawSizes = sizeOpt.choices?.map(c => c.value) || [];
               sizes = rawSizes.filter(s => {
                 if (!s) return false;
-                if (s.length > 15) return false;
+                const isDimension = s.includes('cm') || s.includes('″') || s.includes('"') || s.toLowerCase().includes('x');
+                if (s.length > 15 && !isDimension) return false;
                 const lower = s.toLowerCase();
                 if (lower.includes('sticker') || lower.includes('mug') || lower.includes('kopp') || lower.includes('flaske') || lower.includes('valg') || lower.includes('option') || lower.includes('pega') || lower.includes('norsk') || lower.includes('english')) {
                   return false;

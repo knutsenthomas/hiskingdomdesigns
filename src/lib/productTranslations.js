@@ -310,164 +310,592 @@ export const productTranslations = {
           description: 'Un paquete de 10 pegatinas mini coloridas con temas de fe.'
         }
       }
+    },
+    {
+      pattern: /norsk flagg/i,
+      translations: {
+        no: {
+          name: 'Norsk flagg klistremerke (11 x 8 cm)',
+          description: 'Flott klistremerke av det norske flagget. Perfekt for russen til mai-feiringen!'
+        },
+        en: {
+          name: 'Norwegian Flag Sticker (11 x 8 cm)',
+          description: 'Great sticker of the Norwegian flag. Perfect for celebrating Norway\'s national day!'
+        },
+        es: {
+          name: 'Pegatina de la bandera de Noruega (11 x 8 cm)',
+          description: 'Excelente pegatina de la bandera de Noruega. ¡Ideal para celebraciones!'
+        }
+      }
+    },
+    {
+      pattern: /50 stk israel flagg/i,
+      translations: {
+        no: {
+          name: '50 stk Israel-flagg klistremerker (11 x 8 cm)',
+          description: 'Pakke med 50 slitesterke klistremerker med det israelske flagget.'
+        },
+        en: {
+          name: '50 pcs Israel Flag Stickers (11 x 8 cm)',
+          description: 'Pack of 50 durable stickers featuring the Israeli flag.'
+        },
+        es: {
+          name: '50 pegatinas de la bandera de Israel (11 x 8 cm)',
+          description: 'Paquete de 50 pegatinas duraderas con la bandera de Israel.'
+        }
+      }
+    },
+    {
+      pattern: /holografisk israel flagg/i,
+      translations: {
+        no: {
+          name: 'Holografisk Israel-flagg klistremerker (6,5 x 5 cm)',
+          description: 'Vakre holografiske klistremerker med det israelske flagget som skinner i lyset.'
+        },
+        en: {
+          name: 'Holographic Israel Flag Stickers (6.5 x 5 cm)',
+          description: 'Beautiful holographic stickers featuring the Israeli flag that shines in the light.'
+        },
+        es: {
+          name: 'Pegatinas holográficas de la bandera de Israel (6,5 x 5 cm)',
+          description: 'Hermosas pegatinas holográficas con la bandera de Israel que brilla con la luz.'
+        }
+      }
+    },
+    {
+      pattern: /israel flagg.*4\s*x\s*3/i,
+      translations: {
+        no: {
+          name: 'Israel-flagg klistremerke (4 x 3 cm)',
+          description: 'Slitesterkt klistremerke av det israelske flagget i størrelse 4 x 3 cm.'
+        },
+        en: {
+          name: 'Israel Flag Sticker (4 x 3 cm)',
+          description: 'Durable sticker of the Israeli flag, size 4 x 3 cm.'
+        },
+        es: {
+          name: 'Pegatina de la bandera de Israel (4 x 3 cm)',
+          description: 'Pegatina duradera de la bandera de Israel, tamaño 4 x 3 cm.'
+        }
+      }
+    },
+    {
+      pattern: /israels flagg i en hjerteform/i,
+      translations: {
+        no: {
+          name: 'Hjerteformet Israel-flagg klistremerke',
+          description: 'Klistremerke med det israelske flagget formet som et hjerte.'
+        },
+        en: {
+          name: 'Heart-shaped Israel Flag Sticker',
+          description: 'Sticker featuring the Israeli flag shaped as a heart.'
+        },
+        es: {
+          name: 'Pegatina de la bandera de Israel en forma de corazón',
+          description: 'Pegatina con la bandera de Israel en forma de corazón.'
+        }
+      }
+    },
+    {
+      pattern: /israel flagg/i,
+      translations: {
+        no: {
+          name: 'Israel-flagg klistremerke',
+          description: 'Håndlagt klistremerke med det israelske flagget.'
+        },
+        en: {
+          name: 'Israel Flag Sticker',
+          description: 'Handmade sticker featuring the Israeli flag.'
+        },
+        es: {
+          name: 'Pegatina de la bandera de Israel',
+          description: 'Pegatina hecha a mano con la bandera de Israel.'
+        }
+      }
+    },
+    {
+      pattern: /fredsdue med/i,
+      translations: {
+        no: {
+          name: 'Fredsdue med Israel-flagg klistremerke',
+          description: 'Nydelig klistremerke som viser en fredsdue med det israelske flagget.'
+        },
+        en: {
+          name: 'Peace Dove with Israel Flag Sticker',
+          description: 'Beautiful sticker showing a peace dove with the Israeli flag.'
+        },
+        es: {
+          name: 'Pegatina de paloma de la paz con la bandera de Israel',
+          description: 'Hermosa pegatina que muestra una paloma de la paz con la bandera de Israel.'
+        }
+      }
+    },
+    {
+      pattern: /bokmerke med bibelvers/i,
+      translations: {
+        no: {
+          name: 'Bokmerke med Bibelvers (engelsk)',
+          description: 'Flott bokmerke med oppmuntrende bibelvers på engelsk.'
+        },
+        en: {
+          name: 'Bookmark with Bible Verses (English)',
+          description: 'Beautiful bookmark featuring encouraging Bible verses.'
+        },
+        es: {
+          name: 'Marca-páginas con versículos bíblicos (inglés)',
+          description: 'Hermoso marcador de páginas con versículos bíblicos alentadores en inglés.'
+        }
+      }
+    },
+    {
+      pattern: /small bibleverse cards/i,
+      translations: {
+        no: {
+          name: 'Lite Bibelvers-kort (engelsk)',
+          description: 'Lite og oppmuntrende kort med trykt bibelvers på engelsk. Perfekt til å dele ut.'
+        },
+        en: {
+          name: 'Small Bible Verse Card (English)',
+          description: 'Small and encouraging card with a printed Bible verse. Perfect for sharing.'
+        },
+        es: {
+          name: 'Tarjeta pequeña con versículo bíblico (inglés)',
+          description: 'Tarjeta pequeña y alentadora con un versículo bíblico impreso. Perfecta para compartir.'
+        }
+      }
+    },
+    {
+      pattern: /evangeliseringskort/i,
+      translations: {
+        no: {
+          name: 'Små evangeliseringskort (engelsk)',
+          description: 'Pakke med små kort med oppmuntrende budskap og bibelvers på engelsk.'
+        },
+        en: {
+          name: 'Small Evangelism Cards (English)',
+          description: 'Pack of small cards featuring encouraging messages and Bible verses.'
+        },
+        es: {
+          name: 'Tarjetas pequeñas de evangelización (inglés)',
+          description: 'Paquete de tarjetas pequeñas con mensajes alentadores y versículos bíblicos.'
+        }
+      }
+    },
+    {
+      pattern: /pennal til bibelskrivesaker/i,
+      translations: {
+        no: {
+          name: 'Pennal til Bibelskrivesaker',
+          description: 'Praktisk og fint pennal for oppbevaring av skrivesaker til bibelstudiet. Tilgjengelig i flere farger og motiver.'
+        },
+        en: {
+          name: 'Bible Stationery Pencil Case',
+          description: 'Practical and nice pencil case for storing stationery for Bible study. Available in multiple colors and designs.'
+        },
+        es: {
+          name: 'Estuche para artículos de escritura bíblica',
+          description: 'Estuche práctico y bonito para guardar artículos de escritura para el estudio bíblico. Disponible en varios colores y designs.'
+        }
+      }
+    },
+    {
+      pattern: /jesus underviser.*lerret/i,
+      translations: {
+        no: {
+          name: 'Jesus Underviser - Lerret med Svart Ramme (30 x 40 cm)',
+          description: 'Vakkert og inspirerende trykk på lerret av Jesus som underviser. Leveres med en stilren svart ramme.'
+        },
+        en: {
+          name: 'Jesus Teaching - Canvas Print with Black Frame (30 x 40 cm)',
+          description: 'Beautiful and inspiring print on canvas of Jesus teaching. Comes with a stylish black frame.'
+        },
+        es: {
+          name: 'Lienzo de Jesús Enseñando con Marco Negro (30 x 40 cm)',
+          description: 'Hermosa e inspiradora impresión en lienzo de Jesús enseñando. Viene con un elegante marco negro.'
+        }
+      }
     }
   ]
 };
 
 // Dynamic name clean & auto-translator
-const cleanAndTranslateName = (name, lang) => {
-  if (!name) return name;
+const cleanAndTranslateName = (originalName, lang, product = {}) => {
+  if (!originalName) return originalName;
+
+  let name = originalName;
+
+  // 1. Strip common volume/size/dimension patterns from name to avoid messing up base name
+  const patternsToStrip = [
+    /\d+\s*ml/gi,
+    /\d+\s*oz/gi,
+    /\d+\s*x\s*\d+\s*cm/gi,
+    /\d+\s*x\s*\d+\s*″/gi,
+    /\d+\s*″/gi,
+    /325ml/gi,
+    /500ml/gi,
+    /444ml/gi,
+    /355ml/gi
+  ];
+  patternsToStrip.forEach(pat => {
+    name = name.replace(pat, '');
+  });
+
+  // 2. Detect and parse details/specifications
+  let woodMatch = name.match(/i tre/i) || name.match(/in wood/i) || name.match(/de madera/i);
+  let isWood = !!woodMatch;
+  if (woodMatch) name = name.replace(woodMatch[0], '');
+
+  let shortSleeveMatch = name.match(/kortermet/i) || name.match(/short sleeve/i) || name.match(/manga corta/i);
+  let isShortSleeve = !!shortSleeveMatch;
+  if (shortSleeveMatch) name = name.replace(shortSleeveMatch[0], '');
   
-  let baseName = name;
-  let suffix = '';
-  
-  if (name.includes(' - ')) {
-    const parts = name.split(' - ');
-    baseName = parts[0].trim();
-    suffix = parts.slice(1).join(' - ').trim();
-  } else if (name.includes(' | ')) {
-    const parts = name.split(' | ');
-    baseName = parts[0].trim();
-    suffix = parts.slice(1).join(' | ').trim();
+  let longSleeveMatch = name.match(/langermet/i) || name.match(/long sleeve/i) || name.match(/manga larga/i);
+  let isLongSleeve = !!longSleeveMatch;
+  if (longSleeveMatch) name = name.replace(longSleeveMatch[0], '');
+
+  let organicMatch = name.match(/økologisk/i) || name.match(/organic/i) || name.match(/orgánico/i);
+  let isOrganic = !!organicMatch;
+  if (organicMatch) name = name.replace(organicMatch[0], '');
+
+  let backPrintMatch = name.match(/trykk på ryggen/i) || name.match(/print on back/i) || name.match(/impresión en la espalda/i);
+  let isBackPrint = !!backPrintMatch;
+  if (backPrintMatch) name = name.replace(backPrintMatch[0], '');
+
+  let englishTextMatch = name.match(/engelsk tekst/i) || name.match(/english text/i) || name.match(/texto en inglés/i) || name.match(/\(engelsk\)/i);
+  let isEnglishText = !!englishTextMatch;
+  if (englishTextMatch) name = name.replace(englishTextMatch[0], '');
+
+  // Extract size/age/volume (preventing type keywords like stickers from matching as size value)
+  const sizeRegex = /str\.\s*([a-z0-9\-]+)/i || /size\s+(?!stickers|t-shirt|tshirt|hoodie|sweatshirt|mug|cup|glassbrikker|koppeunderlag|bottle|totebag|poster|wristband)(\b[a-z0-9\-]+)/i;
+  let sizeMatch = name.match(sizeRegex);
+  let sizeVal = sizeMatch ? sizeMatch[1].toUpperCase() : null;
+  if (sizeMatch) name = name.replace(sizeMatch[0], '');
+
+  let ageMatch = name.match(/(\d+\s*og\s*\d+)\s*år/i) || name.match(/(\d+\s*and\s*\d+)\s*years/i);
+  let ageVal = ageMatch ? ageMatch[1] : null;
+  if (ageMatch) name = name.replace(ageMatch[0], '');
+
+  let singleAgeMatch = name.match(/(\d+)\s*år/i) || name.match(/(\d+)\s*years/i);
+  let singleAgeVal = singleAgeMatch ? singleAgeMatch[1] : null;
+  if (singleAgeMatch) name = name.replace(singleAgeMatch[0], '');
+
+  let mndMatch = name.match(/(\d+)\s*mnd/i) || name.match(/(\d+)\s*months/i) || name.match(/(\d+)\s*meses/i);
+  let mndVal = mndMatch ? mndMatch[1] : null;
+  if (mndMatch) name = name.replace(mndMatch[0], '');
+
+  let mndRangeMatch = name.match(/(\d+\s*-\s*\d+)\s*mnd/i) || name.match(/(\d+\s*-\s*\d+)\s*M/i);
+  let mndRangeVal = mndRangeMatch ? mndRangeMatch[1] : null;
+  if (mndRangeMatch) name = name.replace(mndRangeMatch[0], '');
+
+  // 3. Identify Product Type (Order matters: check sweatshirt/hoodie before t-shirt!)
+  let type = 'unknown';
+  let lower = originalName.toLowerCase();
+  const subcats = (product.subcategories || []).map(s => s.toLowerCase());
+  const categoryLower = (product.category || '').toLowerCase();
+
+  if (lower.includes('travel mug') || lower.includes('travelmug') || lower.includes('termokopp')) {
+    type = 'travel-mug';
+  } else if (lower.includes('enamel mug') || lower.includes('emaljekopp')) {
+    type = 'enamel-mug';
+  } else if (lower.includes('glassbrikker') || lower.includes('koppeunderlag') || lower.includes('coasters')) {
+    type = 'coasters';
+  } else if (lower.includes('water bottle') || lower.includes('drikkeflaske')) {
+    type = 'bottle';
+  } else if (lower.includes('sweatshirt') || lower.includes('genser')) {
+    type = 'sweatshirt';
+  } else if (lower.includes('hettegenser') || lower.includes('hoodie') || lower.includes('hettejakke')) {
+    type = 'hoodie';
+  } else if (lower.includes('t-shirt') || lower.includes('tshirt') || lower.includes('tskjorte') || lower.includes('tsjorte') || lower.includes('dametrøye') || lower.includes('treningstrøye') || lower.includes('tee')) {
+    type = 't-shirt';
+  } else if (lower.includes('babybody') || lower.includes('onesie') || lower.includes('body')) {
+    type = 'babybody';
+  } else if (lower.includes('totebag') || lower.includes('tote bag') || lower.includes('handlenett')) {
+    type = 'totebag';
+  } else if (
+    lower.includes('klistremerke') || 
+    lower.includes('klistermerke') || 
+    lower.includes('sticker') || 
+    categoryLower === 'klistermerker' ||
+    categoryLower === 'stickers' ||
+    subcats.includes('klistermerker') ||
+    subcats.includes('stickers') ||
+    (subcats.includes('israel') && (lower.includes('flagg') || lower.includes('flag') || lower.includes('fredsdue')))
+  ) {
+    type = 'sticker';
+  } else if (lower.includes('poster') || lower.includes('print') || lower.includes('plakat')) {
+    type = 'poster';
+  } else if (lower.includes('lerret') || lower.includes('canvas')) {
+    type = 'canvas';
+  } else if (lower.includes('wristband') || lower.includes('bracelet') || lower.includes('armbånd')) {
+    type = 'wristband';
+  } else if (lower.includes('mug') || lower.includes('cup') || lower.includes('kopp') || lower.includes('koppen')) {
+    type = 'mug';
+  } else if (lower.includes('bokmerke') || lower.includes('bookmark')) {
+    type = 'bookmark';
+  } else if (lower.includes('kort') || lower.includes('card')) {
+    type = 'card';
+  } else if (lower.includes('pennal') || lower.includes('pencilcase') || lower.includes('pencil case')) {
+    type = 'pencil-case';
   }
 
-  let translatedBase = baseName;
-  if (lang === 'no') {
-    const translationsDb = {
-      'FAITH OVER FEAR': 'Faith Over Fear',
-      'FAITH OVER FEAR COFFEE MUG': 'Faith Over Fear Kopp',
-      'PRAISE THE LORD': 'Praise The Lord',
-      'BORN AGAIN': 'Born Again',
-      'GUARD YOUR HEART': 'Guard Your Heart',
-      'FEAR NOT': 'Fear Not',
-      'AMAZING GRACE': 'Amazing Grace',
-      'JESUS SAVES': 'Jesus Saves',
-      'FAITH': 'Faith',
-      'HOPE': 'Hope',
-      'LOVE': 'Love',
-      'PEACE': 'Peace',
-      'JOY': 'Joy',
-      'GRACE': 'Grace',
-      'BE STRONG': 'Be Strong',
-      'TRUST IN THE LORD': 'Trust In The Lord',
-      'LIGHT OF THE WORLD': 'Light Of The World',
-      'CHOSEN': 'Chosen',
-      'REDEEMED': 'Redeemed',
-      'BLESSED': 'Blessed'
-    };
-    
-    const upperBase = baseName.toUpperCase();
-    if (translationsDb[upperBase]) {
-      translatedBase = translationsDb[upperBase];
-    } else {
-      Object.entries(translationsDb).forEach(([en, no]) => {
-        const regex = new RegExp(`\\b${en}\\b`, 'gi');
-        translatedBase = translatedBase.replace(regex, no);
-      });
-    }
-    
-    if (suffix) {
-      const lowerSuffix = suffix.toLowerCase();
-      if (lowerSuffix.includes('ceramic mug') || lowerSuffix.includes('coffee mug') || lowerSuffix.includes('mug')) {
-        translatedBase += ' Kopp';
-      } else if (lowerSuffix.includes('hoodie') || lowerSuffix.includes('sweatshirt')) {
-        translatedBase += ' Hettegenser';
-      } else if (lowerSuffix.includes('t-shirt') || lowerSuffix.includes('tee')) {
-        translatedBase += ' T-skjorte';
-      } else if (lowerSuffix.includes('totebag') || lowerSuffix.includes('tote bag') || lowerSuffix.includes('bag')) {
-        translatedBase += ' Handlenett';
-      } else if (lowerSuffix.includes('sticker') || lowerSuffix.includes('decal')) {
-        translatedBase += ' Klistremerke';
-      } else if (lowerSuffix.includes('poster') || lowerSuffix.includes('print')) {
-        translatedBase += ' Plakat';
-      } else if (lowerSuffix.includes('wristband') || lowerSuffix.includes('bracelet')) {
-        translatedBase += ' Armbånd';
-      } else if (lowerSuffix.includes('water bottle') || lowerSuffix.includes('bottle')) {
-        translatedBase += ' Drikkeflaske';
-      }
-    }
-  } else if (lang === 'es') {
-    const translationsDb = {
-      'FAITH OVER FEAR': 'Faith Over Fear',
-      'PRAISE THE LORD': 'Praise The Lord',
-      'BORN AGAIN': 'Born Again',
-      'GUARD YOUR HEART': 'Guard Your Heart',
-      'FEAR NOT': 'Fear Not',
-      'AMAZING GRACE': 'Amazing Grace',
-      'JESUS SAVES': 'Jesus Saves',
-      'FAITH': 'Faith',
-      'HOPE': 'Hope',
-      'LOVE': 'Amor',
-      'PEACE': 'Paz',
-      'JOY': 'Gozo',
-      'GRACE': 'Gracia',
-      'BE STRONG': 'Be Strong',
-      'TRUST IN THE LORD': 'Trust In The Lord',
-      'LIGHT OF THE WORLD': 'Light Of The World',
-      'CHOSEN': 'Chosen',
-      'REDEEMED': 'Redeemed',
-      'BLESSED': 'Blessed'
-    };
-    
-    const upperBase = baseName.toUpperCase();
-    if (translationsDb[upperBase]) {
-      translatedBase = translationsDb[upperBase];
-    } else {
-      Object.entries(translationsDb).forEach(([en, es]) => {
-        const regex = new RegExp(`\\b${en}\\b`, 'gi');
-        translatedBase = translatedBase.replace(regex, es);
-      });
-    }
+  // 4. Extract Design Name (base name)
+  let baseName = name;
 
-    if (suffix) {
-      const lowerSuffix = suffix.toLowerCase();
-      if (lowerSuffix.includes('ceramic mug') || lowerSuffix.includes('coffee mug') || lowerSuffix.includes('mug')) {
-        translatedBase = 'Taza ' + translatedBase;
-      } else if (lowerSuffix.includes('hoodie') || lowerSuffix.includes('sweatshirt')) {
-        translatedBase = 'Sudadera ' + translatedBase;
-      } else if (lowerSuffix.includes('t-shirt') || lowerSuffix.includes('tee')) {
-        translatedBase = 'Camiseta ' + translatedBase;
-      } else if (lowerSuffix.includes('totebag') || lowerSuffix.includes('tote bag') || lowerSuffix.includes('bag')) {
-        translatedBase = 'Bolsa de tela ' + translatedBase;
-      } else if (lowerSuffix.includes('sticker') || lowerSuffix.includes('decal')) {
-        translatedBase = 'Pegatina ' + translatedBase;
-      } else if (lowerSuffix.includes('poster') || lowerSuffix.includes('print')) {
-        translatedBase = 'Póster ' + translatedBase;
-      } else if (lowerSuffix.includes('wristband') || lowerSuffix.includes('bracelet')) {
-        translatedBase = 'Pulsera ' + translatedBase;
-      } else if (lowerSuffix.includes('water bottle') || lowerSuffix.includes('bottle')) {
-        translatedBase = 'Botella de agua ' + translatedBase;
-      }
+  // Split on common delimiters first
+  let parts = baseName.split(' - ');
+  if (parts.length > 1) {
+    // If the last part contains type words or specifications, drop it
+    let lastPart = parts[parts.length - 1].toLowerCase();
+    const isTypeOrDetail = lastPart.includes('str') || 
+                           lastPart.includes('mnd') || 
+                           lastPart.includes('år') ||
+                           lastPart.includes('ml') ||
+                           lastPart.includes('oz') ||
+                           lastPart.includes('body') ||
+                           lastPart.includes('genser') ||
+                           lastPart.includes('tskjorte') ||
+                           lastPart.includes('tsjorte') ||
+                           lastPart.includes('kopp') ||
+                           lastPart.includes('mug') ||
+                           lastPart.includes('t-shirt') ||
+                           lastPart.includes('tshirt') ||
+                           lastPart.includes('hoodie') ||
+                           lastPart.includes('klistremerke') ||
+                           lastPart.includes('klistermerke') ||
+                           lastPart.includes('sticker') ||
+                           lastPart.includes('lerret') ||
+                           lastPart.includes('canvas') ||
+                           lastPart.includes('plakat') ||
+                           lastPart.includes('poster') ||
+                           lastPart.includes('pennal') ||
+                           lastPart.includes('bokmerke') ||
+                           lastPart.includes('bookmark') ||
+                           lastPart.includes('kort') ||
+                           lastPart.includes('card');
+    if (isTypeOrDetail) {
+      baseName = parts.slice(0, -1).join(' - ');
+    } else {
+      baseName = parts.join(' - ');
+    }
+  }
+
+  // Second pass split on pipe
+  let pipeParts = baseName.split(' | ');
+  if (pipeParts.length > 1) {
+    baseName = pipeParts[0];
+  }
+
+  // Strip type keywords and descriptors from the baseName
+  const typeWords = [
+    'tskjorte', 't-skjorte', 'tshirt', 't-shirt', 'tee', 'dametrøye', 'treningstrøye', 'tsjorte',
+    'genser', 'hettegenser', 'hoodie', 'hettejakke', 'sweatshirt',
+    'kopp', 'koppen', 'cup', 'mug', 'travel mug', 'travelmug', 'termokopp', 'emaljekopp',
+    'babybody', 'body',
+    'totebag', 'tote bag', 'handlenett',
+    'sticker', 'stickers', 'klistremerke', 'klistremerker', 'klistermerke', 'klistermerker',
+    'poster', 'print', 'plakat', 'lerret', 'canvas',
+    'wristband', 'bracelet', 'armbånd',
+    'water bottle', 'drikkeflaske',
+    'glassbrikker', 'koppeunderlag',
+    'bokmerke', 'bookmark', 'bokmerker', 'bookmarks',
+    'kort', 'card', 'cards', 'evangeliseringskort',
+    'pennal', 'pencilcase', 'pencil case'
+  ];
+
+  const descriptors = [
+    'kortermet', 'langermet', 'short sleeve', 'long sleeve', 'organic', 'økologisk',
+    'classic', 'unisex', 'crewneck', 'ceramic', 'glass', 'wooden', 'wood', 'stainless steel'
+  ];
+
+  typeWords.forEach(word => {
+    const regex = new RegExp(`(?:\\s*-\\s*|\\s+)\\b${word}\\b.*$`, 'i');
+    baseName = baseName.replace(regex, '');
+  });
+
+  descriptors.forEach(word => {
+    const regex = new RegExp(`(?:\\s*-\\s*|\\s+)\\b${word}\\b.*$`, 'i');
+    baseName = baseName.replace(regex, '');
+  });
+
+  // Clean trailing spaces and separators from baseName
+  baseName = baseName.trim().replace(/[\s\-\|,\(\)]+$/, '').trim();
+  // Clean empty parentheses/brackets
+  baseName = baseName.replace(/\(\s*\)/g, '').replace(/\[\s*\]/g, '').replace(/\s+/g, ' ').trim();
+
+  // If baseName becomes empty, fallback to a sensible portion of original name
+  if (!baseName || baseName.length < 2) {
+    baseName = originalName.split(/str\./i)[0].split(/\d+/)[0].trim().replace(/[\s\-\|,\(\)]+$/, '').trim();
+  }
+
+  // 5. Translate base design name if it has a match
+  let translatedBase = baseName;
+  const designTranslations = {
+    'FAITH OVER FEAR': 'Faith Over Fear',
+    'PRAISE THE LORD': 'Praise The Lord',
+    'BORN AGAIN': 'Born Again',
+    'GUARD YOUR HEART': 'Guard Your Heart',
+    'FEAR NOT': 'Fear Not',
+    'AMAZING GRACE': 'Amazing Grace',
+    'JESUS SAVES': 'Jesus Saves',
+    'FAITH': 'Faith',
+    'HOPE': 'Hope',
+    'LOVE': { no: 'Love', en: 'Love', es: 'Amor' },
+    'PEACE': { no: 'Peace', en: 'Peace', es: 'Paz' },
+    'JOY': { no: 'Joy', en: 'Joy', es: 'Gozo' },
+    'GRACE': { no: 'Grace', en: 'Grace', es: 'Gracia' },
+    'BE STRONG': 'Be Strong',
+    'TRUST IN THE LORD': 'Trust In The Lord',
+    'LIGHT OF THE WORLD': 'Light Of The World',
+    'CHOSEN': 'Chosen',
+    'REDEEMED': 'Redeemed',
+    'BLESSED': 'Blessed'
+  };
+
+  const upperBase = baseName.toUpperCase();
+  if (designTranslations[upperBase]) {
+    const val = designTranslations[upperBase];
+    translatedBase = typeof val === 'object' ? (val[lang] || val['en']) : val;
+  }
+
+  // 6. Translate Product Type
+  let typeStr = '';
+  if (type === 't-shirt') {
+    if (lower.includes('treningstrøye')) {
+      typeStr = lang === 'no' ? 'Treningstrøye' : lang === 'es' ? 'Camiseta deportiva' : 'Performance Tee';
+    } else if (lower.includes('dametrøye')) {
+      typeStr = lang === 'no' ? 'Dametrøye' : lang === 'es' ? 'Camiseta de mujer' : "Women's Tee";
+    } else {
+      typeStr = lang === 'no' ? 'T-skjorte' : lang === 'es' ? 'Camiseta' : 'T-shirt';
+    }
+  } else if (type === 'hoodie') {
+    if (lower.includes('hettejakke')) {
+      typeStr = lang === 'no' ? 'Hettejakke' : lang === 'es' ? 'Chaqueta con capucha' : 'Hooded Jacket';
+    } else {
+      typeStr = lang === 'no' ? 'Hettegenser' : lang === 'es' ? 'Sudadera con capucha' : 'Hoodie';
+    }
+  } else if (type === 'sweatshirt') {
+    typeStr = lang === 'no' ? 'Genser' : lang === 'es' ? 'Sudadera' : 'Sweatshirt';
+  } else if (type === 'mug') {
+    typeStr = lang === 'no' ? 'Kopp' : lang === 'es' ? 'Taza' : 'Mug';
+  } else if (type === 'travel-mug') {
+    typeStr = lang === 'no' ? 'Termokopp' : lang === 'es' ? 'Taza de viaje' : 'Travel Mug';
+  } else if (type === 'enamel-mug') {
+    typeStr = lang === 'no' ? 'Emaljekopp' : lang === 'es' ? 'Taza de esmalte' : 'Enamel Mug';
+  } else if (type === 'babybody') {
+    let prefix = isOrganic ? (lang === 'no' ? 'Økologisk ' : lang === 'es' ? 'orgánico ' : 'Organic ') : '';
+    let style = isShortSleeve ? (lang === 'no' ? ' (kortermet)' : lang === 'es' ? ' de manga corta' : ' (short sleeve)') :
+                isLongSleeve ? (lang === 'no' ? ' (langermet)' : lang === 'es' ? ' de manga larga' : ' (long sleeve)') : '';
+    
+    if (lang === 'no') {
+      typeStr = prefix + 'Babybody' + style;
+    } else if (lang === 'es') {
+      typeStr = 'Body de bebé ' + prefix + style;
+    } else {
+      typeStr = prefix + 'Baby Onesie' + style;
+    }
+  } else if (type === 'totebag') {
+    typeStr = lang === 'no' ? 'Handlenett' : lang === 'es' ? 'Bolsa de tela' : 'Tote Bag';
+  } else if (type === 'sticker') {
+    let isPlural = lower.includes('stickers') || lower.includes('klistremerker') || lower.includes('klistermerker') || lower.includes('stk');
+    typeStr = lang === 'no' ? (isPlural ? 'Klistremerker' : 'Klistremerke') :
+              lang === 'es' ? (isPlural ? 'Pegatinas' : 'Pegatina') :
+              (isPlural ? 'Stickers' : 'Sticker');
+  } else if (type === 'poster') {
+    typeStr = lang === 'no' ? 'Plakat' : lang === 'es' ? 'Póster' : 'Poster';
+  } else if (type === 'canvas') {
+    typeStr = lang === 'no' ? 'Lerret' : lang === 'es' ? 'Lienzo' : 'Canvas';
+  } else if (type === 'wristband') {
+    typeStr = lang === 'no' ? 'Armbånd' : lang === 'es' ? 'Pulsera' : 'Wristband';
+  } else if (type === 'bottle') {
+    typeStr = lang === 'no' ? 'Drikkeflaske' : lang === 'es' ? 'Botella de agua' : 'Water Bottle';
+  } else if (type === 'coasters') {
+    if (lower.includes('koppeunderlag')) {
+      typeStr = lang === 'no' ? 'Koppeunderlag' : lang === 'es' ? 'Posavasos' : 'Coasters';
+    } else {
+      typeStr = lang === 'no' ? 'Glassbrikker' : lang === 'es' ? 'Posavasos' : 'Coasters';
+    }
+  } else if (type === 'bookmark') {
+    let isPlural = lower.includes('bokmerker') || lower.includes('bookmarks') || !lower.includes('1 bokmerke');
+    typeStr = lang === 'no' ? (isPlural ? 'Bokmerker' : 'Bokmerke') :
+              lang === 'es' ? (isPlural ? 'Marcadores de páginas' : 'Marcador de páginas') :
+              (isPlural ? 'Bookmarks' : 'Bookmark');
+  } else if (type === 'card') {
+    let isPlural = lower.includes('kort') || lower.includes('cards') || !lower.includes('1 random');
+    typeStr = lang === 'no' ? 'Kort' :
+              lang === 'es' ? (isPlural ? 'Tarjetas' : 'Tarjeta') :
+              (isPlural ? 'Cards' : 'Card');
+  } else if (type === 'pencil-case') {
+    typeStr = lang === 'no' ? 'Pennal' : lang === 'es' ? 'Estuche' : 'Pencil Case';
+  }
+
+  // 7. Translate Specifications / Details
+  let details = [];
+  if (sizeVal) {
+    details.push(lang === 'no' ? `str. ${sizeVal}` : lang === 'es' ? `talla ${sizeVal}` : `size ${sizeVal}`);
+  }
+  if (ageVal) {
+    details.push(lang === 'no' ? `${ageVal} år` : lang === 'es' ? `${ageVal} años` : `${ageVal} years`);
+  }
+  if (singleAgeVal) {
+    details.push(lang === 'no' ? `${singleAgeVal} år` : lang === 'es' ? `${singleAgeVal} años` : `${singleAgeVal} years`);
+  }
+  if (mndVal) {
+    details.push(lang === 'no' ? `${mndVal} mnd` : lang === 'es' ? `${mndVal} meses` : `${mndVal} months`);
+  }
+  if (mndRangeVal) {
+    details.push(lang === 'no' ? `${mndRangeVal} mnd` : lang === 'es' ? `${mndRangeVal}M` : `${mndRangeVal}M`);
+  }
+  if (isBackPrint) {
+    details.push(lang === 'no' ? 'med trykk på ryggen' : lang === 'es' ? 'con impresión en la espalda' : 'with print on back');
+  }
+  if (isWood) {
+    details.push(lang === 'no' ? 'i tre' : lang === 'es' ? 'de madera' : 'in wood');
+  }
+  if (isEnglishText && lang === 'no') {
+    details.push('engelsk tekst');
+  }
+
+  let detailsStr = details.length > 0 ? ` (${details.join(', ')})` : '';
+
+  // 8. Handle leading quantity and type-only checks
+  let cleanBase = translatedBase.trim();
+  let leadingQtyMatch = cleanBase.match(/^(\d+)\s+/);
+  let leadingQty = leadingQtyMatch ? leadingQtyMatch[1] : '';
+  if (leadingQty) {
+    cleanBase = cleanBase.replace(/^(\d+)\s+/, '');
+  }
+
+  const isJustType = typeWords.some(w => cleanBase.toLowerCase() === w) || cleanBase.toLowerCase() === typeStr.toLowerCase() || cleanBase === '';
+
+  // 9. Assemble final name
+  let finalName = '';
+  let qtyPrefix = leadingQty ? `${leadingQty} ` : '';
+
+  if (lang === 'no') {
+    finalName = isJustType ? `${qtyPrefix}${typeStr}${detailsStr}` : `${qtyPrefix}${cleanBase} ${typeStr}${detailsStr}`;
+  } else if (lang === 'es') {
+    if (typeStr) {
+      finalName = isJustType ? `${qtyPrefix}${typeStr}${detailsStr}` : `${qtyPrefix}${typeStr} ${cleanBase}${detailsStr}`;
+    } else {
+      finalName = `${qtyPrefix}${cleanBase}${detailsStr}`;
     }
   } else {
-    if (suffix) {
-      const lowerSuffix = suffix.toLowerCase();
-      if (lowerSuffix.includes('ceramic mug') || lowerSuffix.includes('coffee mug') || lowerSuffix.includes('mug')) {
-        translatedBase += ' Mug';
-      } else if (lowerSuffix.includes('hoodie') || lowerSuffix.includes('sweatshirt')) {
-        translatedBase += ' Hoodie';
-      } else if (lowerSuffix.includes('t-shirt') || lowerSuffix.includes('tee')) {
-        translatedBase += ' T-Shirt';
-      } else if (lowerSuffix.includes('totebag') || lowerSuffix.includes('tote bag') || lowerSuffix.includes('bag')) {
-        translatedBase += ' Tote Bag';
-      } else if (lowerSuffix.includes('sticker') || lowerSuffix.includes('decal')) {
-        translatedBase += ' Sticker';
-      } else if (lowerSuffix.includes('poster') || lowerSuffix.includes('print')) {
-        translatedBase += ' Poster';
-      } else if (lowerSuffix.includes('wristband') || lowerSuffix.includes('bracelet')) {
-        translatedBase += ' Wristband';
-      } else if (lowerSuffix.includes('water bottle') || lowerSuffix.includes('bottle')) {
-        translatedBase += ' Water Bottle';
-      }
-    }
+    // English
+    finalName = isJustType ? `${qtyPrefix}${typeStr}${detailsStr}` : `${qtyPrefix}${cleanBase} ${typeStr}${detailsStr}`;
   }
 
-  return translatedBase.split(' ').map(word => {
+  // Clean double spaces and capitalization helper
+  finalName = finalName.replace(/\s+/g, ' ').trim();
+  
+  // Title case formatting
+  return finalName.split(' ').map(word => {
     if (!word) return '';
     if (/[0-9]/.test(word) || word === 'II' || word === 'III') return word;
-    const lower = word.toLowerCase();
-    if (['på', 'ny', 'til', 'i', 'og', 'med', 'de', 'el', 'la', 'y', 'sobre', 'en', 'of', 'the', 'in', 'and'].includes(lower)) {
-      return lower;
+    // Keep sizes like S, M, L, XL, XS in uppercase
+    if (/^[A-Z\-]+$/.test(word) && word.length <= 4) return word;
+    const lowerWord = word.toLowerCase();
+    if (['på', 'ny', 'til', 'i', 'og', 'med', 'de', 'el', 'la', 'y', 'sobre', 'en', 'of', 'the', 'in', 'and'].includes(lowerWord)) {
+      return lowerWord;
     }
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
   }).join(' ').trim();
@@ -580,7 +1008,7 @@ export function getTranslatedProduct(product, language) {
   }
 
   // 3. Fallback: Clean and Translate dynamically
-  const autoName = cleanAndTranslateName(product.name, lang);
+  const autoName = cleanAndTranslateName(product.name, lang, product);
   const autoDesc = cleanAndTranslateDesc(product.description, lang);
   return makeTranslated(autoName, autoDesc);
 }
