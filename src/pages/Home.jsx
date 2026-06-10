@@ -334,21 +334,20 @@ export default function Home() {
               break;
             }
             
+            let earliestIndex = -1;
             const metaMatch = authorOrShippingRegex.exec(trimmed);
-            if (metaMatch) {
-              const metaIndex = metaMatch.index;
-              trimmed = trimmed.substring(0, metaIndex).trim();
-              if (trimmed) {
-                trimmed = trimmed.replace(/[:,\-\s\.]+$/, '') + '.';
-                cleanParagraphs.push(trimmed);
-              }
-              break;
+            const specMatch = specRegex.exec(trimmed);
+            
+            if (metaMatch && specMatch) {
+              earliestIndex = Math.min(metaMatch.index, specMatch.index);
+            } else if (metaMatch) {
+              earliestIndex = metaMatch.index;
+            } else if (specMatch) {
+              earliestIndex = specMatch.index;
             }
             
-            const specMatch = specRegex.exec(trimmed);
-            if (specMatch) {
-              const specIndex = specMatch.index;
-              trimmed = trimmed.substring(0, specIndex).trim();
+            if (earliestIndex !== -1) {
+              trimmed = trimmed.substring(0, earliestIndex).trim();
               if (trimmed) {
                 trimmed = trimmed.replace(/[:,\-\s\.]+$/, '') + '.';
                 cleanParagraphs.push(trimmed);
