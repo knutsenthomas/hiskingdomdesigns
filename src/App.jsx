@@ -15,18 +15,43 @@ import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import '@/App.css';
 
+// Helper to dynamically load component with auto-retry on dynamic import / chunk load failures
+const lazyWithRetry = (componentImport) =>
+  lazy(() =>
+    componentImport().catch((error) => {
+      const errorMessage = error?.message || error?.toString() || '';
+      const isChunkLoadFailed = errorMessage.includes('Failed to fetch dynamically imported module') ||
+                                errorMessage.includes('Loading chunk') ||
+                                errorMessage.includes('chunk');
+
+      if (isChunkLoadFailed) {
+        const chunkReloadKey = 'chunk-failed-reload';
+        const lastReload = sessionStorage.getItem(chunkReloadKey);
+        const now = Date.now();
+
+        if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+          sessionStorage.setItem(chunkReloadKey, now.toString());
+          window.location.reload(true);
+          // Return a pending promise so Suspense stays in fallback loading state while page reloads
+          return new Promise(() => {});
+        }
+      }
+      throw error;
+    })
+  );
+
 // Lazy load other routes to significantly decrease initial JS bundle size (FCP)
-const Category = lazy(() => import('@/pages/Category'));
-const ProductDetails = lazy(() => import('@/pages/ProductDetails'));
-const Cart = lazy(() => import('@/pages/Cart'));
-const About = lazy(() => import('@/pages/About'));
-const Team = lazy(() => import('@/pages/Team'));
-const Shipping = lazy(() => import('@/pages/Shipping'));
-const Faq = lazy(() => import('@/pages/Faq'));
-const Privacy = lazy(() => import('@/pages/Privacy'));
-const Betingelser = lazy(() => import('@/pages/Betingelser'));
-const Profile = lazy(() => import('@/pages/Profile'));
-const Admin = lazy(() => import('@/pages/Admin'));
+const Category = lazyWithRetry(() => import('@/pages/Category'));
+const ProductDetails = lazyWithRetry(() => import('@/pages/ProductDetails'));
+const Cart = lazyWithRetry(() => import('@/pages/Cart'));
+const About = lazyWithRetry(() => import('@/pages/About'));
+const Team = lazyWithRetry(() => import('@/pages/Team'));
+const Shipping = lazyWithRetry(() => import('@/pages/Shipping'));
+const Faq = lazyWithRetry(() => import('@/pages/Faq'));
+const Privacy = lazyWithRetry(() => import('@/pages/Privacy'));
+const Betingelser = lazyWithRetry(() => import('@/pages/Betingelser'));
+const Profile = lazyWithRetry(() => import('@/pages/Profile'));
+const Admin = lazyWithRetry(() => import('@/pages/Admin'));
 
 // Premium Error Boundary to capture runtime rendering crashes and present a helpful report instead of a blank screen
 class ErrorBoundary extends React.Component {
@@ -42,6 +67,22 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
     this.setState({ errorInfo });
+
+    const errorMessage = error?.message || error?.toString() || '';
+    const isChunkLoadFailed = errorMessage.includes('Failed to fetch dynamically imported module') ||
+                              errorMessage.includes('Loading chunk') ||
+                              errorMessage.includes('chunk');
+
+    if (isChunkLoadFailed) {
+      const chunkReloadKey = 'chunk-failed-reload';
+      const lastReload = sessionStorage.getItem(chunkReloadKey);
+      const now = Date.now();
+
+      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+        sessionStorage.setItem(chunkReloadKey, now.toString());
+        window.location.reload(true);
+      }
+    }
   }
 
   render() {
@@ -115,6 +156,42 @@ function MainLayout() {
       }
     }
   }, [location]);
+
+  // Global handler for dynamic import/chunk loading failures across all files (including context lazy-loads)
+  useEffect(() => {
+    const handleChunkError = (errorMessage) => {
+      const isChunkLoadFailed = errorMessage.includes('Failed to fetch dynamically imported module') ||
+                                errorMessage.includes('Loading chunk') ||
+                                errorMessage.includes('chunk');
+
+      if (isChunkLoadFailed) {
+        const chunkReloadKey = 'chunk-failed-reload';
+        const lastReload = sessionStorage.getItem(chunkReloadKey);
+        const now = Date.now();
+
+        if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+          sessionStorage.setItem(chunkReloadKey, now.toString());
+          window.location.reload(true);
+        }
+      }
+    };
+
+    const handleError = (e) => {
+      handleChunkError(e.message || '');
+    };
+
+    const handleRejection = (e) => {
+      handleChunkError(e.reason?.message || e.reason?.toString() || '');
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleRejection);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-parchment text-onyx selection:bg-terracotta selection:text-white relative">
