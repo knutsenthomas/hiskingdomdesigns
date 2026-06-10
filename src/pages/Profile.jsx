@@ -1450,16 +1450,16 @@ export default function Profile() {
                   )}
 
                   {/* Loyalty Card */}
-                  <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4965] to-[#2C7DA0] text-white rounded-2xl p-6 shadow-md md:p-8">
+                  <div className="relative overflow-hidden bg-gradient-to-br from-[#d17d39] to-[#bd4f2a] text-white rounded-2xl p-6 shadow-md md:p-8">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full translate-x-12 -translate-y-12" />
                     <div className="absolute bottom-0 left-1/3 w-48 h-48 bg-white/5 rounded-full translate-y-24" />
                     
                     <div className="flex justify-between items-start mb-6">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest text-blue-200 font-semibold">{t('profile.loyaltyCard')}</span>
+                        <span className="text-[10px] uppercase tracking-widest text-white/80 font-semibold">{t('profile.loyaltyCard')}</span>
                         <h4 className="text-xl font-bold mt-1 tracking-wide">{displayName}</h4>
                       </div>
-                      <span className="bg-amber-400 text-slate-900 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
+                      <span className="bg-white text-terracotta text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
                         {loyaltyAccount?.tier?.name || t('profile.loyaltyLevel')}
                       </span>
                     </div>
@@ -1468,18 +1468,18 @@ export default function Profile() {
                       <span className="text-4xl md:text-5xl font-extrabold tracking-tight">
                         {loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0}
                       </span>
-                      <span className="text-sm font-semibold text-blue-200">{t('profile.pointsAvailable')}</span>
+                      <span className="text-sm font-semibold text-white/80">{t('profile.pointsAvailable')}</span>
                     </div>
 
                     {/* Progress to next level */}
                     <div className="mt-6 pt-4 border-t border-white/10 space-y-2">
-                      <div className="flex justify-between text-xs text-blue-100">
+                      <div className="flex justify-between text-xs text-white/90">
                         <span>{t('profile.pointsProgress')}</span>
                         <span className="font-semibold">{t('profile.pointsProgressValue', { current: loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0, target: 300 })}</span>
                       </div>
                       <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
                         <div 
-                          className="bg-amber-400 h-full rounded-full transition-all duration-500" 
+                          className="bg-white h-full rounded-full transition-all duration-500" 
                           style={{ width: `${Math.min(100, ((loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0) / 300) * 100)}%` }} 
                         />
                       </div>
