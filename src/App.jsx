@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AppProvider } from '@/contexts/AppContext';
 import { CartProvider } from '@/contexts/CartContext';
@@ -7,24 +7,26 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HkmChatWidget from '@/components/HkmChatWidget';
 import CookieConsent from '@/components/CookieConsent';
-import Home from '@/pages/Home';
-import Category from '@/pages/Category';
-import ProductDetails from '@/pages/ProductDetails';
-import Cart from '@/pages/Cart';
-import About from '@/pages/About';
-import Team from '@/pages/Team';
-import Shipping from '@/pages/Shipping';
-import Faq from '@/pages/Faq';
-import Privacy from '@/pages/Privacy';
-import Betingelser from '@/pages/Betingelser';
-import Profile from '@/pages/Profile';
-import Admin from '@/pages/Admin';
+import Home from '@/pages/Home'; // Static import for Home page to load instantly without fallback
 import { AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import CmsVisualToggle from '@/components/CmsVisualToggle';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import '@/App.css';
+
+// Lazy load other routes to significantly decrease initial JS bundle size (FCP)
+const Category = lazy(() => import('@/pages/Category'));
+const ProductDetails = lazy(() => import('@/pages/ProductDetails'));
+const Cart = lazy(() => import('@/pages/Cart'));
+const About = lazy(() => import('@/pages/About'));
+const Team = lazy(() => import('@/pages/Team'));
+const Shipping = lazy(() => import('@/pages/Shipping'));
+const Faq = lazy(() => import('@/pages/Faq'));
+const Privacy = lazy(() => import('@/pages/Privacy'));
+const Betingelser = lazy(() => import('@/pages/Betingelser'));
+const Profile = lazy(() => import('@/pages/Profile'));
+const Admin = lazy(() => import('@/pages/Admin'));
 
 // Premium Error Boundary to capture runtime rendering crashes and present a helpful report instead of a blank screen
 class ErrorBoundary extends React.Component {
@@ -118,25 +120,31 @@ function MainLayout() {
     <div className="flex flex-col min-h-screen bg-parchment text-onyx selection:bg-terracotta selection:text-white relative">
       <Header />
       <div className="flex-grow">
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Category />} />
-            <Route path="/category/:categoryName" element={<Category />} />
-            <Route path="/product/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/shipping" element={<Shipping />} />
-            <Route path="/faq" element={<Faq />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/betingelser" element={<Betingelser />} />
-            <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
-            <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
-            {/* Fallback to home */}
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </AnimatePresence>
+        <Suspense fallback={
+          <div className="h-screen bg-parchment flex items-center justify-center">
+            <div className="w-10 h-10 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        }>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Category />} />
+              <Route path="/category/:categoryName" element={<Category />} />
+              <Route path="/product/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/shipping" element={<Shipping />} />
+              <Route path="/faq" element={<Faq />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/betingelser" element={<Betingelser />} />
+              <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+              <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
+              {/* Fallback to home */}
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
       </div>
       <Footer />
       <HkmChatWidget />
