@@ -905,6 +905,15 @@ export default function Home() {
               as="p" 
               className="font-body-lg text-body-lg text-secondary leading-relaxed"
             />
+            <div className="mt-8 flex justify-center">
+              <Link 
+                to="/team" 
+                className="inline-flex items-center gap-2 bg-[#1B4965] hover:bg-[#1B4965]/90 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-[0.98] hover:shadow-md"
+              >
+                <span>{t('home.about.linkText')}</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 hover:border-terracotta/30 transition-all duration-300">
