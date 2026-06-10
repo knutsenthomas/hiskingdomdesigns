@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { wixClient } from '@/lib/wix';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
@@ -431,6 +430,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchPlans() {
       try {
+        const { wixClient } = await import('@/lib/wix');
         const response = await wixClient.plans.queryPublicPlans().limit(10).find();
         const items = response.items || response._items;
         if (items && items.length > 0) {
@@ -450,6 +450,7 @@ export default function Home() {
       setIsLoadingTestimonials(true);
       try {
         console.log("HKD Debug: Henter omtaler fra Wix Reviews API...");
+        const { wixClient } = await import('@/lib/wix');
         const response = await wixClient.reviews.queryReviews()
           .descending('_createdDate')
           .limit(10)
@@ -524,6 +525,7 @@ export default function Home() {
     }
     setSubscribingId(plan._id);
     try {
+      const { wixClient } = await import('@/lib/wix');
       const redirectSession = await wixClient.redirects.createRedirectSession({
         paidPlansCheckout: {
           planId: plan._id,

@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { wixClient } from '@/lib/wix';
 
 // Helper to parse bold (**), italic (*), and markdown links ([text](url)) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
@@ -284,7 +283,7 @@ export default function HkmChatWidget() {
     { text: t('chat.quickReply.about'), label: t('chat.quickReply.aboutLabel') }
   ];
   const [inputText, setInputText] = useState('');
-  const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext, generateAiResponseText } = useApp();
+  const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext, generateAiResponseText, isLoggedIn, member } = useApp();
   const chatBodyRef = useRef(null);
   const inputRef = useRef(null);
   const location = useLocation();
@@ -293,6 +292,12 @@ export default function HkmChatWidget() {
   const [chatMode, setChatMode] = useState('live'); // 'ai' | 'live'
   const [liveMessages, setLiveMessages] = useState([]);
   const [isLiveTyping, setIsLiveTyping] = useState(false);
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [needsContactInfo, setNeedsContactInfo] = useState(false);
+  const [isCreatingConv, setIsCreatingConv] = useState(false);
+  const [chatError, setChatError] = useState('');
+
   const [conversationId, setConversationId] = useState(() => {
     const stored = safeStorage.getItem('hkd-inbox-conv-id');
     return (stored && stored !== 'undefined' && stored !== 'null') ? stored : null;
@@ -305,38 +310,13 @@ export default function HkmChatWidget() {
       return null;
     }
   });
-  const [member, setMember] = useState(null);
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [needsContactInfo, setNeedsContactInfo] = useState(false);
-  const [isCreatingConv, setIsCreatingConv] = useState(false);
-  const [chatError, setChatError] = useState('');
-
-  // Fetch logged in member info if available
-  useEffect(() => {
-    async function checkMember() {
-      if (wixClient.auth.loggedIn()) {
-        try {
-          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
-          if (res && res.member) {
-            setMember(res.member);
-          }
-        } catch (e) {
-          console.warn('Failed to get member for chat:', e);
-        }
-      }
-    }
-    checkMember();
-    window.addEventListener('wix-auth-change', checkMember);
-    return () => window.removeEventListener('wix-auth-change', checkMember);
-  }, []);
 
   // Auto-start live chat once member is loaded if in live mode
   useEffect(() => {
-    if (chatMode === 'live' && !conversationId && !isCreatingConv && wixClient.auth.loggedIn() && member) {
+    if (chatMode === 'live' && !conversationId && !isCreatingConv && isLoggedIn && member) {
       startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
     }
-  }, [chatMode, conversationId, member]);
+  }, [chatMode, conversationId, member, isLoggedIn]);
 
   // Clear old conversationId from localStorage to migrate to contactId-based routing
   useEffect(() => {
@@ -387,7 +367,7 @@ export default function HkmChatWidget() {
       const host = window.location.origin;
       
       const payload = {};
-      if (wixClient.auth.loggedIn() && member) {
+      if (isLoggedIn && member) {
         payload.memberId = member._id;
         if (member.contactId) {
           payload.contactId = member.contactId;
@@ -626,7 +606,7 @@ export default function HkmChatWidget() {
       try {
         const host = window.location.origin;
         const payload = {};
-        if (wixClient.auth.loggedIn() && member) {
+        if (isLoggedIn && member) {
           payload.memberId = member._id;
           if (member.contactId) {
             payload.contactId = member.contactId;
@@ -682,7 +662,7 @@ export default function HkmChatWidget() {
 
     const getSenderPayload = () => {
       if (chatParticipant) return chatParticipant;
-      if (wixClient.auth.loggedIn() && member) {
+      if (isLoggedIn && member) {
         const contactId = member.contactId || member.contact?._id;
         if (contactId) return { contactId };
       }
@@ -969,7 +949,7 @@ export default function HkmChatWidget() {
                     type="button"
                     onClick={() => {
                       setChatError('');
-                      if (!wixClient.auth.loggedIn() && !conversationId) {
+                      if (!isLoggedIn && !conversationId) {
                         setNeedsContactInfo(true);
                       } else {
                         startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);

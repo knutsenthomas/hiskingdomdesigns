@@ -83,6 +83,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('preload-helper') || id.includes('vite/')) {
+            return 'react-core';
+          }
           if (id.includes('node_modules')) {
             if (id.includes('@wix')) {
               return 'wix-sdk';

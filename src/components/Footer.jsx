@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { CreditCard, Heart, Mail, ShieldCheck, Copy, ExternalLink, Check, Instagram, Facebook } from 'lucide-react';
 import CmsText from '@/components/CmsText';
-import { wixClient } from '@/lib/wix';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Footer() {

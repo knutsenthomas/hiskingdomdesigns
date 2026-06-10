@@ -1,8 +1,16 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { db } from '@/firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
-import { wixClient } from '@/lib/wix';
 import { useLanguage } from '@/contexts/LanguageContext';
+
+const getWixClient = async () => {
+  const { wixClient } = await import('@/lib/wix');
+  return wixClient;
+};
+
+const getFirestoreDb = async () => {
+  const { db } = await import('@/firebase');
+  const firestore = await import('firebase/firestore');
+  return { db, ...firestore };
+};
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
 export const AppContext = createContext({});
@@ -497,10 +505,11 @@ export const AppProvider = ({ children }) => {
 
   // Wix Auth & Member States
   const [member, setMember] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleAuthChange = async () => {
+      const wixClient = await getWixClient();
       const logged = wixClient.auth.loggedIn();
       setIsLoggedIn(logged);
       if (logged) {
@@ -576,26 +585,34 @@ export const AppProvider = ({ children }) => {
 
   // Live sync wishlist from Firestore if logged in
   useEffect(() => {
-    if (isLoggedIn && member?._id) {
-      const docRef = doc(db, 'wishlists', member._id);
-      const unsubscribe = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const dbWishlist = docSnap.data().items || [];
-          setWishlist(dbWishlist);
-        }
-      }, (err) => {
-        console.warn('Error listening to wishlist in Firestore:', err);
-      });
-      return () => unsubscribe();
-    }
+    let unsubscribe = null;
+    const setupSync = async () => {
+      if (isLoggedIn && member?._id) {
+        const { db, doc, onSnapshot } = await getFirestoreDb();
+        const docRef = doc(db, 'wishlists', member._id);
+        unsubscribe = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const dbWishlist = docSnap.data().items || [];
+            setWishlist(dbWishlist);
+          }
+        }, (err) => {
+          console.warn('Error listening to wishlist in Firestore:', err);
+        });
+      }
+    };
+    setupSync();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [isLoggedIn, member?._id]);
 
   // Merge local wishlist with cloud wishlist upon login
   useEffect(() => {
     const mergeWishlists = async () => {
       if (isLoggedIn && member?._id) {
-        const docRef = doc(db, 'wishlists', member._id);
         try {
+          const { db, doc, getDoc, setDoc } = await getFirestoreDb();
+          const docRef = doc(db, 'wishlists', member._id);
           const docSnap = await getDoc(docRef);
           let cloudItems = [];
           if (docSnap.exists()) {
@@ -641,6 +658,7 @@ export const AppProvider = ({ children }) => {
     
     if (isLoggedIn && member?._id) {
       try {
+        const { db, doc, setDoc } = await getFirestoreDb();
         const docRef = doc(db, 'wishlists', member._id);
         await setDoc(docRef, { items: newWishlist }, { merge: true });
       } catch (err) {
@@ -673,6 +691,7 @@ export const AppProvider = ({ children }) => {
     });
 
     try {
+      const { db, doc, setDoc } = await getFirestoreDb();
       const cmsDocRef = doc(db, "cms_configs", "designs");
       await setDoc(cmsDocRef, { [slug]: value }, { merge: true });
     } catch (err) {
@@ -682,24 +701,31 @@ export const AppProvider = ({ children }) => {
 
   // Realtime Sync from Firestore
   useEffect(() => {
-    try {
-      const cmsDocRef = doc(db, "cms_configs", "designs");
-      const unsubscribe = onSnapshot(cmsDocRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const dbData = snapshot.data();
-          setCmsContent(prev => {
-            const merged = { ...prev, ...dbData };
-            localStorage.setItem('hkm-cms-content', JSON.stringify(merged));
-            return merged;
-          });
-        }
-      }, (err) => {
-        console.warn("Kunne ikke synkronisere CMS fra Firestore:", err);
-      });
-      return () => unsubscribe();
-    } catch (e) {
-      console.warn("Feil ved oppstart av CMS synkronisering:", e);
-    }
+    let unsubscribe = null;
+    const setupCmsSync = async () => {
+      try {
+        const { db, doc, onSnapshot } = await getFirestoreDb();
+        const cmsDocRef = doc(db, "cms_configs", "designs");
+        unsubscribe = onSnapshot(cmsDocRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const dbData = snapshot.data();
+            setCmsContent(prev => {
+              const merged = { ...prev, ...dbData };
+              localStorage.setItem('hkm-cms-content', JSON.stringify(merged));
+              return merged;
+            });
+          }
+        }, (err) => {
+          console.warn("Kunne ikke synkronisere CMS fra Firestore:", err);
+        });
+      } catch (e) {
+        console.warn("Feil ved oppstart av CMS synkronisering:", e);
+      }
+    };
+    setupCmsSync();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   // Load products and collections from Wix
@@ -707,6 +733,7 @@ export const AppProvider = ({ children }) => {
     const fetchWixData = async () => {
       try {
         console.log('Henter produkter fra Wix...');
+        const wixClient = await getWixClient();
         const collectionsList = await wixClient.collections.queryCollections().limit(100).find();
         
         const collectionsMap = {};

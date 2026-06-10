@@ -1,6 +1,10 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { wixClient, staticWixClient } from '@/lib/wix';
 import { resolveColor } from '@/lib/colors';
+
+const getWixClient = async () => {
+  const { wixClient } = await import('@/lib/wix');
+  return wixClient;
+};
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
 export const CartContext = createContext({});
@@ -250,6 +254,7 @@ export const CartProvider = ({ children }) => {
   const forceSyncCartWithWix = async (items = cartItems) => {
     try {
       console.log('Force synchronizing local cart with Wix currentCart...');
+      const wixClient = await getWixClient();
       const localMapped = await mapCartItemsToWixLineItems(items);
       
       let wixCartRes;
@@ -395,6 +400,7 @@ export const CartProvider = ({ children }) => {
       return productCache[productId];
     }
     try {
+      const wixClient = await getWixClient();
       const res = await wixClient.products.getProduct(productId);
       if (res && res.product) {
         productCache[productId] = res.product;
@@ -552,6 +558,7 @@ export const CartProvider = ({ children }) => {
     setIsApplyingCoupon(true);
     setCouponError('');
     try {
+      const wixClient = await getWixClient();
       const lineItems = await mapCartItemsToWixLineItems(cartItems);
       
       // Create a temporary checkout to validate coupon
@@ -599,6 +606,7 @@ export const CartProvider = ({ children }) => {
     setIsApplyingGiftCard(true);
     setGiftCardError('');
     try {
+      const wixClient = await getWixClient();
       const lineItems = await mapCartItemsToWixLineItems(cartItems);
       
       // Create a temporary checkout to validate gift card
@@ -681,6 +689,7 @@ export const CartProvider = ({ children }) => {
     setIsEstimating(true);
     setEstimateError('');
     try {
+      const wixClient = await getWixClient();
       const shippingAddressParam = {
         country: countryCode
       };

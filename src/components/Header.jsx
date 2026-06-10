@@ -6,8 +6,6 @@ import { useCart } from '@/contexts/CartContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { motion, AnimatePresence } from 'framer-motion';
-import { wixClient } from '@/lib/wix';
-import { media } from '@wix/sdk';
 import CartDrawer from '@/components/CartDrawer';
 
 // Helper to safely extract and build profile image URL from Wix member object
@@ -21,22 +19,14 @@ const getProfileImageUrl = (member) => {
   if (!url || typeof url !== 'string') return null;
 
   if (url.startsWith('wix:image://')) {
-    try {
-      return media.getScaledToFillImageUrl(url, 60, 60) || media.getImageUrl(url).url;
-    } catch (e) {
-      console.warn('Failed to parse Wix image URI using SDK:', e);
-      const match = url.match(/wix:image:\/\/v1\/([^\/]+)/);
-      if (match && match[1]) {
-        return `https://static.wixstatic.com/media/${match[1]}`;
-      }
-    }
+    return getOptimizedWixImageUrl(url, 60, 60);
   }
 
   return url;
 };
 
 export default function Header() {
-  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products } = useApp();
+  const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products, isLoggedIn, member } = useApp();
   const { cartCount, setIsCartDrawerOpen, isCartDrawerOpen } = useCart();
   const { language, setLanguage, t, translateProduct, formatPrice } = useLanguage();
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
@@ -107,39 +97,6 @@ export default function Header() {
         return null;
     }
   };
-  const [isLoggedIn, setIsLoggedIn] = useState(() => wixClient.auth.loggedIn());
-  const [member, setMember] = useState(null);
-
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const logged = wixClient.auth.loggedIn();
-      setIsLoggedIn(logged);
-      if (logged) {
-        try {
-          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
-          if (res?.member) {
-            setMember(res.member);
-          } else {
-            setMember(null);
-          }
-        } catch (e) {
-          console.warn('Failed to fetch member details in Header:', e);
-          setMember(null);
-        }
-      } else {
-        setMember(null);
-      }
-    };
-    
-    checkLoginStatus();
-    
-    window.addEventListener('wix-auth-change', checkLoginStatus);
-    window.addEventListener('storage', checkLoginStatus);
-    return () => {
-      window.removeEventListener('wix-auth-change', checkLoginStatus);
-      window.removeEventListener('storage', checkLoginStatus);
-    };
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

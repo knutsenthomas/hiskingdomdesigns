@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Trash2, ArrowRight, ArrowLeft, ShoppingCart, Lock } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
-import { wixClient } from '@/lib/wix';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CartDrawer() {
@@ -75,6 +74,7 @@ export default function CartDrawer() {
     window.hkd_is_checking_out = true;
 
     try {
+      const { wixClient } = await import('@/lib/wix');
       // 1. Force sync the local cart with Wix to guarantee they are identical (defensive)
       try {
         await forceSyncCartWithWix(cartItems);
