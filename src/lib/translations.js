@@ -159,6 +159,12 @@ export const translations = {
     'chat.quickReply.freeShippingLabel': '🚚 Fraktpriser',
     'chat.quickReply.sizes': 'Hvilke størrelser tilbyr dere?',
     'chat.quickReply.sizesLabel': '📏 Størrelsesguide',
+    'chat.quickReply.wash': 'Hvordan vasker jeg klærne?',
+    'chat.quickReply.washLabel': '🧼 Vask & Bevaring',
+    'chat.quickReply.custom': 'Tilbyr dere spesialbestilling for grupper?',
+    'chat.quickReply.customLabel': '🤝 Spesialbestilling',
+    'chat.quickReply.about': 'Hvem er dere og hva går pengene til?',
+    'chat.quickReply.aboutLabel': '🛡️ Om oss / Misjon',
 
     // Categories
     'category.all': 'Alle produkter',
@@ -901,6 +907,12 @@ export const translations = {
     'chat.quickReply.freeShippingLabel': '🚚 Shipping rates',
     'chat.quickReply.sizes': 'What sizes do you offer?',
     'chat.quickReply.sizesLabel': '📏 Size Guide',
+    'chat.quickReply.wash': 'How do I wash the clothes?',
+    'chat.quickReply.washLabel': '🧼 Washing Guide',
+    'chat.quickReply.custom': 'Do you offer custom group orders?',
+    'chat.quickReply.customLabel': '🤝 Custom Orders',
+    'chat.quickReply.about': 'Who are you and where does the money go?',
+    'chat.quickReply.aboutLabel': '🛡️ About Us / Mission',
 
     // Categories
     'category.all': 'All Products',
@@ -1643,6 +1655,12 @@ export const translations = {
     'chat.quickReply.freeShippingLabel': '🚚 Tarifas de envío',
     'chat.quickReply.sizes': '¿Qué tallas ofrecen?',
     'chat.quickReply.sizesLabel': '📏 Guía de tallas',
+    'chat.quickReply.wash': '¿Cómo lavo la ropa?',
+    'chat.quickReply.washLabel': '🧼 Consejos de lavado',
+    'chat.quickReply.custom': '¿Ofrecen pedidos personalizados para grupos?',
+    'chat.quickReply.customLabel': '🤝 Pedidos especiales',
+    'chat.quickReply.about': '¿Quiénes son y a dónde va el dinero?',
+    'chat.quickReply.aboutLabel': '🛡️ Sobre nosotros',
 
     // Categories
     'category.all': 'Todos los productos',

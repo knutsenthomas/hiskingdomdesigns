@@ -278,7 +278,10 @@ export default function HkmChatWidget() {
     { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel') },
     { text: t('chat.quickReply.returns'), label: t('chat.quickReply.returnsLabel') },
     { text: t('chat.quickReply.freeShipping'), label: t('chat.quickReply.freeShippingLabel') },
-    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') }
+    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') },
+    { text: t('chat.quickReply.wash'), label: t('chat.quickReply.washLabel') },
+    { text: t('chat.quickReply.custom'), label: t('chat.quickReply.customLabel') },
+    { text: t('chat.quickReply.about'), label: t('chat.quickReply.aboutLabel') }
   ];
   const [inputText, setInputText] = useState('');
   const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext, generateAiResponseText } = useApp();
