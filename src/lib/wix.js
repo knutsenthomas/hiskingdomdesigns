@@ -6,7 +6,7 @@ import { members } from '@wix/members';
 import { plans, orders as pricingPlansOrders } from '@wix/pricing-plans';
 import { reviews } from '@wix/reviews';
 import { contacts } from '@wix/site-crm';
-import { accounts as loyaltyAccounts, transactions as loyaltyTransactions } from '@wix/loyalty';
+import { accounts as loyaltyAccounts, transactions as loyaltyTransactions, rewards as loyaltyRewards, coupons as loyaltyCoupons } from '@wix/loyalty';
 import { giftVouchers } from '@wix/gift-vouchers';
 import { conversations as inboxConversations, messages as inboxMessages } from '@wix/inbox';
 import { headlessSite } from '@wix/headless-site';
@@ -56,6 +56,8 @@ export const wixClient = createClient({
     contacts,
     loyaltyAccounts,
     loyaltyTransactions,
+    loyaltyRewards,
+    loyaltyCoupons,
     giftVouchers,
     inboxConversations,
     inboxMessages,
