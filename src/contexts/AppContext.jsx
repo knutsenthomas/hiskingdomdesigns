@@ -1257,6 +1257,26 @@ export const AppProvider = ({ children }) => {
       let reply = '';
       const lower = text.toLowerCase().trim();
 
+      // Check for unavailable product types requested
+      const unavailableTypes = [
+        { keys: ['caps', 'hatter', 'capsen', 'capser'], label: { no: 'caps', en: 'caps', es: 'gorras' } },
+        { keys: ['lue', 'luen', 'luer', 'beanie'], label: { no: 'luer', en: 'beanies', es: 'gorros' } },
+        { keys: ['bukse', 'bukser', 'tights', 'pant'], label: { no: 'bukser', en: 'pants', es: 'pantalones' } },
+        { keys: ['sokker', 'sokk', 'socks'], label: { no: 'sokker', en: 'socks', es: 'calcetines' } },
+        { keys: ['jakke', 'jakker', 'kåpe', 'jacket'], label: { no: 'jakker', en: 'jackets', es: 'chaquetas' } },
+        { keys: ['deksel', 'mobildeksel', 'telefondeksel', 'phonecase'], label: { no: 'mobildeksel', en: 'phone cases', es: 'fundas de móvil' } },
+        { keys: ['smykker', 'smykke', 'halskjede', 'ring', 'jewelry'], label: { no: 'smykker', en: 'jewelry', es: 'joyas' } }
+      ];
+
+      const matchedUnavailable = unavailableTypes.find(t => t.keys.some(k => lower.includes(k)));
+      let hasProduct = false;
+      if (matchedUnavailable) {
+        hasProduct = products.some(p => {
+          const nameLower = p.name.toLowerCase();
+          return matchedUnavailable.keys.some(k => nameLower.includes(k));
+        });
+      }
+
       // 1. Prioritize specific customer service topics to prevent false matches on helper words
       if (lower.includes('retur') || lower.includes('bytte') || lower.includes('fortre')) {
         reply = '### 🔄 Enkel Retur & Bytte\n\n' +
@@ -1318,6 +1338,104 @@ export const AppProvider = ({ children }) => {
           '- **E-post:** post@hiskingdomministry.no\n' +
           '- **Adresse:** Løkkeveien 3B, 4580 Lyngdal\n\n' +
           '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
+      }
+      else if (matchedUnavailable && !hasProduct) {
+        const isKids = 
+          lower.includes('barn') || 
+          lower.includes('barne') || 
+          lower.includes('kids') || 
+          lower.includes('baby') || 
+          lower.includes('gutt') || 
+          lower.includes('jente') || 
+          lower.includes('junior') || 
+          lower.includes('åring') || 
+          /\b\d+\s*år\b/.test(lower);
+
+        const typeLabel = matchedUnavailable.label[language] || matchedUnavailable.label['no'];
+
+        if (isKids) {
+          // Find alternative kids products
+          const kidProducts = products.filter(prod => {
+            const prodNameLower = prod.name.toLowerCase();
+            const prodDescLower = prod.description?.toLowerCase() || '';
+            const prodSubcats = prod.subcategories?.map(s => s.toLowerCase()) || [];
+            return prod.gender === 'Barn' || 
+                   prod.category?.toLowerCase().includes('barn') || 
+                   prodNameLower.includes('barn') || 
+                   prodNameLower.includes('barne') || 
+                   prodNameLower.includes('baby') || 
+                   prodDescLower.includes('barn') || 
+                   prodDescLower.includes('barne') || 
+                   prodSubcats.some(s => s.includes('barn') || s.includes('kids') || s.includes('baby'));
+          }).slice(0, 3);
+
+          if (language === 'en') {
+            let altText = '';
+            if (kidProducts.length > 0) {
+              altText = `However, we have other great products for children that you can check out here:\n\n` +
+                kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+            }
+            reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} for kids\n\n` +
+              `Unfortunately, we do not have **${typeLabel}** for children in our standard collection at the moment.\n\n` +
+              altText +
+              `💡 **Custom order?** If you would like a ${typeLabel.slice(0, -1) || typeLabel} (or another product) with one of our unique faith designs, please feel free to **[contact us by email](mailto:post@hiskingdomministry.no)**! We can often make customizations and print special orders upon request.`;
+          } else if (language === 'es') {
+            let altText = '';
+            if (kidProducts.length > 0) {
+              altText = `Sin embargo, tenemos otros excelentes productos para niños que puedes ver aquí:\n\n` +
+                kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+            }
+            reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} para niños\n\n` +
+              `Lamentablemente, no tenemos **${typeLabel}** para niños en nuestra colección estándar en este momento.\n\n` +
+              altText +
+              `💡 **¿Pedido personalizado?** Si deseas una ${typeLabel.slice(0, -1) || typeLabel} (u otro producto) con uno de nuestros diseños de fe únicos, ¡no dudes en **[contactarnos por correo electrónico](mailto:post@hiskingdomministry.no)**! A menudo podemos realizar personalizaciones e imprimir pedidos especiales bajo petición.`;
+          } else { // 'no' / default
+            let altText = '';
+            if (kidProducts.length > 0) {
+              altText = `Men vi har andre flotte og populære produkter til barn som du kan sjekke ut her:\n\n` +
+                kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} kr**`).join('\n') + '\n\n';
+            }
+            reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} til barn\n\n` +
+              `Vi har dessverre ikke **${typeLabel}** for barn i vårt faste sortiment akkurat nå.\n\n` +
+              altText +
+              `💡 **Spesialbestilling?** Dersom du ønsker en ${typeLabel.slice(0, -1) || typeLabel} (eller et annet produkt) med et av våre unike trosdesign, må du gjerne **[kontakte oss på e-post](mailto:post@hiskingdomministry.no)**! Vi kan ofte gjøre tilpasninger og trykke spesielle bestillinger på forespørsel.`;
+          }
+        } else {
+          // General alternative products (bestsellers)
+          const bestsellers = products.filter(p => p.isBestseller).slice(0, 3);
+
+          if (language === 'en') {
+            let altText = '';
+            if (bestsellers.length > 0) {
+              altText = `However, we have other great bestseller products that you can check out here:\n\n` +
+                bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+            }
+            reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
+              `Unfortunately, we do not have **${typeLabel}** in our standard collection at the moment.\n\n` +
+              altText +
+              `💡 **Custom order?** If you would like a ${typeLabel.slice(0, -1) || typeLabel} (or another product) with one of our unique faith designs, please feel free to **[contact us by email](mailto:post@hiskingdomministry.no)**! We can often make customizations and print special orders upon request.`;
+          } else if (language === 'es') {
+            let altText = '';
+            if (bestsellers.length > 0) {
+              altText = `Sin embargo, tenemos otros excelentes productos más vendidos que puedes ver aquí:\n\n` +
+                bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+            }
+            reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
+              `Lamentablemente, no tenemos **${typeLabel}** en nuestra colección estándar en este momento.\n\n` +
+              altText +
+              `💡 **¿Pedido personalizado?** Si deseas una ${typeLabel.slice(0, -1) || typeLabel} (u otro producto) con uno de nuestros diseños de fe únicos, ¡no dudes en **[contactarnos por correo electrónico](mailto:post@hiskingdomministry.no)**! A menudo podemos realizar personalizaciones e imprimir pedidos especiales bajo petición.`;
+          } else { // 'no' / default
+            let altText = '';
+            if (bestsellers.length > 0) {
+              altText = `Men vi har mange andre flotte bestselgere som du kan sjekke ut her:\n\n` +
+                bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} kr**`).join('\n') + '\n\n';
+            }
+            reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
+              `Vi har dessverre ikke **${typeLabel}** i vårt faste sortiment akkurat nå.\n\n` +
+              altText +
+              `💡 **Spesialbestilling?** Dersom du ønsker en ${typeLabel.slice(0, -1) || typeLabel} med et av våre unike trosdesign, må du gjerne **[kontakte oss på e-post](mailto:post@hiskingdomministry.no)**! Vi kan ofte gjøre tilpasninger og trykke spesielle bestillinger på forespørsel.`;
+          }
+        }
       }
       else {
         // 2. Otherwise, check for product recommendations or category pages
