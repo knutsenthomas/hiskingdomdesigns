@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { db } from '@/firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { wixClient } from '@/lib/wix';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
 export const AppContext = createContext({});
@@ -332,6 +333,7 @@ const FALLBACK_TAXONOMY = {
 };
 
 export const AppProvider = ({ children }) => {
+  const { language } = useLanguage();
   const [products, setProducts] = useState(() => {
     try {
       const cached = localStorage.getItem('hkm-products-cache');
@@ -1126,9 +1128,9 @@ export const AppProvider = ({ children }) => {
 
     products.forEach(prod => {
       let score = 0;
-      const prodNameLower = prod.name.toLowerCase();
+      const prodNameLower = (prod.name || '').toLowerCase();
       const prodDescLower = prod.description?.toLowerCase() || '';
-      const prodCatLower = prod.category.toLowerCase();
+      const prodCatLower = (prod.category || '').toLowerCase();
       const prodSubcats = prod.subcategories?.map(s => s.toLowerCase()) || [];
 
       // Flag matching
@@ -1255,8 +1257,9 @@ export const AppProvider = ({ children }) => {
 
     // Dynamic, simulated context-aware response from HKD Assistant
     setTimeout(() => {
-      let reply = '';
-      const lower = text.toLowerCase().trim();
+      try {
+        let reply = '';
+        const lower = text.toLowerCase().trim();
 
       // Check for unavailable product types requested
       const unavailableTypes = [
@@ -1497,13 +1500,23 @@ export const AppProvider = ({ children }) => {
         }
       }
 
-      setAssistantMessages(prev => [...prev, {
-        id: `msg-ast-${Date.now()}`,
-        sender: 'assistant',
-        text: reply,
-        time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-      }]);
-      setIsAssistantTyping(false);
+        setAssistantMessages(prev => [...prev, {
+          id: `msg-ast-${Date.now()}`,
+          sender: 'assistant',
+          text: reply,
+          time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+        }]);
+      } catch (err) {
+        console.error('Error in HKD Assistant reply generator:', err);
+        setAssistantMessages(prev => [...prev, {
+          id: `msg-ast-${Date.now()}`,
+          sender: 'assistant',
+          text: 'Beklager, det oppstod en feil under generering av svar. Vennligst prøv igjen, eller bytt til Kundeservice (Live) i fanen over for å kontakte oss direkte.',
+          time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+        }]);
+      } finally {
+        setIsAssistantTyping(false);
+      }
     }, 1000);
   };
 
