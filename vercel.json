@@ -5,7 +5,23 @@
       "destination": "/api/:path*"
     },
     {
-      "source": "/((?!api/|__ecom/|_api/|.*/api/|.*/__ecom/|.*/_api/).*)",
+      "source": "/_api/:path*",
+      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/_api/:path*"
+    },
+    {
+      "source": "/:lang(en|es)/_api/:path*",
+      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/:lang/_api/:path*"
+    },
+    {
+      "source": "/__ecom/:path*",
+      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/__ecom/:path*"
+    },
+    {
+      "source": "/:lang(en|es)/__ecom/:path*",
+      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/:lang/__ecom/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
