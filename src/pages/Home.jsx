@@ -659,7 +659,7 @@ export default function Home() {
               />
             )}
             {currentSlide.isProduct ? (
-              <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-2">
+              <p className="font-body-lg text-body-lg mb-10 text-white/90 leading-relaxed line-clamp-4 md:line-clamp-2">
                 {currentSlide.desc}
               </p>
             ) : (
