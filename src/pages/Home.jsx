@@ -459,9 +459,17 @@ export default function Home() {
     setNewsletterLoading(true);
     setNewsletterError('');
     try {
-      await wixClient.contacts.appendOrCreateContact({
-        emails: [{ email: newsletterEmail }]
+      const response = await fetch('/api/subscribe-newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: newsletterEmail }),
       });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Subscription failed');
+      }
       setNewsletterSubscribed(true);
       setNewsletterEmail('');
       setTimeout(() => setNewsletterSubscribed(false), 5000);

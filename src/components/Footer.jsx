@@ -52,9 +52,17 @@ export default function Footer() {
     setLoading(true);
     setError('');
     try {
-      await wixClient.contacts.appendOrCreateContact({
-        emails: [{ email: email }]
+      const response = await fetch('/api/subscribe-newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
       });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Subscription failed');
+      }
       setSubscribed(true);
       setEmail('');
       setTimeout(() => setSubscribed(false), 5000);
