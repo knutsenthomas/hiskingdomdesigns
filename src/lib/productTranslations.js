@@ -63,28 +63,101 @@ export const productTranslations = {
         name: 'Pegatina misteriosa (1 ud, 4-5 cm)',
         description: 'Una pegatina aleatoria con un motivo cristiano alentador o versículo bíblico. ¡Perfecto para móviles, portátiles y diarios!'
       }
+    },
+    // Guard your Heart - Genser / Sweatshirt
+    'cf67a5ee-b838-452a-9dc2-3827b182e5c2': {
+      no: {
+        name: 'Guard your Heart Genser',
+        description: 'Klassisk og behagelig unisex genser med det vakre "Guard your Heart" (Vokt ditt hjerte) designet. Laget av myk bomullsmiks av høy kvalitet.'
+      },
+      en: {
+        name: 'Guard your Heart Sweatshirt',
+        description: 'Classic and comfortable unisex crewneck sweatshirt with the beautiful "Guard your Heart" design. Made of high-quality soft cotton blend.'
+      },
+      es: {
+        name: 'Sudadera Guard your Heart',
+        description: 'Sudadera clásica unisex de cuello redondo con el hermoso diseño "Guard your Heart". Hecha de una mezcla de algodón suave de alta calidad.'
+      }
+    },
+    // Guard your Heart - T-skjorte / T-shirt
+    '3709ad8b-bb94-4d7a-8cf2-7063f48b34c2': {
+      no: {
+        name: 'Guard your Heart T-skjorte',
+        description: 'Klassisk og behagelig unisex t-skjorte med det vakre "Guard your Heart" (Vokt ditt hjerte) designet. Laget av 100% myk bomull.'
+      },
+      en: {
+        name: 'Guard your Heart T-shirt',
+        description: 'Classic and comfortable unisex crewneck t-shirt with the beautiful "Guard your Heart" design. Made of 100% soft cotton.'
+      },
+      es: {
+        name: 'Camiseta Guard your Heart',
+        description: 'Camiseta clásica unisex con el hermoso diseño "Guard your Heart". Hecha de 100% algodón suave.'
+      }
+    },
+    // Guard your Heart - Kopp / Mug
+    '9b7d6a34-ee7e-487f-9f19-22f96afffae1': {
+      no: {
+        name: 'Guard your Heart Kopp',
+        description: 'Vakker keramisk kopp med det inspirerende designet "Guard your Heart". Perfekt for morgenkaffen eller teen.'
+      },
+      en: {
+        name: 'Guard your Heart Mug',
+        description: 'Beautiful ceramic mug featuring the inspiring "Guard your Heart" design. Perfect for your morning coffee or tea.'
+      },
+      es: {
+        name: 'Taza Guard your Heart',
+        description: 'Hermosa taza de cerámica con el inspirador diseño "Guard your Heart". Perfecta para el café o té de la mañana.'
+      }
+    },
+    // Guard your Heart - Drikkeflaske / Water Bottle
+    'e50b6076-5213-44cb-bdb4-77f32f1b143e': {
+      no: {
+        name: 'Guard your Heart Drikkeflaske',
+        description: 'Holdbar drikkeflaske i rustfritt stål med "Guard your Heart" designet. Holder drikken din kald eller varm hele dagen.'
+      },
+      en: {
+        name: 'Guard your Heart Water Bottle',
+        description: 'Durable stainless steel water bottle with the "Guard your Heart" design. Keeps your drinks cold or hot all day.'
+      },
+      es: {
+        name: 'Botella de agua Guard your Heart',
+        description: 'Botella de agua de acero inoxidable duradera con el diseño "Guard your Heart". Mantiene tus bebidas frías o calientes todo el día.'
+      }
+    },
+    // Guard your Heart - Cropped T-skjorte / Cropped T-Shirt
+    '5b62896c-6c06-45d6-9650-43bd32aa4d7c': {
+      no: {
+        name: 'Guard your Heart Cropped T-skjorte',
+        description: 'Stilig cropped t-skjorte til dame med det vakre "Guard your Heart" designet. Laget av myk og behagelig bomull.'
+      },
+      en: {
+        name: 'Guard your Heart Cropped T-Shirt',
+        description: 'Stylish women\'s cropped t-shirt with the beautiful "Guard your Heart" design. Made of soft and comfortable cotton.'
+      },
+      es: {
+        name: 'Camiseta Cropped Guard your Heart',
+        description: 'Camiseta cropped de mujer con el hermoso diseño "Guard your Heart". Hecha de algodón suave y cómodo.'
+      }
+    },
+    // Guard your Heart - Singlet / Tank Top
+    'e8b82748-76bc-40ea-8e8f-47fff23c8170': {
+      no: {
+        name: 'Guard your Heart Singlet',
+        description: 'Lett og behagelig unisex singlet med det vakre "Guard your Heart" designet. Perfekt for varme dager eller trening.'
+      },
+      en: {
+        name: 'Guard your Heart Tank Top',
+        description: 'Lightweight and comfortable unisex tank top with the beautiful "Guard your Heart" design. Perfect for warm days or workouts.'
+      },
+      es: {
+        name: 'Camiseta de tirantes Guard your Heart',
+        description: 'Camiseta de tirantes unisex ligera y cómoda con el hermoso diseño "Guard your Heart". Perfecta para días cálidos o entrenamientos.'
+      }
     }
   },
 
   // Keyword/Name-based fallbacks for dynamic translation of matching products
   keywords: [
-    {
-      pattern: /guard your heart/i,
-      translations: {
-        no: {
-          name: 'Guard your Heart Genser',
-          description: 'Klassisk og behagelig unisex genser med det vakre "Guard your Heart" (Vokt ditt hjerte) designet. Laget av myk bomullsmiks av høy kvalitet.'
-        },
-        en: {
-          name: 'Guard your Heart Sweatshirt',
-          description: 'Classic and comfortable unisex crewneck sweatshirt with the beautiful "Guard your Heart" design. Made of high-quality soft cotton blend.'
-        },
-        es: {
-          name: 'Sudadera Guard your Heart',
-          description: 'Sudadera clásica unisex de cuello redondo con el hermoso diseño "Guard your Heart". Hecha de una mezcla de algodón suave de alta calidad.'
-        }
-      }
-    },
     {
       pattern: /galatians 5:22 wristband/i,
       translations: {
