@@ -164,7 +164,7 @@ export default function Header() {
   // Warn user when trying to close/reload the tab with items in their cart
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (cartCount > 0) {
+      if (cartCount > 0 && !window.hkd_is_checking_out) {
         e.preventDefault();
         e.returnValue = '';
         return '';

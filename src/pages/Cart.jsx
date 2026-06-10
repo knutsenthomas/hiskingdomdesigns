@@ -37,7 +37,6 @@ export default function Cart() {
     removeGiftCard,
     mapCartItemsToWixLineItems,
     forceSyncCartWithWix,
-    prefetchedCheckoutUrl,
     isEstimated,
     isEstimating,
     estimateError,
@@ -108,12 +107,7 @@ export default function Cart() {
   const handleCheckout = async () => {
     setIsRedirecting(true);
     setErrorMessage('');
-
-    if (prefetchedCheckoutUrl) {
-      console.log('Redirecting instantly using prefetched checkout URL.');
-      window.location.href = prefetchedCheckoutUrl;
-      return;
-    }
+    window.hkd_is_checking_out = true;
 
     try {
       // 1. Force sync the local cart with Wix to guarantee they are identical (defensive)
@@ -182,6 +176,7 @@ export default function Cart() {
         console.error('Wix Checkout Error Details (raw):', err.details || err);
       }
       setErrorMessage('Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.');
+      window.hkd_is_checking_out = false;
       setIsRedirecting(false);
     }
   };

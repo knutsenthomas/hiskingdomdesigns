@@ -367,94 +367,15 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const [prefetchedCheckoutUrl, setPrefetchedCheckoutUrl] = useState(null);
-  const [isPrefetchingCheckout, setIsPrefetchingCheckout] = useState(false);
-
-  const prefetchCheckoutUrl = async (items = cartItems) => {
-    if (items.length === 0) {
-      setPrefetchedCheckoutUrl(null);
-      return null;
-    }
-    setIsPrefetchingCheckout(true);
-    try {
-      console.log('Prefetching checkout URL in background...');
-      // 1. Force sync
-      const syncedCart = await forceSyncCartWithWix(items);
-      if (!syncedCart) {
-        setPrefetchedCheckoutUrl(null);
-        return null;
-      }
-
-      // 2. Create checkout from cart
-      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
-        channelType: 'WEB'
-      });
-      let checkoutId = checkoutResult.checkoutId || checkoutResult._id || checkoutResult.checkout?._id;
-
-      // Apply coupon code if active
-      if (appliedCoupon) {
-        try {
-          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {
-            appliedDiscounts: [{
-              coupon: {
-                code: appliedCoupon.code
-              }
-            }]
-          });
-          checkoutId = checkoutResult._id;
-        } catch (couponErr) {
-          console.warn('Could not apply coupon to prefetched checkout:', couponErr);
-        }
-      }
-
-      // Apply gift card code if active
-      if (appliedGiftCard) {
-        try {
-          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {}, {
-            giftCardCode: appliedGiftCard.code
-          });
-          checkoutId = checkoutResult._id;
-        } catch (giftCardErr) {
-          console.warn('Could not apply gift card to prefetched checkout:', giftCardErr);
-        }
-      }
-
-      // 3. Create redirect session
-      const redirectSession = await wixClient.redirects.createRedirectSession({
-        ecomCheckout: {
-          checkoutId: checkoutId
-        },
-        callbacks: {
-          postFlowUrl: window.location.origin + '/cart',
-          thankYouPageUrl: window.location.origin + '/profile'
-        }
-      });
-
-      const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
-      if (redirectUrl) {
-        console.log('Successfully prefetched checkout URL:', redirectUrl);
-        setPrefetchedCheckoutUrl(redirectUrl);
-        return redirectUrl;
-      }
-      return null;
-    } catch (err) {
-      console.warn('Failed to prefetch checkout URL:', err);
-      setPrefetchedCheckoutUrl(null);
-      return null;
-    } finally {
-      setIsPrefetchingCheckout(false);
-    }
-  };
-
   const serializedCartItems = JSON.stringify(cartItems.map(item => ({ id: item.id, qty: item.quantity })));
 
-  // Sync local cart to Wix currentCart and prefetch checkout redirect URL
+  // Sync local cart to Wix currentCart
   useEffect(() => {
     let active = true;
     const timer = setTimeout(async () => {
       try {
         if (!active) return;
-        await prefetchCheckoutUrl(cartItems);
+        await forceSyncCartWithWix(cartItems);
         if (active && cartItems.length > 0) {
           const addr = shippingAddress || { country: 'NO' };
           await estimateShippingAndTotals(addr.postalCode, addr.city, addr.country);
@@ -902,9 +823,6 @@ export const CartProvider = ({ children }) => {
       removeGiftCard,
       mapCartItemsToWixLineItems,
       forceSyncCartWithWix,
-      prefetchedCheckoutUrl,
-      isPrefetchingCheckout,
-      prefetchCheckoutUrl,
       estimatedShipping,
       estimatedTax,
       estimatedTotal,

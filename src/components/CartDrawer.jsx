@@ -20,8 +20,7 @@ export default function CartDrawer() {
     appliedCoupon,
     appliedGiftCard,
     mapCartItemsToWixLineItems,
-    forceSyncCartWithWix,
-    prefetchedCheckoutUrl
+    forceSyncCartWithWix
   } = useCart();
 
   const navigate = useNavigate();
@@ -73,12 +72,7 @@ export default function CartDrawer() {
     if (cartItems.length === 0) return;
     setIsRedirecting(true);
     setCheckoutError('');
-
-    if (prefetchedCheckoutUrl) {
-      console.log('Redirecting instantly using prefetched checkout URL.');
-      window.location.href = prefetchedCheckoutUrl;
-      return;
-    }
+    window.hkd_is_checking_out = true;
 
     try {
       // 1. Force sync the local cart with Wix to guarantee they are identical (defensive)
@@ -148,6 +142,7 @@ export default function CartDrawer() {
         console.error('Wix Checkout Error Details (raw):', err.details || err);
       }
       setCheckoutError('Kunne ikke opprette betaling. Vennligst gå til handlekurven.');
+      window.hkd_is_checking_out = false;
       setIsRedirecting(false);
     }
   };
