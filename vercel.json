@@ -5,7 +5,7 @@
       "destination": "/api/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|__ecom/|_api/).*)",
       "destination": "/index.html"
     }
   ]
