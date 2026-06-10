@@ -34,6 +34,15 @@ export default function CookieConsent() {
   const handleAcceptNecessary = () => {
     localStorage.setItem('hkd-cookie-consent', 'necessary');
     setVisible(false);
+    // Explicitly update gtag consent to denied
+    if (window.gtag) {
+      window.gtag('consent', 'update', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+    }
   };
 
   return (
