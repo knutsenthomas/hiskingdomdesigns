@@ -1330,6 +1330,32 @@ export const AppProvider = ({ children }) => {
         '- **Adresse:** Løkkeveien 3B, 4580 Lyngdal\n\n' +
         '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
     }
+    else if (lower.includes('menighet') || lower.includes('leir') || lower.includes('konfirmasjon') || lower.includes('dåp') || lower.includes('gruppe') || lower.includes('logo') || lower.includes('spesialbestill') || lower.includes('trykke eget')) {
+      reply = '### ⛪ Spesialbestilling & Grupper\n\n' +
+        '- Vi leverer gjerne spesialbestillinger til **menigheter, ungdomsklubber, kristne leirer, konfirmasjon eller dåp**!\n' +
+        '- Vi kan trykke våre eksisterende trosdesign på andre produkttyper, eller hjelpe dere med å trykke deres egen logo eller tekst.\n' +
+        '- Vi tilbyr **kvantumsrabatt** ved større gruppebestillinger.\n\n' +
+        '💡 Send oss en forespørsel på **post@hiskingdomministry.no** med antall og ønsker, så hjelper vi dere videre!';
+    }
+    else if (lower.includes('hvem er dere') || lower.includes('om oss') || lower.includes('organisasjon') || lower.includes('formål') || lower.includes('misjon') || lower.includes('overskudd') || lower.includes('pengene til') || lower.includes('støtte')) {
+      reply = '### 🛡️ Om His Kingdom Designs\n\n' +
+        '- Vårt formål er å spre Guds ord gjennom vakker og moderne design som oppmuntrer i hverdagen og starter gode samtaler.\n' +
+        '- His Kingdom Designs drives på frivillig basis av organisasjonen **His Kingdom Ministry**.\n' +
+        '- Alt overskudd fra salget går direkte til å **støtte misjonsarbeid og lokalt barne- og ungdomsarbeid**.\n\n' +
+        '💡 Ved å handle hos oss er du med på å utgjøre en forskjell!';
+    }
+    else if (lower.includes('gavekort') || lower.includes('giftcard') || lower.includes('gift card') || lower.includes('gave') || lower.includes('presang')) {
+      reply = '### 🎁 Gavekort\n\n' +
+        '- Vi tilbyr **digitale gavekort** som er den perfekte gaven til konfirmasjon, bursdager eller som en oppmuntring!\n' +
+        '- Gavekortet sendes raskt og enkelt direkte til e-postadressen din etter kjøp.\n\n' +
+        '💡 Du finner gavekortene våre under kategorien **Tilbehør** i nettbutikken, eller du kan søke direkte på "gavekort" i søkefeltet.';
+    }
+    else if (lower.includes('samarbeid') || lower.includes('ambassadør') || lower.includes('spons') || lower.includes('sponsor') || lower.includes('influencer') || lower.includes('promotere') || lower.includes('instagram')) {
+      reply = '### 🤝 Samarbeid & Ambassadører\n\n' +
+        '- Vi brenner for å spre evangeliet og samarbeider gjerne med kristne influencere, ambassadører og profiler i sosiale medier!\n' +
+        '- Hvis du ønsker å bli ambassadør eller inngå et samarbeid, vil vi gjerne høre fra deg.\n\n' +
+        '💡 Send oss en e-post på **post@hiskingdomministry.no** med en kort beskrivelse av deg selv og lenker til dine profiler, så tar vi kontakt!';
+    }
     else if (matchedUnavailable && !hasProduct) {
       const isKids = 
         lower.includes('barn') || 
