@@ -314,6 +314,223 @@ export const productTranslations = {
   ]
 };
 
+// Dynamic name clean & auto-translator
+const cleanAndTranslateName = (name, lang) => {
+  if (!name) return name;
+  
+  let baseName = name;
+  let suffix = '';
+  
+  if (name.includes(' - ')) {
+    const parts = name.split(' - ');
+    baseName = parts[0].trim();
+    suffix = parts.slice(1).join(' - ').trim();
+  } else if (name.includes(' | ')) {
+    const parts = name.split(' | ');
+    baseName = parts[0].trim();
+    suffix = parts.slice(1).join(' | ').trim();
+  }
+
+  let translatedBase = baseName;
+  if (lang === 'no') {
+    const translationsDb = {
+      'FAITH OVER FEAR': 'Tro over frykt',
+      'FAITH OVER FEAR COFFEE MUG': 'Tro over frykt kopp',
+      'PRAISE THE LORD': 'Pris Herren',
+      'BORN AGAIN': 'Født på ny',
+      'GUARD YOUR HEART': 'Vokt ditt hjerte',
+      'FEAR NOT': 'Frykt ikke',
+      'AMAZING GRACE': 'Utrolig nåde',
+      'JESUS SAVES': 'Jesus frelser',
+      'FAITH': 'Tro',
+      'HOPE': 'Håp',
+      'LOVE': 'Kjærlighet',
+      'PEACE': 'Fred',
+      'JOY': 'Glede',
+      'GRACE': 'Nåde',
+      'BE STRONG': 'Vær sterk',
+      'TRUST IN THE LORD': 'Stol på Herren',
+      'LIGHT OF THE WORLD': 'Verdens lys',
+      'CHOSEN': 'Utvalgt',
+      'REDEEMED': 'Frikjøpt',
+      'BLESSED': 'Velsignet'
+    };
+    
+    const upperBase = baseName.toUpperCase();
+    if (translationsDb[upperBase]) {
+      translatedBase = translationsDb[upperBase];
+    } else {
+      Object.entries(translationsDb).forEach(([en, no]) => {
+        const regex = new RegExp(`\\b${en}\\b`, 'gi');
+        translatedBase = translatedBase.replace(regex, no);
+      });
+    }
+    
+    if (suffix) {
+      const lowerSuffix = suffix.toLowerCase();
+      if (lowerSuffix.includes('ceramic mug') || lowerSuffix.includes('coffee mug') || lowerSuffix.includes('mug')) {
+        translatedBase += ' Kopp';
+      } else if (lowerSuffix.includes('hoodie') || lowerSuffix.includes('sweatshirt')) {
+        translatedBase += ' Hettegenser';
+      } else if (lowerSuffix.includes('t-shirt') || lowerSuffix.includes('tee')) {
+        translatedBase += ' T-skjorte';
+      } else if (lowerSuffix.includes('totebag') || lowerSuffix.includes('tote bag') || lowerSuffix.includes('bag')) {
+        translatedBase += ' Handlenett';
+      } else if (lowerSuffix.includes('sticker') || lowerSuffix.includes('decal')) {
+        translatedBase += ' Klistremerke';
+      } else if (lowerSuffix.includes('poster') || lowerSuffix.includes('print')) {
+        translatedBase += ' Plakat';
+      } else if (lowerSuffix.includes('wristband') || lowerSuffix.includes('bracelet')) {
+        translatedBase += ' Armbånd';
+      } else if (lowerSuffix.includes('water bottle') || lowerSuffix.includes('bottle')) {
+        translatedBase += ' Drikkeflaske';
+      }
+    }
+  } else if (lang === 'es') {
+    const translationsDb = {
+      'FAITH OVER FEAR': 'Fe sobre el temor',
+      'PRAISE THE LORD': 'Alabad al Señor',
+      'BORN AGAIN': 'Nacido de nuevo',
+      'GUARD YOUR HEART': 'Guarda tu corazón',
+      'FEAR NOT': 'No temas',
+      'AMAZING GRACE': 'Sublime gracia',
+      'JESUS SAVES': 'Jesús salva',
+      'FAITH': 'Fe',
+      'HOPE': 'Esperanza',
+      'LOVE': 'Amor',
+      'PEACE': 'Paz',
+      'JOY': 'Gozo',
+      'GRACE': 'Gracia',
+      'BE STRONG': 'Sé fuerte',
+      'TRUST IN THE LORD': 'Confía en el Señor',
+      'LIGHT OF THE WORLD': 'Luz del mundo',
+      'CHOSEN': 'Elegido',
+      'REDEEMED': 'Redimido',
+      'BLESSED': 'Bendecido'
+    };
+    
+    const upperBase = baseName.toUpperCase();
+    if (translationsDb[upperBase]) {
+      translatedBase = translationsDb[upperBase];
+    } else {
+      Object.entries(translationsDb).forEach(([en, es]) => {
+        const regex = new RegExp(`\\b${en}\\b`, 'gi');
+        translatedBase = translatedBase.replace(regex, es);
+      });
+    }
+
+    if (suffix) {
+      const lowerSuffix = suffix.toLowerCase();
+      if (lowerSuffix.includes('ceramic mug') || lowerSuffix.includes('coffee mug') || lowerSuffix.includes('mug')) {
+        translatedBase = 'Taza ' + translatedBase;
+      } else if (lowerSuffix.includes('hoodie') || lowerSuffix.includes('sweatshirt')) {
+        translatedBase = 'Sudadera ' + translatedBase;
+      } else if (lowerSuffix.includes('t-shirt') || lowerSuffix.includes('tee')) {
+        translatedBase = 'Camiseta ' + translatedBase;
+      } else if (lowerSuffix.includes('totebag') || lowerSuffix.includes('tote bag') || lowerSuffix.includes('bag')) {
+        translatedBase = 'Bolsa de tela ' + translatedBase;
+      } else if (lowerSuffix.includes('sticker') || lowerSuffix.includes('decal')) {
+        translatedBase = 'Pegatina ' + translatedBase;
+      } else if (lowerSuffix.includes('poster') || lowerSuffix.includes('print')) {
+        translatedBase = 'Póster ' + translatedBase;
+      } else if (lowerSuffix.includes('wristband') || lowerSuffix.includes('bracelet')) {
+        translatedBase = 'Pulsera ' + translatedBase;
+      } else if (lowerSuffix.includes('water bottle') || lowerSuffix.includes('bottle')) {
+        translatedBase = 'Botella de agua ' + translatedBase;
+      }
+    }
+  } else {
+    if (suffix) {
+      const lowerSuffix = suffix.toLowerCase();
+      if (lowerSuffix.includes('ceramic mug') || lowerSuffix.includes('coffee mug') || lowerSuffix.includes('mug')) {
+        translatedBase += ' Mug';
+      } else if (lowerSuffix.includes('hoodie') || lowerSuffix.includes('sweatshirt')) {
+        translatedBase += ' Hoodie';
+      } else if (lowerSuffix.includes('t-shirt') || lowerSuffix.includes('tee')) {
+        translatedBase += ' T-Shirt';
+      } else if (lowerSuffix.includes('totebag') || lowerSuffix.includes('tote bag') || lowerSuffix.includes('bag')) {
+        translatedBase += ' Tote Bag';
+      } else if (lowerSuffix.includes('sticker') || lowerSuffix.includes('decal')) {
+        translatedBase += ' Sticker';
+      } else if (lowerSuffix.includes('poster') || lowerSuffix.includes('print')) {
+        translatedBase += ' Poster';
+      } else if (lowerSuffix.includes('wristband') || lowerSuffix.includes('bracelet')) {
+        translatedBase += ' Wristband';
+      } else if (lowerSuffix.includes('water bottle') || lowerSuffix.includes('bottle')) {
+        translatedBase += ' Water Bottle';
+      }
+    }
+  }
+
+  return translatedBase.split(' ').map(word => {
+    if (!word) return '';
+    if (/[0-9]/.test(word) || word === 'II' || word === 'III') return word;
+    const lower = word.toLowerCase();
+    if (['på', 'ny', 'til', 'i', 'og', 'med', 'de', 'el', 'la', 'y', 'sobre', 'en', 'of', 'the', 'in', 'and'].includes(lower)) {
+      return lower;
+    }
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }).join(' ').trim();
+};
+
+// Dynamic description auto-translator & HTML wash
+const cleanAndTranslateDesc = (desc, lang) => {
+  if (!desc) return desc;
+
+  let cleaned = desc
+    .replace(/<[^>]*>/g, '') 
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ') 
+    .trim();
+
+  if (lang === 'no') {
+    const replacements = [
+      { en: /\bthis beautiful ceramic mug is perfect for any event of the day\b/gi, no: 'Denne vakre keramiske koppen er perfekt for enhver anledning i hverdagen' },
+      { en: /\byour morning coffee, a hot chocolate, or any other hot beverage\b/gi, no: 'morgenkaffen, en varm kakao, eller annen varm drikke' },
+      { en: /\bthe mug is glossy white and the prints come out beautifully and vividly\b/gi, no: 'Koppen har en glansfull finish som gjør at motivene fremstår klare og levende' },
+      { en: /\bthe print retains its quality and luster when used in both microwave and dishwasher\b/gi, no: 'Trykket beholder sin høye kvalitet og glans ved bruk i både mikrobølgeovn og oppvaskmaskin' },
+      { en: /\bceramic 11oz mug\b/gi, no: 'Keramisk kopp (325 ml)' },
+      { en: /\bdishwasher and microwave safe\b/gi, no: 'Tåler oppvaskmaskin og mikrobølgeovn' },
+      { en: /\bunisex t-shirt\b/gi, no: 'unisex t-skjorte' },
+      { en: /\bmade of 100% ring-spun cotton\b/gi, no: 'laget av 100% kjemmet bomull' },
+      { en: /\bsoft and comfy\b/gi, no: 'myk og behagelig' },
+      { en: /\bdouble stitching on the neckline and sleeves add more durability\b/gi, no: 'dobbeltsøm i hals og ermer gir økt slitestyrke' },
+      { en: /\bhigh quality\b/gi, no: 'høy kvalitet' },
+      { en: /\bperfect for\b/gi, no: 'perfekt for' }
+    ];
+
+    replacements.forEach(r => {
+      cleaned = cleaned.replace(r.en, r.no);
+    });
+  } else if (lang === 'es') {
+    const replacements = [
+      { en: /\bthis beautiful ceramic mug is perfect for any event of the day\b/gi, es: 'Esta hermosa taza de cerámica es perfecta para cualquier momento del día' },
+      { en: /\byour morning coffee, a hot chocolate, or any other hot beverage\b/gi, es: 'su café de la mañana, un chocolate caliente o cualquier otra bebida caliente' },
+      { en: /\bthe mug is glossy white and the prints come out beautifully and vividly\b/gi, es: 'La taza es de color blanco brillante y los diseños se muestran de forma clara y vívida' },
+      { en: /\bthe print retains its quality and luster when used in both microwave and dishwasher\b/gi, es: 'El diseño conserva su alta calidad y brillo tanto en el microondas como en el lavavajillas' },
+      { en: /\bceramic 11oz mug\b/gi, es: 'Taza de cerámica (325 ml)' },
+      { en: /\bdishwasher and microwave safe\b/gi, es: 'Apta para lavavajillas y microondas' },
+      { en: /\bunisex t-shirt\b/gi, es: 'camiseta unisex' },
+      { en: /\bmade of 100% ring-spun cotton\b/gi, es: 'hecha de 100% algodón hilado en anillo' },
+      { en: /\bsoft and comfy\b/gi, es: 'suave y cómoda' },
+      { en: /\bdouble stitching on the neckline and sleeves add more durability\b/gi, es: 'doble costura en el cuello y las mangas para mayor durabilidad' }
+    ];
+
+    replacements.forEach(r => {
+      cleaned = cleaned.replace(r.en, r.es);
+    });
+  }
+
+  if (cleaned.length > 0) {
+    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  }
+
+  return cleaned;
+};
+
 // Main function to get translated product fields (name, description and category)
 export function getTranslatedProduct(product, language) {
   if (!product) return product;
@@ -324,12 +541,28 @@ export function getTranslatedProduct(product, language) {
     ? (dict[product.category] || dict[`category.${product.category.toLowerCase()}`] || translations['no'][product.category] || product.category)
     : product.category;
 
-  const makeTranslated = (name, desc) => ({
-    ...product,
-    name: name || product.name,
-    description: desc || product.description,
-    category: translatedCategory
-  });
+  const washText = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/&nbsp;|\u00A0/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  const makeTranslated = (name, desc) => {
+    const finalName = washText(name || product.name);
+    const finalDesc = washText(desc || product.description);
+    return {
+      ...product,
+      name: finalName,
+      description: finalDesc,
+      category: translatedCategory
+    };
+  };
 
   // 1. Check if we have an exact ID match
   if (productTranslations.ids[product.id] && productTranslations.ids[product.id][lang]) {
@@ -346,10 +579,8 @@ export function getTranslatedProduct(product, language) {
     }
   }
 
-  // 3. Fallback: If Norwegian, clean name of pipe details for better presentation as default
-  if (lang === 'no' && product.name && product.name.includes('|')) {
-    return makeTranslated(product.name.split('|')[0].trim(), product.description);
-  }
-
-  return makeTranslated(product.name, product.description);
+  // 3. Fallback: Clean and Translate dynamically
+  const autoName = cleanAndTranslateName(product.name, lang);
+  const autoDesc = cleanAndTranslateDesc(product.description, lang);
+  return makeTranslated(autoName, autoDesc);
 }
