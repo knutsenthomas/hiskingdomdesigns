@@ -334,26 +334,26 @@ const cleanAndTranslateName = (name, lang) => {
   let translatedBase = baseName;
   if (lang === 'no') {
     const translationsDb = {
-      'FAITH OVER FEAR': 'Tro over frykt',
-      'FAITH OVER FEAR COFFEE MUG': 'Tro over frykt kopp',
-      'PRAISE THE LORD': 'Pris Herren',
-      'BORN AGAIN': 'Født på ny',
-      'GUARD YOUR HEART': 'Vokt ditt hjerte',
-      'FEAR NOT': 'Frykt ikke',
-      'AMAZING GRACE': 'Utrolig nåde',
-      'JESUS SAVES': 'Jesus frelser',
-      'FAITH': 'Tro',
-      'HOPE': 'Håp',
-      'LOVE': 'Kjærlighet',
-      'PEACE': 'Fred',
-      'JOY': 'Glede',
-      'GRACE': 'Nåde',
-      'BE STRONG': 'Vær sterk',
-      'TRUST IN THE LORD': 'Stol på Herren',
-      'LIGHT OF THE WORLD': 'Verdens lys',
-      'CHOSEN': 'Utvalgt',
-      'REDEEMED': 'Frikjøpt',
-      'BLESSED': 'Velsignet'
+      'FAITH OVER FEAR': 'Faith Over Fear',
+      'FAITH OVER FEAR COFFEE MUG': 'Faith Over Fear Kopp',
+      'PRAISE THE LORD': 'Praise The Lord',
+      'BORN AGAIN': 'Born Again',
+      'GUARD YOUR HEART': 'Guard Your Heart',
+      'FEAR NOT': 'Fear Not',
+      'AMAZING GRACE': 'Amazing Grace',
+      'JESUS SAVES': 'Jesus Saves',
+      'FAITH': 'Faith',
+      'HOPE': 'Hope',
+      'LOVE': 'Love',
+      'PEACE': 'Peace',
+      'JOY': 'Joy',
+      'GRACE': 'Grace',
+      'BE STRONG': 'Be Strong',
+      'TRUST IN THE LORD': 'Trust In The Lord',
+      'LIGHT OF THE WORLD': 'Light Of The World',
+      'CHOSEN': 'Chosen',
+      'REDEEMED': 'Redeemed',
+      'BLESSED': 'Blessed'
     };
     
     const upperBase = baseName.toUpperCase();
@@ -388,25 +388,25 @@ const cleanAndTranslateName = (name, lang) => {
     }
   } else if (lang === 'es') {
     const translationsDb = {
-      'FAITH OVER FEAR': 'Fe sobre el temor',
-      'PRAISE THE LORD': 'Alabad al Señor',
-      'BORN AGAIN': 'Nacido de nuevo',
-      'GUARD YOUR HEART': 'Guarda tu corazón',
-      'FEAR NOT': 'No temas',
-      'AMAZING GRACE': 'Sublime gracia',
-      'JESUS SAVES': 'Jesús salva',
-      'FAITH': 'Fe',
-      'HOPE': 'Esperanza',
+      'FAITH OVER FEAR': 'Faith Over Fear',
+      'PRAISE THE LORD': 'Praise The Lord',
+      'BORN AGAIN': 'Born Again',
+      'GUARD YOUR HEART': 'Guard Your Heart',
+      'FEAR NOT': 'Fear Not',
+      'AMAZING GRACE': 'Amazing Grace',
+      'JESUS SAVES': 'Jesus Saves',
+      'FAITH': 'Faith',
+      'HOPE': 'Hope',
       'LOVE': 'Amor',
       'PEACE': 'Paz',
       'JOY': 'Gozo',
       'GRACE': 'Gracia',
-      'BE STRONG': 'Sé fuerte',
-      'TRUST IN THE LORD': 'Confía en el Señor',
-      'LIGHT OF THE WORLD': 'Luz del mundo',
-      'CHOSEN': 'Elegido',
-      'REDEEMED': 'Redimido',
-      'BLESSED': 'Bendecido'
+      'BE STRONG': 'Be Strong',
+      'TRUST IN THE LORD': 'Trust In The Lord',
+      'LIGHT OF THE WORLD': 'Light Of The World',
+      'CHOSEN': 'Chosen',
+      'REDEEMED': 'Redeemed',
+      'BLESSED': 'Blessed'
     };
     
     const upperBase = baseName.toUpperCase();
