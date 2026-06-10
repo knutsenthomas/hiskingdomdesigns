@@ -7,11 +7,43 @@ import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 import useMeta from '@/hooks/useMeta';
 
+const getSeoCategoryKey = (slug, name) => {
+  if (!slug && !name) return 'default';
+  const cleanSlug = (slug || '').toLowerCase();
+  const cleanName = (name || '').toLowerCase();
+
+  if (cleanSlug.includes('kler') || cleanSlug.includes('klær') || cleanName.includes('klær') || cleanName.includes('kler') || cleanName.includes('t-shirt') || cleanName.includes('genser')) {
+    return 'kler';
+  }
+  if (cleanSlug.includes('plakat') || cleanSlug.includes('bilde') || cleanName.includes('plakat') || cleanName.includes('bilde') || cleanName.includes('kunst')) {
+    return 'plakater';
+  }
+  if (cleanSlug.includes('tilbehor') || cleanSlug.includes('tilbehør') || cleanSlug.includes('kopp') || cleanSlug.includes('cup') || cleanSlug.includes('bottle') || cleanSlug.includes('bag') || cleanSlug.includes('handlenett') || cleanSlug.includes('smykke') || cleanName.includes('tilbehør') || cleanName.includes('kopp') || cleanName.includes('handlenett') || cleanName.includes('smykke')) {
+    return 'tilbehor';
+  }
+  if (cleanSlug.includes('sticker') || cleanSlug.includes('klistremerke') || cleanName.includes('sticker') || cleanName.includes('klistremerke')) {
+    return 'stickers';
+  }
+  if (cleanSlug.includes('barn') || cleanSlug.includes('baby') || cleanName.includes('barn') || cleanName.includes('baby') || cleanName.includes('familie')) {
+    return 'barn';
+  }
+  if (cleanSlug.includes('salg') || cleanSlug.includes('sale') || cleanName.includes('salg') || cleanName.includes('sale') || cleanName.includes('kampanje')) {
+    return 'salg';
+  }
+  return 'default';
+};
+
 export default function Category() {
   const { products, isLoadingProducts, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName, wixCollections } = useApp();
   const { t } = useLanguage();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
+
+  const seoCatKey = getSeoCategoryKey(categorySlug, categoryName);
+  const exploreDescKey = `category.exploreDesc.${seoCatKey}`;
+  const exploreDesc = t(exploreDescKey) !== exploreDescKey ? t(exploreDescKey) : t('category.exploreDesc');
+  const seoTextKey = `category.seoText.${seoCatKey}`;
+  const seoText = t(seoTextKey) !== seoTextKey ? t(seoTextKey) : t('category.seoText.default');
   
   useMeta(
     categoryName ? t(categoryName) : t('category.metaTitle'),
@@ -393,7 +425,7 @@ export default function Category() {
         </nav>
         <h1 className="font-headline-xl text-3xl md:text-[48px] font-bold text-onyx mb-2 capitalize">{displayTitle}</h1>
         <p className="text-body-lg font-body-lg text-secondary w-full">
-          {t('category.exploreDesc')}
+          {exploreDesc}
         </p>
       </div>
 
@@ -494,6 +526,22 @@ export default function Category() {
           </>
         )}
       </div>
+
+      {/* Bottom SEO Section */}
+      <section 
+        id="category-seo-info" 
+        className="mt-16 md:mt-24 bg-gradient-to-br from-parchment/60 to-white/40 border border-outline-variant/30 rounded-3xl p-8 md:p-12 shadow-xs"
+      >
+        <div className="max-w-3xl">
+          <h2 className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold mb-4">
+            {t('category.seoText.title')}
+          </h2>
+          <div className="w-12 h-1 bg-terracotta rounded-full mb-6" />
+          <p className="text-body-lg font-body-lg text-secondary leading-relaxed">
+            {seoText}
+          </p>
+        </div>
+      </section>
 
       {/* Mobile Filters Drawer */}
       {mobileFiltersOpen && (
