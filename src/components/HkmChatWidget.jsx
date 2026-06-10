@@ -201,6 +201,75 @@ const isOutsideOpeningHours = () => {
   return false;
 };
 
+const SHORTCUTS = [
+  {
+    command: '/hei',
+    label: 'Velkomst',
+    description: 'Standard velkomsthilsen',
+    text: 'Hei! Takk for at du tar kontakt med oss i His Kingdom Designs. 🙏 Hva kan vi hjelpe deg med i dag?'
+  },
+  {
+    command: '/frakt',
+    label: 'Frakt',
+    description: 'Leveringstid og fraktsatser (ca. 2 uker)',
+    text: 'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid ca. 2 uker (produksjonstid 1-2 uker pluss frakt). Du vil motta en bekreftelse på e-post med sporingsinfo så snart pakken din er på vei! 📦'
+  },
+  {
+    command: '/retur',
+    label: 'Retur',
+    description: 'Hvordan returnere eller bytte',
+    text: 'Hei! Det er helt i orden å ombestemme seg eller bytte størrelse. Du har 14 dagers angrerett fra du mottar varen. Varen må være ubrukt og i original stand. Send oss en melding her eller på e-post med ordrenummeret ditt, så sender vi deg instruksjoner for retur. 🔄'
+  },
+  {
+    command: '/vask',
+    label: 'Vaskeråd',
+    description: 'Hvordan vaske klærne best',
+    text: 'Hei! For at trykket og passformen på klærne skal holde seg penest mulig over tid, anbefaler vi å vaske plaggene på 30 grader med innsiden ut. Unngå tørketrommel og ikke stryk direkte på selve trykket. 👕✨'
+  },
+  {
+    command: '/gave',
+    label: 'Gave',
+    description: 'Sende som gave direkte til mottaker',
+    text: 'Hei! Så koselig at du vil gi en gave! Du kan fint bestille og få pakken sendt direkte til mottakeren. Da legger du bare inn din egen adresse under "Fakturaadresse", og mottakerens adresse under "Leveringsadresse" i kassen. Vi legger selvfølgelig ikke ved kvittering med pris i pakken når det sendes som gave. 🎁'
+  },
+  {
+    command: '/feil',
+    label: 'Reklamasjon',
+    description: 'Feil eller skade på varen',
+    text: 'Hei! Uff, det var kjempetrist å høre. Slik skal det absolutt ikke være, og vi vil ordne opp med en gang! Kunne du sendt oss et bilde av skaden og oppgitt ordrenummeret ditt her (eller til vår e-post post@hiskingdomministry.no)? Da sender vi deg et nytt produkt uten ekstra kostnad. 🤍'
+  },
+  {
+    command: '/takk',
+    label: 'Takk',
+    description: 'Avslutt samtale / takk for hjelpen',
+    text: 'Da sier vi det! Da håper jeg du blir kjempefornøyd med produktene. Bare ta kontakt igjen om det skulle være noe mer senere. Ønsker deg en kjempefin og velsignet dag videre! 🌟'
+  },
+  {
+    command: '/rabatt',
+    label: 'Rabattkode',
+    description: 'Problemer med rabattkode',
+    text: 'Hei! Beklager at rabattkoden ikke fungerer som den skal. Vennligst dobbeltsjekk at den er stavet riktig, og at den ikke har utløpt. Merk at rabattkoder ofte ikke gjelder på allerede nedsatte varer. Hvis det fortsatt ikke fungerer, send koden til meg her, så skal jeg sjekke den for deg med en gang! 🎟️'
+  },
+  {
+    command: '/kvalitet',
+    label: 'Kvalitet',
+    description: 'Kvalitet på klistremerker',
+    text: 'Hei! Våre håndlagde klistremerker er laget av slitesterk vinyl av høy kvalitet. De tåler fint daglig bruk på for eksempel matbokser, drikkeflasker, PC-en eller i bibelen. Vi anbefaler likevel håndvask av drikkeflasker med klistremerker for maksimal levetid! 💦'
+  },
+  {
+    command: '/hilsen',
+    label: 'Hilsen',
+    description: 'Personlig hilsen i pakken',
+    text: 'Hei! Vi legger gjerne ved en liten, håndskrevet hilsen i pakken om du ønsker det. Skriv teksten du vil ha med i kommentarfeltet i kassen (eller send den til oss her sammen med ordrenummeret ditt rett etter bestilling), så fikser vi det! ✍️'
+  },
+  {
+    command: '/mangel',
+    label: 'Mangel',
+    description: 'Manglende eller feil vare i pakken',
+    text: 'Hei! Beklager så mye for at det har skjedd en feil under pakkingen hos oss. Vennligst oppgi ordrenummeret ditt og fortell hvilken vare som manglet/ble feil, så ettersender vi riktig vare til deg med en gang! 📦'
+  }
+];
+
 export default function HkmChatWidget() {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -214,6 +283,7 @@ export default function HkmChatWidget() {
   const [inputText, setInputText] = useState('');
   const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext, generateAiResponseText } = useApp();
   const chatBodyRef = useRef(null);
+  const inputRef = useRef(null);
   const location = useLocation();
 
   // Live Chat / Inbox Integration States
@@ -1078,11 +1148,62 @@ export default function HkmChatWidget() {
             {(!needsContactInfo || chatMode === 'ai') && !chatError && (
               <form 
                 onSubmit={chatMode === 'ai' ? handleSubmit : handleLiveMessageSubmit}
-                className="p-3 bg-white border-t border-outline-variant shrink-0"
+                className="p-3 bg-white border-t border-outline-variant shrink-0 relative"
                 style={{ display: 'block' }}
               >
+                {/* Slash Command Autocomplete Popover */}
+                <AnimatePresence>
+                  {inputText.startsWith('/') && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute bottom-full left-3 right-3 mb-2 bg-white border border-outline-variant rounded-2xl shadow-xl z-[1000] overflow-hidden flex flex-col max-h-[200px]"
+                    >
+                      <div className="px-4 py-2 bg-slate-50 border-b border-outline-variant flex items-center justify-between shrink-0 select-none">
+                        <span className="text-[10px] font-bold text-onyx/60 uppercase tracking-wider flex items-center gap-1">
+                          <span className="material-symbols-outlined text-xs text-[#d17d39] select-none">terminal</span>
+                          Hurtigsvar-snarveier
+                        </span>
+                        <span className="text-[9px] font-semibold text-secondary/60">
+                          Skriv for å filtrere...
+                        </span>
+                      </div>
+                      <div className="overflow-y-auto divide-y divide-outline-variant/40 custom-scrollbar max-h-[160px]">
+                        {SHORTCUTS.filter(s => s.command.toLowerCase().includes(inputText.slice(1).toLowerCase()))
+                          .map((shortcut) => (
+                            <button
+                              key={shortcut.command}
+                              type="button"
+                              onClick={() => {
+                                setInputText(shortcut.text);
+                                if (inputRef.current) {
+                                  inputRef.current.focus();
+                                }
+                              }}
+                              className="w-full px-4 py-2.5 text-left hover:bg-orange-50/50 transition-colors flex flex-col gap-0.5 active:bg-orange-50 pointer-events-auto cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-[#d17d39] font-mono">{shortcut.command}</span>
+                                <span className="text-[11px] font-bold text-onyx">{shortcut.label}</span>
+                              </div>
+                              <span className="text-[10px] text-secondary line-clamp-1 leading-normal font-medium">{shortcut.description}</span>
+                            </button>
+                          ))}
+                        {SHORTCUTS.filter(s => s.command.toLowerCase().includes(inputText.slice(1).toLowerCase())).length === 0 && (
+                          <div className="px-4 py-3 text-center text-xs text-secondary/60 select-none font-medium">
+                            Ingen treff for "{inputText}"
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div className="relative w-full">
                   <input
+                    ref={inputRef}
                     type="text"
                     placeholder={chatMode === 'ai' ? t('chat.aiPlaceholder') : t('chat.livePlaceholder')}
                     value={inputText}

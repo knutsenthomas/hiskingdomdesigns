@@ -1271,45 +1271,42 @@ export const AppProvider = ({ children }) => {
     // 1. Prioritize specific customer service topics to prevent false matches on helper words
     if (lower.includes('retur') || lower.includes('bytte') || lower.includes('angre') || lower.includes('angrerett') || lower.includes('fortre')) {
       reply = '### 🔄 Enkel Retur & Bytte\n\n' +
-        '- Hos oss har du alltid **14 dagers angrerett** i tråd med angrerettsloven fra du mottar varen.\n' +
-        '- Produktet må være ubrukt, i original stand og i originalemballasjen.\n' +
-        '- Du må selv dekke returportoen med mindre annet er avtalt, i henhold til våre kjøpsbetingelser.\n' +
-        '- Bruk returseddelen som fulgte med i pakken, eller ta kontakt med oss på **post@hiskingdomministry.no** for å få tilsendt en ny eller få veiledning om returadresse.\n\n' +
-        '💡 Vi ønsker at du skal være 100% fornøyd med kjøpet ditt!';
+        'Hei! Det er helt i orden å ombestemme seg eller bytte størrelse. Du har **14 dagers angrerett** fra du mottar varen.\n' +
+        'Produktet må være ubrukt, i original stand og i originalemballasjen. Du må selv dekke returportoen med mindre annet er avtalt.\n' +
+        'Send oss en melding her eller på e-post med ordrenummeret ditt, så sender vi deg instruksjoner for retur. 🔄';
     } 
+    else if (lower.includes('rabattkode') || lower.includes('rabatt') || lower.includes('kampanje') || lower.includes('koden virker ikke') || lower.includes('feil kode')) {
+      reply = '### 🎟️ Problemer med rabattkode\n\n' +
+        'Hei! Beklager at rabattkoden ikke fungerer som den skal. Vennligst dobbeltsjekk at den er stavet riktig, og at den ikke har utløpt.\n' +
+        'Merk at rabattkoder ofte ikke gjelder på allerede nedsatte varer. Hvis det fortsatt ikke fungerer, send koden til meg her, så skal jeg sjekke den for deg med en gang! 🎟️';
+    }
     else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
-      reply = '### 🚚 Frakt og Levering\n\n' +
-        '**Frakt i Norge (vektbasert):**\n' +
+      reply = '### 🚚 Leveringstid & Frakt\n\n' +
+        'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid ca. **2 uker** (produksjonstid 1-2 uker pluss frakt).\n' +
+        'Du vil motta en bekreftelse på e-post med sporingsinfo så snart pakken din er på vei! 📦\n\n' +
+        '**Vektbaserte fraktsatser i Norge:**\n' +
         '- Opptil 0.07 kg: **39 kr**\n' +
         '- 0.07 - 0.35 kg: **69 kr**\n' +
         '- 0.35 - 1.75 kg: **99 kr**\n' +
         '- 1.75 - 4.0 kg: **149 kr**\n' +
         '- Over 4.0 kg: **199 kr**\n\n' +
-        '**Frakt til Europa (vektbasert):**\n' +
-        '- Opptil 0.25 kg: **79 kr**\n' +
-        '- 0.25 - 1.5 kg: **129 kr**\n' +
-        '- 1.5 - 3.0 kg: **199 kr**\n' +
-        '- 3.0 - 5.0 kg: **249 kr**\n\n' +
-        '**Frakt til USA (vektbasert):**\n' +
-        '- Opptil 0.41 kg: **99 kr**\n' +
-        '- 0.41 - 2.5 kg: **149 kr**\n' +
-        '- 2.5 - 5.0 kg: **249 kr**\n\n' +
-        '**Frakt til resten av verden (vektbasert):**\n' +
-        '- Opptil 0.49 kg: **99 kr**\n' +
-        '- 0.49 - 2.0 kg: **199 kr**\n' +
-        '- 2.0 - 5.0 kg: **299 kr**\n' +
-        '- 5.0 - 10.0 kg: **499 kr**\n\n' +
-        '- Våre produkter produseres på bestilling. Klargjøring og produksjonstid er normalt **1-2 uker**.\n' +
-        '- Total leveringstid er vanligvis **ca. 2 uker**.\n\n' +
-        '💡 Er det noe spesifikt du ønsker å bestille i dag?';
+        '**Frakt til utlandet:**\n' +
+        'Vi sender til hele verden! Europa fra 79 kr, USA og resten av verden fra 99 kr (vektbasert).';
     } 
     else if (lower.includes('størrelse') || lower.includes('size') || lower.includes('passform')) {
       reply = '### 📏 Størrelsesguide\n\n' +
-        '- Våre t-skjorter for herre og unisex har en **standard, komfortabel passform** (true to size).\n' +
-        '- `Grace Oversized Tee` er designet for å sitte løst og ledig. Hvis du foretrekker en tettere passform, anbefaler vi å gå ned én størrelse.\n' +
-        '- T-skjortene til dame er litt mer figursydde.\n\n' +
-        '💡 Vi tilbyr størrelser opp til **3XL** på de fleste av våre plagg, og utvalgte plagg opp til **5XL**.';
+        'Hei! Generelt er klærne våre normale i størrelsen (standard passform), men hvis du ønsker en mer "oversized" eller løs stil, anbefaler vi å gå opp én størrelse.\n' +
+        'Du finner en detaljert størrelsesguide under produktbeskrivelsen på hver enkelt vare.';
     } 
+    else if (lower.includes('plakat') || lower.includes('poster') || lower.includes('bilde') || lower.includes('digital fil') || lower.includes('pdf')) {
+      reply = '### 🖼️ Plakater og digitale filer\n\n' +
+        'Hei! Våre fysiske plakater trykkes i høy kvalitet på matt papir som gir et moderne og minimalistisk uttrykk.\n' +
+        'Vi tilbyr også enkelte digitale filer under kategorien "Digital Fil" – disse kan du kjøpe, laste ned og printe ut selv med en gang! 🖨️';
+    }
+    else if (lower.includes('budskap') || lower.includes('motiv') || lower.includes('visjon') || lower.includes('verdi') || lower.includes('kristen') || lower.includes('trosdesign')) {
+      reply = '### ✨ Om produktene og budskapet\n\n' +
+        'Så hyggelig at du ser på produktene våre! Alle våre klær, plakater og klistremerker er designet med kristne motiver og tekster for å formidle tro og oppmuntre til gode samtaler. Er det et spesifikt produkt eller design du lurer på?';
+    }
     else if (lower.includes('materiale') || lower.includes('bomull') || lower.includes('kvalitet')) {
       reply = '### 🌿 Materialer & Kvalitet\n\n' +
         '- Våre klær er laget av **100% bomull eller en behagelig blanding av bomull og polyester**.\n' +
@@ -1317,11 +1314,23 @@ export const AppProvider = ({ children }) => {
         '- Trykkene våre er vannbaserte og holdbare, slik at de holder formen vask etter vask uten å sprekke.\n\n' +
         '💡 Vi anbefaler å vaske plaggene på **30 grader med innsiden ut (vrangen ut)** for å bevare trykket best mulig.';
     } 
-    else if (lower.includes('betaling') || lower.includes('vipps') || lower.includes('kort') || lower.includes('visa')) {
+    else if ((lower.includes('klistremerke') || lower.includes('sticker')) && (lower.includes('kvalitet') || lower.includes('vannfast') || lower.includes('tåler') || lower.includes('drikkeflaske'))) {
+      reply = '### 💦 Kvalitet på klistremerker\n\n' +
+        'Hei! Våre håndlagde klistremerker er laget av slitesterk vinyl av høy kvalitet. De tåler fint daglig bruk på for eksempel matbokser, drikkeflasker, PC-en eller i bibelen.\n' +
+        'Vi anbefaler likevel håndvask av drikkeflasker med klistremerker for maksimal levetid! 💦';
+    }
+    else if (lower.includes('sende som gave') || lower.includes('sende direkte') || lower.includes('gave til mottaker') || (lower.includes('gave') && lower.includes('leveringsadresse'))) {
+      reply = '### 🎁 Sende som gave direkte til mottaker\n\n' +
+        'Hei! Så koselig at du vil gi en gave! Du kan fint bestille og få pakken sendt direkte til mottakeren. Da legger du bare inn din egen adresse under "Fakturaadresse", og mottakerens adresse under "Leveringsadresse" i kassen.\n' +
+        'Vi legger selvfølgelig ikke ved kvittering med pris i pakken når det sendes som gave. 🎁';
+    }
+    else if (lower.includes('personlig hilsen') || lower.includes('håndskrevet hilsen') || lower.includes('hilsen i pakken') || lower.includes('legge ved hilsen')) {
+      reply = '### ✍️ Personlig hilsen i pakken\n\n' +
+        'Hei! Vi legger gjerne ved en liten, håndskrevet hilsen i pakken om du ønsker det. Skriv teksten du vil ha med i kommentarfeltet i kassen (eller send den til oss her sammen med ordrenummeret ditt rett etter bestilling), så fikser vi det! ✍️';
+    }
+    else if (lower.includes('betaling') || lower.includes('vipps') || lower.includes('kort') || lower.includes('visa') || lower.includes('betalingsmetoder') || lower.includes('apple pay') || lower.includes('klarna')) {
       reply = '### 💳 Sikker Betaling\n\n' +
-        'Vi tilbyr trygge og raske betalingsløsninger i kassen:\n' +
-        '- **Vipps** (enkel betaling med mobilen)\n' +
-        '- **Kortbetaling** (Visa og Mastercard via kryptert betalingsløsning)\n\n' +
+        'Hei! I nettbutikken vår kan du betale trygt og enkelt med **Vipps** eller **betalingskort** (Visa og Mastercard via kryptert betalingsløsning). Du velger ganske enkelt den metoden som passer best for deg når du kommer til kassen. 💳\n\n' +
         '💡 Vi er fritatt for MVA da His Kingdom Designs drives av en frivillig organisasjon.';
     }
     else if (lower.includes('kontakt') || lower.includes('kundeservice') || lower.includes('e-post') || lower.includes('adresse') || lower.includes('telefon')) {
@@ -1331,12 +1340,10 @@ export const AppProvider = ({ children }) => {
         '- **Adresse:** Løkkeveien 3B, 4580 Lyngdal\n\n' +
         '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
     }
-    else if (lower.includes('menighet') || lower.includes('leir') || lower.includes('konfirmasjon') || lower.includes('dåp') || lower.includes('gruppe') || lower.includes('logo') || lower.includes('spesialbestill') || lower.includes('trykke eget')) {
-      reply = '### ⛪ Spesialbestilling & Grupper\n\n' +
-        '- Vi leverer gjerne spesialbestillinger til **menigheter, ungdomsklubber, kristne leirer, konfirmasjon eller dåp**!\n' +
-        '- Vi kan trykke våre eksisterende trosdesign på andre produkttyper, eller hjelpe dere med å trykke deres egen logo eller tekst.\n' +
-        '- Vi tilbyr **kvantumsrabatt** ved større gruppebestillinger.\n\n' +
-        '💡 Send oss en forespørsel på **post@hiskingdomministry.no** med antall og ønsker, så hjelper vi dere videre!';
+    else if (lower.includes('samarbeid') || lower.includes('russ') || lower.includes('menighet') || lower.includes('skole') || lower.includes('leir') || lower.includes('spesialbestill') || lower.includes('kvantumsrabatt') || lower.includes('gruppe')) {
+      reply = '### 🤝 Spesialbestillinger / Gruppebestillinger\n\n' +
+        'Hei! Så spennende! Vi gjør gjerne spesialavtaler eller gruppebestillinger til russegrupper, bibelskoler, menigheter eller andre arrangementer.\n' +
+        'Fortell oss litt om hva dere ønsker (antall, produkttype og designønsker), så setter vi opp et uforpliktende tilbud til dere! 🤝';
     }
     else if (lower.includes('hvem er dere') || lower.includes('om oss') || lower.includes('organisasjon') || lower.includes('formål') || lower.includes('misjon') || lower.includes('overskudd') || lower.includes('pengene til') || lower.includes('støtte')) {
       reply = '### 🛡️ Om His Kingdom Designs\n\n' +
@@ -1345,24 +1352,19 @@ export const AppProvider = ({ children }) => {
         '- Alt overskudd fra salget går direkte til å **støtte misjonsarbeid og lokalt barne- og ungdomsarbeid**.\n\n' +
         '💡 Ved å handle hos oss er du med på å utgjøre en forskjell!';
     }
-    else if (lower.includes('gavekort') || lower.includes('giftcard') || lower.includes('gift card') || lower.includes('gave') || lower.includes('presang')) {
+    else if (lower.includes('gavekort') || lower.includes('giftcard') || lower.includes('gift card') || lower.includes('presang')) {
       reply = '### 🎁 Gavekort\n\n' +
         '- Vi tilbyr **digitale gavekort** som er den perfekte gaven til konfirmasjon, bursdager eller som en oppmuntring!\n' +
         '- Gavekortet sendes raskt og enkelt direkte til e-postadressen din etter kjøp.\n\n' +
         '💡 Du finner gavekortene våre under kategorien **Tilbehør** i nettbutikken, eller du kan søke direkte på "gavekort" i søkefeltet.';
     }
-    else if (lower.includes('samarbeid') || lower.includes('ambassadør') || lower.includes('spons') || lower.includes('sponsor') || lower.includes('influencer') || lower.includes('promotere') || lower.includes('instagram')) {
-      reply = '### 🤝 Samarbeid & Ambassadører\n\n' +
-        '- Vi brenner for å spre evangeliet og samarbeider gjerne med kristne influencere, ambassadører og profiler i sosiale medier!\n' +
-        '- Hvis du ønsker å bli ambassadør eller inngå et samarbeid, vil vi gjerne høre fra deg.\n\n' +
-        '💡 Send oss en e-post på **post@hiskingdomministry.no** med en kort beskrivelse av deg selv og lenker til dine profiler, så tar vi kontakt!';
-    }
-    else if (lower.includes('skadet') || lower.includes('ødelagt') || lower.includes('feilvare') || lower.includes('reklamasjon') || lower.includes('hull') || lower.includes('feil trykk') || lower.includes('reklamere') || lower.includes('mangel')) {
+    else if (lower.includes('skadet') || lower.includes('ødelagt') || lower.includes('feilvare') || lower.includes('reklamasjon') || lower.includes('hull') || lower.includes('feil trykk') || lower.includes('reklamere')) {
       reply = '### ⚠️ Reklamasjon & Feil på varen\n\n' +
-        '- Dersom produktet du mottok har en feil, mangel, hull, eller hvis det har oppstått skade under transport, ordner vi selvfølgelig opp!\n' +
-        '- Du trenger som regel **ikke å sende varen tilbake** til oss ved skade eller produksjonsfeil.\n' +
-        '- Send oss en e-post på **post@hiskingdomministry.no** med en kort beskrivelse og **et bilde av feilen/skaden**, samt ordrenummeret ditt.\n\n' +
-        '💡 Vi sender deg et nytt erstatningsprodukt eller refunderer beløpet så raskt som mulig i henhold til forbrukerkjøpsloven!';
+        'Hei! Uff, det var kjempetrist å høre. Slik skal det absolutt ikke være, og vi vil ordne opp med en gang! Kunne du sendt oss et bilde av skaden og oppgitt ordrenummeret ditt her (eller til vår e-post **post@hiskingdomministry.no**)? Da sender vi deg et nytt produkt uten ekstra kostnad. 🤍';
+    }
+    else if (lower.includes('manger en vare') || lower.includes('mangler vare') || lower.includes('feil vare sendt') || lower.includes('feil produkt') || lower.includes('feil pakking') || lower.includes('mangel')) {
+      reply = '### 📦 Mangler en vare i pakken / feil vare sendt\n\n' +
+        'Hei! Beklager så mye for at det har skjedd en feil under pakkingen hos oss. Vennligst oppgi ordrenummeret ditt og fortell hvilken vare som manglet/ble feil, så ettersender vi riktig vare til deg med en gang! 📦';
     }
     else if (lower.includes('hente') || lower.includes('hente selv') || lower.includes('lyngdal') || lower.includes('henteadresse') || lower.includes('fysisk butikk') || lower.includes('butikk')) {
       reply = '### 📍 Hente selv / Fysisk butikk\n\n' +
@@ -1370,20 +1372,17 @@ export const AppProvider = ({ children }) => {
         '- Alle bestillinger produseres på bestilling og sendes direkte hjem til deg eller til ditt nærmeste hentested med Posten.\n\n' +
         '💡 Frakten beregnes automatisk i kassen basert på vekt (fra kun 39 kr).';
     }
-    else if (lower.includes('avbestille') || lower.includes('kansellere') || lower.includes('endre ordre') || lower.includes('stoppe') || lower.includes('angre kjøp')) {
-      reply = '### ⏱️ Endre eller avbestille ordre\n\n' +
-        '- Siden produktene våre produseres på bestilling (print-on-demand), settes produksjonen raskt i gang etter bestilling.\n' +
-        '- Hvis du oppdager at du har bestilt feil størrelse eller ønsker å avbestille, må du sende en e-post til **post@hiskingdomministry.no** så fort som mulig.\n' +
-        '- Hvis ordren din ikke har gått til trykk ennå, hjelper vi deg gjerne med å endre eller kansellere bestillingen.\n\n' +
-        '💡 Husk å oppgi ordrenummeret ditt i e-posten for raskest mulig hjelp!';
+    else if (lower.includes('avbestille') || lower.includes('kansellere') || lower.includes('endre ordre') || lower.includes('stoppe') || lower.includes('endre bestilling')) {
+      reply = '### ⏱️ Endring av bestilling\n\n' +
+        'Hei! Hvis du akkurat har lagt inn en bestilling og ønsker å endre eller avbestille den, må du svare på ordrebekreftelsen din eller skrive ordrenummeret ditt her med en gang.\n' +
+        'Hvis pakken ikke er pakket eller sendt ennå, fikser vi det gjerne for deg!';
     }
     else if (lower.includes('vaske') || lower.includes('krympe') || lower.includes('tørketrommel') || lower.includes('stryke') || lower.includes('vaskeråd')) {
       reply = '### 🧼 Vask & Bevaring av trykket\n\n' +
-        'For at trykket og plagget skal holde seg pent vask etter vask, anbefaler vi følgende vaskeråd:\n' +
-        '- Vask plaggene på **30 grader med innsiden ut (vrangen ut)**.\n' +
-        '- Unngå bruk av tørketrommel, da varmen kan skade trykket over tid.\n' +
-        '- **Stryk aldri direkte på trykket**; stryk eventuelt plagget på vrangen med lav varme.\n\n' +
-        '💡 Våre trykk er av høy kvalitet og vannbaserte, og følger du disse rådene holder de seg fine utrolig lenge!';
+        'Hei! For at trykket og passformen på klærne skal holde seg penest mulig over tid, anbefaler vi å vaske plaggene på 30 grader med innsiden ut. Unngå tørketrommel og ikke stryk direkte på selve trykket. 👕✨';
+    }
+    else if (lower.includes('takk for hjelpen') || lower.includes('ha en fin dag') || lower.includes('ha en velsignet dag') || lower.includes('velsignet dag') || lower.includes('takk skal du ha')) {
+      reply = 'Da sier vi det! Da håper jeg du blir kjempefornøyd med produktene. Bare ta kontakt igjen om det skulle være noe mer senere. Ønsker deg en kjempefin og velsignet dag videre! 🌟';
     }
     else if (matchedUnavailable && !hasProduct) {
       const isKids = 
