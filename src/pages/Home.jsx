@@ -319,7 +319,7 @@ export default function Home() {
   const slides = useMemo(() => {
     const defaultSlides = [
       {
-        image: '/hero_fashion.png',
+        image: '/hero_fashion.webp',
         title: t('home.slide1.title'),
         desc: t('home.slide1.desc'),
         ctaText: t('home.slide1.cta'),
@@ -327,7 +327,7 @@ export default function Home() {
         isProduct: false
       },
       {
-        image: 'https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png',
+        image: getOptimizedWixImageUrl('https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png', 1600, 1000),
         title: t('home.slide2.title'),
         desc: t('home.slide2.desc'),
         ctaText: t('home.slide2.cta'),
@@ -654,11 +654,15 @@ export default function Home() {
               transition={{ duration: 1.2, ease: "easeInOut" }}
               className="absolute inset-0"
             >
-              <img 
-                alt={`Hero faith slide ${idx + 1}`} 
-                className="w-full h-full object-cover" 
-                src={slide.image}
-              />
+              {(idx === heroSlide || idx === (heroSlide + 1) % slides.length || idx === (heroSlide - 1 + slides.length) % slides.length) && (
+                <img 
+                  alt={`Hero faith slide ${idx + 1}`} 
+                  className="w-full h-full object-cover" 
+                  src={slide.image}
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  fetchPriority={idx === 0 ? "high" : "low"}
+                />
+              )}
             </motion.div>
           ))}
           {/* Cinema gradient overlay for extreme readability and visual depth */}
@@ -782,6 +786,7 @@ export default function Home() {
               alt={`${getCategoryTranslation(currentSet.large).title} collection`} 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               src={getOptimizedWixImageUrl(currentSet.large.image, 800, 500)}
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-8">
               <CmsText slug={currentSet.large.titleSlug} fallback={getCategoryTranslation(currentSet.large).title} as="h3" className="text-white font-headline-md text-headline-md mb-2" />
@@ -802,6 +807,7 @@ export default function Home() {
                 alt={`${getCategoryTranslation(currentSet.small1).title} category`} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 src={getOptimizedWixImageUrl(currentSet.small1.image, 600, 400)}
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
                 <CmsText slug={currentSet.small1.titleSlug} fallback={getCategoryTranslation(currentSet.small1).title} as="h3" className="text-white font-headline-md text-headline-md" />
@@ -818,6 +824,7 @@ export default function Home() {
                 alt={`${getCategoryTranslation(currentSet.small2).title} category`} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 src={getOptimizedWixImageUrl(currentSet.small2.image, 600, 400)}
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-onyx/75 to-transparent flex flex-col justify-end p-6">
                 <CmsText slug={currentSet.small2.titleSlug} fallback={getCategoryTranslation(currentSet.small2).title} as="h3" className="text-white font-headline-md text-headline-md" />
@@ -893,7 +900,8 @@ export default function Home() {
             <img 
               alt="Monthly package showcase" 
               className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[450px]" 
-              src="https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png"
+              src={getOptimizedWixImageUrl("https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png", 600, 450)}
+              loading="lazy"
             />
           </div>
           <div className="w-full lg:w-1/2">

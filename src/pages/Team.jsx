@@ -174,7 +174,8 @@ export default function Team() {
           <img 
             alt="Lyngdal kontor" 
             className="w-full h-full object-cover" 
-            src="/lyngdal_office.png"
+            src="/lyngdal_office.webp"
+            loading="lazy"
           />
         </div>
       </div>

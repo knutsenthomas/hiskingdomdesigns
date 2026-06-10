@@ -79,4 +79,27 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@wix')) {
+              return 'wix-sdk';
+            }
+            if (id.includes('firebase')) {
+              return 'firebase';
+            }
+            if (id.includes('framer-motion')) {
+              return 'framer-motion';
+            }
+            if (id.includes('react')) {
+              return 'react-core';
+            }
+            return 'vendor';
+          }
+        }
+      }
+    }
+  }
 });
