@@ -5,7 +5,7 @@ import CmsText from '@/components/CmsText';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, localizedPath } = useLanguage();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -228,7 +228,7 @@ export default function Footer() {
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.explore')}</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
-              <Link to="/products" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
+              <Link to={localizedPath('/products')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
             </li>
             <li>
               <Link to="/category/Klær" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.clothing')}</Link>
@@ -250,22 +250,22 @@ export default function Footer() {
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.customerService')}</h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
-              <Link to="/team" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.meetTeam')}</Link>
+              <Link to={localizedPath('/team')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.meetTeam')}</Link>
             </li>
             <li>
-              <Link to="/about" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.whoAreWe')}</Link>
+              <Link to={localizedPath('/about')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.whoAreWe')}</Link>
             </li>
             <li>
-              <Link to="/shipping" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.shippingReturns')}</Link>
+              <Link to={localizedPath('/shipping')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.shippingReturns')}</Link>
             </li>
             <li>
-              <Link to="/faq" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.faq')}</Link>
+              <Link to={localizedPath('/faq')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.faq')}</Link>
             </li>
             <li>
-              <Link to="/privacy" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.privacyPolicy')}</Link>
+              <Link to={localizedPath('/privacy')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.privacyPolicy')}</Link>
             </li>
             <li>
-              <Link to="/betingelser" className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.terms')}</Link>
+              <Link to={localizedPath('/betingelser')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.terms')}</Link>
             </li>
           </ul>
         </div>

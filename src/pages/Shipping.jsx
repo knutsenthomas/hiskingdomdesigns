@@ -7,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function Shipping() {
-  const { t, formatPrice } = useLanguage();
+  const { t, formatPrice, localizedPath } = useLanguage();
 
   useMeta(
     t('shipping.metaTitle'),
@@ -300,7 +300,7 @@ export default function Shipping() {
           />
           <div className="pt-2">
             <Link 
-              to="/products"
+              to={localizedPath('/products')}
               className="bg-terracotta text-white px-8 py-4 rounded-xl font-label-md hover:bg-opacity-90 transition-all inline-block active:scale-95 font-bold shadow-md"
             >
               {t('shipping.continueShopping')}

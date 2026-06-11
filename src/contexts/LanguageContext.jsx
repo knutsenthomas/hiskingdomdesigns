@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from '@/lib/translations';
 import { getTranslatedProduct } from '@/lib/productTranslations';
+import { detectLanguageFromPath, getLocalizedPath, routeTranslations } from '@/lib/localizedRoutes';
 
 export const LanguageContext = createContext({});
 
@@ -13,8 +14,19 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  // 1. Initial state setup with browser locale fallback
+  // 1. Initial state setup with URL path detection and browser locale fallback
   const [language, setLanguageState] = useState(() => {
+    // 1. Check URL pathname first to support link sharing and correct routing
+    try {
+      const urlLang = detectLanguageFromPath(window.location.pathname);
+      if (urlLang) {
+        return urlLang;
+      }
+    } catch (e) {
+      console.error('Failed to detect language from path during initialization:', e);
+    }
+
+    // 2. Check localStorage
     try {
       const saved = localStorage.getItem('hkd-language');
       if (saved && ['no', 'en', 'es'].includes(saved)) {
@@ -44,6 +56,45 @@ export const LanguageProvider = ({ children }) => {
 
   const setLanguage = (newLang) => {
     if (['no', 'en', 'es'].includes(newLang)) {
+      // Find if the current path is a localized route
+      const currentPath = window.location.pathname;
+      const cleanPath = '/' + currentPath.replace(/^\/+|\/+$/g, '');
+      
+      // Look for the route key of the current pathname
+      let routeKey = null;
+      for (const [key, langs] of Object.entries(routeTranslations)) {
+        for (const [lang, pathVal] of Object.entries(cleanPath === '/' ? {} : langs)) {
+          if (cleanPath === pathVal) {
+            routeKey = key;
+            break;
+          }
+        }
+        if (routeKey) break;
+      }
+      
+      // If we found a match, get the new localized path and update the URL history
+      if (routeKey) {
+        const newPath = getLocalizedPath(routeKey, newLang);
+        if (newPath !== currentPath) {
+          window.history.pushState(null, '', newPath);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
+      } else if (cleanPath.startsWith('/product/') || cleanPath.startsWith('/produkt/') || cleanPath.startsWith('/producto/')) {
+        // Also update product details path prefix!
+        // /product/:id -> /produkt/:id (no) or /producto/:id (es)
+        const parts = cleanPath.split('/');
+        if (parts.length >= 3) {
+          const productId = parts[2];
+          let prefix = '/product';
+          if (newLang === 'no') prefix = '/produkt';
+          if (newLang === 'es') prefix = '/producto';
+          
+          const newPath = `${prefix}/${productId}`;
+          window.history.pushState(null, '', newPath);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
+      }
+      
       setLanguageState(newLang);
       try {
         localStorage.setItem('hkd-language', newLang);
@@ -185,6 +236,10 @@ export const LanguageProvider = ({ children }) => {
     return getTranslatedProduct(product, language);
   };
 
+  const localizedPath = (key) => {
+    return getLocalizedPath(key, language);
+  };
+
   return (
     <LanguageContext.Provider value={{
       language,
@@ -192,7 +247,8 @@ export const LanguageProvider = ({ children }) => {
       t,
       translateProduct,
       formatPrice,
-      getActiveCurrency
+      getActiveCurrency,
+      localizedPath
     }}>
       {children}
     </LanguageContext.Provider>

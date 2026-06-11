@@ -181,7 +181,7 @@ const getFirstTwoSentences = (str) => {
 };
 
 export default function Home() {
-  const { t, translateProduct, language, formatPrice } = useLanguage();
+  const { t, translateProduct, language, formatPrice, localizedPath } = useLanguage();
 
   useMeta(
     t('home.metaTitle'),
@@ -1023,7 +1023,7 @@ export default function Home() {
             />
             <div className="mt-8 flex justify-center">
               <Link 
-                to="/about" 
+                to={localizedPath('/about')} 
                 className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta/90 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-[0.98] hover:shadow-md"
               >
                 <span>{t('home.about.linkText')}</span>

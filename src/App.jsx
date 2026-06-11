@@ -205,17 +205,58 @@ function MainLayout() {
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Home />} />
+              
+              {/* Products & Categories */}
               <Route path="/products" element={<Category />} />
+              <Route path="/produkter" element={<Category />} />
+              <Route path="/productos" element={<Category />} />
               <Route path="/category/:categoryName" element={<Category />} />
+              
+              {/* Product Details */}
               <Route path="/product/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
+              <Route path="/produkt/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
+              <Route path="/producto/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
+              
+              {/* Cart */}
               <Route path="/cart" element={<Cart />} />
+              <Route path="/handlekurv" element={<Cart />} />
+              <Route path="/carrito" element={<Cart />} />
+              
+              {/* About */}
               <Route path="/about" element={<About />} />
+              <Route path="/om-oss" element={<About />} />
+              <Route path="/sobre-nosotros" element={<About />} />
+              
+              {/* Team */}
               <Route path="/team" element={<Team />} />
+              <Route path="/vart-team" element={<Team />} />
+              <Route path="/equipo" element={<Team />} />
+              
+              {/* Shipping & Returns */}
               <Route path="/shipping" element={<Shipping />} />
+              <Route path="/frakt-og-retur" element={<Shipping />} />
+              <Route path="/envios" element={<Shipping />} />
+              
+              {/* FAQ */}
               <Route path="/faq" element={<Faq />} />
+              <Route path="/preguntas-frecuentes" element={<Faq />} />
+              
+              {/* Privacy Policy */}
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/personvern" element={<Privacy />} />
+              <Route path="/privacidad" element={<Privacy />} />
+              
+              {/* Terms of Service */}
               <Route path="/betingelser" element={<Betingelser />} />
+              <Route path="/terms" element={<Betingelser />} />
+              <Route path="/condiciones" element={<Betingelser />} />
+              
+              {/* Profile */}
               <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+              <Route path="/profil" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+              <Route path="/perfil" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+              
+              {/* Admin */}
               <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
               {/* Fallback to home */}
               <Route path="*" element={<Home />} />

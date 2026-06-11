@@ -28,7 +28,7 @@ const getProfileImageUrl = (member) => {
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen, searchQuery, setSearchQuery, wishlist, categoryTaxonomy, getSlugByCategoryName, products, isLoggedIn, member } = useApp();
   const { cartCount, setIsCartDrawerOpen, isCartDrawerOpen } = useCart();
-  const { language, setLanguage, t, translateProduct, formatPrice } = useLanguage();
+  const { language, setLanguage, t, translateProduct, formatPrice, localizedPath } = useLanguage();
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -169,15 +169,15 @@ export default function Header() {
           <nav className="hidden lg:flex items-center justify-center gap-8 xl:gap-10 2xl:gap-12 h-full mx-auto">
             {/* Alle produkter Link */}
             <Link
-              to="/products"
+              to={localizedPath('/products')}
               className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all relative group flex items-center ${
-                location.pathname === '/products' ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
+                location.pathname === localizedPath('/products') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
               }`}
             >
               <span className="relative py-1">
                 {t('nav.products')}
                 <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
-                  location.pathname === '/products' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  location.pathname === localizedPath('/products') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 }`} />
               </span>
             </Link>
@@ -285,7 +285,7 @@ export default function Header() {
             </button>
             
             <Link 
-              to="/profile"
+              to={localizedPath('/profile')}
               className="hidden sm:inline-flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 relative p-2.5 hover:bg-terracotta/5 rounded-full"
               aria-label="Profil"
             >
@@ -314,7 +314,7 @@ export default function Header() {
             </Link>
 
             <Link 
-              to="/profile?tab=wishlist"
+              to={localizedPath('/profile') + '?tab=wishlist'}
               className="hidden sm:inline-flex p-2.5 text-onyx/75 hover:text-terracotta hover:bg-terracotta/5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative flex items-center justify-center"
               aria-label="Ønskeliste"
             >
@@ -477,7 +477,7 @@ export default function Header() {
                       </div>
                       
                       <Link 
-                        to="/products"
+                        to={localizedPath('/products')}
                         onClick={() => setMegamenuOpen(false)}
                         className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white text-xs py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                       >
@@ -527,7 +527,7 @@ export default function Header() {
                   </div>
                   
                   <Link 
-                    to="/products"
+                    to={localizedPath('/products')}
                     onClick={() => setMegamenuOpen(false)}
                     className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white text-xs py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                   >
@@ -573,7 +573,7 @@ export default function Header() {
                         return (
                           <Link 
                             key={p.id}
-                            to={`/product/${p.id}`}
+                            to={localizedPath('/product/' + p.id)}
                             onClick={() => {
                               setSearchOpen(false);
                               setSearchQuery('');
@@ -710,7 +710,7 @@ export default function Header() {
                       <div className="flex flex-col gap-2">
                         {/* Alle Produkter */}
                         <Link 
-                          to="/products"
+                          to={localizedPath('/products')}
                           onClick={closeMobileMenu}
                           className="flex items-center justify-between p-3.5 bg-white border border-outline-variant/40 hover:border-terracotta/20 rounded-xl transition-all shadow-xs group cursor-pointer"
                         >
@@ -835,7 +835,7 @@ export default function Header() {
               {/* Footer (Profile, Wishlist & Language) */}
               <div className="mt-auto border-t border-outline-variant/30 bg-white p-5 space-y-4">
                 <Link 
-                  to="/profile"
+                  to={localizedPath('/profile')}
                   onClick={closeMobileMenu}
                   className="flex items-center justify-between group cursor-pointer"
                 >
@@ -880,7 +880,7 @@ export default function Header() {
                 </Link>
 
                 <Link 
-                  to="/profile?tab=wishlist"
+                  to={localizedPath('/profile') + '?tab=wishlist'}
                   onClick={closeMobileMenu}
                   className="flex items-center justify-between p-3.5 bg-slate-50 border border-outline-variant/40 hover:border-terracotta/20 rounded-xl transition-all shadow-xs group cursor-pointer"
                 >

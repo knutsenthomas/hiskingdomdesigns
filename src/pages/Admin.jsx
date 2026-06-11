@@ -6,6 +6,7 @@ import { useApp } from '@/contexts/AppContext';
 import useMeta from '@/hooks/useMeta';
 import { ShieldAlert, ShieldCheck, Users, BarChart3, Mail, MapPin, Share2, ClipboardList, Check, X, Search, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Admin() {
   useMeta(
@@ -15,6 +16,7 @@ export default function Admin() {
 
   const { showToast, isLoggedIn, member } = useApp();
   const navigate = useNavigate();
+  const { localizedPath } = useLanguage();
   
   const [activeSubTab, setActiveSubTab] = useState('pending'); // 'pending' | 'approved'
   const [applications, setApplications] = useState([]);
@@ -208,7 +210,7 @@ export default function Admin() {
 
         <div className="pt-2 flex justify-center gap-4">
           <Link 
-            to="/profile" 
+            to={localizedPath('/profile')} 
             className="bg-[#1B4965] hover:bg-opacity-95 text-white px-6 py-3 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider inline-block shadow-sm transition-all"
           >
             Gå til Min Profil
@@ -243,7 +245,7 @@ export default function Admin() {
         {/* Navigation Link back to profile */}
         <div className="relative z-10">
           <Link
-            to="/profile"
+            to={localizedPath('/profile')}
             className="bg-white/10 border border-white/20 text-white hover:bg-white/20 px-5 py-3 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider transition-all inline-block"
           >
             ← Tilbake til Min Profil

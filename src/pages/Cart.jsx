@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 
 export default function Cart() {
-  const { t, translateProduct, formatPrice, getActiveCurrency } = useLanguage();
+  const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
 
   useMeta(
     t('cart.metaTitle'),
@@ -256,7 +256,7 @@ export default function Cart() {
           {t('cart.emptyDesc')}
         </p>
         <Link 
-          to="/products"
+          to={localizedPath('/products')}
           className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md"
         >
           <ArrowLeft size={16} />
@@ -387,7 +387,7 @@ export default function Cart() {
                       
                       <div className="flex-grow text-center md:text-left">
                         <h3 className="font-headline-md text-headline-md text-onyx text-[18px]">
-                          <Link to={`/product/${item.id}`} className="hover:text-terracotta transition-colors">
+                          <Link to={localizedPath('/product/' + item.id)} className="hover:text-terracotta transition-colors">
                             {translatedItem.name}
                           </Link>
                         </h3>
@@ -460,7 +460,7 @@ export default function Cart() {
               {/* Back to Shopping Button */}
               <div className="pt-6 border-t border-outline-variant/40">
                 <Link 
-                  to="/products"
+                  to={localizedPath('/products')}
                   className="inline-flex items-center gap-2 text-terracotta font-label-md hover:underline group font-bold"
                 >
                   <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
@@ -777,7 +777,7 @@ export default function Cart() {
                   )}
                 </button>
                 <button
-                  onClick={() => navigate('/products')}
+                  onClick={() => navigate(localizedPath('/products'))}
                   className="w-full bg-transparent hover:bg-parchment/60 text-secondary border border-outline-variant/60 py-4 rounded-xl font-label-md text-label-md active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2"
                 >
                   <ArrowLeft size={16} />

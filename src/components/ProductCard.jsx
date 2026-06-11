@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useApp();
-  const { t, translateProduct, formatPrice } = useLanguage();
+  const { t, translateProduct, formatPrice, localizedPath } = useLanguage();
   const [added, setAdded] = useState(false);
   const isWishlisted = isInWishlist(product.id);
 
@@ -31,7 +31,7 @@ export default function ProductCard({ product }) {
 
   return (
     <article className="group relative bg-white border border-outline-variant/50 hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden flex flex-col h-full">
-      <Link to={`/product/${translatedProduct.id}`} className="block relative aspect-[0.92] overflow-hidden bg-parchment flex-shrink-0">
+      <Link to={localizedPath('/product/' + translatedProduct.id)} className="block relative aspect-[0.92] overflow-hidden bg-parchment flex-shrink-0">
         {/* Wishlist Heart Button */}
         <motion.button
           onClick={(e) => {
@@ -111,7 +111,7 @@ export default function ProductCard({ product }) {
           <p className="font-label-sm text-label-sm text-terracotta mb-1 uppercase tracking-widest">
             {translatedProduct.category} {translatedProduct.gender && `• ${translatedProduct.gender}`}
           </p>
-          <Link to={`/product/${translatedProduct.id}`}>
+          <Link to={localizedPath('/product/' + translatedProduct.id)}>
             <h3 className="font-bold text-base md:text-lg text-onyx mb-2 group-hover:text-terracotta transition-colors line-clamp-2 min-h-[2.5rem] md:min-h-[3rem]">
               {translatedProduct.name}
             </h3>

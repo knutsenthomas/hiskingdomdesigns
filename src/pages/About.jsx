@@ -7,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function About() {
-  const { t } = useLanguage();
+  const { t, localizedPath } = useLanguage();
 
   useMeta(
     t('about.metaTitle'),
@@ -80,14 +80,14 @@ export default function About() {
           />
           <div className="pt-4 flex flex-wrap gap-4">
             <Link 
-              to="/products"
+              to={localizedPath('/products')}
               className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-label-md text-label-md hover:bg-terracotta/90 transition-all active:scale-[0.98] shadow-lg"
             >
               <span>{t('about.exploreBtn')}</span>
               <ArrowRight size={16} />
             </Link>
             <Link 
-              to="/team"
+              to={localizedPath('/team')}
               className="inline-flex items-center gap-2 border border-terracotta text-terracotta hover:bg-terracotta/5 px-8 py-4 rounded-xl font-label-md text-label-md transition-all active:scale-[0.98]"
             >
               <span>{t('about.teamBtn')}</span>
@@ -180,7 +180,7 @@ export default function About() {
           />
           <div className="pt-2">
             <Link 
-              to="/faq" 
+              to={localizedPath('/faq')} 
               className="bg-white text-onyx px-8 py-4 rounded-xl font-label-md hover:bg-terracotta hover:text-white transition-all inline-block active:scale-95 font-bold shadow-md"
             >
               {t('about.readFaqBtn')}

@@ -294,7 +294,7 @@ function formatDescription(html, lang = 'no') {
 }
 
 export default function ProductDetails() {
-  const { t, translateProduct, language, formatPrice } = useLanguage();
+  const { t, translateProduct, language, formatPrice, localizedPath } = useLanguage();
   const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
@@ -849,7 +849,7 @@ export default function ProductDetails() {
           Vi beklager, men produktet du leter etter er enten slettet eller midlertidig utilgjengelig.
         </p>
         <button 
-          onClick={() => navigate('/products')}
+          onClick={() => navigate(localizedPath('/products'))}
           className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all"
         >
           <ArrowLeft size={16} />
@@ -995,7 +995,7 @@ export default function ProductDetails() {
       <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-8">
         <Link to="/" className="hover:text-terracotta transition-colors">Hjem</Link>
         <ChevronRight size={14} className="text-secondary/60" />
-        <Link to="/products" className="hover:text-terracotta transition-colors">Produkter</Link>
+        <Link to={localizedPath('/products')} className="hover:text-terracotta transition-colors">Produkter</Link>
         <ChevronRight size={14} className="text-secondary/60" />
         <Link to={`/category/${getSlugByCategoryName(product.category)}`} className="hover:text-terracotta transition-colors">{product.category}</Link>
         <ChevronRight size={14} className="text-secondary/60" />
