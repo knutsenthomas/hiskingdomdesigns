@@ -37,7 +37,13 @@ export default function Header() {
 
   const handleMegamenuOpen = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    setMegamenuOpen(true);
+    if (megamenuOpen) {
+      setMegamenuOpen(true);
+    } else {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setMegamenuOpen(true);
+      }, 200); // 200ms delay to prevent accidental trigger when sweeping mouse across
+    }
   };
 
   const handleMegamenuClose = () => {
@@ -46,6 +52,12 @@ export default function Header() {
       setMegamenuOpen(false);
     }, 200); // 200ms delay to bridge the physical gap between header and dropdown panel
   };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
 
   const searchResults = useMemo(() => {
