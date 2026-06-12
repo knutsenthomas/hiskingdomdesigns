@@ -34,6 +34,8 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const hoverTimeoutRef = useRef(null);
+  const categoriesBtnRef = useRef(null);
+  const megamenuPanelRef = useRef(null);
 
   const handleMegamenuOpen = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -42,7 +44,7 @@ export default function Header() {
     } else {
       hoverTimeoutRef.current = setTimeout(() => {
         setMegamenuOpen(true);
-      }, 200); // 200ms delay to prevent accidental trigger when sweeping mouse across
+      }, 350); // 350ms delay to prevent accidental trigger when sweeping mouse across
     }
   };
 
@@ -50,7 +52,7 @@ export default function Header() {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     hoverTimeoutRef.current = setTimeout(() => {
       setMegamenuOpen(false);
-    }, 200); // 200ms delay to bridge the physical gap between header and dropdown panel
+    }, 250); // 250ms delay to bridge the physical gap between header and dropdown panel
   };
 
   useEffect(() => {
@@ -58,6 +60,39 @@ export default function Header() {
       if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        megamenuOpen &&
+        categoriesBtnRef.current &&
+        !categoriesBtnRef.current.contains(event.target) &&
+        (!megamenuPanelRef.current || !megamenuPanelRef.current.contains(event.target))
+      ) {
+        setMegamenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setMegamenuOpen(false);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      setMegamenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, [megamenuOpen]);
 
 
   const searchResults = useMemo(() => {
@@ -196,11 +231,16 @@ export default function Header() {
 
             {/* Collapsible Megamenu Link */}
             <div 
+              ref={categoriesBtnRef}
               className="h-full flex items-center"
               onMouseLeave={handleMegamenuClose}
             >
               <button
                 onMouseEnter={handleMegamenuOpen}
+                onClick={(e) => {
+                  if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+                  setMegamenuOpen(!megamenuOpen);
+                }}
                 className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all flex items-center gap-1 cursor-pointer focus:outline-none relative group ${
                   megamenuOpen || location.pathname.startsWith('/category/') ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
                 }`}
@@ -386,6 +426,7 @@ export default function Header() {
         <AnimatePresence>
           {megamenuOpen && (
             <motion.div
+              ref={megamenuPanelRef}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
