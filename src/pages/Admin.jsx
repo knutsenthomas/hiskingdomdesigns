@@ -628,6 +628,11 @@ export default function Admin() {
     window.location.search.includes('admin=true');
 
   const isAuthLoading = isLoggedIn && !member;
+  
+  // Scroll til toppen når aktiv fane endres
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
 
   // Fetch Wix stats from serverless API
   useEffect(() => {
@@ -1233,7 +1238,9 @@ export default function Admin() {
                               const x = 20 + (i / (activeWixStats.chartData.sales.length - 1)) * 460;
                               const y = 175 - (val / maxSalesVal) * 140;
                               return (
-                                <circle key={i} cx={x} cy={y} r="3" fill="#1B4965" stroke="#ffffff" strokeWidth="1.5" />
+                                <svg key={i} x={x - 6} y={y - 6} width="12" height="12" viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet">
+                                  <circle cx="6" cy="6" r="3" fill="#1B4965" stroke="#ffffff" strokeWidth="1.5" />
+                                </svg>
                               );
                             })}
                           </svg>
