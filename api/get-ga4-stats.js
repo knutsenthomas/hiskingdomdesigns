@@ -21,9 +21,12 @@ export default async function handler(req, res) {
 
   if (!propertyId || !saKeyStr) {
     const envKeys = Object.keys(process.env).filter(k => k.includes('GA4') || k.includes('WIX') || k.includes('KEY') || k.includes('PORT'));
+    const propLength = propertyId ? propertyId.length : 0;
+    const keyType = typeof saKeyStr;
+    const keyLength = saKeyStr ? saKeyStr.length : 0;
     res.status(200).json({
       success: false,
-      error: `Google Analytics 4 er ikke konfigurert. Tilgjengelige nøkler: ${envKeys.join(', ')}. PropertyId: ${propertyId ? 'Ja' : 'Nei'}, Key: ${saKeyStr ? 'Ja' : 'Nei'}`,
+      error: `Google Analytics 4 er ikke konfigurert. Tilgjengelige nøkler: ${envKeys.join(', ')}. PropertyId: ${propertyId ? 'Ja' : 'Nei'} (len: ${propLength}), Key: ${saKeyStr ? 'Ja' : 'Nei'} (type: ${keyType}, len: ${keyLength})`,
       setupRequired: true
     });
     return;
