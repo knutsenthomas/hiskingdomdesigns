@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google-analytics/data": "^6.1.0",
     "@wix/ecom": "^1.0.2103",
     "@wix/gift-vouchers": "^1.0.79",
     "@wix/headless-site": "^1.37.0",

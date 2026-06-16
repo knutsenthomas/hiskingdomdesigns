@@ -48,6 +48,12 @@ export default function Admin() {
   const [wixLoading, setWixLoading] = useState(true);
   const [wixError, setWixError] = useState(null);
 
+  // Real GA4 Stats States
+  const [gaStats, setGaStats] = useState(null);
+  const [gaLoading, setGaLoading] = useState(true);
+  const [gaError, setGaError] = useState(null);
+  const [gaSetupRequired, setGaSetupRequired] = useState(false);
+
   // Fetch Wix stats from serverless API
   useEffect(() => {
     if (isAuthLoading) return;
@@ -80,6 +86,42 @@ export default function Admin() {
 
     fetchWixStats();
   }, [isAdminUser, isAuthLoading, refreshKey]);
+
+  // Fetch GA4 stats from serverless API
+  useEffect(() => {
+    if (isAuthLoading) return;
+    if (!isAdminUser) {
+      setGaLoading(false);
+      return;
+    }
+
+    const fetchGaStats = async () => {
+      setGaLoading(true);
+      setGaError(null);
+      setGaSetupRequired(false);
+      try {
+        const response = await fetch(`/api/get-ga4-stats?range=${timeRange}`);
+        if (!response.ok) {
+          throw new Error(`Klarte ikke å hente Google Analytics-data (status ${response.status})`);
+        }
+        const data = await response.json();
+        if (data.success === false) {
+          if (data.setupRequired) {
+            setGaSetupRequired(true);
+          }
+          throw new Error(data.error || 'Ukjent feil fra Google Analytics API');
+        }
+        setGaStats(data);
+      } catch (err) {
+        console.error('Failed to load GA4 stats:', err);
+        setGaError(err.message || String(err));
+      } finally {
+        setGaLoading(false);
+      }
+    };
+
+    fetchGaStats();
+  }, [isAdminUser, isAuthLoading, timeRange, refreshKey]);
 
   // Helper to safely extract email from Wix member object
   const getMemberEmail = (memberObj) => {
@@ -462,7 +504,111 @@ export default function Admin() {
     };
   };
 
+  // Parse stats from GA4 response dynamically
+  const getParsedGaStats = () => {
+    const defaultGa = {
+      visitors: activeWixStats ? activeWixStats.visitors : '0',
+      visitorsVal: activeWixStats ? activeWixStats.visitorsCount : 0,
+      pageviews: activeWixStats ? activeWixStats.pageviews : '0',
+      bounceRate: activeWixStats ? activeWixStats.bounceRate : '42.5%',
+      avgDuration: activeWixStats ? activeWixStats.avgDuration : '2m 14s',
+      trafficSources: [
+        { source: 'Sosiale medier (Insta, FB)', pct: activeWixStats?.ordersCount > 0 ? 45 : 0, color: 'bg-[#1B4965]', desc: 'Instagram, Facebook, Pinterest-kampanjer' },
+        { source: 'Direkte / Bokmerker', pct: activeWixStats?.ordersCount > 0 ? 25 : 0, color: 'bg-[#d17d39]', desc: 'Skrev inn URL eller lagrede linker' },
+        { source: 'Organisk søk (Google)', pct: activeWixStats?.ordersCount > 0 ? 20 : 0, color: 'bg-emerald-500', desc: 'Google-søk og søkemotoroptimalisering' },
+        { source: 'Referral (Affiliates)', pct: activeWixStats?.ordersCount > 0 ? 10 : 0, color: 'bg-indigo-600', desc: 'Gjennom affiliate delingslenker' }
+      ],
+      devices: [
+        { type: 'Mobiltelefoner', pct: activeWixStats?.ordersCount > 0 ? 72 : 0, icon: Smartphone, color: 'text-[#d17d39]' },
+        { type: 'Desktop PC / Mac', pct: activeWixStats?.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
+        { type: 'Nettbrett (Tablet)', pct: activeWixStats?.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
+      ],
+      chartData: activeWixStats ? activeWixStats.chartData.visits : []
+    };
+
+    if (!gaStats || gaStats.success === false) {
+      return defaultGa;
+    }
+
+    const { overview, chart, traffic, devices } = gaStats;
+
+    const formatDuration = (secVal) => {
+      const sec = parseFloat(secVal || 0);
+      if (isNaN(sec) || sec <= 0) return '0s';
+      const m = Math.floor(sec / 60);
+      const s = Math.round(sec % 60);
+      return m > 0 ? `${m}m ${s}s` : `${s}s`;
+    };
+
+    const visitors = overview?.activeUsers ? String(overview.activeUsers) : '0';
+    const visitorsVal = overview?.activeUsers ? parseInt(overview.activeUsers, 10) : 0;
+    const pageviews = overview?.screenPageViews ? String(overview.screenPageViews) : '0';
+    const bounceRate = overview?.bounceRate || '0.0%';
+    const avgDuration = formatDuration(overview?.averageSessionDuration || 0);
+
+    const totalTrafficUsers = traffic?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
+    const trafficSources = traffic && traffic.length > 0 ? traffic.map((item, idx) => {
+      const colors = ['bg-[#1B4965]', 'bg-[#d17d39]', 'bg-emerald-500', 'bg-indigo-600', 'bg-[#bd4f2a]'];
+      const color = colors[idx % colors.length];
+      const pct = Math.round(((item.activeUsers || 0) / totalTrafficUsers) * 100);
+
+      let sourceName = item.source || 'Annet';
+      let desc = '';
+      const sourceLower = sourceName.toLowerCase();
+      if (sourceLower.includes('organic search') || sourceLower.includes('organic') || sourceLower === 'direct') {
+        if (sourceLower.includes('organic search') || sourceLower.includes('organic')) {
+          sourceName = 'Organisk søk (Google)';
+          desc = 'Google-søk og søkemotoroptimalisering';
+        } else {
+          sourceName = 'Direkte / Bokmerker';
+          desc = 'Skrev inn URL eller lagrede linker';
+        }
+      } else if (sourceLower.includes('social')) {
+        sourceName = 'Sosiale medier (Insta, FB)';
+        desc = 'Instagram, Facebook, Pinterest-kampanjer';
+      } else if (sourceLower.includes('referral')) {
+        sourceName = 'Referral (Affiliates)';
+        desc = 'Ekstern henvisningsdata og affiliate delingslenker';
+      } else {
+        desc = `Trafikk registrert fra kanal: ${sourceName}`;
+      }
+
+      return { source: sourceName, pct, color, desc };
+    }) : defaultGa.trafficSources;
+
+    const totalDeviceUsers = devices?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
+    const deviceMap = {
+      mobile: { label: 'Mobiltelefoner', icon: Smartphone, color: 'text-[#d17d39]' },
+      desktop: { label: 'Desktop PC / Mac', icon: Laptop, color: 'text-[#1B4965]' },
+      tablet: { label: 'Nettbrett (Tablet)', icon: Tablet, color: 'text-slate-500' }
+    };
+    const deviceList = devices && devices.length > 0 ? devices.map(item => {
+      const devType = (item.device || 'desktop').toLowerCase();
+      const config = deviceMap[devType] || { label: item.device, icon: Laptop, color: 'text-slate-400' };
+      const pct = Math.round(((item.activeUsers || 0) / totalDeviceUsers) * 100);
+      return { type: config.label, pct, icon: config.icon, color: config.color };
+    }) : defaultGa.devices;
+
+    const visitsChart = activeWixStats?.chartData?.labels?.map((label, idx) => {
+      if (!chart || chart.length === 0) return defaultGa.chartData[idx] || 0;
+      const chartIndex = Math.floor((idx / activeWixStats.chartData.labels.length) * chart.length);
+      return chart[chartIndex]?.activeUsers || 0;
+    }) || [];
+
+    return {
+      visitors,
+      visitorsVal,
+      pageviews,
+      bounceRate,
+      avgDuration,
+      trafficSources,
+      devices: deviceList,
+      chartData: visitsChart
+    };
+  };
+
   const activeWixStats = getParsedWixStats();
+  const activeGaStats = getParsedGaStats();
 
   // Helper to draw custom responsive SVG line path
   const generatePath = (dataArray, maxVal) => {
@@ -484,7 +630,7 @@ export default function Admin() {
   };
 
   const maxSalesVal = Math.max(...activeWixStats.chartData.sales) || 1;
-  const maxVisitsVal = Math.max(...activeWixStats.chartData.visits) || 1;
+  const maxVisitsVal = Math.max(...activeGaStats.chartData) || 1;
 
   // Sidebar Menu Items Definition
   const menuItems = [
@@ -845,11 +991,11 @@ export default function Admin() {
 
                             {/* Area fills */}
                             <path d={generateAreaPath(activeWixStats.chartData.sales, maxSalesVal)} fill="url(#salesGrad)" />
-                            <path d={generateAreaPath(activeWixStats.chartData.visits, maxVisitsVal)} fill="url(#visitsGrad)" />
+                            <path d={generateAreaPath(activeGaStats.chartData, maxVisitsVal)} fill="url(#visitsGrad)" />
 
                             {/* Line paths */}
                             <path d={generatePath(activeWixStats.chartData.sales, maxSalesVal)} fill="none" stroke="#1B4965" strokeWidth="2.5" strokeLinecap="round" />
-                            <path d={generatePath(activeWixStats.chartData.visits, maxVisitsVal)} fill="none" stroke="#d17d39" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
+                            <path d={generatePath(activeGaStats.chartData, maxVisitsVal)} fill="none" stroke="#d17d39" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
 
                             {/* Interactive Data points */}
                             {activeWixStats.chartData.sales.map((val, i) => {
@@ -1121,62 +1267,100 @@ export default function Admin() {
               {/* TAB 3: VISITS (Google Analytics) */}
               {activeTab === 'visits' && (
                 <div className="space-y-6">
-                  {wixLoading ? (
+                  {gaLoading ? (
                     <div className="bg-white rounded-3xl border border-outline-variant/30 py-24 flex flex-col items-center justify-center">
                       <div className="w-10 h-10 border-4 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
-                      <p className="mt-4 text-secondary text-xs font-semibold">Forbereder trafikkanalyse...</p>
+                      <p className="mt-4 text-secondary text-xs font-semibold">Henter Google Analytics-statistikk...</p>
                     </div>
-                  ) : wixError ? (
+                  ) : gaError && !gaSetupRequired ? (
                     <div className="bg-white rounded-3xl border border-outline-variant/30 p-8 text-center space-y-4">
                       <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mx-auto shadow-sm">
                         <ShieldAlert size={24} />
                       </div>
-                      <h3 className="font-bold text-onyx text-sm">Besøksanalyse utilgjengelig</h3>
+                      <h3 className="font-bold text-onyx text-sm">Tilkobling til Google Analytics feilet</h3>
                       <p className="text-xs text-secondary leading-relaxed max-w-md mx-auto">
-                        Kan ikke beregne trafikktall fordi det ikke kan opprettes kontakt med Wix store-API.
+                        Klarte ikke å hente besøksdata fra Google Analytics. Sjekk Property ID og Service Account-nøkkel i Vercel.
                       </p>
+                      <pre className="bg-slate-50 text-rose-700 p-3 rounded-lg text-[10px] font-mono overflow-x-auto max-w-md mx-auto text-left border">
+                        Feil: {gaError}
+                      </pre>
                     </div>
                   ) : (
                     <>
+                      {/* Setup instructions when setup is required */}
+                      {gaSetupRequired && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-left space-y-4 mb-6 shadow-sm">
+                          <div className="flex gap-3.5 items-start">
+                            <Globe size={22} className="text-[#d17d39] shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                              <h4 className="font-bold text-[#d17d39] text-sm">Google Analytics (GA4) API-oppsett kreves</h4>
+                              <p className="text-xs text-secondary leading-relaxed">
+                                For å koble dette panelet til Google Analytics og hente ekte sanntidsbesøksdata, må du sette opp to miljøvariabler i ditt Vercel-prosjekt.
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white p-4.5 rounded-xl border border-amber-200/50 space-y-3.5 text-xs text-secondary">
+                            <p className="font-semibold text-onyx">Følg disse stegene for å koble til:</p>
+                            <ol className="list-decimal pl-4.5 space-y-2">
+                              <li>Opprett en <strong>Service Account</strong> (tjenestekonto) i Google Cloud Console.</li>
+                              <li>Last ned nøkkelen som en <strong>JSON-fil</strong>, og kopier hele innholdet.</li>
+                              <li>Legg til hele JSON-teksten som miljøvariabel i Vercel under navnet <code className="bg-slate-50 px-1 py-0.5 rounded border font-mono font-bold text-rose-600 text-[10px]">GA4_SERVICE_ACCOUNT_KEY</code>.</li>
+                              <li>Kopier din numeriske <strong>GA4 Property ID</strong> (fra Google Analytics admin &gt; Eiendomsinnstillinger) og legg den til i Vercel under navnet <code className="bg-slate-50 px-1 py-0.5 rounded border font-mono font-bold text-rose-600 text-[10px]">GA4_PROPERTY_ID</code>.</li>
+                              <li>Gå til Google Analytics Eiendomsadgangsstyring, og legg til service-kontoens e-postadresse med <strong>Leser</strong>-tilgang.</li>
+                            </ol>
+                          </div>
+
+                          <p className="text-[10px] text-secondary/70 italic">
+                            * Visningen nedenfor viser estimert besøksdata basert på Wix-konverteringer frem til miljøvariablene er satt opp.
+                          </p>
+                        </div>
+                      )}
+                      
                       {/* Visits stats */}
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
-                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Besøkende (Estimert)</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeWixStats.visitors}</p>
-                          <p className="text-[10px] text-secondary font-bold mt-1">Estimert ut fra 2.5% konvertering</p>
+                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Besøkende {gaSetupRequired ? '(Estimert)' : '(GA4)'}</p>
+                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.visitors}</p>
+                          <p className="text-[10px] text-secondary font-bold mt-1">
+                            {gaSetupRequired ? 'Estimert ut fra 2.5% konvertering' : 'Faktiske unike brukere'}
+                          </p>
                         </div>
 
                         <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
-                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Sidevisninger</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeWixStats.pageviews}</p>
-                          <p className="text-[10px] text-secondary font-bold mt-1">Beregnet sidevisningsvolum</p>
+                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Sidevisninger {gaSetupRequired ? '(Beregnet)' : '(GA4)'}</p>
+                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.pageviews}</p>
+                          <p className="text-[10px] text-secondary font-bold mt-1">
+                            {gaSetupRequired ? 'Beregnet sidevisningsvolum' : 'Faktiske sidevisninger'}
+                          </p>
                         </div>
 
                         <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
                           <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Bounce Rate</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeWixStats.bounceRate}</p>
+                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.bounceRate}</p>
                           <p className="text-[10px] text-secondary font-bold mt-1">Sider som lukkes umiddelbart</p>
                         </div>
 
                         <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
                           <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Besøksvarighet</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeWixStats.avgDuration}</p>
+                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.avgDuration}</p>
                           <p className="text-[10px] text-secondary font-bold mt-1">Gjennomsnittlig tid på siden</p>
                         </div>
                       </div>
 
-                      {/* Info alert about GA4 API Key integration */}
-                      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-left flex gap-3.5 items-start">
-                        <Globe size={20} className="text-[#1B4965] shrink-0 mt-0.5" />
-                        <div className="space-y-1">
-                          <h4 className="font-bold text-[#1B4965] text-sm">Google Analytics (GA4) API-integrasjon</h4>
-                          <p className="text-xs text-secondary leading-relaxed max-w-3xl">
-                            Besøkstall, bounce rate og trafikkkilder er foreløpig beregnet ut fra reell ordreadferd, konverteringsrater og informasjonskapselsamtykker. 
-                            For å hente nøyaktige sanntidsdata direkte fra din Google Analytics-konto, kan en Google Cloud Service Account-nøkkelfil (.json) integreres i Vercel-miljøvariablene dine under <code className="bg-white px-1.5 py-0.5 rounded border text-rose-600 font-mono text-[10px]">GA4_SERVICE_ACCOUNT_KEY</code>.
-                          </p>
+                      {/* Info alert about GA4 API Key integration when already set up */}
+                      {!gaSetupRequired && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-left flex gap-3.5 items-start">
+                          <ShieldCheck size={20} className="text-[#1B4965] shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <h4 className="font-bold text-[#1B4965] text-sm">Google Analytics (GA4) er tilkoblet!</h4>
+                            <p className="text-xs text-secondary leading-relaxed max-w-3xl">
+                              Besøkstall, sidevisninger, bounce rate og trafikkkilder hentes direkte fra din Google Analytics Property.
+                            </p>
+                          </div>
                         </div>
-                      </div>
-
+                      )}
+                      
                       {/* Traffic and Device Sources */}
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                         {/* Traffic sources */}
@@ -1187,12 +1371,7 @@ export default function Admin() {
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {[
-                              { source: 'Sosiale medier (Insta, FB)', pct: activeWixStats.ordersCount > 0 ? 45 : 0, color: 'bg-[#1B4965]', desc: 'Instagram, Facebook, Pinterest-kampanjer' },
-                              { source: 'Direkte / Bokmerker', pct: activeWixStats.ordersCount > 0 ? 25 : 0, color: 'bg-[#d17d39]', desc: 'Skrev inn URL eller lagrede linker' },
-                              { source: 'Organisk søk (Google)', pct: activeWixStats.ordersCount > 0 ? 20 : 0, color: 'bg-emerald-500', desc: 'Google-søk og søkemotoroptimalisering' },
-                              { source: 'Referral (Affiliates)', pct: activeWixStats.ordersCount > 0 ? 10 : 0, color: 'bg-indigo-600', desc: 'Gjennom affiliate delingslenker' }
-                            ].map((src, i) => (
+                            {activeGaStats.trafficSources.map((src, i) => (
                               <div key={i} className="bg-slate-50 p-4.5 rounded-xl border border-slate-100 flex flex-col justify-between">
                                 <div className="flex justify-between items-start">
                                   <span className="font-bold text-onyx text-xs leading-tight">{src.source}</span>
@@ -1215,11 +1394,7 @@ export default function Admin() {
                           </div>
 
                           <div className="space-y-4">
-                            {[
-                              { type: 'Mobiltelefoner', pct: activeWixStats.ordersCount > 0 ? 72 : 0, icon: Smartphone, color: 'text-[#d17d39]' },
-                              { type: 'Desktop PC / Mac', pct: activeWixStats.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
-                              { type: 'Nettbrett (Tablet)', pct: activeWixStats.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
-                            ].map((dev, i) => {
+                            {activeGaStats.devices.map((dev, i) => {
                               const DevIcon = dev.icon;
                               return (
                                 <div key={i} className="flex items-center justify-between border-b border-slate-50 pb-2">
