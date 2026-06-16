@@ -46,19 +46,15 @@ export default defineConfig({
             }
 
             try {
-              if (url === '/api/get-or-create-conversation') {
-                const { default: handler } = await import('./api/get-or-create-conversation.js');
-                await handler(req, res);
-                return;
-              } else if (url === '/api/list-messages') {
-                const { default: handler } = await import('./api/list-messages.js');
-                await handler(req, res);
-                return;
-              } else if (url === '/api/send-message') {
-                const { default: handler } = await import('./api/send-message.js');
-                await handler(req, res);
+              const endpoint = url.replace('/api/', '');
+              // Protect against path traversal
+              if (endpoint.includes('..') || endpoint.includes('/') || endpoint.includes('\\')) {
+                res.status(400).json({ error: 'Invalid API endpoint' });
                 return;
               }
+              const { default: handler } = await import(`./api/${endpoint}.js`);
+              await handler(req, res);
+              return;
             } catch (err) {
               console.error('Vite local API middleware error:', err);
               res.status(500).json({ error: 'Internal Server Error', details: err.message });
