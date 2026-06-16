@@ -1030,7 +1030,10 @@ export default function Admin() {
                   </h2>
                 </div>
 
-                <div className="flex flex-wrap gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-auto justify-start">
+                <div 
+                  className="flex gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-auto justify-start overflow-x-auto whitespace-nowrap"
+                  style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+                >
                   {[
                     { id: 'today', label: 'I dag' },
                     { id: 'yesterday', label: 'I går' },
@@ -1043,7 +1046,7 @@ export default function Admin() {
                     <button
                       key={range.id}
                       onClick={() => setTimeRange(range.id)}
-                      className={`px-3 py-1.5 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-none ${
+                      className={`px-3 py-1.5 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer shrink-0 ${
                         timeRange === range.id ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
                       }`}
                     >
