@@ -398,6 +398,9 @@ export default function Admin() {
   const [gaLoading, setGaLoading] = useState(true);
   const [gaError, setGaError] = useState(null);
   const [gaSetupRequired, setGaSetupRequired] = useState(false);
+  const [showGaAlert, setShowGaAlert] = useState(() => {
+    return localStorage.getItem('hkm-dismissed-ga-alert') !== 'true';
+  });
 
   // Helper to safely extract email from Wix member object
   const getMemberEmail = (memberObj) => {
@@ -1349,15 +1352,27 @@ export default function Admin() {
                       </div>
 
                       {/* Info alert about GA4 API Key integration when already set up */}
-                      {!gaSetupRequired && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-left flex gap-3.5 items-start">
-                          <ShieldCheck size={20} className="text-[#1B4965] shrink-0 mt-0.5" />
-                          <div className="space-y-1">
-                            <h4 className="font-bold text-[#1B4965] text-sm">Google Analytics (GA4) er tilkoblet!</h4>
-                            <p className="text-xs text-secondary leading-relaxed max-w-3xl">
-                              Besøkstall, sidevisninger, bounce rate og trafikkkilder hentes direkte fra din Google Analytics Property.
-                            </p>
+                      {!gaSetupRequired && showGaAlert && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-left flex justify-between items-start gap-3.5">
+                          <div className="flex gap-3.5 items-start">
+                            <ShieldCheck size={20} className="text-[#1B4965] shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                              <h4 className="font-bold text-[#1B4965] text-sm">Google Analytics (GA4) er tilkoblet!</h4>
+                              <p className="text-xs text-secondary leading-relaxed max-w-3xl">
+                                Besøkstall, sidevisninger, bounce rate og trafikkkilder hentes direkte fra din Google Analytics Property.
+                              </p>
+                            </div>
                           </div>
+                          <button 
+                            onClick={() => {
+                              localStorage.setItem('hkm-dismissed-ga-alert', 'true');
+                              setShowGaAlert(false);
+                            }}
+                            className="text-[#1B4965] hover:text-blue-900 transition-colors p-1 rounded-full hover:bg-blue-100/50 shrink-0"
+                            title="Lukk"
+                          >
+                            <X size={18} />
+                          </button>
                         </div>
                       )}
                       
