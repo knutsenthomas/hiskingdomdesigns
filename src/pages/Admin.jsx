@@ -834,14 +834,14 @@ export default function Admin() {
   return (
     <div className="max-w-[1400px] mx-auto px-margin-mobile md:px-margin-desktop py-28">
       {/* Page Title Header */}
-      <div className="mb-8 flex justify-between items-center bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#1B4965]/10 text-[#1B4965] rounded-xl flex items-center justify-center shrink-0">
-            <Lock size={22} />
+      <div className="mb-8 flex justify-between items-center bg-white border border-outline-variant/30 rounded-2xl p-4 sm:p-6 shadow-sm gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#1B4965]/10 text-[#1B4965] rounded-xl flex items-center justify-center shrink-0">
+            <Lock size={20} />
           </div>
-          <div className="text-left">
-            <h1 className="font-headline-md text-xl md:text-2xl font-bold text-onyx">Administrasjonskonsoll</h1>
-            <p className="text-xs text-secondary font-medium">Overvåk butikkaktivitet, salgstall og affiliatesøknader.</p>
+          <div className="text-left min-w-0">
+            <h1 className="font-headline-md text-base sm:text-xl md:text-2xl font-bold text-onyx truncate sm:overflow-visible">Administrasjonskonsoll</h1>
+            <p className="text-[10px] sm:text-xs text-secondary font-medium truncate sm:whitespace-normal">Overvåk butikkaktivitet, salgstall og affiliatesøknader.</p>
           </div>
         </div>
 
