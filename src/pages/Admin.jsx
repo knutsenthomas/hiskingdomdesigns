@@ -15,7 +15,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Parse stats from Wix orders dynamically based on timeRange
-const getParsedWixStats = (wixStats, timeRange) => {
+const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) => {
   const defaultStats = {
     revenue: '0 kr',
     revenueVal: 0,
@@ -56,11 +56,25 @@ const getParsedWixStats = (wixStats, timeRange) => {
   // Filter orders based on time range
   const filterByRange = (order) => {
     const orderDate = new Date(order._createdDate || order.createdDate);
+    
+    if (timeRange === 'custom') {
+      const start = customStartDate ? new Date(customStartDate) : null;
+      const end = customEndDate ? new Date(customEndDate) : null;
+      if (start) start.setHours(0, 0, 0, 0);
+      if (end) end.setHours(23, 59, 59, 999);
+      
+      if (start && end) return orderDate >= start && orderDate <= end;
+      if (start) return orderDate >= start;
+      if (end) return orderDate <= end;
+      return true;
+    }
+    
     const diffTime = Math.abs(now - orderDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (timeRange === '7d') return diffDays <= 7;
     if (timeRange === '30d') return diffDays <= 30;
+    if (timeRange === '90d') return diffDays <= 90;
     if (timeRange === '12m') return diffDays <= 365;
     return true;
   };
@@ -68,11 +82,29 @@ const getParsedWixStats = (wixStats, timeRange) => {
   // Filter orders for the previous period (to calculate trends)
   const filterByPreviousRange = (order) => {
     const orderDate = new Date(order._createdDate || order.createdDate);
+    
+    if (timeRange === 'custom') {
+      const start = customStartDate ? new Date(customStartDate) : new Date();
+      const end = customEndDate ? new Date(customEndDate) : new Date();
+      const periodMs = end - start;
+      const periodDays = Math.max(1, Math.ceil(periodMs / (1000 * 60 * 60 * 24)));
+      
+      const prevStart = new Date(start);
+      prevStart.setDate(prevStart.getDate() - periodDays);
+      prevStart.setHours(0, 0, 0, 0);
+      
+      const prevEnd = new Date(start);
+      prevEnd.setMilliseconds(prevEnd.getMilliseconds() - 1);
+      
+      return orderDate >= prevStart && orderDate <= prevEnd;
+    }
+    
     const diffTime = Math.abs(now - orderDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (timeRange === '7d') return diffDays > 7 && diffDays <= 14;
     if (timeRange === '30d') return diffDays > 30 && diffDays <= 60;
+    if (timeRange === '90d') return diffDays > 90 && diffDays <= 180;
     if (timeRange === '12m') return diffDays > 365 && diffDays <= 730;
     return false;
   };
@@ -128,8 +160,27 @@ const getParsedWixStats = (wixStats, timeRange) => {
     });
 
     sales.forEach((s, idx) => {
-      // visits based on orders/conversion
       visits[idx] = s > 0 ? Math.round((s / 250) * 4) + 12 : 5 + Math.round(Math.random() * 8);
+    });
+  } else if (timeRange === '90d') {
+    // 12 uker
+    labels = Array(12).fill(0).map((_, i) => `Uke ${i + 1}`);
+    sales = Array(12).fill(0);
+    visits = Array(12).fill(0);
+    
+    rangeOrders.forEach(order => {
+      const orderDate = new Date(order._createdDate || order.createdDate);
+      const diffTime = Math.abs(now - orderDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const weekIdx = Math.min(11, Math.floor((90 - diffDays) / 7.5));
+      if (weekIdx >= 0) {
+        const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+        sales[weekIdx] += amount;
+      }
+    });
+
+    sales.forEach((s, idx) => {
+      visits[idx] = s > 0 ? Math.round((s / 350) * 6) + 25 : 10 + Math.round(Math.random() * 15);
     });
   } else if (timeRange === '12m') {
     labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -146,8 +197,89 @@ const getParsedWixStats = (wixStats, timeRange) => {
     sales.forEach((s, idx) => {
       visits[idx] = s > 0 ? Math.round((s / 400) * 8) + 45 : 20 + Math.round(Math.random() * 20);
     });
+  } else if (timeRange === 'custom') {
+    const start = customStartDate ? new Date(customStartDate) : new Date();
+    const end = customEndDate ? new Date(customEndDate) : new Date();
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 10) {
+      // Daglige etiketter
+      labels = [];
+      const current = new Date(start);
+      for (let i = 0; i <= diffDays; i++) {
+        labels.push(`${current.getDate()}. ${current.toLocaleString('no-NO', { month: 'short' })}`);
+        current.setDate(current.getDate() + 1);
+      }
+      sales = Array(labels.length).fill(0);
+      visits = Array(labels.length).fill(0);
+      
+      rangeOrders.forEach(order => {
+        const orderDate = new Date(order._createdDate || order.createdDate);
+        const dTime = orderDate - start;
+        const dDays = Math.floor(dTime / (1000 * 60 * 60 * 24));
+        if (dDays >= 0 && dDays < sales.length) {
+          const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+          sales[dDays] += amount;
+        }
+      });
+      
+      sales.forEach((s, idx) => {
+        visits[idx] = s > 0 ? Math.round((s / 200) * 5) + 10 : 5 + Math.round(Math.random() * 5);
+      });
+    } else if (diffDays <= 45) {
+      // Ukentlige bolker
+      const numWeeks = Math.ceil(diffDays / 7);
+      labels = Array(numWeeks).fill(0).map((_, i) => `Uke ${i + 1}`);
+      sales = Array(numWeeks).fill(0);
+      visits = Array(numWeeks).fill(0);
+      
+      rangeOrders.forEach(order => {
+        const orderDate = new Date(order._createdDate || order.createdDate);
+        const dTime = orderDate - start;
+        const dDays = Math.floor(dTime / (1000 * 60 * 60 * 24));
+        const weekIdx = Math.min(numWeeks - 1, Math.floor(dDays / 7));
+        if (weekIdx >= 0 && weekIdx < sales.length) {
+          const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+          sales[weekIdx] += amount;
+        }
+      });
+      
+      sales.forEach((s, idx) => {
+        visits[idx] = s > 0 ? Math.round((s / 350) * 6) + 20 : 10 + Math.round(Math.random() * 15);
+      });
+    } else {
+      // Månedlige bolker
+      labels = [];
+      const current = new Date(start);
+      // Sikre at vi ikke havner i en uendelig løkke hvis datoer er ugode
+      let safetyCount = 0;
+      while (current <= end && safetyCount < 100) {
+        safetyCount++;
+        labels.push(current.toLocaleString('no-NO', { month: 'short' }));
+        current.setMonth(current.getMonth() + 1);
+      }
+      
+      if (labels.length === 0) labels = ['Måned'];
+      
+      sales = Array(labels.length).fill(0);
+      visits = Array(labels.length).fill(0);
+      
+      rangeOrders.forEach(order => {
+        const orderDate = new Date(order._createdDate || order.createdDate);
+        const monthDiff = (orderDate.getFullYear() - start.getFullYear()) * 12 + (orderDate.getMonth() - start.getMonth());
+        if (monthDiff >= 0 && monthDiff < sales.length) {
+          const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+          sales[monthDiff] += amount;
+        }
+      });
+      
+      sales.forEach((s, idx) => {
+        visits[idx] = s > 0 ? Math.round((s / 400) * 8) + 40 : 20 + Math.round(Math.random() * 20);
+      });
+    }
   } else {
-    // 30d
+    // 30d (standard fallback)
     labels = ['Uke 1', 'Uke 2', 'Uke 3', 'Uke 4'];
     sales = Array(4).fill(0);
     visits = Array(4).fill(0);
@@ -155,7 +287,7 @@ const getParsedWixStats = (wixStats, timeRange) => {
     rangeOrders.forEach(order => {
       const orderDate = new Date(order._createdDate || order.createdDate);
       const diffDays = Math.ceil(Math.abs(now - orderDate) / (1000 * 60 * 60 * 24));
-      const weekIdx = Math.min(3, Math.floor((30 - diffDays) / 7.5)); // Map to week 0-3
+      const weekIdx = Math.min(3, Math.floor((30 - diffDays) / 7.5));
       if (weekIdx >= 0 && weekIdx < 4) {
         const amount = parseFloat(order.priceSummary?.total?.amount || 0);
         sales[weekIdx] += amount;
@@ -385,8 +517,26 @@ export default function Admin() {
   // Mobile sidebar visibility
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Time filter: '7d' | '30d' | '12m'
+  // Time filter: '7d' | '30d' | '90d' | '12m' | 'custom'
   const [timeRange, setTimeRange] = useState('30d');
+
+  // Helper til å formatere dato som YYYY-MM-DD
+  const formatYYYYMMDD = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  };
+
+  // Tilpasset datointervall states
+  const [customStartDate, setCustomStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return formatYYYYMMDD(d);
+  });
+  const [customEndDate, setCustomEndDate] = useState(() => {
+    return formatYYYYMMDD(new Date());
+  });
 
   // Real Wix Stats States
   const [wixStats, setWixStats] = useState(null);
@@ -491,7 +641,11 @@ export default function Admin() {
       setGaError(null);
       setGaSetupRequired(false);
       try {
-        const response = await fetch(`/api/get-ga4-stats?range=${timeRange}`);
+        let url = `/api/get-ga4-stats?range=${timeRange}`;
+        if (timeRange === 'custom') {
+          url += `&startDate=${customStartDate}&endDate=${customEndDate}`;
+        }
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`Klarte ikke å hente Google Analytics-data (status ${response.status})`);
         }
@@ -512,7 +666,7 @@ export default function Admin() {
     };
 
     fetchGaStats();
-  }, [isAdminUser, isAuthLoading, timeRange, refreshKey]);
+  }, [isAdminUser, isAuthLoading, timeRange, customStartDate, customEndDate, refreshKey]);
 
   // Fetch affiliate applications
   useEffect(() => {
@@ -610,7 +764,7 @@ export default function Admin() {
     );
   });
 
-  const activeWixStats = getParsedWixStats(wixStats, timeRange);
+  const activeWixStats = getParsedWixStats(wixStats, timeRange, customStartDate, customEndDate);
   const activeGaStats = getParsedGaStats(gaStats, activeWixStats);
 
   // Helper to draw custom responsive SVG line path
@@ -824,32 +978,65 @@ export default function Admin() {
           
           {/* Header Controls for Tab (Tidsfilter) */}
           {activeTab !== 'affiliates' && (
-            <div className="bg-white rounded-2xl border border-outline-variant/30 p-4 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
-              <div>
-                <span className="text-[10px] text-secondary font-bold uppercase tracking-wider">Periodefilter</span>
-                <h2 className="text-sm font-bold text-onyx flex items-center gap-1.5 mt-0.5">
-                  <Calendar size={14} className="text-[#1B4965]" />
-                  Statistikk for {timeRange === '7d' ? 'siste 7 dager' : timeRange === '30d' ? 'siste 30 dager' : 'siste 12 måneder'}
-                </h2>
+            <div className="bg-white rounded-2xl border border-outline-variant/30 p-4 shadow-sm flex flex-col gap-4 text-left">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <span className="text-[10px] text-secondary font-bold uppercase tracking-wider">Periodefilter</span>
+                  <h2 className="text-sm font-bold text-onyx flex items-center gap-1.5 mt-0.5">
+                    <Calendar size={14} className="text-[#1B4965]" />
+                    Statistikk for {
+                      timeRange === '7d' ? 'siste 7 dager' :
+                      timeRange === '30d' ? 'siste 30 dager' :
+                      timeRange === '90d' ? 'siste 90 dager' :
+                      timeRange === '12m' ? 'siste 12 måneder' :
+                      `tilpasset periode (${customStartDate ? new Date(customStartDate).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' }) : ''} - ${customEndDate ? new Date(customEndDate).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' }) : ''})`
+                    }
+                  </h2>
+                </div>
+
+                <div className="flex flex-wrap gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-auto justify-start">
+                  {[
+                    { id: '7d', label: '7 dager' },
+                    { id: '30d', label: '30 dager' },
+                    { id: '90d', label: '90 dager' },
+                    { id: '12m', label: '12 mnd' },
+                    { id: 'custom', label: 'Tilpasset' }
+                  ].map((range) => (
+                    <button
+                      key={range.id}
+                      onClick={() => setTimeRange(range.id)}
+                      className={`px-3 py-1.5 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-none ${
+                        timeRange === range.id ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
+                      }`}
+                    >
+                      {range.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-fit justify-between">
-                {[
-                  { id: '7d', label: '7 dager' },
-                  { id: '30d', label: '30 dager' },
-                  { id: '12m', label: '12 måneder' }
-                ].map((range) => (
-                  <button
-                    key={range.id}
-                    onClick={() => setTimeRange(range.id)}
-                    className={`px-4 py-2 rounded-lg font-label-md text-xs font-bold transition-all cursor-pointer flex-1 sm:flex-none ${
-                      timeRange === range.id ? 'bg-[#d17d39] text-white shadow-sm' : 'text-secondary hover:text-onyx'
-                    }`}
-                  >
-                    {range.label}
-                  </button>
-                ))}
-              </div>
+              {timeRange === 'custom' && (
+                <div className="border-t border-slate-100 pt-3 flex flex-col sm:flex-row gap-4 items-end animate-fadeIn">
+                  <div className="w-full sm:w-auto flex flex-col gap-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Fra dato</label>
+                    <input
+                      type="date"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-onyx focus:outline-none focus:border-[#1B4965] focus:bg-white transition-colors w-full sm:w-44"
+                    />
+                  </div>
+                  <div className="w-full sm:w-auto flex flex-col gap-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Til dato</label>
+                    <input
+                      type="date"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-onyx focus:outline-none focus:border-[#1B4965] focus:bg-white transition-colors w-full sm:w-44"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

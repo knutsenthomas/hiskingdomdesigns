@@ -40,16 +40,41 @@ export default async function handler(req, res) {
     : '540361199'; // Vår bekreftede numerical Property ID for hiskingdomdesigns
 
   // Parse time range from query
-  const { range = '30d' } = req.query;
+  const { range = '30d', startDate: queryStartDate, endDate: queryEndDate } = req.query;
   let startDate = '30daysAgo';
+  let endDate = 'today';
   let chartDimension = 'date'; // 'date' for daily/weekly, 'yearMonth' for monthly
 
   if (range === '7d') {
     startDate = '7daysAgo';
+    endDate = 'today';
+    chartDimension = 'date';
+  } else if (range === '90d') {
+    startDate = '90daysAgo';
+    endDate = 'today';
     chartDimension = 'date';
   } else if (range === '12m') {
     startDate = '365daysAgo';
+    endDate = 'today';
     chartDimension = 'yearMonth';
+  } else if (range === 'custom') {
+    startDate = queryStartDate || '30daysAgo';
+    endDate = queryEndDate || 'today';
+    
+    // Velg chartDimension dynamisk basert på antall dager i perioden
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays > 35) {
+        chartDimension = 'yearMonth';
+      } else {
+        chartDimension = 'date';
+      }
+    } catch (e) {
+      chartDimension = 'date';
+    }
   }
 
   let credentials;
@@ -111,7 +136,7 @@ export default async function handler(req, res) {
     // 1. Fetch Overview Metrics
     const [overviewResponse] = await analyticsDataClient.runReport({
       property: formattedProperty,
-      dateRanges: [{ startDate, endDate: 'today' }],
+      dateRanges: [{ startDate, endDate }],
       metrics: [
         { name: 'activeUsers' },
         { name: 'screenPageViews' },
@@ -123,7 +148,7 @@ export default async function handler(req, res) {
     // 2. Fetch Chart Data (Active Users over time)
     const [chartResponse] = await analyticsDataClient.runReport({
       property: formattedProperty,
-      dateRanges: [{ startDate, endDate: 'today' }],
+      dateRanges: [{ startDate, endDate }],
       dimensions: [{ name: chartDimension }],
       metrics: [{ name: 'activeUsers' }],
       orderBys: [{ dimension: { dimensionName: chartDimension } }]
@@ -132,7 +157,7 @@ export default async function handler(req, res) {
     // 3. Fetch Traffic Sources
     const [trafficResponse] = await analyticsDataClient.runReport({
       property: formattedProperty,
-      dateRanges: [{ startDate, endDate: 'today' }],
+      dateRanges: [{ startDate, endDate }],
       dimensions: [{ name: 'sessionDefaultChannelGroup' }],
       metrics: [{ name: 'activeUsers' }],
       orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
@@ -141,7 +166,7 @@ export default async function handler(req, res) {
     // 4. Fetch Devices
     const [deviceResponse] = await analyticsDataClient.runReport({
       property: formattedProperty,
-      dateRanges: [{ startDate, endDate: 'today' }],
+      dateRanges: [{ startDate, endDate }],
       dimensions: [{ name: 'deviceCategory' }],
       metrics: [{ name: 'activeUsers' }],
       orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
