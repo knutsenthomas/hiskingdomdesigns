@@ -52,8 +52,8 @@ export default async function handler(req, res) {
     chartDimension = 'yearMonth';
   }
 
+  let credentials;
   try {
-    let credentials;
     let currentInput = saKeyStr.trim();
     
     // Forsøk å parse JSON. Håndterer base64 og dobbelt-strengifisert JSON.
