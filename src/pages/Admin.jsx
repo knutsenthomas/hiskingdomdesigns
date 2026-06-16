@@ -310,7 +310,7 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
   rangeOrders.forEach(order => {
     const items = order.lineItems || [];
     items.forEach(item => {
-      const itemName = (item.name || '').toLowerCase();
+      const itemName = (item.productName?.translated || item.productName?.original || item.name || '').toLowerCase();
       const itemTotal = parseFloat(item.price?.amount || item.price || 0) * (item.quantity || 1);
       
       if (itemName.includes('tskjorte') || itemName.includes('t-skjorte') || itemName.includes('genser') || itemName.includes('russ') || itemName.includes('bukse') || itemName.includes('bekledning')) {
@@ -343,7 +343,7 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
 
   // Recent orders formatted for table
   const ordersList = rangeOrders.slice(0, 10).map(order => {
-    const itemsText = (order.lineItems || []).map(it => `${it.name || 'Vare'} (x${it.quantity || 1})`).join(', ');
+    const itemsText = (order.lineItems || []).map(it => `${it.productName?.translated || it.productName?.original || it.name || 'Vare'} (x${it.quantity || 1})`).join(', ');
     
     let customerName = 'Gjest';
     if (order.buyerInfo) {
