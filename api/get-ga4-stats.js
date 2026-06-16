@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     }
 
     // Hvis det vi endte opp med er en ren privat nøkkel (streng), rekonstruerer vi credentials-objektet
-    if (typeof currentInput === 'string' && currentInput.includes('-----BEGIN PRIVATE KEY-----')) {
+    if (!credentials && typeof currentInput === 'string' && currentInput.includes('-----BEGIN PRIVATE KEY-----')) {
       credentials = {
         client_email: 'vercel-analytics-reader@his-kingdom-designs-499615.iam.gserviceaccount.com',
         private_key: currentInput
