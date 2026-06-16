@@ -461,7 +461,7 @@ export default function Admin() {
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-label-md text-xs font-bold transition-all duration-300 cursor-pointer ${
                       isActive 
-                        ? 'bg-[#1B4965] text-white shadow-sm' 
+                        ? 'bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white shadow-sm' 
                         : 'text-secondary hover:text-onyx hover:bg-slate-50'
                     }`}
                   >
@@ -470,7 +470,7 @@ export default function Admin() {
                       <span>{item.label}</span>
                     </div>
                     {item.badge !== undefined && item.badge !== null && (
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-[#d17d39] text-white' : 'bg-rose-500 text-white'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-white text-[#d17d39]' : 'bg-rose-500 text-white'}`}>
                         {item.badge}
                       </span>
                     )}
@@ -541,7 +541,7 @@ export default function Admin() {
                           }}
                           className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-label-md text-xs font-bold transition-all duration-300 cursor-pointer ${
                             isActive 
-                              ? 'bg-[#1B4965] text-white shadow-sm' 
+                              ? 'bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white shadow-sm' 
                               : 'text-secondary hover:text-onyx hover:bg-slate-50'
                           }`}
                         >
@@ -550,7 +550,7 @@ export default function Admin() {
                             <span>{item.label}</span>
                           </div>
                           {item.badge !== undefined && item.badge !== null && (
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-[#d17d39] text-white' : 'bg-rose-500 text-white'}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-white text-[#d17d39]' : 'bg-rose-500 text-white'}`}>
                               {item.badge}
                             </span>
                           )}
