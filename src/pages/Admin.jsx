@@ -505,25 +505,26 @@ export default function Admin() {
   };
 
   // Parse stats from GA4 response dynamically
-  const getParsedGaStats = () => {
+  // Parse stats from GA4 response dynamically
+  const getParsedGaStats = (wixStatsParam) => {
     const defaultGa = {
-      visitors: activeWixStats ? activeWixStats.visitors : '0',
-      visitorsVal: activeWixStats ? activeWixStats.visitorsCount : 0,
-      pageviews: activeWixStats ? activeWixStats.pageviews : '0',
-      bounceRate: activeWixStats ? activeWixStats.bounceRate : '42.5%',
-      avgDuration: activeWixStats ? activeWixStats.avgDuration : '2m 14s',
+      visitors: wixStatsParam ? wixStatsParam.visitors : '0',
+      visitorsVal: wixStatsParam ? wixStatsParam.visitorsCount : 0,
+      pageviews: wixStatsParam ? wixStatsParam.pageviews : '0',
+      bounceRate: wixStatsParam ? wixStatsParam.bounceRate : '42.5%',
+      avgDuration: wixStatsParam ? wixStatsParam.avgDuration : '2m 14s',
       trafficSources: [
-        { source: 'Sosiale medier (Insta, FB)', pct: activeWixStats?.ordersCount > 0 ? 45 : 0, color: 'bg-[#1B4965]', desc: 'Instagram, Facebook, Pinterest-kampanjer' },
-        { source: 'Direkte / Bokmerker', pct: activeWixStats?.ordersCount > 0 ? 25 : 0, color: 'bg-[#d17d39]', desc: 'Skrev inn URL eller lagrede linker' },
-        { source: 'Organisk søk (Google)', pct: activeWixStats?.ordersCount > 0 ? 20 : 0, color: 'bg-emerald-500', desc: 'Google-søk og søkemotoroptimalisering' },
-        { source: 'Referral (Affiliates)', pct: activeWixStats?.ordersCount > 0 ? 10 : 0, color: 'bg-indigo-600', desc: 'Gjennom affiliate delingslenker' }
+        { source: 'Sosiale medier (Insta, FB)', pct: wixStatsParam?.ordersCount > 0 ? 45 : 0, color: 'bg-[#1B4965]', desc: 'Instagram, Facebook, Pinterest-kampanjer' },
+        { source: 'Direkte / Bokmerker', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, color: 'bg-[#d17d39]', desc: 'Skrev inn URL eller lagrede linker' },
+        { source: 'Organisk søk (Google)', pct: wixStatsParam?.ordersCount > 0 ? 20 : 0, color: 'bg-emerald-500', desc: 'Google-søk og søkemotoroptimalisering' },
+        { source: 'Referral (Affiliates)', pct: wixStatsParam?.ordersCount > 0 ? 10 : 0, color: 'bg-indigo-600', desc: 'Gjennom affiliate delingslenker' }
       ],
       devices: [
-        { type: 'Mobiltelefoner', pct: activeWixStats?.ordersCount > 0 ? 72 : 0, icon: Smartphone, color: 'text-[#d17d39]' },
-        { type: 'Desktop PC / Mac', pct: activeWixStats?.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
-        { type: 'Nettbrett (Tablet)', pct: activeWixStats?.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
+        { type: 'Mobiltelefoner', pct: wixStatsParam?.ordersCount > 0 ? 72 : 0, icon: Smartphone, color: 'text-[#d17d39]' },
+        { type: 'Desktop PC / Mac', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
+        { type: 'Nettbrett (Tablet)', pct: wixStatsParam?.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
       ],
-      chartData: activeWixStats ? activeWixStats.chartData.visits : []
+      chartData: wixStatsParam ? wixStatsParam.chartData.visits : []
     };
 
     if (!gaStats || gaStats.success === false) {
@@ -589,9 +590,9 @@ export default function Admin() {
       return { type: config.label, pct, icon: config.icon, color: config.color };
     }) : defaultGa.devices;
 
-    const visitsChart = activeWixStats?.chartData?.labels?.map((label, idx) => {
+    const visitsChart = wixStatsParam?.chartData?.labels?.map((label, idx) => {
       if (!chart || chart.length === 0) return defaultGa.chartData[idx] || 0;
-      const chartIndex = Math.floor((idx / activeWixStats.chartData.labels.length) * chart.length);
+      const chartIndex = Math.floor((idx / wixStatsParam.chartData.labels.length) * chart.length);
       return chart[chartIndex]?.activeUsers || 0;
     }) || [];
 
@@ -608,7 +609,7 @@ export default function Admin() {
   };
 
   const activeWixStats = getParsedWixStats();
-  const activeGaStats = getParsedGaStats();
+  const activeGaStats = getParsedGaStats(activeWixStats);
 
   // Helper to draw custom responsive SVG line path
   const generatePath = (dataArray, maxVal) => {
