@@ -14,6 +14,351 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Parse stats from Wix orders dynamically based on timeRange
+const getParsedWixStats = (wixStats, timeRange) => {
+  const defaultStats = {
+    revenue: '0 kr',
+    revenueVal: 0,
+    revenueChange: '+0%',
+    orders: '0',
+    ordersCount: 0,
+    ordersChange: '+0%',
+    aov: '0 kr',
+    aovVal: 0,
+    aovChange: '+0%',
+    conversion: '2.5%',
+    conversionChange: '+0.0%',
+    visitors: '0',
+    visitorsCount: 0,
+    pageviews: '0',
+    bounceRate: '42.5%',
+    avgDuration: '2m 14s',
+    cookieAll: 88,
+    cookieNec: 12,
+    ordersList: [],
+    categories: [
+      { label: 'Klær & Bekledning', pct: 0, color: 'bg-[#1B4965]', amount: '0 kr' },
+      { label: 'Bilder & Kunst', pct: 0, color: 'bg-[#d17d39]', amount: '0 kr' },
+      { label: 'Tilbehør & Hjem', pct: 0, color: 'bg-slate-400', amount: '0 kr' },
+      { label: 'Barn & Familie', pct: 0, color: 'bg-emerald-500', amount: '0 kr' }
+    ],
+    chartData: { labels: [], sales: [], visits: [] },
+    totalContacts: 0
+  };
+
+  if (!wixStats || !wixStats.orders) {
+    return defaultStats;
+  }
+
+  const allOrders = wixStats.orders;
+  const now = new Date();
+
+  // Filter orders based on time range
+  const filterByRange = (order) => {
+    const orderDate = new Date(order._createdDate || order.createdDate);
+    const diffTime = Math.abs(now - orderDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (timeRange === '7d') return diffDays <= 7;
+    if (timeRange === '30d') return diffDays <= 30;
+    if (timeRange === '12m') return diffDays <= 365;
+    return true;
+  };
+
+  // Filter orders for the previous period (to calculate trends)
+  const filterByPreviousRange = (order) => {
+    const orderDate = new Date(order._createdDate || order.createdDate);
+    const diffTime = Math.abs(now - orderDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (timeRange === '7d') return diffDays > 7 && diffDays <= 14;
+    if (timeRange === '30d') return diffDays > 30 && diffDays <= 60;
+    if (timeRange === '12m') return diffDays > 365 && diffDays <= 730;
+    return false;
+  };
+
+  const rangeOrders = allOrders.filter(filterByRange);
+  const prevOrders = allOrders.filter(filterByPreviousRange);
+  
+  // Calculate total revenue
+  let totalRevenue = 0;
+  rangeOrders.forEach(order => {
+    const amount = parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0);
+    totalRevenue += amount;
+  });
+
+  let prevRevenue = 0;
+  prevOrders.forEach(order => {
+    const amount = parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0);
+    prevRevenue += amount;
+  });
+
+  const ordersCount = rangeOrders.length;
+  const prevOrdersCount = prevOrders.length;
+  
+  const aovVal = ordersCount > 0 ? Math.round(totalRevenue / ordersCount) : 0;
+  const prevAovVal = prevOrdersCount > 0 ? Math.round(prevRevenue / prevOrdersCount) : 0;
+
+  // Calculate trends
+  const calculatePctChange = (current, previous) => {
+    if (previous === 0) return current > 0 ? '+100%' : '+0%';
+    const change = ((current - previous) / previous) * 100;
+    return (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+  };
+
+  const revenueChange = calculatePctChange(totalRevenue, prevRevenue);
+  const ordersChange = calculatePctChange(ordersCount, prevOrdersCount);
+  const aovChange = calculatePctChange(aovVal, prevAovVal);
+
+  // Calculate monthly/weekly trends for charts
+  let labels = [];
+  let sales = [];
+  let visits = []; 
+
+  if (timeRange === '7d') {
+    labels = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
+    sales = Array(7).fill(0);
+    visits = Array(7).fill(0);
+    
+    rangeOrders.forEach(order => {
+      const orderDate = new Date(order._createdDate || order.createdDate);
+      const day = (orderDate.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+      const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+      sales[day] += amount;
+    });
+
+    sales.forEach((s, idx) => {
+      // visits based on orders/conversion
+      visits[idx] = s > 0 ? Math.round((s / 250) * 4) + 12 : 5 + Math.round(Math.random() * 8);
+    });
+  } else if (timeRange === '12m') {
+    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+    sales = Array(12).fill(0);
+    visits = Array(12).fill(0);
+    
+    rangeOrders.forEach(order => {
+      const orderDate = new Date(order._createdDate || order.createdDate);
+      const month = orderDate.getMonth(); // Jan = 0, Dec = 11
+      const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+      sales[month] += amount;
+    });
+
+    sales.forEach((s, idx) => {
+      visits[idx] = s > 0 ? Math.round((s / 400) * 8) + 45 : 20 + Math.round(Math.random() * 20);
+    });
+  } else {
+    // 30d
+    labels = ['Uke 1', 'Uke 2', 'Uke 3', 'Uke 4'];
+    sales = Array(4).fill(0);
+    visits = Array(4).fill(0);
+    
+    rangeOrders.forEach(order => {
+      const orderDate = new Date(order._createdDate || order.createdDate);
+      const diffDays = Math.ceil(Math.abs(now - orderDate) / (1000 * 60 * 60 * 24));
+      const weekIdx = Math.min(3, Math.floor((30 - diffDays) / 7.5)); // Map to week 0-3
+      if (weekIdx >= 0 && weekIdx < 4) {
+        const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+        sales[weekIdx] += amount;
+      }
+    });
+
+    sales.forEach((s, idx) => {
+      visits[idx] = s > 0 ? Math.round((s / 300) * 6) + 32 : 15 + Math.round(Math.random() * 10);
+    });
+  }
+
+  // Category breakdown from real items
+  const categoryTotals = {
+    'Klær & Bekledning': 0,
+    'Bilder & Kunst': 0,
+    'Tilbehør & Hjem': 0,
+    'Barn & Familie': 0
+  };
+
+  rangeOrders.forEach(order => {
+    const items = order.lineItems || [];
+    items.forEach(item => {
+      const itemName = (item.name || '').toLowerCase();
+      const itemTotal = parseFloat(item.price?.amount || item.price || 0) * (item.quantity || 1);
+      
+      if (itemName.includes('tskjorte') || itemName.includes('t-skjorte') || itemName.includes('genser') || itemName.includes('russ') || itemName.includes('bukse') || itemName.includes('bekledning')) {
+        categoryTotals['Klær & Bekledning'] += itemTotal;
+      } else if (itemName.includes('plakat') || itemName.includes('bilde') || itemName.includes('kunst') || itemName.includes('fotografi')) {
+        categoryTotals['Bilder & Kunst'] += itemTotal;
+      } else if (itemName.includes('kopp') || itemName.includes('flaske') || itemName.includes('armbånd') || itemName.includes('deksel') || itemName.includes('nett') || itemName.includes('smykk')) {
+        categoryTotals['Tilbehør & Hjem'] += itemTotal;
+      } else if (itemName.includes('baby') || itemName.includes('barn') || itemName.includes('ungdom') || itemName.includes('familie')) {
+        categoryTotals['Barn & Familie'] += itemTotal;
+      } else {
+        // default distribute based on keywords, or fallback
+        categoryTotals['Bilder & Kunst'] += itemTotal;
+      }
+    });
+  });
+
+  const catSum = Object.values(categoryTotals).reduce((a, b) => a + b, 0) || 1;
+  const categories = [
+    { label: 'Klær & Bekledning', pct: Math.round((categoryTotals['Klær & Bekledning'] / catSum) * 100), color: 'bg-[#1B4965]', amount: `${Math.round(categoryTotals['Klær & Bekledning'])} kr` },
+    { label: 'Bilder & Kunst', pct: Math.round((categoryTotals['Bilder & Kunst'] / catSum) * 100), color: 'bg-[#d17d39]', amount: `${Math.round(categoryTotals['Bilder & Kunst'])} kr` },
+    { label: 'Tilbehør & Hjem', pct: Math.round((categoryTotals['Tilbehør & Hjem'] / catSum) * 100), color: 'bg-slate-400', amount: `${Math.round(categoryTotals['Tilbehør & Hjem'])} kr` },
+    { label: 'Barn & Familie', pct: Math.round((categoryTotals['Barn & Familie'] / catSum) * 100), color: 'bg-emerald-500', amount: `${Math.round(categoryTotals['Barn & Familie'])} kr` }
+  ];
+
+  // Estimated visitors based on standard conversion rate (2.5%)
+  const visitorsCount = Math.round(ordersCount / 0.025);
+  const prevVisitorsCount = Math.round(prevOrdersCount / 0.025);
+  const conversionChange = (ordersCount > 0 && visitorsCount > 0) ? '+0.1%' : '+0.0%';
+
+  // Recent orders formatted for table
+  const ordersList = rangeOrders.slice(0, 10).map(order => {
+    const itemsText = (order.lineItems || []).map(it => `${it.name || 'Vare'} (x${it.quantity || 1})`).join(', ');
+    
+    let customerName = 'Gjest';
+    if (order.buyerInfo) {
+      const first = order.buyerInfo.name?.firstName || '';
+      const last = order.buyerInfo.name?.lastName || '';
+      customerName = `${first} ${last}`.trim() || order.buyerInfo.email || 'Gjest';
+    }
+
+    return {
+      id: order.number ? `HK-${order.number}` : (order._id || order.id || 'HK-Ordre').substring(0, 8),
+      customer: customerName,
+      date: order._createdDate ? new Date(order._createdDate).toLocaleDateString('no-NO') : 'Ukjent',
+      items: itemsText || 'Varer',
+      amount: `${Math.round(parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0))} kr`,
+      status: order.status || 'Behandles'
+    };
+  });
+
+  return {
+    revenue: `${Math.round(totalRevenue)} kr`,
+    revenueVal: totalRevenue,
+    revenueChange,
+    orders: String(ordersCount),
+    ordersCount,
+    ordersChange,
+    aov: `${aovVal} kr`,
+    aovVal,
+    aovChange,
+    conversion: ordersCount > 0 ? '2.5%' : '0.0%',
+    conversionChange,
+    visitors: String(visitorsCount),
+    visitorsCount,
+    pageviews: String(visitorsCount * 3),
+    bounceRate: ordersCount > 0 ? '42.5%' : '0.0%',
+    avgDuration: ordersCount > 0 ? '2m 14s' : '0m 00s',
+    cookieAll: ordersCount > 0 ? 88 : 100,
+    cookieNec: ordersCount > 0 ? 12 : 0,
+    ordersList,
+    categories,
+    chartData: { labels, sales, visits },
+    totalContacts: wixStats.totalContacts || 0
+  };
+};
+
+// Parse stats from GA4 response dynamically
+const getParsedGaStats = (gaStats, wixStatsParam) => {
+  const defaultGa = {
+    visitors: wixStatsParam ? wixStatsParam.visitors : '0',
+    visitorsVal: wixStatsParam ? wixStatsParam.visitorsCount : 0,
+    pageviews: wixStatsParam ? wixStatsParam.pageviews : '0',
+    bounceRate: wixStatsParam ? wixStatsParam.bounceRate : '42.5%',
+    avgDuration: wixStatsParam ? wixStatsParam.avgDuration : '2m 14s',
+    trafficSources: [
+      { source: 'Sosiale medier (Insta, FB)', pct: wixStatsParam?.ordersCount > 0 ? 45 : 0, color: 'bg-[#1B4965]', desc: 'Instagram, Facebook, Pinterest-kampanjer' },
+      { source: 'Direkte / Bokmerker', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, color: 'bg-[#d17d39]', desc: 'Skrev inn URL eller lagrede linker' },
+      { source: 'Organisk søk (Google)', pct: wixStatsParam?.ordersCount > 0 ? 20 : 0, color: 'bg-emerald-500', desc: 'Google-søk og søkemotoroptimalisering' },
+      { source: 'Referral (Affiliates)', pct: wixStatsParam?.ordersCount > 0 ? 10 : 0, color: 'bg-indigo-600', desc: 'Gjennom affiliate delingslenker' }
+    ],
+    devices: [
+      { type: 'Mobiltelefoner', pct: wixStatsParam?.ordersCount > 0 ? 72 : 0, icon: Smartphone, color: 'text-[#d17d39]' },
+      { type: 'Desktop PC / Mac', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
+      { type: 'Nettbrett (Tablet)', pct: wixStatsParam?.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
+    ],
+    chartData: wixStatsParam ? wixStatsParam.chartData.visits : []
+  };
+
+  if (!gaStats) {
+    return defaultGa;
+  }
+
+  const { overview, chart, traffic, devices } = gaStats;
+
+  const formatDuration = (secVal) => {
+    const sec = parseFloat(secVal || 0);
+    if (isNaN(sec) || sec <= 0) return '0s';
+    const m = Math.floor(sec / 60);
+    const s = Math.round(sec % 60);
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
+  const visitors = overview?.activeUsers ? String(overview.activeUsers) : '0';
+  const visitorsVal = overview?.activeUsers ? parseInt(overview.activeUsers, 10) : 0;
+  const pageviews = overview?.screenPageViews ? String(overview.screenPageViews) : '0';
+  const bounceRate = overview?.bounceRate || '0.0%';
+  const avgDuration = formatDuration(overview?.averageSessionDuration || 0);
+
+  const totalTrafficUsers = traffic?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
+  const trafficSources = traffic && traffic.length > 0 ? traffic.map((item, idx) => {
+    const colors = ['bg-[#1B4965]', 'bg-[#d17d39]', 'bg-emerald-500', 'bg-indigo-600', 'bg-[#bd4f2a]'];
+    const color = colors[idx % colors.length];
+    const pct = Math.round(((item.activeUsers || 0) / totalTrafficUsers) * 100);
+
+    let sourceName = item.source || 'Annet';
+    let desc = '';
+    const sourceLower = sourceName.toLowerCase();
+    if (sourceLower.includes('organic search') || sourceLower.includes('organic') || sourceLower === 'direct') {
+      if (sourceLower.includes('organic search') || sourceLower.includes('organic')) {
+        sourceName = 'Organisk søk (Google)';
+        desc = 'Google-søk og søkemotoroptimalisering';
+      } else {
+        sourceName = 'Direkte / Bokmerker';
+        desc = 'Skrev inn URL eller lagrede linker';
+      }
+    } else if (sourceLower.includes('social')) {
+      sourceName = 'Sosiale medier (Insta, FB)';
+      desc = 'Instagram, Facebook, Pinterest-kampanjer';
+    } else if (sourceLower.includes('referral')) {
+      sourceName = 'Referral (Affiliates)';
+      desc = 'Ekstern henvisningsdata og affiliate delingslenker';
+    } else {
+      desc = `Trafikk registrert fra kanal: ${sourceName}`;
+    }
+
+    return { source: sourceName, pct, color, desc };
+  }) : defaultGa.trafficSources;
+
+  const totalDeviceUsers = devices?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
+  const deviceMap = {
+    mobile: { label: 'Mobiltelefoner', icon: Smartphone, color: 'text-[#d17d39]' },
+    desktop: { label: 'Desktop PC / Mac', icon: Laptop, color: 'text-[#1B4965]' },
+    tablet: { label: 'Nettbrett (Tablet)', icon: Tablet, color: 'text-slate-500' }
+  };
+  const deviceList = devices && devices.length > 0 ? devices.map(item => {
+    const devType = (item.device || 'desktop').toLowerCase();
+    const config = deviceMap[devType] || { label: item.device, icon: Laptop, color: 'text-slate-400' };
+    const pct = Math.round(((item.activeUsers || 0) / totalDeviceUsers) * 100);
+    return { type: config.label, pct, icon: config.icon, color: config.color };
+  }) : defaultGa.devices;
+
+  const visitsChart = wixStatsParam?.chartData?.labels?.map((label, idx) => {
+    if (!chart || chart.length === 0) return defaultGa.chartData[idx] || 0;
+    const chartIndex = Math.floor((idx / wixStatsParam.chartData.labels.length) * chart.length);
+    return chart[chartIndex]?.activeUsers || 0;
+  }) || [];
+
+  return {
+    visitors,
+    visitorsVal,
+    pageviews,
+    bounceRate,
+    avgDuration,
+    trafficSources,
+    devices: deviceList,
+    chartData: visitsChart
+  };
+};
+
 export default function Admin() {
   useMeta(
     "Admin-panel - His Kingdom Designs",
@@ -53,6 +398,49 @@ export default function Admin() {
   const [gaLoading, setGaLoading] = useState(true);
   const [gaError, setGaError] = useState(null);
   const [gaSetupRequired, setGaSetupRequired] = useState(false);
+
+  // Helper to safely extract email from Wix member object
+  const getMemberEmail = (memberObj) => {
+    if (!memberObj) return '';
+    if (memberObj.loginEmail) return memberObj.loginEmail;
+    
+    const cdEmails = memberObj.contactDetails?.emails || [];
+    if (cdEmails[0]) {
+      return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
+    }
+    
+    const cEmails = memberObj.contact?.emails || [];
+    if (cEmails[0]) {
+      return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
+    }
+    
+    if (memberObj.contactDetails?.email) return memberObj.contactDetails.email;
+    if (memberObj.contact?.email) return memberObj.contact.email;
+    
+    return '';
+  };
+
+  const wixEmail = getMemberEmail(member).toLowerCase();
+  const localRole = localStorage.getItem('hkm-user-role') || '';
+  const ADMIN_EMAILS = [
+    'knutsenthomas@gmail.com',
+    'thomas@hiskingdomministry.no',
+    'thomas@hiskingdomministry',
+    'hildekarin@gmail.com',
+    'hildekarin@hiskingdomministry.no',
+    'thomas@tk-design.no'
+  ];
+  const ADMIN_MEMBER_IDS = [
+    '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
+  ];
+  const isAdminUser = 
+    ADMIN_EMAILS.includes(wixEmail) ||
+    ADMIN_MEMBER_IDS.includes(member?._id) ||
+    localRole === 'admin' ||
+    localRole === 'superadmin' ||
+    window.location.search.includes('admin=true');
+
+  const isAuthLoading = isLoggedIn && !member;
 
   // Fetch Wix stats from serverless API
   useEffect(() => {
@@ -122,49 +510,6 @@ export default function Admin() {
 
     fetchGaStats();
   }, [isAdminUser, isAuthLoading, timeRange, refreshKey]);
-
-  // Helper to safely extract email from Wix member object
-  const getMemberEmail = (memberObj) => {
-    if (!memberObj) return '';
-    if (memberObj.loginEmail) return memberObj.loginEmail;
-    
-    const cdEmails = memberObj.contactDetails?.emails || [];
-    if (cdEmails[0]) {
-      return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
-    }
-    
-    const cEmails = memberObj.contact?.emails || [];
-    if (cEmails[0]) {
-      return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
-    }
-    
-    if (memberObj.contactDetails?.email) return memberObj.contactDetails.email;
-    if (memberObj.contact?.email) return memberObj.contact.email;
-    
-    return '';
-  };
-
-  const wixEmail = getMemberEmail(member).toLowerCase();
-  const localRole = localStorage.getItem('hkm-user-role') || '';
-  const ADMIN_EMAILS = [
-    'knutsenthomas@gmail.com',
-    'thomas@hiskingdomministry.no',
-    'thomas@hiskingdomministry',
-    'hildekarin@gmail.com',
-    'hildekarin@hiskingdomministry.no',
-    'thomas@tk-design.no'
-  ];
-  const ADMIN_MEMBER_IDS = [
-    '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
-  ];
-  const isAdminUser = 
-    ADMIN_EMAILS.includes(wixEmail) ||
-    ADMIN_MEMBER_IDS.includes(member?._id) ||
-    localRole === 'admin' ||
-    localRole === 'superadmin' ||
-    window.location.search.includes('admin=true');
-
-  const isAuthLoading = isLoggedIn && !member;
 
   // Fetch affiliate applications
   useEffect(() => {
@@ -262,354 +607,8 @@ export default function Admin() {
     );
   });
 
-  // Parse stats from Wix orders dynamically based on timeRange
-  const getParsedWixStats = () => {
-    const defaultStats = {
-      revenue: '0 kr',
-      revenueVal: 0,
-      revenueChange: '+0%',
-      orders: '0',
-      ordersCount: 0,
-      ordersChange: '+0%',
-      aov: '0 kr',
-      aovVal: 0,
-      aovChange: '+0%',
-      conversion: '2.5%',
-      conversionChange: '+0.0%',
-      visitors: '0',
-      visitorsCount: 0,
-      pageviews: '0',
-      bounceRate: '42.5%',
-      avgDuration: '2m 14s',
-      cookieAll: 88,
-      cookieNec: 12,
-      ordersList: [],
-      categories: [
-        { label: 'Klær & Bekledning', pct: 0, color: 'bg-[#1B4965]', amount: '0 kr' },
-        { label: 'Bilder & Kunst', pct: 0, color: 'bg-[#d17d39]', amount: '0 kr' },
-        { label: 'Tilbehør & Hjem', pct: 0, color: 'bg-slate-400', amount: '0 kr' },
-        { label: 'Barn & Familie', pct: 0, color: 'bg-emerald-500', amount: '0 kr' }
-      ],
-      chartData: { labels: [], sales: [], visits: [] },
-      totalContacts: 0
-    };
-
-    if (!wixStats || !wixStats.orders) {
-      return defaultStats;
-    }
-
-    const allOrders = wixStats.orders;
-    const now = new Date();
-
-    // Filter orders based on time range
-    const filterByRange = (order) => {
-      const orderDate = new Date(order._createdDate || order.createdDate);
-      const diffTime = Math.abs(now - orderDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (timeRange === '7d') return diffDays <= 7;
-      if (timeRange === '30d') return diffDays <= 30;
-      if (timeRange === '12m') return diffDays <= 365;
-      return true;
-    };
-
-    // Filter orders for the previous period (to calculate trends)
-    const filterByPreviousRange = (order) => {
-      const orderDate = new Date(order._createdDate || order.createdDate);
-      const diffTime = Math.abs(now - orderDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (timeRange === '7d') return diffDays > 7 && diffDays <= 14;
-      if (timeRange === '30d') return diffDays > 30 && diffDays <= 60;
-      if (timeRange === '12m') return diffDays > 365 && diffDays <= 730;
-      return false;
-    };
-
-    const rangeOrders = allOrders.filter(filterByRange);
-    const prevOrders = allOrders.filter(filterByPreviousRange);
-    
-    // Calculate total revenue
-    let totalRevenue = 0;
-    rangeOrders.forEach(order => {
-      const amount = parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0);
-      totalRevenue += amount;
-    });
-
-    let prevRevenue = 0;
-    prevOrders.forEach(order => {
-      const amount = parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0);
-      prevRevenue += amount;
-    });
-
-    const ordersCount = rangeOrders.length;
-    const prevOrdersCount = prevOrders.length;
-    
-    const aovVal = ordersCount > 0 ? Math.round(totalRevenue / ordersCount) : 0;
-    const prevAovVal = prevOrdersCount > 0 ? Math.round(prevRevenue / prevOrdersCount) : 0;
-
-    // Calculate trends
-    const calculatePctChange = (current, previous) => {
-      if (previous === 0) return current > 0 ? '+100%' : '+0%';
-      const change = ((current - previous) / previous) * 100;
-      return (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
-    };
-
-    const revenueChange = calculatePctChange(totalRevenue, prevRevenue);
-    const ordersChange = calculatePctChange(ordersCount, prevOrdersCount);
-    const aovChange = calculatePctChange(aovVal, prevAovVal);
-
-    // Calculate monthly/weekly trends for charts
-    let labels = [];
-    let sales = [];
-    let visits = []; 
-
-    if (timeRange === '7d') {
-      labels = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
-      sales = Array(7).fill(0);
-      visits = Array(7).fill(0);
-      
-      rangeOrders.forEach(order => {
-        const orderDate = new Date(order._createdDate || order.createdDate);
-        const day = (orderDate.getDay() + 6) % 7; // Monday = 0, Sunday = 6
-        const amount = parseFloat(order.priceSummary?.total?.amount || 0);
-        sales[day] += amount;
-      });
-
-      sales.forEach((s, idx) => {
-        // visits based on orders/conversion
-        visits[idx] = s > 0 ? Math.round((s / 250) * 4) + 12 : 5 + Math.round(Math.random() * 8);
-      });
-    } else if (timeRange === '12m') {
-      labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
-      sales = Array(12).fill(0);
-      visits = Array(12).fill(0);
-      
-      rangeOrders.forEach(order => {
-        const orderDate = new Date(order._createdDate || order.createdDate);
-        const month = orderDate.getMonth(); // Jan = 0, Dec = 11
-        const amount = parseFloat(order.priceSummary?.total?.amount || 0);
-        sales[month] += amount;
-      });
-
-      sales.forEach((s, idx) => {
-        visits[idx] = s > 0 ? Math.round((s / 400) * 8) + 45 : 20 + Math.round(Math.random() * 20);
-      });
-    } else {
-      // 30d
-      labels = ['Uke 1', 'Uke 2', 'Uke 3', 'Uke 4'];
-      sales = Array(4).fill(0);
-      visits = Array(4).fill(0);
-      
-      rangeOrders.forEach(order => {
-        const orderDate = new Date(order._createdDate || order.createdDate);
-        const diffDays = Math.ceil(Math.abs(now - orderDate) / (1000 * 60 * 60 * 24));
-        const weekIdx = Math.min(3, Math.floor((30 - diffDays) / 7.5)); // Map to week 0-3
-        if (weekIdx >= 0 && weekIdx < 4) {
-          const amount = parseFloat(order.priceSummary?.total?.amount || 0);
-          sales[weekIdx] += amount;
-        }
-      });
-
-      sales.forEach((s, idx) => {
-        visits[idx] = s > 0 ? Math.round((s / 300) * 6) + 32 : 15 + Math.round(Math.random() * 10);
-      });
-    }
-
-    // Category breakdown from real items
-    const categoryTotals = {
-      'Klær & Bekledning': 0,
-      'Bilder & Kunst': 0,
-      'Tilbehør & Hjem': 0,
-      'Barn & Familie': 0
-    };
-
-    rangeOrders.forEach(order => {
-      const items = order.lineItems || [];
-      items.forEach(item => {
-        const itemName = (item.name || '').toLowerCase();
-        const itemTotal = parseFloat(item.price?.amount || item.price || 0) * (item.quantity || 1);
-        
-        if (itemName.includes('tskjorte') || itemName.includes('t-skjorte') || itemName.includes('genser') || itemName.includes('russ') || itemName.includes('bukse') || itemName.includes('bekledning')) {
-          categoryTotals['Klær & Bekledning'] += itemTotal;
-        } else if (itemName.includes('plakat') || itemName.includes('bilde') || itemName.includes('kunst') || itemName.includes('fotografi')) {
-          categoryTotals['Bilder & Kunst'] += itemTotal;
-        } else if (itemName.includes('kopp') || itemName.includes('flaske') || itemName.includes('armbånd') || itemName.includes('deksel') || itemName.includes('nett') || itemName.includes('smykk')) {
-          categoryTotals['Tilbehør & Hjem'] += itemTotal;
-        } else if (itemName.includes('baby') || itemName.includes('barn') || itemName.includes('ungdom') || itemName.includes('familie')) {
-          categoryTotals['Barn & Familie'] += itemTotal;
-        } else {
-          // default distribute based on keywords, or fallback
-          categoryTotals['Bilder & Kunst'] += itemTotal;
-        }
-      });
-    });
-
-    const catSum = Object.values(categoryTotals).reduce((a, b) => a + b, 0) || 1;
-    const categories = [
-      { label: 'Klær & Bekledning', pct: Math.round((categoryTotals['Klær & Bekledning'] / catSum) * 100), color: 'bg-[#1B4965]', amount: `${Math.round(categoryTotals['Klær & Bekledning'])} kr` },
-      { label: 'Bilder & Kunst', pct: Math.round((categoryTotals['Bilder & Kunst'] / catSum) * 100), color: 'bg-[#d17d39]', amount: `${Math.round(categoryTotals['Bilder & Kunst'])} kr` },
-      { label: 'Tilbehør & Hjem', pct: Math.round((categoryTotals['Tilbehør & Hjem'] / catSum) * 100), color: 'bg-slate-400', amount: `${Math.round(categoryTotals['Tilbehør & Hjem'])} kr` },
-      { label: 'Barn & Familie', pct: Math.round((categoryTotals['Barn & Familie'] / catSum) * 100), color: 'bg-emerald-500', amount: `${Math.round(categoryTotals['Barn & Familie'])} kr` }
-    ];
-
-    // Estimated visitors based on standard conversion rate (2.5%)
-    const visitorsCount = Math.round(ordersCount / 0.025);
-    const prevVisitorsCount = Math.round(prevOrdersCount / 0.025);
-    const conversionChange = (ordersCount > 0 && visitorsCount > 0) ? '+0.1%' : '+0.0%';
-
-    // Recent orders formatted for table
-    const ordersList = rangeOrders.slice(0, 10).map(order => {
-      const itemsText = (order.lineItems || []).map(it => `${it.name || 'Vare'} (x${it.quantity || 1})`).join(', ');
-      
-      let customerName = 'Gjest';
-      if (order.buyerInfo) {
-        const first = order.buyerInfo.name?.firstName || '';
-        const last = order.buyerInfo.name?.lastName || '';
-        customerName = `${first} ${last}`.trim() || order.buyerInfo.email || 'Gjest';
-      }
-
-      return {
-        id: order.number ? `HK-${order.number}` : (order._id || order.id || 'HK-Ordre').substring(0, 8),
-        customer: customerName,
-        date: order._createdDate ? new Date(order._createdDate).toLocaleDateString('no-NO') : 'Ukjent',
-        items: itemsText || 'Varer',
-        amount: `${Math.round(parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0))} kr`,
-        status: order.status || 'Behandles'
-      };
-    });
-
-    return {
-      revenue: `${Math.round(totalRevenue)} kr`,
-      revenueVal: totalRevenue,
-      revenueChange,
-      orders: String(ordersCount),
-      ordersCount,
-      ordersChange,
-      aov: `${aovVal} kr`,
-      aovVal,
-      aovChange,
-      conversion: ordersCount > 0 ? '2.5%' : '0.0%',
-      conversionChange,
-      visitors: String(visitorsCount),
-      visitorsCount,
-      pageviews: String(visitorsCount * 3),
-      bounceRate: ordersCount > 0 ? '42.5%' : '0.0%',
-      avgDuration: ordersCount > 0 ? '2m 14s' : '0m 00s',
-      cookieAll: ordersCount > 0 ? 88 : 100,
-      cookieNec: ordersCount > 0 ? 12 : 0,
-      ordersList,
-      categories,
-      chartData: { labels, sales, visits },
-      totalContacts: wixStats.totalContacts || 0
-    };
-  };
-
-  // Parse stats from GA4 response dynamically
-  // Parse stats from GA4 response dynamically
-  const getParsedGaStats = (wixStatsParam) => {
-    const defaultGa = {
-      visitors: wixStatsParam ? wixStatsParam.visitors : '0',
-      visitorsVal: wixStatsParam ? wixStatsParam.visitorsCount : 0,
-      pageviews: wixStatsParam ? wixStatsParam.pageviews : '0',
-      bounceRate: wixStatsParam ? wixStatsParam.bounceRate : '42.5%',
-      avgDuration: wixStatsParam ? wixStatsParam.avgDuration : '2m 14s',
-      trafficSources: [
-        { source: 'Sosiale medier (Insta, FB)', pct: wixStatsParam?.ordersCount > 0 ? 45 : 0, color: 'bg-[#1B4965]', desc: 'Instagram, Facebook, Pinterest-kampanjer' },
-        { source: 'Direkte / Bokmerker', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, color: 'bg-[#d17d39]', desc: 'Skrev inn URL eller lagrede linker' },
-        { source: 'Organisk søk (Google)', pct: wixStatsParam?.ordersCount > 0 ? 20 : 0, color: 'bg-emerald-500', desc: 'Google-søk og søkemotoroptimalisering' },
-        { source: 'Referral (Affiliates)', pct: wixStatsParam?.ordersCount > 0 ? 10 : 0, color: 'bg-indigo-600', desc: 'Gjennom affiliate delingslenker' }
-      ],
-      devices: [
-        { type: 'Mobiltelefoner', pct: wixStatsParam?.ordersCount > 0 ? 72 : 0, icon: Smartphone, color: 'text-[#d17d39]' },
-        { type: 'Desktop PC / Mac', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
-        { type: 'Nettbrett (Tablet)', pct: wixStatsParam?.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
-      ],
-      chartData: wixStatsParam ? wixStatsParam.chartData.visits : []
-    };
-
-    if (!gaStats || gaStats.success === false) {
-      return defaultGa;
-    }
-
-    const { overview, chart, traffic, devices } = gaStats;
-
-    const formatDuration = (secVal) => {
-      const sec = parseFloat(secVal || 0);
-      if (isNaN(sec) || sec <= 0) return '0s';
-      const m = Math.floor(sec / 60);
-      const s = Math.round(sec % 60);
-      return m > 0 ? `${m}m ${s}s` : `${s}s`;
-    };
-
-    const visitors = overview?.activeUsers ? String(overview.activeUsers) : '0';
-    const visitorsVal = overview?.activeUsers ? parseInt(overview.activeUsers, 10) : 0;
-    const pageviews = overview?.screenPageViews ? String(overview.screenPageViews) : '0';
-    const bounceRate = overview?.bounceRate || '0.0%';
-    const avgDuration = formatDuration(overview?.averageSessionDuration || 0);
-
-    const totalTrafficUsers = traffic?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
-    const trafficSources = traffic && traffic.length > 0 ? traffic.map((item, idx) => {
-      const colors = ['bg-[#1B4965]', 'bg-[#d17d39]', 'bg-emerald-500', 'bg-indigo-600', 'bg-[#bd4f2a]'];
-      const color = colors[idx % colors.length];
-      const pct = Math.round(((item.activeUsers || 0) / totalTrafficUsers) * 100);
-
-      let sourceName = item.source || 'Annet';
-      let desc = '';
-      const sourceLower = sourceName.toLowerCase();
-      if (sourceLower.includes('organic search') || sourceLower.includes('organic') || sourceLower === 'direct') {
-        if (sourceLower.includes('organic search') || sourceLower.includes('organic')) {
-          sourceName = 'Organisk søk (Google)';
-          desc = 'Google-søk og søkemotoroptimalisering';
-        } else {
-          sourceName = 'Direkte / Bokmerker';
-          desc = 'Skrev inn URL eller lagrede linker';
-        }
-      } else if (sourceLower.includes('social')) {
-        sourceName = 'Sosiale medier (Insta, FB)';
-        desc = 'Instagram, Facebook, Pinterest-kampanjer';
-      } else if (sourceLower.includes('referral')) {
-        sourceName = 'Referral (Affiliates)';
-        desc = 'Ekstern henvisningsdata og affiliate delingslenker';
-      } else {
-        desc = `Trafikk registrert fra kanal: ${sourceName}`;
-      }
-
-      return { source: sourceName, pct, color, desc };
-    }) : defaultGa.trafficSources;
-
-    const totalDeviceUsers = devices?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
-    const deviceMap = {
-      mobile: { label: 'Mobiltelefoner', icon: Smartphone, color: 'text-[#d17d39]' },
-      desktop: { label: 'Desktop PC / Mac', icon: Laptop, color: 'text-[#1B4965]' },
-      tablet: { label: 'Nettbrett (Tablet)', icon: Tablet, color: 'text-slate-500' }
-    };
-    const deviceList = devices && devices.length > 0 ? devices.map(item => {
-      const devType = (item.device || 'desktop').toLowerCase();
-      const config = deviceMap[devType] || { label: item.device, icon: Laptop, color: 'text-slate-400' };
-      const pct = Math.round(((item.activeUsers || 0) / totalDeviceUsers) * 100);
-      return { type: config.label, pct, icon: config.icon, color: config.color };
-    }) : defaultGa.devices;
-
-    const visitsChart = wixStatsParam?.chartData?.labels?.map((label, idx) => {
-      if (!chart || chart.length === 0) return defaultGa.chartData[idx] || 0;
-      const chartIndex = Math.floor((idx / wixStatsParam.chartData.labels.length) * chart.length);
-      return chart[chartIndex]?.activeUsers || 0;
-    }) || [];
-
-    return {
-      visitors,
-      visitorsVal,
-      pageviews,
-      bounceRate,
-      avgDuration,
-      trafficSources,
-      devices: deviceList,
-      chartData: visitsChart
-    };
-  };
-
-  const activeWixStats = getParsedWixStats();
-  const activeGaStats = getParsedGaStats(activeWixStats);
+  const activeWixStats = getParsedWixStats(wixStats, timeRange);
+  const activeGaStats = getParsedGaStats(gaStats, activeWixStats);
 
   // Helper to draw custom responsive SVG line path
   const generatePath = (dataArray, maxVal) => {
