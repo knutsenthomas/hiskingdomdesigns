@@ -175,22 +175,9 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('GA4 API Error:', error);
-    let keyInfo = 'Not loaded';
-    if (credentials && credentials.private_key) {
-      const pk = credentials.private_key;
-      const nlCount = (pk.match(/\n/g) || []).length;
-      const rCount = (pk.match(/\r/g) || []).length;
-      const escapedNlCount = (pk.match(/\\n/g) || []).length;
-      keyInfo = `Length: ${pk.length}, Header: ${pk.substring(0, 30)}, Footer: ${pk.substring(Math.max(0, pk.length - 30))}, Newlines: ${nlCount}, CRs: ${rCount}, EscapedNls: ${escapedNlCount}`;
-    }
-    const saKeyDiagnostic = saKeyStr 
-      ? `Length: ${saKeyStr.length}, Start: ${saKeyStr.substring(0, 40).replace(/\n/g, '\\n')}, End: ${saKeyStr.substring(Math.max(0, saKeyStr.length - 40)).replace(/\n/g, '\\n')}`
-      : 'Not defined';
     res.status(500).json({
       success: false,
-      error: error.message || String(error),
-      diagnostic: saKeyDiagnostic,
-      keyInfo: keyInfo
+      error: error.message || String(error)
     });
   }
 }
