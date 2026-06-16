@@ -51,6 +51,16 @@ export default async function handler(req, res) {
       credentials = JSON.parse(decoded);
     }
 
+    if (!credentials || !credentials.client_email) {
+      const parsedKeys = credentials ? Object.keys(credentials) : [];
+      res.status(500).json({
+        success: false,
+        error: `JSON-objektet mangler client_email. Tilgjengelige felt i objektet: ${parsedKeys.join(', ')}`,
+        setupRequired: true
+      });
+      return;
+    }
+
     const analyticsDataClient = new BetaAnalyticsDataClient({ credentials });
     const formattedProperty = `properties/${propertyId}`;
 
