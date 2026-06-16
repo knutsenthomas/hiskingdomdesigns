@@ -16,8 +16,15 @@ export default async function handler(req, res) {
   }
 
   // Fetch GA4 credentials from Vercel env variables
-  const propertyId = process.env.GA4_PROPERTY_ID;
-  const saKeyStr = process.env.GA4_SERVICE_ACCOUNT_KEY;
+  let propertyId = process.env.GA4_PROPERTY_ID;
+  let saKeyStr = process.env.GA4_SERVICE_ACCOUNT_KEY;
+
+  // Sjekk om miljøvariablene er byttet om (swapped)
+  if (propertyId && (propertyId.trim().startsWith('{') || propertyId.trim().includes('service_account'))) {
+    const temp = saKeyStr;
+    saKeyStr = propertyId;
+    propertyId = temp;
+  }
 
   if (!propertyId || !saKeyStr) {
     res.status(200).json({
@@ -27,6 +34,10 @@ export default async function handler(req, res) {
     });
     return;
   }
+
+  const cleanPropertyId = (propertyId && /^\d+$/.test(propertyId.trim())) 
+    ? propertyId.trim() 
+    : '540361199'; // Vår bekreftede numerical Property ID for hiskingdomdesigns
 
   // Parse time range from query
   const { range = '30d' } = req.query;
@@ -95,7 +106,7 @@ export default async function handler(req, res) {
     }
 
     const analyticsDataClient = new BetaAnalyticsDataClient({ credentials });
-    const formattedProperty = `properties/${propertyId}`;
+    const formattedProperty = `properties/${cleanPropertyId}`;
 
     // 1. Fetch Overview Metrics
     const [overviewResponse] = await analyticsDataClient.runReport({
