@@ -45,7 +45,15 @@ export default async function handler(req, res) {
   let endDate = 'today';
   let chartDimension = 'date'; // 'date' for daily/weekly, 'yearMonth' for monthly
 
-  if (range === '7d') {
+  if (range === 'today') {
+    startDate = 'today';
+    endDate = 'today';
+    chartDimension = 'date';
+  } else if (range === 'yesterday') {
+    startDate = 'yesterday';
+    endDate = 'yesterday';
+    chartDimension = 'date';
+  } else if (range === '7d') {
     startDate = '7daysAgo';
     endDate = 'today';
     chartDimension = 'date';

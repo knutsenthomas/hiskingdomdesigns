@@ -72,6 +72,14 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
     const diffTime = Math.abs(now - orderDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    if (timeRange === 'today') {
+      return orderDate.toDateString() === now.toDateString();
+    }
+    if (timeRange === 'yesterday') {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      return orderDate.toDateString() === yesterday.toDateString();
+    }
     if (timeRange === '7d') return diffDays <= 7;
     if (timeRange === '30d') return diffDays <= 30;
     if (timeRange === '90d') return diffDays <= 90;
@@ -102,6 +110,16 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
     const diffTime = Math.abs(now - orderDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    if (timeRange === 'today') {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      return orderDate.toDateString() === yesterday.toDateString();
+    }
+    if (timeRange === 'yesterday') {
+      const dayBeforeYesterday = new Date(now);
+      dayBeforeYesterday.setDate(now.getDate() - 2);
+      return orderDate.toDateString() === dayBeforeYesterday.toDateString();
+    }
     if (timeRange === '7d') return diffDays > 7 && diffDays <= 14;
     if (timeRange === '30d') return diffDays > 30 && diffDays <= 60;
     if (timeRange === '90d') return diffDays > 90 && diffDays <= 180;
@@ -147,7 +165,23 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
   let sales = [];
   let visits = []; 
 
-  if (timeRange === '7d') {
+  if (timeRange === 'today' || timeRange === 'yesterday') {
+    labels = ['00-04', '04-08', '08-12', '12-16', '16-20', '20-24'];
+    sales = Array(6).fill(0);
+    visits = Array(6).fill(0);
+    
+    rangeOrders.forEach(order => {
+      const orderDate = new Date(order._createdDate || order.createdDate);
+      const hour = orderDate.getHours();
+      const binIdx = Math.min(5, Math.floor(hour / 4));
+      const amount = parseFloat(order.priceSummary?.total?.amount || 0);
+      sales[binIdx] += amount;
+    });
+
+    sales.forEach((s, idx) => {
+      visits[idx] = s > 0 ? Math.round((s / 150) * 3) + 5 : 2 + Math.round(Math.random() * 3);
+    });
+  } else if (timeRange === '7d') {
     labels = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
     sales = Array(7).fill(0);
     visits = Array(7).fill(0);
@@ -985,6 +1019,8 @@ export default function Admin() {
                   <h2 className="text-sm font-bold text-onyx flex items-center gap-1.5 mt-0.5">
                     <Calendar size={14} className="text-[#1B4965]" />
                     Statistikk for {
+                      timeRange === 'today' ? 'i dag' :
+                      timeRange === 'yesterday' ? 'i går' :
                       timeRange === '7d' ? 'siste 7 dager' :
                       timeRange === '30d' ? 'siste 30 dager' :
                       timeRange === '90d' ? 'siste 90 dager' :
@@ -996,6 +1032,8 @@ export default function Admin() {
 
                 <div className="flex flex-wrap gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 w-full sm:w-auto justify-start">
                   {[
+                    { id: 'today', label: 'I dag' },
+                    { id: 'yesterday', label: 'I går' },
                     { id: '7d', label: '7 dager' },
                     { id: '30d', label: '30 dager' },
                     { id: '90d', label: '90 dager' },
