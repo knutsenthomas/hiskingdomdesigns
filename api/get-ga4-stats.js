@@ -43,19 +43,39 @@ export default async function handler(req, res) {
 
   try {
     let credentials;
-    try {
-      credentials = JSON.parse(saKeyStr);
-    } catch (parseErr) {
-      // If the secret is base64 encoded to avoid multiline environment variable issues, decode it
-      const decoded = Buffer.from(saKeyStr, 'base64').toString('utf-8');
-      credentials = JSON.parse(decoded);
+    let currentInput = saKeyStr.trim();
+    
+    // Forsøk å parse JSON. Håndterer base64 og dobbelt-strengifisert JSON.
+    for (let i = 0; i < 5; i++) {
+      try {
+        const parsed = JSON.parse(currentInput);
+        if (typeof parsed === 'string') {
+          currentInput = parsed.trim();
+        } else {
+          credentials = parsed;
+          break;
+        }
+      } catch (parseErr) {
+        // Hvis det feilet å parse som JSON, sjekk om det er base64-kodet.
+        // Vi prøver bare base64-dekoding på første forsøk.
+        if (i === 0) {
+          try {
+            const decoded = Buffer.from(currentInput, 'base64').toString('utf-8');
+            currentInput = decoded.trim();
+          } catch (b64Err) {
+            throw parseErr;
+          }
+        } else {
+          throw parseErr;
+        }
+      }
     }
 
     if (!credentials || !credentials.client_email) {
-      const parsedKeys = credentials ? Object.keys(credentials) : [];
+      const parsedKeys = (credentials && typeof credentials === 'object') ? Object.keys(credentials) : [];
       res.status(500).json({
         success: false,
-        error: `JSON-objektet mangler client_email. Tilgjengelige felt i objektet: ${parsedKeys.join(', ')}`,
+        error: `JSON-objektet mangler client_email. Type: ${typeof credentials}. Tilgjengelige felt: ${parsedKeys.join(', ')}`,
         setupRequired: true
       });
       return;
