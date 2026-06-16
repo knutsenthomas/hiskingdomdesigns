@@ -1232,18 +1232,26 @@ export default function Admin() {
                             {/* Line paths */}
                             <path d={generatePath(activeWixStats.chartData.sales, maxSalesVal)} fill="none" stroke="#1B4965" strokeWidth="2.5" strokeLinecap="round" />
                             <path d={generatePath(activeGaStats.chartData, maxVisitsVal)} fill="none" stroke="#d17d39" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
-
-                            {/* Interactive Data points */}
-                            {activeWixStats.chartData.sales.map((val, i) => {
-                              const x = 20 + (i / (activeWixStats.chartData.sales.length - 1)) * 460;
-                              const y = 175 - (val / maxSalesVal) * 140;
-                              return (
-                                <svg key={i} x={x - 6} y={y - 6} width="12" height="12" viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet">
-                                  <circle cx="6" cy="6" r="3" fill="#1B4965" stroke="#ffffff" strokeWidth="1.5" />
-                                </svg>
-                              );
-                            })}
                           </svg>
+
+                          {/* Interactive Data points as absolute HTML divs to prevent scaling issues */}
+                          {activeWixStats.chartData.sales.map((val, i) => {
+                            const x = 20 + (i / (activeWixStats.chartData.sales.length - 1)) * 460;
+                            const y = 175 - (val / maxSalesVal) * 140;
+                            const leftPct = (x / 500) * 100;
+                            const topPct = (y / 200) * 100;
+                            return (
+                              <div
+                                key={i}
+                                className="absolute w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#1B4965] border-2 border-white shadow-sm -translate-x-1/2 -translate-y-1/2"
+                                style={{
+                                  left: `${leftPct}%`,
+                                  top: `${topPct}%`,
+                                  pointerEvents: 'none'
+                                }}
+                              />
+                            );
+                          })}
                         </div>
 
                         {/* X-axis labels */}
