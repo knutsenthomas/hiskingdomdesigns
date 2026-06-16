@@ -63,12 +63,25 @@ export default async function handler(req, res) {
             const decoded = Buffer.from(currentInput, 'base64').toString('utf-8');
             currentInput = decoded.trim();
           } catch (b64Err) {
-            throw parseErr;
+            break;
           }
         } else {
-          throw parseErr;
+          break;
         }
       }
+    }
+
+    // Hvis det vi endte opp med er en ren privat nøkkel (streng), rekonstruerer vi credentials-objektet
+    if (typeof currentInput === 'string' && currentInput.includes('-----BEGIN PRIVATE KEY-----')) {
+      credentials = {
+        client_email: 'vercel-analytics-reader@his-kingdom-designs-499615.iam.gserviceaccount.com',
+        private_key: currentInput
+      };
+    }
+
+    // Sikre at linjeskift i private_key er riktig formatert
+    if (credentials && credentials.private_key) {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
     }
 
     if (!credentials || !credentials.client_email) {
