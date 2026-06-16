@@ -1,13 +1,13 @@
 import { createClient, ApiKeyStrategy } from '@wix/sdk';
 import { orders } from '@wix/ecom';
-import { contacts } from '@wix/site-crm';
+import { members } from '@wix/members';
 import { headlessSite } from '@wix/headless-site';
 
 const wixClient = createClient({
   host: headlessSite.host(),
   modules: {
     orders,
-    contacts
+    members
   },
   auth: ApiKeyStrategy({
     siteId: process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7',
@@ -41,15 +41,15 @@ export default async function handler(req, res) {
       }
     });
 
-    console.log('API: Fetching Wix contacts count...');
+    console.log('API: Fetching Wix members count...');
     let totalContacts = 0;
     try {
-      const contactsRes = await wixClient.contacts.queryContacts()
+      const membersRes = await wixClient.members.queryMembers()
         .limit(1)
         .find();
-      totalContacts = contactsRes.totalCount || 0;
-    } catch (cErr) {
-      console.warn('API Warning: Failed to fetch contacts count from Wix:', cErr);
+      totalContacts = membersRes.totalCount || 0;
+    } catch (mErr) {
+      console.warn('API Warning: Failed to fetch members count from Wix:', mErr);
     }
 
     res.status(200).json({
