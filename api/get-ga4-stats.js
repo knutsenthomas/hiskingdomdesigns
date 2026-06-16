@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Fetch GA4 credentials from Vercel env
+  // Fetch GA4 credentials from Vercel environment
   const propertyId = process.env.GA4_PROPERTY_ID;
   const saKeyStr = process.env.GA4_SERVICE_ACCOUNT_KEY;
 
