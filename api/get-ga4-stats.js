@@ -151,9 +151,13 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('GA4 API Error:', error);
+    const saKeyDiagnostic = saKeyStr 
+      ? `Length: ${saKeyStr.length}, Start: ${saKeyStr.substring(0, 40).replace(/\n/g, '\\n')}, End: ${saKeyStr.substring(Math.max(0, saKeyStr.length - 40)).replace(/\n/g, '\\n')}`
+      : 'Not defined';
     res.status(500).json({
       success: false,
-      error: error.message || String(error)
+      error: error.message || String(error),
+      diagnostic: saKeyDiagnostic
     });
   }
 }
