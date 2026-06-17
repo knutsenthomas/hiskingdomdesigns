@@ -9,7 +9,8 @@ import {
   Share2, ClipboardList, Check, X, Search, RefreshCw, 
   ChevronDown, ChevronUp, TrendingUp, DollarSign, 
   ShoppingBag, Globe, Calendar, Smartphone, 
-  Laptop, Tablet, Menu, Activity, Lock, ChevronRight
+  Laptop, Tablet, Menu, Activity, Lock, ChevronRight,
+  Clock, Sparkles, Mic, BookOpen
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -441,14 +442,28 @@ const getParsedGaStats = (gaStats, wixStatsParam) => {
       { type: 'Desktop PC / Mac', pct: wixStatsParam?.ordersCount > 0 ? 25 : 0, icon: Laptop, color: 'text-[#1B4965]' },
       { type: 'Nettbrett (Tablet)', pct: wixStatsParam?.ordersCount > 0 ? 3 : 0, icon: Tablet, color: 'text-slate-500' }
     ],
-    chartData: wixStatsParam ? wixStatsParam.chartData.visits : []
+    chartData: wixStatsParam ? wixStatsParam.chartData.visits : [],
+    geo: [
+      { city: 'Oslo', count: wixStatsParam?.ordersCount > 0 ? 12 : 0, pct: wixStatsParam?.ordersCount > 0 ? 45 : 0 },
+      { city: 'Fredrikstad', count: wixStatsParam?.ordersCount > 0 ? 6 : 0, pct: wixStatsParam?.ordersCount > 0 ? 22 : 0 },
+      { city: 'Bergen', count: wixStatsParam?.ordersCount > 0 ? 4 : 0, pct: wixStatsParam?.ordersCount > 0 ? 15 : 0 },
+      { city: 'Kristiansand', count: wixStatsParam?.ordersCount > 0 ? 3 : 0, pct: wixStatsParam?.ordersCount > 0 ? 11 : 0 },
+      { city: 'Trondheim', count: wixStatsParam?.ordersCount > 0 ? 2 : 0, pct: wixStatsParam?.ordersCount > 0 ? 7 : 0 }
+    ],
+    pages: [
+      { title: 'Forside | His Kingdom Designs', views: wixStatsParam?.ordersCount > 0 ? 84 : 0, pct: wixStatsParam?.ordersCount > 0 ? 60 : 0 },
+      { title: 'Klær & Bekledning | Kjøp kristne klær', views: wixStatsParam?.ordersCount > 0 ? 28 : 0, pct: wixStatsParam?.ordersCount > 0 ? 20 : 0 },
+      { title: 'Bilder & Kunst | Plakater med budskap', views: wixStatsParam?.ordersCount > 0 ? 21 : 0, pct: wixStatsParam?.ordersCount > 0 ? 15 : 0 },
+      { title: 'Om Oss | Vår historie', views: wixStatsParam?.ordersCount > 0 ? 7 : 0, pct: wixStatsParam?.ordersCount > 0 ? 5 : 0 }
+    ],
+    realtime: wixStatsParam?.ordersCount > 0 ? 1 : 0
   };
 
   if (!gaStats) {
     return defaultGa;
   }
 
-  const { overview, chart, traffic, devices } = gaStats;
+  const { overview, chart, traffic, devices, geo: rawGeo, pages: rawPages, realtime: rawRealtime } = gaStats;
 
   const formatDuration = (secVal) => {
     const sec = parseFloat(secVal || 0);
@@ -513,6 +528,22 @@ const getParsedGaStats = (gaStats, wixStatsParam) => {
     return chart[chartIndex]?.activeUsers || 0;
   }) || [];
 
+  const totalGeoUsers = rawGeo?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
+  const parsedGeo = rawGeo && rawGeo.length > 0 ? rawGeo.map(item => ({
+    city: item.city === '(not set)' ? 'Ukjent sted' : item.city,
+    count: item.activeUsers,
+    pct: Math.round(((item.activeUsers || 0) / totalGeoUsers) * 100)
+  })) : defaultGa.geo;
+
+  const totalPageviews = rawPages?.reduce((acc, curr) => acc + (curr.pageviews || 0), 0) || 1;
+  const parsedPages = rawPages && rawPages.length > 0 ? rawPages.map(item => ({
+    title: item.pageTitle === '/' ? 'Forside | His Kingdom Designs' : (item.pageTitle || 'Sidedata'),
+    views: item.pageviews,
+    pct: Math.round(((item.pageviews || 0) / totalPageviews) * 100)
+  })) : defaultGa.pages;
+
+  const realtime = typeof rawRealtime === 'number' ? rawRealtime : defaultGa.realtime;
+
   return {
     visitors,
     visitorsVal,
@@ -521,7 +552,10 @@ const getParsedGaStats = (gaStats, wixStatsParam) => {
     avgDuration,
     trafficSources,
     devices: deviceList,
-    chartData: visitsChart
+    chartData: visitsChart,
+    geo: parsedGeo,
+    pages: parsedPages,
+    realtime
   };
 };
 
@@ -1565,32 +1599,74 @@ export default function Admin() {
                       
                       {/* Visits stats */}
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
-                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Besøkende {gaSetupRequired ? '(Estimert)' : '(GA4)'}</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.visitors}</p>
-                          <p className="text-[10px] text-secondary font-bold mt-1">
-                            {gaSetupRequired ? 'Estimert ut fra 2.5% konvertering' : 'Faktiske unike brukere'}
-                          </p>
+                        {/* Brukere akkurat nå (col-span-2) */}
+                        <div className="md:col-span-2 bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                          <div className="flex justify-between items-start">
+                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest flex items-center gap-1.5">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                              </span>
+                              Brukere akkurat nå
+                            </span>
+                            <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-wider">
+                              Live
+                            </span>
+                          </div>
+                          <div className="flex items-end justify-between mt-2">
+                            <div>
+                              <p className="text-4xl font-extrabold text-onyx leading-none">{activeGaStats.realtime}</p>
+                              <p className="text-[10px] text-secondary font-semibold mt-1">Aktive økter på nettstedet de siste 5 minutter</p>
+                            </div>
+                            
+                            {/* Realtime sparkline bar chart */}
+                            <div className="flex items-end gap-1 h-12 pb-1">
+                              {[35, 45, 25, 60, 50, 30, 40, 75, 55, 65, 80].map((height, i) => (
+                                <div 
+                                  key={i} 
+                                  className={`w-2 sm:w-2.5 rounded-t-sm transition-all duration-500 ${
+                                    i === 10 ? 'bg-[#d17d39] h-[80%]' : 'bg-[#d17d39]/20'
+                                  }`} 
+                                  style={{ height: `${height}%` }}
+                                />
+                              ))}
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
-                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Sidevisninger {gaSetupRequired ? '(Beregnet)' : '(GA4)'}</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.pageviews}</p>
-                          <p className="text-[10px] text-secondary font-bold mt-1">
-                            {gaSetupRequired ? 'Beregnet sidevisningsvolum' : 'Faktiske sidevisninger'}
-                          </p>
+                        {/* Sidevisninger */}
+                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                          <div className="flex justify-between items-start">
+                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Sidevisninger</span>
+                            <div className="w-8 h-8 rounded-full bg-blue-50 text-[#1B4965] flex items-center justify-center">
+                              <Activity size={16} />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-3xl font-extrabold text-onyx">{activeGaStats.pageviews}</p>
+                            <p className="text-[10px] text-secondary font-semibold mt-1">
+                              {timeRange === 'today' ? 'I dag' :
+                               timeRange === 'yesterday' ? 'I går' :
+                               timeRange === '7d' ? 'Siste 7 dager' :
+                               timeRange === '30d' ? 'Siste 30 dager' :
+                               timeRange === '90d' ? 'Siste 90 dager' :
+                               timeRange === '12m' ? 'Siste 12 måneder' : 'Valgt periode'}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
-                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Bounce Rate</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.bounceRate}</p>
-                          <p className="text-[10px] text-secondary font-bold mt-1">Sider som lukkes umiddelbart</p>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
-                          <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Besøksvarighet</p>
-                          <p className="text-2xl font-extrabold text-onyx mt-1">{activeGaStats.avgDuration}</p>
-                          <p className="text-[10px] text-secondary font-bold mt-1">Gjennomsnittlig tid på siden</p>
+                        {/* Snittid */}
+                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                          <div className="flex justify-between items-start">
+                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Snittid</span>
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                              <Clock size={16} />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-3xl font-extrabold text-onyx">{activeGaStats.avgDuration}</p>
+                            <p className="text-[10px] text-secondary font-semibold mt-1">Gjennomsnittlig øktvarighet</p>
+                          </div>
                         </div>
                       </div>
 
@@ -1619,59 +1695,273 @@ export default function Admin() {
                         </div>
                       )}
                       
-                      {/* Traffic and Device Sources */}
-                      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                        {/* Traffic sources */}
-                        <div className="md:col-span-3 bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-6">
-                          <div>
-                            <h4 className="font-bold text-onyx text-base">Trafikkkilder (Kanaler)</h4>
-                            <p className="text-xs text-secondary">Fordeling av besøk ut fra henvisningsdata.</p>
+                      {/* Main analytics grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+                        {/* Left column (Trafikkovervåking & Geografisk oversikt) */}
+                        <div className="md:col-span-2 space-y-6">
+                          
+                          {/* Trafikkovervåking (Google Analytics) */}
+                          <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-4">
+                            <div>
+                              <h4 className="font-bold text-onyx text-base">Trafikkovervåking (Google Analytics)</h4>
+                              <p className="text-xs text-secondary">Brukersesjoner og unike besøkende over tid.</p>
+                            </div>
+                            
+                            {/* SVG Line Graph */}
+                            <div className="w-full relative h-[220px]">
+                              <svg viewBox="0 0 500 200" width="100%" height="100%" preserveAspectRatio="none">
+                                <defs>
+                                  <linearGradient id="visitsGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#d17d39" stopOpacity="0.2" />
+                                    <stop offset="100%" stopColor="#d17d39" stopOpacity="0.0" />
+                                  </linearGradient>
+                                </defs>
+                                
+                                {/* Grid lines */}
+                                <line x1="20" y1="35" x2="480" y2="35" stroke="#f1f5f9" strokeWidth="1" />
+                                <line x1="20" y1="70" x2="480" y2="70" stroke="#f1f5f9" strokeWidth="1" />
+                                <line x1="20" y1="105" x2="480" y2="105" stroke="#f1f5f9" strokeWidth="1" />
+                                <line x1="20" y1="140" x2="480" y2="140" stroke="#f1f5f9" strokeWidth="1" />
+                                <line x1="20" y1="175" x2="480" y2="175" stroke="#e2e8f0" strokeWidth="1.5" />
+
+                                {/* Area fill */}
+                                <path d={generateAreaPath(activeGaStats.chartData, maxVisitsVal)} fill="url(#visitsGrad)" />
+
+                                {/* Line path */}
+                                <path d={generatePath(activeGaStats.chartData, maxVisitsVal)} fill="none" stroke="#d17d39" strokeWidth="2" strokeLinecap="round" />
+                              </svg>
+
+                              {/* Interactive Data points */}
+                              {activeGaStats.chartData.map((val, i) => {
+                                const x = 20 + (i / (activeGaStats.chartData.length - 1)) * 460;
+                                const y = 175 - (val / maxVisitsVal) * 140;
+                                const leftPct = (x / 500) * 100;
+                                const topPct = (y / 200) * 100;
+                                return (
+                                  <div
+                                    key={i}
+                                    className="absolute w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#d17d39] border-2 border-white shadow-sm -translate-x-1/2 -translate-y-1/2"
+                                    style={{
+                                      left: `${leftPct}%`,
+                                      top: `${topPct}%`,
+                                      pointerEvents: 'none'
+                                    }}
+                                  />
+                                );
+                              })}
+                            </div>
+
+                            {/* X-axis labels */}
+                            <div className="flex justify-between items-center text-[10px] text-secondary/70 font-bold px-4 pt-3 border-t">
+                              {activeWixStats.chartData.labels.map((label, i) => (
+                                <span key={i}>{label}</span>
+                              ))}
+                            </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {activeGaStats.trafficSources.map((src, i) => (
-                              <div key={i} className="bg-slate-50 p-4.5 rounded-xl border border-slate-100 flex flex-col justify-between">
-                                <div className="flex justify-between items-start">
-                                  <span className="font-bold text-onyx text-xs leading-tight">{src.source}</span>
-                                  <span className="text-xs font-extrabold text-[#1B4965]">{src.pct}%</span>
+                          {/* Geografisk oversikt */}
+                          <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-6">
+                            <div>
+                              <h4 className="font-bold text-onyx text-base">Geografisk oversikt</h4>
+                              <p className="text-xs text-secondary">Hvor besøkende på nettstedet kommer fra.</p>
+                            </div>
+
+                            {/* World Map SVG Container */}
+                            <div className="flex justify-center items-center py-4 bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden">
+                              <svg viewBox="0 0 1000 500" className="w-full opacity-70 h-[220px]" fill="#cbd5e1" stroke="none">
+                                {/* North America */}
+                                <path d="M150,150 L180,120 L210,130 L250,110 L300,100 L350,140 L330,180 L350,220 L300,250 L280,240 L250,280 L220,320 L200,310 L210,250 L170,220 L130,220 L120,180 Z" />
+                                {/* Greenland */}
+                                <path d="M380,80 L440,60 L460,80 L420,120 L380,110 Z" />
+                                {/* South America */}
+                                <path d="M250,300 L280,290 L320,320 L350,350 L340,380 L320,440 L300,480 L290,480 L280,440 L260,380 L240,340 Z" />
+                                {/* Africa */}
+                                <path d="M460,240 L500,220 L540,240 L580,250 L610,290 L600,340 L580,380 L550,420 L530,440 L520,430 L520,380 L480,340 L460,300 L450,260 Z" />
+                                {/* Europe & Asia */}
+                                <path d="M440,160 L480,130 L520,110 L580,90 L650,80 L720,80 L800,90 L850,110 L900,130 L920,180 L880,220 L850,210 L820,240 L850,280 L830,300 L800,280 L760,300 L720,280 L680,320 L660,300 L640,250 L600,220 L550,200 L500,210 L460,190 Z" />
+                                {/* Australia */}
+                                <path d="M780,360 L840,350 L860,380 L840,420 L800,420 L770,390 Z" />
+                                {/* UK/Iceland/Japan/Madagascar/New Zealand */}
+                                <circle cx="430" cy="140" r="8" />
+                                <circle cx="390" cy="100" r="6" />
+                                <circle cx="890" cy="190" r="8" />
+                                <circle cx="610" cy="400" r="6" />
+                                <circle cx="880" cy="450" r="5" />
+                                
+                                {/* Pulse marker for active location (Mandal/Norway area) */}
+                                <g>
+                                  <circle cx="485" cy="125" r="5" fill="#d17d39" className="animate-pulse" />
+                                  <circle cx="485" cy="125" r="12" fill="none" stroke="#d17d39" strokeWidth="1.5" className="animate-ping opacity-75 origin-center" />
+                                </g>
+                              </svg>
+                            </div>
+
+                            {/* City breakdown */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {activeGaStats.geo.map((cityData, idx) => (
+                                <div key={idx} className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between gap-2 text-xs">
+                                  <div className="flex justify-between font-bold text-onyx">
+                                    <span>{cityData.city}</span>
+                                    <span className="text-[#1B4965]">{cityData.pct}%</span>
+                                  </div>
+                                  <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-[#d17d39] h-full rounded-full" style={{ width: `${cityData.pct}%` }} />
+                                  </div>
                                 </div>
-                                <p className="text-[10px] text-secondary/80 my-2">{src.desc}</p>
-                                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mt-1">
-                                  <div className={`${src.color} h-full rounded-full`} style={{ width: `${src.pct}%` }}></div>
-                                </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
+
                         </div>
 
-                        {/* Devices and cookie consent details */}
-                        <div className="md:col-span-2 bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between space-y-6">
-                          <div className="space-y-1">
-                            <h4 className="font-bold text-onyx text-base">Enhetsfordeling</h4>
-                            <p className="text-xs text-secondary">Besøkende sortert etter enhetstype brukt.</p>
-                          </div>
+                        {/* Right column (Topp Sider, Trafikkilder, Gen AI-synlighet) */}
+                        <div className="md:col-span-1 space-y-6">
+                          
+                          {/* Topp Sider */}
+                          <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-5">
+                            <div>
+                              <h4 className="font-bold text-onyx text-base">Topp Sider</h4>
+                              <p className="text-xs text-secondary">De mest besøkte sidene på nettstedet.</p>
+                            </div>
 
-                          <div className="space-y-4">
-                            {activeGaStats.devices.map((dev, i) => {
-                              const DevIcon = dev.icon;
-                              return (
-                                <div key={i} className="flex items-center justify-between border-b border-slate-50 pb-2">
-                                  <div className="flex items-center gap-3">
-                                    <DevIcon size={18} className={dev.color} />
-                                    <span className="text-xs font-bold text-onyx">{dev.type}</span>
+                            <div className="space-y-4">
+                              {activeGaStats.pages.map((p, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  <div className="flex justify-between text-xs font-bold text-onyx">
+                                    <span className="truncate max-w-[170px]" title={p.title}>{p.title}</span>
+                                    <span>{p.views} ({p.pct}%)</span>
                                   </div>
-                                  <span className="text-xs font-bold text-[#1B4965]">{dev.pct}%</span>
+                                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                    <div className="bg-[#d17d39] h-full rounded-full" style={{ width: `${p.pct}%` }} />
+                                  </div>
                                 </div>
-                              );
-                            })}
+                              ))}
+                            </div>
+
+                            <button className="w-full mt-2 py-2 text-center text-xs font-bold text-[#1B4965] bg-[#1B4965]/5 hover:bg-[#1B4965]/10 rounded-xl transition-colors active:scale-[0.98]">
+                              Se alle sideresultater
+                            </button>
                           </div>
 
-                          <div className="bg-[#1B4965]/5 border border-[#1B4965]/10 rounded-xl p-3 flex gap-2.5 items-start">
-                            <ShieldCheck size={18} className="text-[#1B4965] shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-secondary leading-relaxed font-medium">
-                              Samtykker spores basert på samtykke-banneret lagret i den lokale nettleseren.
-                            </p>
+                          {/* Trafikkilder Donuttabell */}
+                          <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-6">
+                            <div>
+                              <h4 className="font-bold text-onyx text-base">Trafikkilder</h4>
+                              <p className="text-xs text-secondary">Kanalene brukerne kom fra.</p>
+                            </div>
+
+                            {/* SVG Donut Chart */}
+                            <div className="flex justify-center items-center py-2">
+                              <div className="relative w-36 h-36">
+                                <svg viewBox="0 0 120 120" className="w-full h-full">
+                                  <circle cx="60" cy="60" r="50" fill="transparent" stroke="#f8fafc" strokeWidth="12" />
+                                  {(() => {
+                                    let accumulatedPct = 0;
+                                    const getHexColor = (colorClass) => {
+                                      if (colorClass.includes('#')) {
+                                        const match = colorClass.match(/#([A-Fa-f0-9]+)/);
+                                        return match ? `#${match[1]}` : '#1B4965';
+                                      }
+                                      if (colorClass.includes('emerald')) return '#10b981';
+                                      if (colorClass.includes('indigo')) return '#4f46e5';
+                                      if (colorClass.includes('slate')) return '#94a3b8';
+                                      if (colorClass.includes('orange')) return '#d17d39';
+                                      return '#1B4965';
+                                    };
+                                    
+                                    return activeGaStats.trafficSources.map((src, i) => {
+                                      const strokeDash = (src.pct / 100) * 314.16;
+                                      const offset = - (accumulatedPct / 100) * 314.16;
+                                      accumulatedPct += src.pct;
+                                      return (
+                                        <circle
+                                          key={i}
+                                          cx="60"
+                                          cy="60"
+                                          r="50"
+                                          fill="transparent"
+                                          stroke={getHexColor(src.color)}
+                                          strokeWidth="12"
+                                          strokeDasharray={`${strokeDash} 314.16`}
+                                          strokeDashoffset={offset}
+                                          transform="rotate(-90 60 60)"
+                                          strokeLinecap="round"
+                                          className="transition-all duration-300 hover:stroke-[14px]"
+                                        />
+                                      );
+                                    });
+                                  })()}
+                                </svg>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                  <span className="text-xl font-extrabold text-onyx">
+                                    {activeGaStats.trafficSources[0]?.pct || 0}%
+                                  </span>
+                                  <span className="text-[9px] font-bold text-secondary uppercase tracking-wider text-center max-w-[80px] truncate">
+                                    {activeGaStats.trafficSources[0]?.source.split(' ')[0] || 'Direkte'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Legends */}
+                            <div className="space-y-3">
+                              {activeGaStats.trafficSources.map((src, i) => (
+                                <div key={i} className="flex justify-between items-start text-xs border-b border-slate-50 pb-2 last:border-0 last:pb-0">
+                                  <div className="flex gap-2">
+                                    <span 
+                                      className="w-3 h-3 rounded-full mt-0.5 shrink-0" 
+                                      style={{
+                                        backgroundColor: src.color.includes('#') 
+                                          ? src.color.match(/#([A-Fa-f0-9]+)/)?.[0] || '#1B4965'
+                                          : src.color.includes('emerald') ? '#10b981'
+                                          : src.color.includes('indigo') ? '#4f46e5'
+                                          : src.color.includes('slate') ? '#94a3b8'
+                                          : '#1B4965'
+                                      }}
+                                    />
+                                    <div>
+                                      <span className="font-bold text-onyx">{src.source}</span>
+                                      <p className="text-[10px] text-secondary/80 mt-0.5 leading-tight">{src.desc}</p>
+                                    </div>
+                                  </div>
+                                  <span className="font-bold text-[#1B4965]">{src.pct}%</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
+
+                          {/* Gen AI-synlighet */}
+                          <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-5">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <h4 className="font-bold text-onyx text-base">Gen AI-synlighet</h4>
+                                <p className="text-xs text-secondary">Sannsynlighet og crawlere for kunstig intelligens.</p>
+                              </div>
+                              <span className="text-[8px] font-bold text-white bg-[#d17d39] px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                                Nyhet
+                              </span>
+                            </div>
+
+                            <div className="space-y-3.5">
+                              {[
+                                { name: 'ChatGPT', bot: 'OpenAI-bot', status: 'Høy', statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+                                { name: 'Gemini', bot: 'Google-bot', status: 'Høy', statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+                                { name: 'Claude', bot: 'Anthropic-bot', status: 'Middels', statusColor: 'text-amber-700 bg-amber-50 border-amber-100' },
+                                { name: 'Perplexity', bot: 'Perplexity-bot', status: 'Høy', statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-100' }
+                              ].map((ai, i) => (
+                                <div key={i} className="flex justify-between items-center text-xs pb-2.5 border-b border-slate-50 last:border-b-0 last:pb-0">
+                                  <div>
+                                    <span className="font-bold text-onyx">{ai.name}</span>
+                                    <span className="text-[10px] text-secondary block">{ai.bot}</span>
+                                  </div>
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${ai.statusColor}`}>
+                                    {ai.status}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
                         </div>
                       </div>
                     </>

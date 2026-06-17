@@ -141,70 +141,115 @@ export default async function handler(req, res) {
     const analyticsDataClient = new BetaAnalyticsDataClient({ credentials });
     const formattedProperty = `properties/${cleanPropertyId}`;
 
-    // 1. Fetch Overview Metrics
-    const [overviewResponse] = await analyticsDataClient.runReport({
-      property: formattedProperty,
-      dateRanges: [{ startDate, endDate }],
-      metrics: [
-        { name: 'activeUsers' },
-        { name: 'screenPageViews' },
-        { name: 'bounceRate' },
-        { name: 'averageSessionDuration' }
-      ]
-    });
-
-    // 2. Fetch Chart Data (Active Users over time)
-    const [chartResponse] = await analyticsDataClient.runReport({
-      property: formattedProperty,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: chartDimension }],
-      metrics: [{ name: 'activeUsers' }],
-      orderBys: [{ dimension: { dimensionName: chartDimension } }]
-    });
-
-    // 3. Fetch Traffic Sources
-    const [trafficResponse] = await analyticsDataClient.runReport({
-      property: formattedProperty,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
-      metrics: [{ name: 'activeUsers' }],
-      orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
-    });
-
-    // 4. Fetch Devices
-    const [deviceResponse] = await analyticsDataClient.runReport({
-      property: formattedProperty,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'deviceCategory' }],
-      metrics: [{ name: 'activeUsers' }],
-      orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
-    });
+    // Run all reports in parallel for maximum performance
+    const [
+      overviewResponse,
+      chartResponse,
+      trafficResponse,
+      deviceResponse,
+      geoResponse,
+      pagesResponse,
+      realtimeResponse
+    ] = await Promise.all([
+      // 1. Fetch Overview Metrics
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        metrics: [
+          { name: 'activeUsers' },
+          { name: 'screenPageViews' },
+          { name: 'bounceRate' },
+          { name: 'averageSessionDuration' }
+        ]
+      }),
+      // 2. Fetch Chart Data (Active Users over time)
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: chartDimension }],
+        metrics: [{ name: 'activeUsers' }],
+        orderBys: [{ dimension: { dimensionName: chartDimension } }]
+      }),
+      // 3. Fetch Traffic Sources
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+        metrics: [{ name: 'activeUsers' }],
+        orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
+      }),
+      // 4. Fetch Devices
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'deviceCategory' }],
+        metrics: [{ name: 'activeUsers' }],
+        orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
+      }),
+      // 5. Fetch Geographic (Cities)
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'city' }],
+        metrics: [{ name: 'activeUsers' }],
+        orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }],
+        limit: 5
+      }),
+      // 6. Fetch Top Pages
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'pageTitle' }],
+        metrics: [{ name: 'screenPageViews' }],
+        orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+        limit: 5
+      }),
+      // 7. Fetch Realtime Active Users
+      analyticsDataClient.runRealtimeReport({
+        property: formattedProperty,
+        metrics: [{ name: 'activeUsers' }]
+      }).catch(err => {
+        console.warn('Realtime report failed:', err.message);
+        return [null];
+      })
+    ]);
 
     res.status(200).json({
       success: true,
-      overview: overviewResponse.rows?.[0] ? {
-        activeUsers: overviewResponse.rows[0].metricValues[0].value,
-        screenPageViews: overviewResponse.rows[0].metricValues[1].value,
-        bounceRate: parseFloat(overviewResponse.rows[0].metricValues[2].value * 100).toFixed(1) + '%',
-        averageSessionDuration: overviewResponse.rows[0].metricValues[3].value
+      overview: overviewResponse[0].rows?.[0] ? {
+        activeUsers: overviewResponse[0].rows[0].metricValues[0].value,
+        screenPageViews: overviewResponse[0].rows[0].metricValues[1].value,
+        bounceRate: parseFloat(overviewResponse[0].rows[0].metricValues[2].value * 100).toFixed(1) + '%',
+        averageSessionDuration: overviewResponse[0].rows[0].metricValues[3].value
       } : {
         activeUsers: '0',
         screenPageViews: '0',
         bounceRate: '0.0%',
         averageSessionDuration: '0'
       },
-      chart: chartResponse.rows?.map(row => ({
+      chart: chartResponse[0].rows?.map(row => ({
         dimension: row.dimensionValues[0].value,
         activeUsers: parseInt(row.metricValues[0].value, 10)
       })) || [],
-      traffic: trafficResponse.rows?.map(row => ({
+      traffic: trafficResponse[0].rows?.map(row => ({
         source: row.dimensionValues[0].value,
         activeUsers: parseInt(row.metricValues[0].value, 10)
       })) || [],
-      devices: deviceResponse.rows?.map(row => ({
+      devices: deviceResponse[0].rows?.map(row => ({
         device: row.dimensionValues[0].value,
         activeUsers: parseInt(row.metricValues[0].value, 10)
-      })) || []
+      })) || [],
+      geo: geoResponse[0].rows?.map(row => ({
+        city: row.dimensionValues[0].value,
+        activeUsers: parseInt(row.metricValues[0].value, 10)
+      })) || [],
+      pages: pagesResponse[0].rows?.map(row => ({
+        pageTitle: row.dimensionValues[0].value,
+        pageviews: parseInt(row.metricValues[0].value, 10)
+      })) || [],
+      realtime: realtimeResponse && realtimeResponse[0] && realtimeResponse[0].rows?.[0] 
+        ? parseInt(realtimeResponse[0].rows[0].metricValues[0].value, 10) 
+        : 0
     });
   } catch (error) {
     console.error('GA4 API Error:', error);
