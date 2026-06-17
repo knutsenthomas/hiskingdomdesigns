@@ -480,34 +480,63 @@ const getParsedGaStats = (gaStats, wixStatsParam) => {
   const avgDuration = formatDuration(overview?.averageSessionDuration || 0);
 
   const totalTrafficUsers = traffic?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
-  const trafficSources = traffic && traffic.length > 0 ? traffic.map((item, idx) => {
-    const colors = ['bg-[#1B4965]', 'bg-[#d17d39]', 'bg-emerald-500', 'bg-indigo-600', 'bg-[#bd4f2a]'];
-    const color = colors[idx % colors.length];
-    const pct = Math.round(((item.activeUsers || 0) / totalTrafficUsers) * 100);
-
-    let sourceName = item.source || 'Annet';
-    let desc = '';
-    const sourceLower = sourceName.toLowerCase();
-    if (sourceLower.includes('organic search') || sourceLower.includes('organic') || sourceLower === 'direct') {
-      if (sourceLower.includes('organic search') || sourceLower.includes('organic')) {
+  
+  let mappedSources = [];
+  if (traffic && traffic.length > 0) {
+    const items = traffic.map(item => {
+      let sourceName = item.source || 'Annet';
+      let desc = '';
+      const sourceLower = sourceName.toLowerCase();
+      
+      if (sourceLower.includes('organic search') || sourceLower === 'organic') {
         sourceName = 'Organisk søk (Google)';
         desc = 'Google-søk og søkemotoroptimalisering';
-      } else {
+      } else if (sourceLower === 'direct') {
         sourceName = 'Direkte / Bokmerker';
         desc = 'Skrev inn URL eller lagrede linker';
+      } else if (sourceLower.includes('social') || sourceLower.includes('instagram') || sourceLower.includes('facebook')) {
+        sourceName = 'Sosiale medier (Insta, FB)';
+        desc = 'Instagram, Facebook, Pinterest-kampanjer';
+      } else if (sourceLower.includes('referral')) {
+        sourceName = 'Referral (Affiliates)';
+        desc = 'Ekstern henvisningsdata og affiliate delingslenker';
+      } else {
+        if (sourceLower.includes('shopping')) {
+          sourceName = 'Organisk shopping';
+          desc = 'Produktsøk og shopping-fanen i Google';
+        } else if (sourceLower.includes('video') || sourceLower.includes('youtube')) {
+          sourceName = 'Video & YouTube';
+          desc = 'Besøkende fra videolenker og YouTube';
+        } else {
+          sourceName = item.source || 'Annet';
+          desc = `Trafikk registrert fra kanal: ${sourceName}`;
+        }
       }
-    } else if (sourceLower.includes('social')) {
-      sourceName = 'Sosiale medier (Insta, FB)';
-      desc = 'Instagram, Facebook, Pinterest-kampanjer';
-    } else if (sourceLower.includes('referral')) {
-      sourceName = 'Referral (Affiliates)';
-      desc = 'Ekstern henvisningsdata og affiliate delingslenker';
-    } else {
-      desc = `Trafikk registrert fra kanal: ${sourceName}`;
-    }
+      return { source: sourceName, activeUsers: item.activeUsers || 0, desc };
+    });
 
-    return { source: sourceName, pct, color, desc };
-  }) : defaultGa.trafficSources;
+    const grouped = {};
+    items.forEach(item => {
+      if (!grouped[item.source]) {
+        grouped[item.source] = { source: item.source, activeUsers: 0, desc: item.desc };
+      }
+      grouped[item.source].activeUsers += item.activeUsers;
+    });
+
+    const colors = ['bg-[#1B4965]', 'bg-[#d17d39]', 'bg-emerald-500', 'bg-indigo-600', 'bg-[#bd4f2a]', 'bg-slate-400'];
+    mappedSources = Object.values(grouped)
+      .sort((a, b) => b.activeUsers - a.activeUsers)
+      .map((item, idx) => ({
+        source: item.source,
+        pct: Math.round((item.activeUsers / totalTrafficUsers) * 100),
+        color: colors[idx % colors.length],
+        desc: item.desc
+      }));
+  } else {
+    mappedSources = defaultGa.trafficSources;
+  }
+  
+  const trafficSources = mappedSources;
 
   const totalDeviceUsers = devices?.reduce((acc, curr) => acc + (curr.activeUsers || 0), 0) || 1;
   const deviceMap = {
