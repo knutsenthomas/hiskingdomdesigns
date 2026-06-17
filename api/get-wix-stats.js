@@ -34,11 +34,8 @@ export default async function handler(req, res) {
     console.log('API: Fetching Wix orders...');
     // Query up to 100 recent orders
     const ordersRes = await wixClient.orders.searchOrders({
-      search: {
-        filter: {},
-        sort: [{ fieldName: 'number', order: 'DESCENDING' }],
-        paging: { limit: 100 }
-      }
+      filter: {},
+      cursorPaging: { limit: 100 }
     });
 
     console.log('API: Fetching Wix members count...');
