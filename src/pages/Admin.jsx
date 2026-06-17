@@ -389,6 +389,7 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
 
     return {
       id: order.number ? `HK-${order.number}` : (order._id || order.id || 'HK-Ordre').substring(0, 8),
+      wixOrderId: order._id || order.id,
       customer: customerName,
       date: order._createdDate ? new Date(order._createdDate).toLocaleDateString('no-NO') : 'Ukjent',
       items: itemsText || 'Varer',
@@ -1526,15 +1527,15 @@ export default function Admin() {
                         </div>
 
                         <div className="overflow-x-auto">
-                          <table className="w-full text-xs text-left border-collapse">
+                          <table className="w-full min-w-[950px] text-xs text-left border-collapse">
                             <thead>
                               <tr className="border-b border-slate-100 text-[10px] text-secondary uppercase font-bold tracking-wider">
-                                <th className="py-3 px-4">Ordre ID</th>
-                                <th className="py-3 px-4">Kunde</th>
-                                <th className="py-3 px-4">Dato</th>
-                                <th className="py-3 px-4">Varer kjøpt</th>
-                                <th className="py-3 px-4">Totalbeløp</th>
-                                <th className="py-3 px-4 text-center">Status</th>
+                                <th className="py-3.5 px-5.5">Ordre ID</th>
+                                <th className="py-3.5 px-5.5">Kunde</th>
+                                <th className="py-3.5 px-5.5">Dato</th>
+                                <th className="py-3.5 px-5.5">Varer kjøpt</th>
+                                <th className="py-3.5 px-5.5">Totalbeløp</th>
+                                <th className="py-3.5 px-5.5 text-center">Status</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1547,18 +1548,33 @@ export default function Admin() {
                               ) : (
                                 activeWixStats.ordersList.map((order, i) => (
                                   <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
-                                    <td className="py-4.5 px-4 font-bold text-[#1B4965]">{order.id}</td>
-                                    <td className="py-4.5 px-4 font-semibold text-onyx">{order.customer}</td>
-                                    <td className="py-4.5 px-4 text-secondary">{order.date}</td>
-                                    <td className="py-4.5 px-4 text-secondary italic truncate max-w-[250px]" title={order.items}>{order.items}</td>
-                                    <td className="py-4.5 px-4 font-bold text-onyx">{order.amount}</td>
-                                    <td className="py-4.5 px-4 text-center">
+                                    <td className="py-4.5 px-5.5 font-bold text-[#1B4965]">
+                                      {order.wixOrderId ? (
+                                        <a 
+                                          href={`https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/store/orders/details/${order.wixOrderId}`}
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="hover:text-[#d17d39] hover:underline transition-colors flex items-center gap-1.5 cursor-pointer"
+                                          title="Se ordredetaljer i Wix Dashboard"
+                                        >
+                                          {order.id}
+                                          <Share2 size={11} className="shrink-0 text-secondary" />
+                                        </a>
+                                      ) : (
+                                        order.id
+                                      )}
+                                    </td>
+                                    <td className="py-4.5 px-5.5 font-semibold text-onyx">{order.customer}</td>
+                                    <td className="py-4.5 px-5.5 text-secondary">{order.date}</td>
+                                    <td className="py-4.5 px-5.5 text-secondary italic truncate max-w-[280px]" title={order.items}>{order.items}</td>
+                                    <td className="py-4.5 px-5.5 font-bold text-onyx">{order.amount}</td>
+                                    <td className="py-4.5 px-5.5 text-center">
                                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
-                                        order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'paid' || order.status.toLowerCase() === 'fulfilled'
+                                        order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'paid' || order.status.toLowerCase() === 'fulfilled' || order.status.toLowerCase() === 'approved'
                                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                                           : 'bg-amber-50 text-amber-700 border-amber-100'
                                       }`}>
-                                        {order.status === 'PAID' ? 'Betalt' : order.status === 'DELIVERED' ? 'Sendt' : order.status === 'FULFILLED' ? 'Fullført' : order.status}
+                                        {order.status === 'PAID' ? 'Betalt' : order.status === 'DELIVERED' ? 'Sendt' : order.status === 'FULFILLED' ? 'Fullført' : order.status === 'APPROVED' ? 'Godkjent' : order.status}
                                       </span>
                                     </td>
                                   </tr>
