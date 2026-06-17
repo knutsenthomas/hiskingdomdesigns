@@ -1941,7 +1941,7 @@ export default function Profile() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
                       >
-                        <span className="material-symbols-outlined text-xs">chat_bubble</span>
+                        <span className="material-symbols-outlined text-xs">chat</span>
                         WhatsApp
                       </a>
 

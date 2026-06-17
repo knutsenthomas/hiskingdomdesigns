@@ -1017,7 +1017,7 @@ export default function HkmChatWidget() {
                 <>
                   {liveMessages.length === 0 ? (
                     <div className="text-center py-12 text-secondary/60 text-xs font-medium space-y-1">
-                      <span className="material-symbols-outlined text-3xl opacity-40">chat_bubble</span>
+                      <span className="material-symbols-outlined text-3xl opacity-40">chat</span>
                       <p>{t('chat.convStarted')}</p>
                       <p>{t('chat.convStartedDesc')}</p>
                     </div>
