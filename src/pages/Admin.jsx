@@ -10,7 +10,7 @@ import {
   ChevronDown, ChevronUp, TrendingUp, DollarSign, 
   ShoppingBag, Globe, Calendar, Smartphone, 
   Laptop, Tablet, Menu, Activity, Lock, ChevronRight,
-  Clock, Sparkles, Mic, BookOpen
+  Clock, Sparkles, Mic, BookOpen, ExternalLink
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -1527,15 +1527,15 @@ export default function Admin() {
                         </div>
 
                         <div className="overflow-x-auto">
-                          <table className="w-full min-w-[950px] text-xs text-left border-collapse">
+                          <table className="w-full min-w-[1050px] text-sm text-left border-collapse">
                             <thead>
-                              <tr className="border-b border-slate-100 text-[10px] text-secondary uppercase font-bold tracking-wider">
-                                <th className="py-3.5 px-5.5">Ordre ID</th>
-                                <th className="py-3.5 px-5.5">Kunde</th>
-                                <th className="py-3.5 px-5.5">Dato</th>
-                                <th className="py-3.5 px-5.5">Varer kjøpt</th>
-                                <th className="py-3.5 px-5.5">Totalbeløp</th>
-                                <th className="py-3.5 px-5.5 text-center">Status</th>
+                              <tr className="border-b border-slate-100 text-xs text-secondary/80 uppercase font-bold tracking-wider">
+                                <th className="py-5 px-6">Ordre ID</th>
+                                <th className="py-5 px-6">Kunde</th>
+                                <th className="py-5 px-6">Dato</th>
+                                <th className="py-5 px-6">Varer kjøpt</th>
+                                <th className="py-5 px-6">Totalbeløp</th>
+                                <th className="py-5 px-6 text-center">Status</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1548,27 +1548,27 @@ export default function Admin() {
                               ) : (
                                 activeWixStats.ordersList.map((order, i) => (
                                   <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
-                                    <td className="py-4.5 px-5.5 font-bold text-[#1B4965]">
+                                    <td className="py-5 px-6 font-bold text-[#1B4965]">
                                       {order.wixOrderId ? (
                                         <a 
-                                          href={`https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/store/orders/details/${order.wixOrderId}`}
+                                          href={`https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/store/orders/order/${order.wixOrderId}`}
                                           target="_blank" 
                                           rel="noopener noreferrer"
-                                          className="hover:text-[#d17d39] hover:underline transition-colors flex items-center gap-1.5 cursor-pointer"
+                                          className="hover:text-[#d17d39] hover:underline transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                                           title="Se ordredetaljer i Wix Dashboard"
                                         >
                                           {order.id}
-                                          <Share2 size={11} className="shrink-0 text-secondary" />
+                                          <ExternalLink size={13} className="shrink-0 text-secondary" />
                                         </a>
                                       ) : (
                                         order.id
                                       )}
                                     </td>
-                                    <td className="py-4.5 px-5.5 font-semibold text-onyx">{order.customer}</td>
-                                    <td className="py-4.5 px-5.5 text-secondary">{order.date}</td>
-                                    <td className="py-4.5 px-5.5 text-secondary italic truncate max-w-[280px]" title={order.items}>{order.items}</td>
-                                    <td className="py-4.5 px-5.5 font-bold text-onyx">{order.amount}</td>
-                                    <td className="py-4.5 px-5.5 text-center">
+                                    <td className="py-5 px-6 font-semibold text-onyx">{order.customer}</td>
+                                    <td className="py-5 px-6 text-secondary">{order.date}</td>
+                                    <td className="py-5 px-6 text-secondary italic truncate max-w-[360px]" title={order.items}>{order.items}</td>
+                                    <td className="py-5 px-6 font-bold text-onyx">{order.amount}</td>
+                                    <td className="py-5 px-6 text-center">
                                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                                         order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'paid' || order.status.toLowerCase() === 'fulfilled' || order.status.toLowerCase() === 'approved'
                                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
