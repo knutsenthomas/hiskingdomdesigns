@@ -1576,7 +1576,7 @@ export default function Admin() {
               {/* TAB 3: VISITS (Google Analytics) */}
               {activeTab === 'visits' && (
                 <div className="space-y-6">
-                  {gaLoading ? (
+                  {gaLoading && !gaStats ? (
                     <div className="bg-white rounded-3xl border border-outline-variant/30 py-24 flex flex-col items-center justify-center">
                       <div className="w-10 h-10 border-4 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
                       <p className="mt-4 text-secondary text-xs font-semibold">Henter Google Analytics-statistikk...</p>
@@ -1595,7 +1595,7 @@ export default function Admin() {
                       </pre>
                     </div>
                   ) : (
-                    <>
+                    <div className={`${gaLoading ? 'opacity-50 pointer-events-none' : ''} transition-opacity duration-200 space-y-6`}>
                       {/* Setup instructions when setup is required */}
                       {gaSetupRequired && (
                         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-left space-y-4 mb-6 shadow-sm">
@@ -1819,8 +1819,21 @@ export default function Admin() {
                                 
                                 {/* Pulse marker for active location (Mandal/Norway area) */}
                                 <g>
-                                  <circle cx="485" cy="125" r="5" fill="#d17d39" className="animate-pulse" />
-                                  <circle cx="485" cy="125" r="12" fill="none" stroke="#d17d39" strokeWidth="1.5" className="animate-ping opacity-75 origin-center" />
+                                  <circle cx="485" cy="125" r="5" fill="#d17d39" />
+                                  <circle cx="485" cy="125" r="5" fill="none" stroke="#d17d39" strokeWidth="1.5">
+                                    <animate 
+                                      attributeName="r" 
+                                      values="5;18" 
+                                      dur="2s" 
+                                      repeatCount="indefinite" 
+                                    />
+                                    <animate 
+                                      attributeName="opacity" 
+                                      values="1;0" 
+                                      dur="2s" 
+                                      repeatCount="indefinite" 
+                                    />
+                                  </circle>
                                 </g>
                               </svg>
                             </div>
@@ -1993,7 +2006,7 @@ export default function Admin() {
 
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
