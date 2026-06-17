@@ -60,8 +60,8 @@ async function main() {
       checkoutId: checkoutRes.checkoutId
     },
     callbacks: {
-      postFlowUrl: 'https://hiskingdomdesigns.vercel.app/cart',
-      thankYouPageUrl: 'https://hiskingdomdesigns.vercel.app/profile'
+      postFlowUrl: 'https://hiskingdomdesigns.no/cart',
+      thankYouPageUrl: 'https://hiskingdomdesigns.no/profile'
     }
   });
   console.log('Redirect URL:', redirectRes.fullUrl || redirectRes.redirectSession?.fullUrl);

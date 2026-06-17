@@ -1077,7 +1077,7 @@ export default function Admin() {
         </AnimatePresence>
 
         {/* MAIN PANEL CONTENT AREA */}
-        <div className="flex-grow w-full space-y-6">
+        <div className="flex-grow w-full min-w-0 space-y-6">
           
           {/* Header Controls for Tab (Tidsfilter) */}
           {activeTab !== 'affiliates' && (
