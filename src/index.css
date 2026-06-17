@@ -114,3 +114,27 @@ html {
   background-color: rgba(21, 26, 33, 0.05);
   font-weight: 600;
 }
+
+/* Hide default Wix Chat and other third-party widgets to prevent collision with custom HkmChatWidget */
+#WIX_CHAT_CONTAINER,
+#wix-chat-container-root,
+#wix-chat-iframe,
+[id*="wix-chat"],
+[class*="wix-chat"],
+iframe[title*="Chat"],
+iframe[src*="wix.com/chat"],
+iframe[src*="wix-chat"],
+.wix-chat-widget,
+.fb-customerchat,
+#fb-root,
+#shopify-chat,
+#tidio-chat,
+.zopim,
+#hubspot-messages-iframe-container {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
