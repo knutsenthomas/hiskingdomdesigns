@@ -1422,9 +1422,9 @@ export default function Admin() {
                           <table className="w-full min-w-[1050px] text-sm text-left border-collapse">
                             <thead>
                               <tr className="border-b border-slate-100 text-xs text-secondary/80 uppercase font-bold tracking-wider whitespace-nowrap">
+                                <th className="py-5 px-6">Dato</th>
                                 <th className="py-5 px-6">Ordre ID</th>
                                 <th className="py-5 px-6">Kunde</th>
-                                <th className="py-5 px-6">Dato</th>
                                 <th className="py-5 px-6">Varer kjøpt</th>
                                 <th className="py-5 px-6">Totalbeløp</th>
                                 <th className="py-5 px-6 text-center">Sendt</th>
@@ -1441,6 +1441,7 @@ export default function Admin() {
                               ) : (
                                 activeWixStats.ordersList.map((order, i) => (
                                   <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
+                                    <td className="py-5 px-6 text-secondary whitespace-nowrap">{order.date}</td>
                                     <td className="py-5 px-6 font-bold text-[#1B4965] whitespace-nowrap">
                                       {order.wixOrderId ? (
                                         <a 
@@ -1458,7 +1459,6 @@ export default function Admin() {
                                       )}
                                     </td>
                                     <td className="py-5 px-6 font-semibold text-onyx whitespace-nowrap">{order.customer}</td>
-                                    <td className="py-5 px-6 text-secondary whitespace-nowrap">{order.date}</td>
                                     <td className="py-5 px-6 text-secondary italic truncate max-w-[360px]" title={order.items}>{order.items}</td>
                                     <td className="py-5 px-6 font-bold text-onyx whitespace-nowrap">{order.amount}</td>
                                     <td className="py-5 px-6 text-center whitespace-nowrap">
