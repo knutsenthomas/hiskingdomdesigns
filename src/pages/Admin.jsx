@@ -916,7 +916,7 @@ export default function Admin() {
         <div>
           <Link
             to={localizedPath('/profile')}
-            className="bg-slate-50 border border-outline-variant hover:bg-slate-100 text-secondary hover:text-onyx px-3.5 py-2 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+            className="bg-slate-50 border border-outline-variant hover:bg-slate-100 text-secondary hover:text-onyx px-3.5 py-2 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
           >
             <span>← Min profil</span>
           </Link>
