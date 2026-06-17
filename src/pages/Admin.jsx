@@ -394,7 +394,8 @@ const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) 
       date: order._createdDate ? new Date(order._createdDate).toLocaleDateString('no-NO') : 'Ukjent',
       items: itemsText || 'Varer',
       amount: `${Math.round(parseFloat(order.priceSummary?.total?.amount || order.totalPrice?.amount || 0))} kr`,
-      status: order.status || 'Behandles'
+      status: order.status || 'Behandles',
+      fulfillmentStatus: order.fulfillmentStatus || 'NOT_FULFILLED'
     };
   });
 
@@ -1426,13 +1427,14 @@ export default function Admin() {
                                 <th className="py-5 px-6">Dato</th>
                                 <th className="py-5 px-6">Varer kjøpt</th>
                                 <th className="py-5 px-6">Totalbeløp</th>
+                                <th className="py-5 px-6 text-center">Sendt</th>
                                 <th className="py-5 px-6 text-center">Status</th>
                               </tr>
                             </thead>
                             <tbody>
                               {activeWixStats.ordersList.length === 0 ? (
                                 <tr>
-                                  <td colSpan="6" className="py-8 text-center text-secondary font-medium">
+                                  <td colSpan="7" className="py-8 text-center text-secondary font-medium">
                                     Ingen registrerte ordrer funnet for denne perioden.
                                   </td>
                                 </tr>
@@ -1459,6 +1461,17 @@ export default function Admin() {
                                     <td className="py-5 px-6 text-secondary">{order.date}</td>
                                     <td className="py-5 px-6 text-secondary italic truncate max-w-[360px]" title={order.items}>{order.items}</td>
                                     <td className="py-5 px-6 font-bold text-onyx">{order.amount}</td>
+                                    <td className="py-5 px-6 text-center">
+                                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                                        order.fulfillmentStatus === 'FULFILLED'
+                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                          : order.fulfillmentStatus === 'PARTIALLY_FULFILLED'
+                                          ? 'bg-blue-50 text-blue-700 border-blue-100'
+                                          : 'bg-amber-50 text-amber-700 border-amber-100'
+                                      }`}>
+                                        {order.fulfillmentStatus === 'FULFILLED' ? 'Ja' : order.fulfillmentStatus === 'PARTIALLY_FULFILLED' ? 'Delvis' : 'Nei'}
+                                      </span>
+                                    </td>
                                     <td className="py-5 px-6 text-center">
                                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                                         order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'paid' || order.status.toLowerCase() === 'fulfilled' || order.status.toLowerCase() === 'approved'
