@@ -1421,7 +1421,7 @@ export default function Admin() {
                         <div className="overflow-x-auto">
                           <table className="w-full min-w-[1050px] text-sm text-left border-collapse">
                             <thead>
-                              <tr className="border-b border-slate-100 text-xs text-secondary/80 uppercase font-bold tracking-wider">
+                              <tr className="border-b border-slate-100 text-xs text-secondary/80 uppercase font-bold tracking-wider whitespace-nowrap">
                                 <th className="py-5 px-6">Ordre ID</th>
                                 <th className="py-5 px-6">Kunde</th>
                                 <th className="py-5 px-6">Dato</th>
@@ -1434,20 +1434,20 @@ export default function Admin() {
                             <tbody>
                               {activeWixStats.ordersList.length === 0 ? (
                                 <tr>
-                                  <td colSpan="7" className="py-8 text-center text-secondary font-medium">
+                                  <td colSpan="7" className="py-8 text-center text-secondary font-medium whitespace-nowrap">
                                     Ingen registrerte ordrer funnet for denne perioden.
                                   </td>
                                 </tr>
                               ) : (
                                 activeWixStats.ordersList.map((order, i) => (
                                   <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
-                                    <td className="py-5 px-6 font-bold text-[#1B4965]">
+                                    <td className="py-5 px-6 font-bold text-[#1B4965] whitespace-nowrap">
                                       {order.wixOrderId ? (
                                         <a 
                                           href={`https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/store/orders/order/${order.wixOrderId}`}
                                           target="_blank" 
                                           rel="noopener noreferrer"
-                                          className="hover:text-[#d17d39] hover:underline transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                                          className="hover:text-[#d17d39] hover:underline transition-colors inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                                           title="Se ordredetaljer i Wix Dashboard"
                                         >
                                           {order.id}
@@ -1457,11 +1457,11 @@ export default function Admin() {
                                         order.id
                                       )}
                                     </td>
-                                    <td className="py-5 px-6 font-semibold text-onyx">{order.customer}</td>
-                                    <td className="py-5 px-6 text-secondary">{order.date}</td>
+                                    <td className="py-5 px-6 font-semibold text-onyx whitespace-nowrap">{order.customer}</td>
+                                    <td className="py-5 px-6 text-secondary whitespace-nowrap">{order.date}</td>
                                     <td className="py-5 px-6 text-secondary italic truncate max-w-[360px]" title={order.items}>{order.items}</td>
-                                    <td className="py-5 px-6 font-bold text-onyx">{order.amount}</td>
-                                    <td className="py-5 px-6 text-center">
+                                    <td className="py-5 px-6 font-bold text-onyx whitespace-nowrap">{order.amount}</td>
+                                    <td className="py-5 px-6 text-center whitespace-nowrap">
                                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                                         order.fulfillmentStatus === 'FULFILLED'
                                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
@@ -1472,7 +1472,7 @@ export default function Admin() {
                                         {order.fulfillmentStatus === 'FULFILLED' ? 'Ja' : order.fulfillmentStatus === 'PARTIALLY_FULFILLED' ? 'Delvis' : 'Nei'}
                                       </span>
                                     </td>
-                                    <td className="py-5 px-6 text-center">
+                                    <td className="py-5 px-6 text-center whitespace-nowrap">
                                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                                         order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'paid' || order.status.toLowerCase() === 'fulfilled' || order.status.toLowerCase() === 'approved'
                                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
