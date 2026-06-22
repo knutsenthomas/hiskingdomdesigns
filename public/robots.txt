@@ -1,0 +1,45 @@
+# World-class robots.txt for His Kingdom Designs
+# Optimized for Search Engine Optimization (SEO) and Search Visibility
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /handlekurv/
+Disallow: /carrito/
+Disallow: /profile/
+Disallow: /profil/
+Disallow: /perfil/
+
+# Explicitly allow AI Search crawlers to index public pages for citation purposes
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /handlekurv/
+Disallow: /carrito/
+Disallow: /profile/
+Disallow: /profil/
+Disallow: /perfil/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /handlekurv/
+Disallow: /carrito/
+Disallow: /profile/
+Disallow: /profil/
+Disallow: /perfil/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /handlekurv/
+Disallow: /carrito/
+Disallow: /profile/
+Disallow: /profil/
+Disallow: /perfil/
+
+Sitemap: https://hiskingdomdesigns.no/sitemap.xml
