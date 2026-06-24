@@ -60,7 +60,8 @@ export default async function handler(req, res) {
       id: p.id,
       name: p.name,
       price: p.price?.price || 0,
-      inStock: p.inStock,
+      inStock: p.inStock !== false,
+      imageUrl: p.media?.mainMedia?.image?.url || '',
       description: p.description || ''
     }));
 
