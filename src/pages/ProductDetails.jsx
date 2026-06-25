@@ -859,10 +859,57 @@ export default function ProductDetails() {
     );
   }
 
-  // Related products (same category, excluding current product)
-  const relatedProducts = products
-    .filter(p => p.category === product.category && p.id !== product.id)
-    .slice(0, 3);
+  // Related products (intelligent similarity ranking based on raw properties)
+  const relatedProducts = useMemo(() => {
+    if (!productRaw || !products || products.length === 0) return [];
+
+    const getKeywords = (name) => {
+      if (!name) return [];
+      return name.toLowerCase()
+        .replace(/[^a-z0-9æøå ]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 2 && !['med', 'paa', 'for', 'den', 'det', 'the', 'and', 'with', 'pinn', 'til'].includes(w));
+    };
+
+    const currentKeywords = getKeywords(productRaw.name);
+    const currentSubcategories = productRaw.subcategories || [];
+
+    const scored = products
+      .filter(p => p.id !== productRaw.id) // Exclude current product
+      .map(p => {
+        let score = 0;
+
+        // 1. Primary Category match (large boost)
+        if (p.category === productRaw.category) {
+          score += 100;
+        }
+
+        // 2. Subcategory (collection) overlap
+        if (p.subcategories && p.subcategories.length > 0 && currentSubcategories.length > 0) {
+          const commonSubs = p.subcategories.filter(sub => currentSubcategories.includes(sub));
+          score += commonSubs.length * 50; // High score for matching collections (e.g. "Hatter /caps" or "Nøkkelring")
+        }
+
+        // 3. Name keyword overlap
+        const pKeywords = getKeywords(p.name);
+        if (pKeywords.length > 0 && currentKeywords.length > 0) {
+          const commonKeywords = pKeywords.filter(w => currentKeywords.includes(w));
+          score += commonKeywords.length * 30; // Boost for design family (e.g. both having "Norge" or "Brodert")
+        }
+
+        // 4. Minor tie-breaker (bestsellers, sale)
+        if (p.isBestseller) score += 5;
+        if (p.isSale) score += 2;
+
+        return { product: p, score };
+      });
+
+    // Sort by score descending and take top 3
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.product)
+      .slice(0, 3);
+  }, [productRaw, products]);
 
   const handleAddToCart = () => {
     // Construct custom text fields payload as [{ title, value }]
