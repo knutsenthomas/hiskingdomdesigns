@@ -950,14 +950,26 @@ const cleanAndTranslateName = (originalName, lang, product = {}) => {
 const cleanAndTranslateDesc = (desc, lang) => {
   if (!desc) return desc;
 
+  // Unescape HTML entities first
   let cleaned = desc
-    .replace(/<[^>]*>/g, '') 
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\s+/g, ' ') 
-    .trim();
+    .replace(/&gt;/g, '>');
+
+  // If there are no HTML tags, but there are newlines, convert them to paragraphs
+  const hasHtml = /<[a-z][\s\S]*>/i.test(cleaned);
+  if (!hasHtml && (cleaned.includes('\n') || cleaned.includes('\r'))) {
+    cleaned = cleaned
+      .split(/\r?\n/)
+      .map(p => p.trim())
+      .filter(Boolean)
+      .map(p => `<p>${p}</p>`)
+      .join('');
+  }
+
+  // Normalize spaces while preserving tags
+  cleaned = cleaned.replace(/[ \t]+/g, ' ').trim();
 
   if (lang === 'no') {
     const replacements = [
