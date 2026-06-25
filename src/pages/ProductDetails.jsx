@@ -312,6 +312,7 @@ export default function ProductDetails() {
   const [customTextFieldValues, setCustomTextFieldValues] = useState({});
   const [customTextModes, setCustomTextModes] = useState({});
   const [added, setAdded] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
   const [activeImage, setActiveImage] = useState(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
@@ -694,14 +695,25 @@ export default function ProductDetails() {
       // 2. Initialize custom text fields
       const initialTexts = {};
       const initialModes = {};
+      const isGiftCard = product.name?.toLowerCase().includes('gavekort') || product.name?.toLowerCase().includes('gift card') || product.category === 'Gavekort';
+      
       if (product.customTextFields && product.customTextFields.length > 0) {
         product.customTextFields.forEach(field => {
-          initialTexts[field.title] = 'Tilfeldig';
-          initialModes[field.title] = 'random';
+          const lowerTitle = field.title.toLowerCase();
+          const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
+          
+          if (isMotifField) {
+            initialTexts[field.title] = 'Tilfeldig';
+            initialModes[field.title] = 'random';
+          } else {
+            initialTexts[field.title] = '';
+            initialModes[field.title] = 'custom';
+          }
         });
       }
       setCustomTextFieldValues(initialTexts);
       setCustomTextModes(initialModes);
+      setValidationErrors({});
     }
   }, [product]);
 
@@ -914,11 +926,56 @@ export default function ProductDetails() {
 
 
   const handleAddToCart = () => {
+    const isGiftCard = product.name?.toLowerCase().includes('gavekort') || product.name?.toLowerCase().includes('gift card') || product.category === 'Gavekort';
+    
+    // Validate mandatory custom text fields
+    const errors = {};
+    if (product.customTextFields && product.customTextFields.length > 0) {
+      product.customTextFields.forEach(field => {
+        if (field.mandatory) {
+          const val = customTextFieldValues[field.title];
+          const mode = customTextModes[field.title];
+          const lowerTitle = field.title.toLowerCase();
+          
+          // Motif fields are only required if they are in 'custom' mode
+          const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
+          const isRequired = isMotifField ? (mode === 'custom') : true;
+
+          if (isRequired && (!val || !val.trim() || val === 'Tilfeldig')) {
+            if (language === 'es') {
+              errors[field.title] = `${field.title} es obligatorio`;
+            } else if (language === 'en') {
+              errors[field.title] = `${field.title} is required`;
+            } else {
+              errors[field.title] = `${field.title} er obligatorisk`;
+            }
+          }
+        }
+      });
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      const firstErrorKey = Object.keys(errors)[0];
+      const errEl = document.getElementById(`field-err-${firstErrorKey}`);
+      if (errEl) {
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    setValidationErrors({});
+
     // Construct custom text fields payload as [{ title, value }]
-    const customTextFieldsPayload = Object.entries(customTextFieldValues).map(([title, value]) => ({
-      title,
-      value: (typeof value === 'string' ? value.trim() : value) || 'Tilfeldig'
-    }));
+    const customTextFieldsPayload = Object.entries(customTextFieldValues).map(([title, value]) => {
+      const lowerTitle = title.toLowerCase();
+      const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
+      const cleanVal = (typeof value === 'string' ? value.trim() : value) || '';
+      return {
+        title,
+        value: cleanVal || (isMotifField ? 'Tilfeldig' : '')
+      };
+    });
 
     // Override product image with color-specific activeImage
     const productWithActiveImage = {
@@ -1292,6 +1349,54 @@ export default function ProductDetails() {
             <div className="space-y-4">
               {product.customTextFields.map(field => {
                 const currentMode = customTextModes[field.title] || 'random';
+                const isGiftCard = product.name?.toLowerCase().includes('gavekort') || product.name?.toLowerCase().includes('gift card') || product.category === 'Gavekort';
+                const lowerTitle = field.title.toLowerCase();
+                const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
+
+                if (!isMotifField) {
+                  // Direct input field for gift cards and standard custom text properties (email, name, greetings, etc.)
+                  return (
+                    <div key={field.title} className="space-y-2">
+                      <label className="font-label-md text-label-md text-onyx block font-semibold">
+                        {field.title}
+                        {field.mandatory && <span className="text-red-500 ml-1">*</span>}
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={field.maxLength || 500}
+                        required={field.mandatory}
+                        value={customTextFieldValues[field.title] || ''}
+                        placeholder={field.title}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomTextFieldValues(prev => ({
+                            ...prev,
+                            [field.title]: val
+                          }));
+                          if (val.trim()) {
+                            setValidationErrors(prev => {
+                              const next = { ...prev };
+                              delete next[field.title];
+                              return next;
+                            });
+                          }
+                        }}
+                        className={`w-full bg-white border rounded-lg p-3 text-sm text-onyx focus:ring-1 outline-none transition-all ${
+                          validationErrors[field.title]
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50/10'
+                            : 'border-outline focus:border-terracotta focus:ring-terracotta'
+                        }`}
+                      />
+                      {validationErrors[field.title] && (
+                        <p id={`field-err-${field.title}`} className="text-xs text-red-500 font-semibold mt-1">
+                          {validationErrors[field.title]}
+                        </p>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Motif field (e.g. customized poster or clothing with random/custom toggle buttons)
                 return (
                   <div key={field.title} className="space-y-2">
                     <label className="font-label-md text-label-md text-onyx block font-semibold">
@@ -1305,6 +1410,11 @@ export default function ProductDetails() {
                         onClick={() => {
                           setCustomTextModes(prev => ({ ...prev, [field.title]: 'random' }));
                           setCustomTextFieldValues(prev => ({ ...prev, [field.title]: t('product.randomText') }));
+                          setValidationErrors(prev => {
+                            const next = { ...prev };
+                            delete next[field.title];
+                            return next;
+                          });
                         }}
                         className={`flex-1 py-3 px-3 border rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all select-none cursor-pointer outline-none active:scale-[0.98] ${
                           currentMode === 'random'
@@ -1352,10 +1462,25 @@ export default function ProductDetails() {
                                   ...prev,
                                   [field.title]: val
                                 }));
+                                if (val.trim()) {
+                                  setValidationErrors(prev => {
+                                    const next = { ...prev };
+                                    delete next[field.title];
+                                    return next;
+                                  });
+                                }
                               }}
-                              className="w-full bg-white border border-outline rounded-lg p-3 text-sm text-onyx focus:border-terracotta focus:ring-1 focus:ring-terracotta outline-none"
+                              className={`w-full bg-white border rounded-lg p-3 text-sm text-onyx focus:ring-1 outline-none transition-all ${
+                                validationErrors[field.title]
+                                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50/10'
+                                  : 'border-outline focus:border-terracotta focus:ring-terracotta'
+                              }`}
                             />
-                            {field.mandatory && (
+                            {validationErrors[field.title] ? (
+                              <p id={`field-err-${field.title}`} className="text-xs text-red-500 font-semibold mt-1">
+                                {validationErrors[field.title]}
+                              </p>
+                            ) : field.mandatory && (
                               <p className="text-[10px] text-secondary/70 mt-1">
                                 {t('product.mandatoryText')}
                               </p>
