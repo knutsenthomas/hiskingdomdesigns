@@ -382,6 +382,26 @@ export default function ProductDetails() {
     });
   }, [product, selectedSize, selectedColor]);
 
+  // Dynamic prices based on selected variant if present
+  const activePrice = useMemo(() => {
+    if (selectedVariant && selectedVariant.variant?.priceData?.discountedPrice !== undefined) {
+      return selectedVariant.variant.priceData.discountedPrice;
+    }
+    return product ? product.price : 0;
+  }, [selectedVariant, product]);
+
+  const activeOriginalPrice = useMemo(() => {
+    if (selectedVariant) {
+      const price = selectedVariant.variant?.priceData?.price;
+      const discPrice = selectedVariant.variant?.priceData?.discountedPrice;
+      if (price !== undefined && discPrice !== undefined && price > discPrice) {
+        return price;
+      }
+      return undefined;
+    }
+    return product ? product.originalPrice : undefined;
+  }, [selectedVariant, product]);
+
   // Aggregate stock information from wix client structures (always return in-stock to prevent purchase limits)
   const stockStatus = useMemo(() => {
     return { 
@@ -749,7 +769,7 @@ export default function ProductDetails() {
     product && typeof product.description === 'string' 
       ? product.description.replace(/<[^>]*>/g, '').substring(0, 155) 
       : t('home.metaDesc'),
-    product ? { type: 'product', image: product.image, price: `${product.price} NOK` } : null
+    product ? { type: 'product', image: product.image, price: `${activePrice} NOK` } : null
   );
 
   // Dynamic Product JSON-LD Schema (World-Class SEO)
@@ -769,7 +789,7 @@ export default function ProductDetails() {
           "@type": "Offer",
           "url": window.location.href,
           "priceCurrency": "NOK",
-          "price": product.price || 0,
+          "price": activePrice || 0,
           "availability": product.stock?.inventoryStatus === 'IN_STOCK' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
         }
       };
@@ -977,10 +997,12 @@ export default function ProductDetails() {
       };
     });
 
-    // Override product image with color-specific activeImage
+    // Override product image and price with active variant-specific choices
     const productWithActiveImage = {
       ...product,
-      image: activeImage || product.image
+      image: activeImage || product.image,
+      price: activePrice,
+      originalPrice: activeOriginalPrice
     };
 
     addToCart(productWithActiveImage, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload);
@@ -1212,11 +1234,11 @@ export default function ProductDetails() {
 
             <div className="flex items-center gap-3">
               <span className="font-headline-md text-headline-md text-terracotta font-extrabold text-2xl">
-                {formatPrice(product.price)}
+                {formatPrice(activePrice)}
               </span>
-              {product.originalPrice && (
+              {activeOriginalPrice && (
                 <span className="font-body-md text-body-md text-onyx/40 line-through">
-                  {formatPrice(product.originalPrice)}
+                  {formatPrice(activeOriginalPrice)}
                 </span>
               )}
             </div>
