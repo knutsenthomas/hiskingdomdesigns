@@ -998,7 +998,7 @@ export default function ProductDetails() {
     return (
       <div className="flex flex-col items-center justify-center py-56">
         <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-secondary font-semibold font-body-md">Henter produkt fra Wix...</p>
+        <p className="mt-4 text-secondary font-semibold font-body-md">{t('product.loading')}</p>
       </div>
     );
   }
