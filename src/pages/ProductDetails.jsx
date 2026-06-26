@@ -345,8 +345,8 @@ export default function ProductDetails() {
     return products.find(p => p.id === productId);
   }, [products, productId]);
 
-  // Use contextProduct if available, otherwise fallback to fetchedProduct (translated dynamically)
-  const productRaw = contextProduct || fetchedProduct;
+  // Use fetchedProduct if available (contains full options/variants), otherwise fallback to contextProduct
+  const productRaw = fetchedProduct || contextProduct;
   const product = useMemo(() => {
     return translateProduct(productRaw);
   }, [productRaw, translateProduct]);
@@ -646,7 +646,7 @@ export default function ProductDetails() {
     if (product?.image) {
       setActiveImage(product.image);
     }
-  }, [product]);
+  }, [product?.id]);
 
   // Preload all product images in parallel for instant gallery transitions
   useEffect(() => {
@@ -676,9 +676,32 @@ export default function ProductDetails() {
       const choiceImageUrl = colorChoice?.media?.mainMedia?.image?.url;
       if (choiceImageUrl) {
         setActiveImage(choiceImageUrl);
+      } else {
+        // Fallback for print-on-demand products where media is linked to size choices
+        const colorIndex = colorOpt.choices?.findIndex(c => {
+          const resolved = resolveColor(c.value);
+          return resolved.name === selectedColor;
+        });
+
+        if (colorIndex !== undefined && colorIndex !== -1) {
+          const sizeOpt = product.productOptions?.find(o => {
+            const name = o.name?.trim().toLowerCase();
+            return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+          });
+
+          if (sizeOpt) {
+            const sizeChoice = sizeOpt.choices?.find(c => c.value === selectedSize || c.description === selectedSize) || sizeOpt.choices?.[0];
+            if (sizeChoice && sizeChoice.media?.items && sizeChoice.media.items.length >= colorOpt.choices.length) {
+              const mediaItem = sizeChoice.media.items[colorIndex];
+              if (mediaItem?.image?.url) {
+                setActiveImage(mediaItem.image.url);
+              }
+            }
+          }
+        }
       }
     }
-  }, [selectedColor, product]);
+  }, [selectedColor, selectedSize, product]);
 
   // Initialize generic selectedOptions and customTextFieldValues when product changes
   useEffect(() => {
@@ -898,7 +921,7 @@ export default function ProductDetails() {
       }
       setQty(1);
     }
-  }, [product]);
+  }, [product?.id]);
 
   // Ensure selected quantity is not higher than available stock
   useEffect(() => {
