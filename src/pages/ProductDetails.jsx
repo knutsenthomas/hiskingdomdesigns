@@ -1117,7 +1117,68 @@ export default function ProductDetails() {
     loadReviews();
   };
 
-  const imagesList = product.images && product.images.length > 0 ? product.images : [product.image];
+  const imagesList = useMemo(() => {
+    if (!product) return [];
+
+    const colorOpt = product.productOptions?.find(o => {
+      const name = o.name?.trim().toLowerCase();
+      return name === 'color' || name === 'farge';
+    });
+
+    if (colorOpt) {
+      const sizeOpt = product.productOptions?.find(o => {
+        const name = o.name?.trim().toLowerCase();
+        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+      });
+
+      const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize) || sizeOpt?.choices?.[0];
+
+      // 1. Build list of color-specific mockup images in the exact order of display colors
+      const uniqueDisplayColors = [];
+      const colorImages = [];
+      colorOpt.choices?.forEach((c, idx) => {
+        const resolved = resolveColor(c.value);
+        if (!uniqueDisplayColors.includes(resolved.name)) {
+          uniqueDisplayColors.push(resolved.name);
+          
+          let url = c.media?.mainMedia?.image?.url;
+          if (!url && sizeChoice && sizeChoice.media?.items) {
+            url = sizeChoice.media.items[idx]?.image?.url;
+          }
+          if (url) {
+            colorImages.push(url);
+          }
+        }
+      });
+
+      // 2. Identify all mockup URLs across all variants to filter them out of extra images
+      const allMockupUrls = new Set();
+      if (sizeOpt) {
+        sizeOpt.choices?.forEach(sc => {
+          sc.media?.items?.forEach(item => {
+            if (item?.image?.url) {
+              allMockupUrls.add(item.image.url);
+            }
+          });
+        });
+      }
+      colorOpt.choices?.forEach(cc => {
+        if (cc.media?.mainMedia?.image?.url) {
+          allMockupUrls.add(cc.media.mainMedia.image.url);
+        }
+      });
+
+      // 3. Find extra unique images in product.images that are not mockups
+      const extraImages = product.images?.filter(url => !allMockupUrls.has(url)) || [];
+
+      // Combine color mockups first, then extra images
+      const combined = [...colorImages, ...extraImages];
+      return combined.length > 0 ? combined : [product.image];
+    }
+
+    return product.images && product.images.length > 0 ? product.images : [product.image];
+  }, [product, selectedSize]);
+
   const currentImageIndex = imagesList.indexOf(activeImage || product.image);
 
   const handlePrevImage = (e) => {
@@ -1190,9 +1251,9 @@ export default function ProductDetails() {
             )}
           </div>
           {/* Thumbnails (for visual complete design look and active image switching) */}
-          {product.images && product.images.length > 0 && (
+          {imagesList && imagesList.length > 0 && (
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin select-none">
-              {product.images.map((imgUrl, idx) => {
+              {imagesList.map((imgUrl, idx) => {
                 const isActive = (activeImage || product.image) === imgUrl;
                 return (
                   <button
