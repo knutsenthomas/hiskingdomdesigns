@@ -45,6 +45,11 @@ export const routeTranslations = {
     en: '/profile',
     es: '/perfil'
   },
+  cancellation: {
+    no: '/angre-kjop',
+    en: '/cancel-order',
+    es: '/cancelar-pedido'
+  },
   admin: {
     no: '/admin',
     en: '/admin',

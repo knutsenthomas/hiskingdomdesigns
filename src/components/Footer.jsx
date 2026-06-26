@@ -267,6 +267,9 @@ export default function Footer() {
             <li>
               <Link to={localizedPath('/betingelser')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.terms')}</Link>
             </li>
+            <li>
+              <Link to={localizedPath('/cancellation')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.cancellation')}</Link>
+            </li>
           </ul>
         </div>
 

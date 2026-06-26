@@ -52,6 +52,7 @@ const Privacy = lazyWithRetry(() => import('@/pages/Privacy'));
 const Betingelser = lazyWithRetry(() => import('@/pages/Betingelser'));
 const Profile = lazyWithRetry(() => import('@/pages/Profile'));
 const Admin = lazyWithRetry(() => import('@/pages/Admin'));
+const Cancellation = lazyWithRetry(() => import('@/pages/Cancellation'));
 
 // Premium Error Boundary to capture runtime rendering crashes and present a helpful report instead of a blank screen
 class ErrorBoundary extends React.Component {
@@ -246,10 +247,15 @@ function MainLayout() {
               <Route path="/personvern" element={<Privacy />} />
               <Route path="/privacidad" element={<Privacy />} />
               
-              {/* Terms of Service */}
+               {/* Terms of Service */}
               <Route path="/betingelser" element={<Betingelser />} />
               <Route path="/terms" element={<Betingelser />} />
               <Route path="/condiciones" element={<Betingelser />} />
+              
+              {/* Cancellation / Angre kjøp */}
+              <Route path="/cancel-order" element={<ErrorBoundary><Cancellation /></ErrorBoundary>} />
+              <Route path="/angre-kjop" element={<ErrorBoundary><Cancellation /></ErrorBoundary>} />
+              <Route path="/cancelar-pedido" element={<ErrorBoundary><Cancellation /></ErrorBoundary>} />
               
               {/* Profile */}
               <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
