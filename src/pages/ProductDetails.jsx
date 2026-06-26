@@ -353,7 +353,7 @@ export default function ProductDetails() {
 
   // Find the selected variant matching selectedSize and selectedColor
   const selectedVariant = useMemo(() => {
-    if (!product || !product.manageVariants || !product.variants || product.variants.length === 0) return null;
+    if (!product || !product.variants || product.variants.length === 0) return null;
     
     const sizeOpt = product.productOptions?.find(o => {
       const name = o.name?.trim().toLowerCase();
