@@ -255,7 +255,7 @@ export default function Cancellation() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 px-6 bg-[#1B4965] hover:bg-[#1B4965]/90 text-white rounded-xl font-label-md text-label-md font-bold transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+                  className="w-full py-4 px-6 bg-terracotta hover:bg-terracotta/90 text-white rounded-xl font-label-md text-label-md font-bold transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -299,7 +299,7 @@ export default function Cancellation() {
                   </Link>
                   <Link
                     to={localizedPath('/products')}
-                    className="py-3 px-6 bg-[#1B4965] hover:bg-[#1B4965]/90 text-white rounded-xl font-label-md text-label-md font-semibold transition-all active:scale-[0.98] cursor-pointer"
+                    className="py-3 px-6 bg-terracotta hover:bg-terracotta/90 text-white rounded-xl font-label-md text-label-md font-semibold transition-all active:scale-[0.98] cursor-pointer"
                   >
                     {t('cart.continueShopping') || 'Fortsett å handle'}
                   </Link>
