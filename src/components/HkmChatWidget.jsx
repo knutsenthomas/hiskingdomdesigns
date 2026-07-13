@@ -396,7 +396,7 @@ export default function HkmChatWidget() {
           }
           return r.json();
         }),
-        5000
+        15000
       );
 
       if (apiRes && apiRes.conversation) {
@@ -443,7 +443,7 @@ export default function HkmChatWidget() {
           }
           return r.json();
         }),
-        5000
+        15000
       );
       if (res && res.messages) {
         const safeFormatTime = (val) => {
@@ -635,7 +635,7 @@ export default function HkmChatWidget() {
             }
             return r.json();
           }),
-          5000
+          15000
         );
 
         if (apiRes && apiRes.conversation) {
@@ -710,7 +710,7 @@ export default function HkmChatWidget() {
           }
           return r.json();
         }),
-        5000
+        15000
       );
       
       // Refresh messages so the user message has its real Wix status
@@ -750,7 +750,7 @@ export default function HkmChatWidget() {
               }
               return r.json();
             }),
-            5000
+            15000
           );
           
           fetchLiveMessages(activeConvId);
