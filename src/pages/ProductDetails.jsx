@@ -874,19 +874,73 @@ export default function ProductDetails() {
       const score = averageRating || 5;
       const count = reviewsList?.length || 0;
 
+      // Extract and optimize all product images to ensure Googlebot gets clean, absolute CDN URLs
+      const imageUrls = [];
+      if (product.image) {
+        imageUrls.push(getOptimizedWixImageUrl(product.image, 800, 1000));
+      }
+      if (product.images && product.images.length > 0) {
+        product.images.forEach(img => {
+          const opt = getOptimizedWixImageUrl(img, 800, 1000);
+          if (opt && !imageUrls.includes(opt)) {
+            imageUrls.push(opt);
+          }
+        });
+      }
+
       const schema = {
         "@context": "https://schema.org/",
         "@type": "Product",
         "name": product.name,
-        "image": product.media?.mainMedia?.image?.url || product.media?.items?.[0]?.image?.url || '',
+        "image": imageUrls.length > 0 ? (imageUrls.length === 1 ? imageUrls[0] : imageUrls) : '',
         "description": (product.description || '').replace(/<[^>]*>/g, '') || 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
         "sku": product.sku || product._id,
+        "brand": {
+          "@type": "Brand",
+          "name": "His Kingdom Designs"
+        },
         "offers": {
           "@type": "Offer",
           "url": window.location.href,
           "priceCurrency": "NOK",
           "price": activePrice || 0,
-          "availability": product.stock?.inventoryStatus === 'IN_STOCK' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+          "priceValidUntil": "2027-12-31",
+          "availability": product.stock?.inventoryStatus === 'IN_STOCK' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "shippingDetails": {
+            "@type": "OfferShippingDetails",
+            "shippingRate": {
+              "@type": "MonetaryAmount",
+              "value": 39,
+              "currency": "NOK"
+            },
+            "shippingDestination": {
+              "@type": "DefinedRegion",
+              "addressCountry": "NO"
+            },
+            "deliveryTime": {
+              "@type": "ShippingDeliveryTime",
+              "handlingTime": {
+                "@type": "QuantitativeValue",
+                "minValue": 1,
+                "maxValue": 3,
+                "unitCode": "DAY"
+              },
+              "transitTime": {
+                "@type": "QuantitativeValue",
+                "minValue": 5,
+                "maxValue": 10,
+                "unitCode": "DAY"
+              }
+            }
+          },
+          "hasMerchantReturnPolicy": {
+            "@type": "MerchantReturnPolicy",
+            "applicableCountry": "NO",
+            "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnPeriod",
+            "merchantReturnDays": 14,
+            "returnMethod": "https://schema.org/ReturnByMail",
+            "returnFees": "https://schema.org/ReturnFeesCustomerPaying"
+          }
         }
       };
 
@@ -928,7 +982,7 @@ export default function ProductDetails() {
         }
       };
     }
-  }, [product, reviewsList, averageRating]);
+  }, [product, reviewsList, averageRating, activePrice]);
 
   // Auto-fill email if member is logged in
   useEffect(() => {
