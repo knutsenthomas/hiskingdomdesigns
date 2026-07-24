@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Search, HelpCircle } from 'lucide-react';
 import CmsText from '@/components/CmsText';
@@ -99,6 +99,48 @@ export default function Faq() {
     t('faq.metaTitle'),
     t('faq.metaDesc')
   );
+
+  // FAQ JSON-LD Schema (World-Class SEO)
+  useEffect(() => {
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": FAQ_ITEMS.flatMap(cat => 
+        cat.questions.map(item => {
+          const resolvedQuestion = t(item.qSlug) || item.q;
+          let resolvedAnswer = t(item.aSlug) || item.a;
+          if (item.aSlug === 'faq-shipping-a2') {
+            resolvedAnswer = resolvedAnswer.replace('{standardAmount}', formatPrice(39));
+          }
+          return {
+            "@type": "Question",
+            "name": resolvedQuestion,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": resolvedAnswer
+            }
+          };
+        })
+      )
+    };
+
+    const scriptId = 'jsonld-faq-schema';
+    let script = document.getElementById(scriptId);
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.innerHTML = JSON.stringify(faqSchema);
+
+    return () => {
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, [t, formatPrice]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [openItems, setOpenItems] = useState({});

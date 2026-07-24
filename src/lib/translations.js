@@ -218,8 +218,7 @@ export const translations = {
     'footer.payment': 'Betaling',
     'footer.allRightsReserved': 'Alle rettigheter reservert.',
 
-    // Home Page & Categories
-    'home.metaTitle': 'Hjem',
+    'home.metaTitle': 'His Kingdom Designs | Kristne klær, plakater & gaver med mening',
     'home.metaDesc': 'His Kingdom Designs tilbyr lekre kristne motiver på t-skjorter, hoodies, caps og plakater. Finn dine favorittbibelvers trykket på premium materialer.',
     'home.newMonthlyPacks': 'Oppdag våre nye månedspakker!',
     'home.newArrival': 'Nyhet: ',
@@ -984,7 +983,7 @@ export const translations = {
     'footer.allRightsReserved': 'All rights reserved.',
 
     // Home Page & Categories
-    'home.metaTitle': 'Home',
+    'home.metaTitle': 'His Kingdom Designs | Christian Apparel, Posters & Meaningful Gifts',
     'home.metaDesc': 'His Kingdom Designs offers beautiful Christian designs on t-shirts, hoodies, caps, and posters. Find your favorite Bible verses printed on premium materials.',
     'home.newMonthlyPacks': 'Discover our new monthly packs!',
     'home.newArrival': 'New: ',
@@ -1749,7 +1748,7 @@ export const translations = {
     'footer.allRightsReserved': 'Todos los derechos reservados.',
 
     // Home Page & Categories
-    'home.metaTitle': 'Inicio',
+    'home.metaTitle': 'His Kingdom Designs | Ropa cristiana, pósteres y regalos con significado',
     'home.metaDesc': 'His Kingdom Designs ofrece hermosos diseños cristianos en camisetas, sudaderas, gorras y pósteres. Encuentra tus versículos bíblicos favoritos impresos en materiales de primera calidad.',
     'home.newMonthlyPacks': '¡Descubre nuestros nuevos paquetes mensuales!',
     'home.newArrival': 'Nuevo: ',

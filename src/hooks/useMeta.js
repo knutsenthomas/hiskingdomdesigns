@@ -13,8 +13,9 @@ export default function useMeta(title, description, ogProperties = null) {
   const { language } = useLanguage();
 
   useEffect(() => {
-    // 1. Update document title
-    const formattedTitle = title ? `${title} | His Kingdom Designs` : "His Kingdom Designs";
+    const formattedTitle = title 
+      ? (title.includes("His Kingdom Designs") ? title : `${title} | His Kingdom Designs`)
+      : "His Kingdom Designs";
     document.title = formattedTitle;
 
     // Helper to get or create a meta tag

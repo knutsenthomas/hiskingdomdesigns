@@ -188,6 +188,54 @@ export default function Home() {
     t('home.metaDesc')
   );
 
+  // LocalBusiness structured data for GEO/AEO optimization (World-Class SEO)
+  useEffect(() => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "His Kingdom Designs",
+      "image": "https://hiskingdomdesigns.no/logo-hkm.png",
+      "@id": "https://hiskingdomdesigns.no/#localbusiness",
+      "url": "https://hiskingdomdesigns.no",
+      "telephone": "",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Løkkeveien 3B",
+        "addressLocality": "Lyngdal",
+        "postalCode": "4580",
+        "addressCountry": "NO"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 58.138,
+        "longitude": 7.070
+      },
+      "description": "His Kingdom Designs tilbyr lekre kristne motiver på t-skjorter, hoodies, caps og plakater. Finn dine favorittbibelvers trykket på premium materialer.",
+      "sameAs": [
+        "https://www.facebook.com/hiskingdomdesigns",
+        "https://www.instagram.com/hiskingdomdesigns"
+      ]
+    };
+
+    const scriptId = 'jsonld-localbusiness-schema';
+    let script = document.getElementById(scriptId);
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.innerHTML = JSON.stringify(schema);
+
+    return () => {
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
+
   const { products, isLoadingProducts } = useApp();
   const navigate = useNavigate();
 
