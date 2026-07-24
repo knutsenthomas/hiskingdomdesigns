@@ -85,8 +85,16 @@ export default async function handler(req, res) {
       const description = stripHtml(p.description || '');
       const link = `https://hiskingdomdesigns.no/produkt/${id}`;
       
-      // Get main image URL
-      const imageUrl = p.media?.mainMedia?.image?.url || '';
+      // Get main image URL (and resolve wix:image:// internal URIs if present)
+      let imageUrl = p.media?.mainMedia?.image?.url || p.media?.items?.[0]?.image?.url || '';
+      if (imageUrl.startsWith('wix:image://')) {
+        const match = imageUrl.match(/wix:image:\/\/v1\/([^\/]+)\/([^\s#?]+)/);
+        if (match && match[1]) {
+          const imageId = match[1];
+          const filename = match[2];
+          imageUrl = `https://static.wixstatic.com/media/${imageId}/v1/fill/w_800,h_1000,q_80/${filename}`;
+        }
+      }
       
       const availability = p.inStock ? 'in stock' : 'out of stock';
       
