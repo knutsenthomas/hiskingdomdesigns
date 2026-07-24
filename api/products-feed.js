@@ -18,6 +18,17 @@ const getProductType = (name = '') => {
   return 'Trosprodukter';
 };
 
+const getShippingWeight = (productType, name = '') => {
+  const lowerName = name.toLowerCase();
+  if (productType === 'Plakater') return '0.15 kg';
+  if (productType === 'T-skjorter') return '0.2 kg';
+  if (productType === 'Kopper') return '0.35 kg';
+  if (productType === 'Gensere') return '0.6 kg';
+  if (lowerName.includes('caps') || lowerName.includes('lue') || lowerName.includes('beanie')) return '0.1 kg';
+  if (lowerName.includes('klistremerke') || lowerName.includes('sticker')) return '0.005 kg';
+  return '0.1 kg';
+};
+
 export default async function handler(req, res) {
   // Set cache control for 1 hour, stale-while-revalidate
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=600');
@@ -110,6 +121,7 @@ export default async function handler(req, res) {
 
       const productType = getProductType(title);
       const brand = p.brand || 'His Kingdom Designs';
+      const shippingWeight = getShippingWeight(productType, title);
 
       xml += `    <item>\n`;
       xml += `      <g:id>${id}</g:id>\n`;
@@ -127,6 +139,7 @@ export default async function handler(req, res) {
       xml += `      <g:brand><![CDATA[${cleanCdata(brand)}]]></g:brand>\n`;
       xml += `      <g:condition>new</g:condition>\n`;
       xml += `      <g:product_type><![CDATA[${cleanCdata(productType)}]]></g:product_type>\n`;
+      xml += `      <g:shipping_weight>${shippingWeight}</g:shipping_weight>\n`;
       xml += `    </item>\n`;
     });
 
