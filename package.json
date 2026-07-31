@@ -28,7 +28,7 @@
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^7.11.0"
+    "react-router-dom": "^6.28.2"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
@@ -39,5 +39,8 @@
     "postcss": "^8.5.25",
     "tailwindcss": "^3.4.1",
     "vite": "^8.2.0"
+  },
+  "overrides": {
+    "brace-expansion": "1.1.11"
   }
 }
