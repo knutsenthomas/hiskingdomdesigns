@@ -887,8 +887,7 @@ export const AppProvider = ({ children }) => {
               return name === 'color' || name === 'farge';
             });
             if (colorOpt) {
-              const rawColorNames = colorOpt.choices?.map(c => c.value) || [];
-              const resolved = rawColorNames.map(name => resolveColor(name));
+              const resolved = colorOpt.choices?.map(c => resolveColor(c.value, c.description || c.name)) || [];
               colorNames = resolved.map(r => r.name);
               colors = resolved.map(r => r.hex);
 

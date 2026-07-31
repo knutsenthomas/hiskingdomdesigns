@@ -377,7 +377,7 @@ export default function ProductDetails() {
 
     const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
     const colorChoice = colorOpt?.choices?.find(c => {
-      const resolved = resolveColor(c.value);
+      const resolved = resolveColor(c.value, c.description || c.name);
       return resolved.name === selectedColor;
     });
 
@@ -644,8 +644,7 @@ export default function ProductDetails() {
                 return name === 'color' || name === 'farge';
               });
               if (colorOpt) {
-                const rawColorNames = colorOpt.choices?.map(c => c.value) || [];
-                const resolved = rawColorNames.map(name => resolveColor(name));
+                const resolved = colorOpt.choices?.map(c => resolveColor(c.value, c.description || c.name)) || [];
                 colorNames = resolved.map(r => r.name);
                 colors = resolved.map(r => r.hex);
 
@@ -742,7 +741,7 @@ export default function ProductDetails() {
 
     if (colorOpt) {
       const colorChoice = colorOpt.choices?.find(c => {
-        const resolved = resolveColor(c.value);
+        const resolved = resolveColor(c.value, c.description || c.name);
         return resolved.name === selectedColor;
       });
 
@@ -752,7 +751,7 @@ export default function ProductDetails() {
       } else {
         // Fallback for print-on-demand products where media is linked to size choices
         const colorIndex = colorOpt.choices?.findIndex(c => {
-          const resolved = resolveColor(c.value);
+          const resolved = resolveColor(c.value, c.description || c.name);
           return resolved.name === selectedColor;
         });
 
@@ -797,7 +796,7 @@ export default function ProductDetails() {
             initialOpts[opt.name] = matchingChoice ? matchingChoice.value : (opt.choices?.[0]?.value || '');
           } else if (isColor) {
             const matchingChoice = opt.choices?.find(c => {
-              const resolved = resolveColor(c.value);
+              const resolved = resolveColor(c.value, c.description || c.name);
               return resolved.name === selectedColor;
             });
             initialOpts[opt.name] = matchingChoice ? matchingChoice.value : (opt.choices?.[0]?.value || '');
@@ -847,7 +846,7 @@ export default function ProductDetails() {
 
       const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
       const colorChoice = colorOpt?.choices?.find(c => {
-        const resolved = resolveColor(c.value);
+        const resolved = resolveColor(c.value, c.description || c.name);
         return resolved.name === selectedColor;
       });
 
