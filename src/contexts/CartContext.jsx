@@ -46,7 +46,7 @@ const normalizeSelectedOptions = (selectedOptions, productOptions) => {
         const selectedResolved = resolveColor(currentValue);
         // Find a choice in the option that resolves to the same standard name
         const match = opt.choices?.find(c => {
-          const choiceResolved = resolveColor(c.value);
+          const choiceResolved = resolveColor(c.value, c.description || c.name);
           return choiceResolved.name === selectedResolved.name;
         });
         if (match) {
@@ -450,7 +450,7 @@ export const CartProvider = ({ children }) => {
 
           const sizeChoice = sizeOpt?.choices?.find(c => c.value === item.selectedSize || c.description === item.selectedSize);
           const colorChoice = colorOpt?.choices?.find(c => {
-            const resolved = resolveColor(c.value);
+            const resolved = resolveColor(c.value, c.description || c.name);
             return resolved.name === item.selectedColor;
           });
 
