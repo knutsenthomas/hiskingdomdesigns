@@ -9,7 +9,7 @@ const TEAM_MEMBERS = [
   {
     name: 'Hilde Karin Knutsen',
     role: 'Misjonær & Profetisk Forbeder',
-    bio: 'Hilde Karin har reist som misjonær og profetisk forbeder i over halve livet sitt. Gjennom Bibelens prinsipper og Den Hellige Ånds ledelse hjelper hun deg å vokse i ditt personlige forhold to Jesus Kristus, og utruste deg til å bli alt det han har skapt deg til å være. Hun brenner for å se Guds verk manifestere seg gjennom mirakler, helbredelse og frelse.',
+    bio: 'Hilde Karin har reist som misjonær og profetisk forbeder i over halve livet sitt. Gjennom Bibelens prinsipper og Den Hellige Ånds ledelse hjelper hun deg å vokse i ditt personlige forhold til Jesus Kristus, og utruste deg til å bli alt det han har skapt deg til å være. Hun brenner for å se Guds verk manifestere seg gjennom mirakler, helbredelse og frelse.',
     slugRole: 'team-member-role-hilde',
     slugBio: 'team-member-bio-hilde',
     avatar: 'HKK',
@@ -24,7 +24,7 @@ const TEAM_MEMBERS = [
   {
     name: 'Thomas Knutsen',
     role: 'Tilbedelsesleder & Teknisk Ansvarlig',
-    bio: 'Thomas har vært tilbedelsesleder siden han var 15 år gammel og elsker å lede lovsang. Han har jobbet 15 år i samme kirke med alt fra barn, ungdom og lovsang til administrasjon. I His Kingdom Ministry har han ansvaret for alt det tekniske – fra nettsiden og butikken til redigering av videoer og podcaster.',
+    bio: 'Thomas har vært lovsangsleder siden han var 15 år og brenner for å lede lovsang. Han har jobbet 15 år i samme menighet med alt fra barn, ungdom og lovsang til administrasjon. I His Kingdom Ministry har han ansvar for alt det tekniske – fra nettside og nettbutikk til redigering av videoer og podkaster.',
     slugRole: 'team-member-role-thomas',
     slugBio: 'team-member-bio-thomas',
     avatar: 'TK',
