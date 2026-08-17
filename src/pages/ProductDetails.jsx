@@ -494,7 +494,7 @@ export default function ProductDetails() {
       const uniqueDisplayColors = [];
       const colorImages = [];
       colorOpt.choices?.forEach((c, idx) => {
-        const resolved = resolveColor(c.value);
+        const resolved = resolveColor(c.value, c.description || c.name);
         if (!uniqueDisplayColors.includes(resolved.name)) {
           uniqueDisplayColors.push(resolved.name);
           
@@ -714,10 +714,22 @@ export default function ProductDetails() {
     fetchSingleProduct();
   }, [contextProduct, productId]);
 
-  // Sync activeImage when product loads/changes
+  // Sync activeImage, default selectedColor and selectedSize when product loads/changes
   useEffect(() => {
-    if (product?.image) {
-      setActiveImage(product.image);
+    if (product) {
+      if (product.image) {
+        setActiveImage(product.image);
+      }
+      if (product.colorNames && product.colorNames.length > 0) {
+        if (!selectedColor || !product.colorNames.includes(selectedColor)) {
+          setSelectedColor(product.colorNames[0]);
+        }
+      }
+      if (product.sizes && product.sizes.length > 0) {
+        if (!selectedSize || !product.sizes.includes(selectedSize)) {
+          setSelectedSize(product.sizes[0]);
+        }
+      }
     }
   }, [product?.id]);
 
@@ -1324,7 +1336,26 @@ export default function ProductDetails() {
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setActiveImage(imgUrl)}
+                    onClick={() => {
+                      setActiveImage(imgUrl);
+                      if (product?.productOptions) {
+                        const colorOpt = product.productOptions.find(o => {
+                          const name = o.name?.trim().toLowerCase();
+                          return name === 'color' || name === 'farge';
+                        });
+                        if (colorOpt) {
+                          const matchingChoice = colorOpt.choices?.find(c => {
+                            return c.media?.mainMedia?.image?.url === imgUrl || c.media?.items?.some(i => i.image?.url === imgUrl);
+                          });
+                          if (matchingChoice) {
+                            const resolved = resolveColor(matchingChoice.value, matchingChoice.description || matchingChoice.name);
+                            if (resolved?.name) {
+                              setSelectedColor(resolved.name);
+                            }
+                          }
+                        }
+                      }
+                    }}
                     onMouseEnter={() => setActiveImage(imgUrl)}
                     className={`w-20 h-20 rounded-lg p-1.5 flex-shrink-0 cursor-pointer shadow-sm border-2 transition-all outline-none ${
                       isActive 
@@ -1428,7 +1459,23 @@ export default function ProductDetails() {
                   return (
                     <button
                       key={colorName}
-                      onClick={() => setSelectedColor(colorName)}
+                      onClick={() => {
+                        setSelectedColor(colorName);
+                        if (product?.productOptions) {
+                          const colorOpt = product.productOptions.find(o => {
+                            const name = o.name?.trim().toLowerCase();
+                            return name === 'color' || name === 'farge';
+                          });
+                          const choice = colorOpt?.choices?.find(c => {
+                            const resolved = resolveColor(c.value, c.description || c.name);
+                            return resolved.name === colorName;
+                          });
+                          const choiceImg = choice?.media?.mainMedia?.image?.url || choice?.media?.items?.[0]?.image?.url;
+                          if (choiceImg) {
+                            setActiveImage(choiceImg);
+                          }
+                        }
+                      }}
                       className={`w-8 h-8 rounded-full border ring-offset-2 transition-all ${
                         isSelected ? 'ring-2 ring-terracotta scale-105 shadow-md' : 'hover:ring-1 hover:ring-terracotta'
                       }`}

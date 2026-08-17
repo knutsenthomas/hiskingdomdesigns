@@ -69,104 +69,84 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
     return { name: formattedName, hex: gradient };
   }
 
+  const capitalize = (str) => {
+    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
   const lower = inputStr.toLowerCase();
-  const descLower = (fallbackDescription || '').toLowerCase();
-  
+  const desc = (fallbackDescription || '').trim();
+
+  // Helper to extract clean human-friendly color name from any string or description
+  const getFriendlyName = (text) => {
+    if (!text) return '';
+    const t = text.toLowerCase();
+    if (t.includes('army') || t.includes('camo') || t.includes('kamuflasje') || t.includes('militær')) return 'Army';
+    if (t.includes('sort') || t.includes('svart') || t.includes('black') || t.includes('charcoal') || t.includes('coal') || t.includes('vintage black')) return 'Sort';
+    if (t.includes('hvit') || t.includes('white') || t.includes('off-white') || t.includes('ivory') || t.includes('cream')) return 'Hvit';
+    if (t.includes('mørkeblå') || t.includes('navy') || t.includes('marine') || t.includes('deep teal') || t.includes('teal') || t.includes('storm')) return 'Mørkeblå';
+    if (t.includes('kongeblå') || t.includes('royal blue') || t.includes('royalblue')) return 'Kongeblå';
+    if (t.includes('blå') || t.includes('blue') || t.includes('denim') || t.includes('aqua') || t.includes('sky')) return 'Blå';
+    if (t.includes('burgundy') || t.includes('maroon') || t.includes('burgunder')) return 'Burgunder';
+    if (t.includes('rød') || t.includes('red') || t.includes('cherry') || t.includes('cardinal')) return 'Rød';
+    if (t.includes('lysegrønn') || t.includes('lys grønn') || t.includes('mint') || t.includes('sage')) return 'Lysegrønn';
+    if (t.includes('grønn') || t.includes('green') || t.includes('forest') || t.includes('olive') || t.includes('oliven')) return 'Grønn';
+    if (t.includes('gul') || t.includes('yellow') || t.includes('gold') || t.includes('mustard')) return 'Gul';
+    if (t.includes('mørk rosa') || t.includes('fuchsia') || t.includes('hot pink')) return 'Mørk Rosa';
+    if (t.includes('rosa') || t.includes('pink') || t.includes('peach') || t.includes('coral') || t.includes('mauve')) return 'Rosa';
+    if (t.includes('beige') || t.includes('sand') || t.includes('khaki') || t.includes('natural') || t.includes('stone') || t.includes('tan') || t.includes('natur')) return 'Beige';
+    if (t.includes('terrakotta') || t.includes('terracotta') || t.includes('clay') || t.includes('burnt orange')) return 'Terrakotta';
+    if (t.includes('oransje') || t.includes('orange')) return 'Orange';
+    if (t.includes('lilla') || t.includes('purple') || t.includes('lavender')) return 'Lilla';
+    if (t.includes('lys grå') || t.includes('light grey') || t.includes('ash') || t.includes('silver')) return 'Lys Grå';
+    if (t.includes('mørk grå') || t.includes('dark grey') || t.includes('graphite')) return 'Mørk Grå';
+    if (t.includes('grå') || t.includes('grey') || t.includes('gray')) return 'Grå';
+    return '';
+  };
+
   // 1. If input is a hex code or rgb code:
   if (lower.startsWith('rgb') || lower.startsWith('#')) {
-    let resolvedName = '';
-    if (descLower) {
-      if (descLower.includes('grå') || descLower.includes('grey') || descLower.includes('gray')) resolvedName = 'Grå';
-      else if (descLower.includes('rosa') || descLower.includes('pink')) resolvedName = 'Rosa';
-      else if (descLower.includes('lysegrønn') || descLower.includes('lys grønn') || descLower.includes('mint')) resolvedName = 'Lysegrønn';
-      else if (descLower.includes('grønn') || descLower.includes('green')) resolvedName = 'Grønn';
-      else if (descLower.includes('khaki') || descLower.includes('beige') || descLower.includes('sand')) resolvedName = 'Beige';
-      else if (descLower.includes('oransje') || descLower.includes('orange')) resolvedName = 'Orange';
-      else if (descLower.includes('hvit') || descLower.includes('white')) resolvedName = 'Hvit';
-      else if (descLower.includes('sort') || descLower.includes('svart') || descLower.includes('black')) resolvedName = 'Sort';
+    let resolvedName = desc ? getFriendlyName(desc) : '';
+    if (!resolvedName && desc && !desc.startsWith('#') && !desc.startsWith('rgb')) {
+      resolvedName = capitalize(desc);
     }
 
-    const { r, g, b } = lower.startsWith('#') ? parseHex(lower) : parseRgb(lower);
-    const closest = getClosestColor(r, g, b);
+    if (!resolvedName) {
+      const { r, g, b } = lower.startsWith('#') ? parseHex(lower) : parseRgb(lower);
+      const closest = getClosestColor(r, g, b);
+      resolvedName = closest.name;
+    }
 
     return { 
-      name: resolvedName || closest.name, 
+      name: resolvedName, 
       hex: lower 
     };
   }
 
   // 2. Friendly text name matching:
-  const capitalize = (str) => {
-    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  };
-
-  let displayName = capitalize(inputStr);
+  const friendlyName = getFriendlyName(inputStr) || (desc ? getFriendlyName(desc) : '');
+  let displayName = friendlyName || capitalize(inputStr);
   let hexCode = '#888888';
 
-  if (lower.includes('sort') || lower.includes('svart') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('dark grey') || lower.includes('night') || lower.includes('vintage black')) {
-    displayName = 'Sort';
-    hexCode = '#151A21';
-  } else if (lower.includes('hvit') || lower.includes('white') || lower.includes('off-white') || lower.includes('weiß') || lower.includes('ivory') || lower.includes('bone') || lower.includes('soft cream') || lower.includes('cornsilk')) {
-    displayName = 'Hvit';
-    hexCode = '#FFFFFF';
-  } else if (lower.includes('navy') || lower.includes('marine') || lower.includes('mørkeblå') || lower.includes('deep teal') || lower.includes('teal') || lower.includes('sapphire') || lower.includes('storm') || lower.includes('french navy')) {
-    displayName = 'Mørkeblå';
-    hexCode = '#1B4965';
-  } else if (lower.includes('royalblue') || lower.includes('royal') || lower.includes('carolina blue') || lower.includes('blue') || lower.includes('blå') || lower.includes('denim') || lower.includes('cornflower') || lower.includes('aqua') || lower.includes('caribbean') || lower.includes('chambray') || lower.includes('sky') || lower.includes('ocean') || lower.includes('chill') || lower.includes('baby blue') || lower.includes('light blue') || lower.includes('columbia blue')) {
-    displayName = 'Blå';
-    hexCode = '#3b82f6';
-  } else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('burgundy') || lower.includes('garnet') || lower.includes('cherry') || lower.includes('cardinal') || lower.includes('bright salmon') || lower.includes('watermelon')) {
-    displayName = 'Rød';
-    hexCode = '#ef4444';
-  } else if (lower.includes('lysegrønn') || lower.includes('lys grønn') || lower.includes('mint') || lower.includes('sage') || lower.includes('dusty sage') || lower.includes('pistachio') || lower.includes('sea green') || lower.includes('grass green')) {
-    displayName = 'Lysegrønn';
-    hexCode = '#83A275';
-  } else if (lower.includes('grønn') || lower.includes('green') || lower.includes('forest') || lower.includes('olive') || lower.includes('oliven') || lower.includes('military') || lower.includes('kelly') || lower.includes('irish') || lower.includes('army') || lower.includes('fern') || lower.includes('kiwi') || lower.includes('bottle green') || lower.includes('evergreen')) {
-    displayName = 'Grønn';
-    hexCode = '#16a34a';
-  } else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('butter') || lower.includes('citron') || lower.includes('daisy') || lower.includes('mustard')) {
-    displayName = 'Gul';
-    hexCode = '#eab308';
-  } else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('azalea') || lower.includes('heliconia') || lower.includes('orchid') || lower.includes('fuchsia') || lower.includes('cotton candy') || lower.includes('peach') || lower.includes('coral') || lower.includes('coral silk') || lower.includes('berry') || lower.includes('mauve') || lower.includes('hibiscus') || lower.includes('pale pink') || lower.includes('light pink') || lower.includes('hot pink')) {
-    displayName = 'Rosa';
-    hexCode = '#FF8AC9';
-  } else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('stone') || lower.includes('khaki') || lower.includes('lys khaki') || lower.includes('tan') || lower.includes('rope') || lower.includes('toast') || lower.includes('saddle') || lower.includes('cocoa') || lower.includes('umber') || lower.includes('dark chocolate') || lower.includes('triblend brown') || lower.includes('natur') || lower.includes('dust')) {
-    displayName = 'Beige';
-    hexCode = '#DDD6D6';
-  } else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('clay') || lower.includes('burnt orange')) {
-    displayName = 'Terrakotta';
-    hexCode = '#CC712B';
-  } else if (lower.includes('orange') || lower.includes('oransje') || lower.includes('tangerine')) {
-    displayName = 'Orange';
-    hexCode = '#f18820';
-  } else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('lavender') || lower.includes('amethyst') || lower.includes('lilak') || lower.includes('future lavender')) {
-    displayName = 'Lilla';
-    hexCode = '#a855f7';
-  } else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('sport grey') || lower.includes('gravel') || lower.includes('smoke') || lower.includes('paragon') || lower.includes('graphite') || lower.includes('ice grey') || lower.includes('melange')) {
-    displayName = 'Grå';
-    hexCode = '#A8A8A8';
-  }
-
-  // Fallback to closest color if we resolved to standard gray fallback but have a specific name
-  if (hexCode === '#888888' && inputStr) {
-    try {
-      // Create a dummy canvas to resolve standard CSS color names to RGB
-      const canvas = document.createElement('canvas');
-      canvas.width = 1;
-      canvas.height = 1;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = lower;
-        ctx.fillRect(0, 0, 1, 1);
-        const imgData = ctx.getImageData(0, 0, 1, 1).data;
-        if (imgData && imgData[3] > 0) {
-          const closest = getClosestColor(imgData[0], imgData[1], imgData[2]);
-          displayName = closest.name;
-          hexCode = closest.hex;
-        }
-      }
-    } catch (e) {}
-  }
+  if (displayName === 'Army') hexCode = '#405F48';
+  else if (displayName === 'Sort') hexCode = '#151A21';
+  else if (displayName === 'Hvit') hexCode = '#FFFFFF';
+  else if (displayName === 'Mørkeblå') hexCode = '#1B4965';
+  else if (displayName === 'Kongeblå') hexCode = '#4743f7';
+  else if (displayName === 'Blå') hexCode = '#3b82f6';
+  else if (displayName === 'Burgunder') hexCode = '#800020';
+  else if (displayName === 'Rød') hexCode = '#ef4444';
+  else if (displayName === 'Lysegrønn') hexCode = '#83A275';
+  else if (displayName === 'Grønn') hexCode = '#16a34a';
+  else if (displayName === 'Gul') hexCode = '#eab308';
+  else if (displayName === 'Mørk Rosa') hexCode = '#db2777';
+  else if (displayName === 'Rosa') hexCode = '#FF8AC9';
+  else if (displayName === 'Beige') hexCode = '#DDD6D6';
+  else if (displayName === 'Terrakotta') hexCode = '#CC712B';
+  else if (displayName === 'Orange') hexCode = '#f18820';
+  else if (displayName === 'Lilla') hexCode = '#a855f7';
+  else if (displayName === 'Lys Grå') hexCode = '#DCDCDC';
+  else if (displayName === 'Mørk Grå') hexCode = '#595858';
+  else if (displayName === 'Grå') hexCode = '#A8A8A8';
 
   return { name: displayName, hex: hexCode };
 };
