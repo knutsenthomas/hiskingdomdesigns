@@ -268,6 +268,16 @@ const stripHtml = (html) => {
 
 export default async function handler(req, res) {
   try {
+    // 0. Enforce Canonical Domain (301 redirect www -> non-www)
+    const host = req.headers['x-forwarded-host'] || req.headers['host'] || '';
+    if (host.startsWith('www.')) {
+      res.writeHead(301, {
+        Location: `https://hiskingdomdesigns.no${req.url || '/'}`
+      });
+      res.end();
+      return;
+    }
+
     // 1. Resolve requested path
     const rawUrl = req.url || '/';
     const parsedUrl = new URL(rawUrl, DOMAIN);
