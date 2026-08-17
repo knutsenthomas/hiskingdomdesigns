@@ -474,10 +474,26 @@ export default function ProductDetails() {
       .slice(0, 3);
   }, [productRaw, products]);
 
+const PRODUCT_COLOR_IMAGE_OVERRIDES = {
+  '7d464596-9655-ca07-77d0-a290d2acbaf4': {
+    'hvit': 'https://static.wixstatic.com/media/3a1544_4f7fe33df6c64c2aac168003dbdd83cb~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'rød': 'https://static.wixstatic.com/media/3a1544_6dce23ea561d443ca299c373a408a400~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'grønn': 'https://static.wixstatic.com/media/3a1544_f1c5a64930794de2b25f294c259b858f~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'grå': 'https://static.wixstatic.com/media/3a1544_2631c508aa4d4e7ea873d27cf228d730~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
+  }
+};
+
   // Helper to reliably find the mockup image URL for any specific color variant
   const getColorImageUrl = useMemo(() => {
     return (colorName, sizeValue) => {
       if (!product || !colorName) return null;
+
+      // 0. Check explicit exact override
+      if (product.id && PRODUCT_COLOR_IMAGE_OVERRIDES[product.id]) {
+        const overrides = PRODUCT_COLOR_IMAGE_OVERRIDES[product.id];
+        const match = overrides[colorName.toLowerCase()];
+        if (match) return match;
+      }
 
       const colorOpt = product.productOptions?.find(o => {
         const name = o.name?.trim().toLowerCase();
