@@ -76,6 +76,30 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
   const lower = inputStr.toLowerCase();
   const desc = (fallbackDescription || '').trim();
 
+  const getStandardHex = (name, fallbackHex) => {
+    if (name === 'Mørkeblå') return '#1B4965'; // True midnight navy matching cap & clothing photos
+    if (name === 'Kongeblå') return '#2563EB'; // True royal blue
+    if (name === 'Burgunder') return '#722F37'; // True burgundy
+    if (name === 'Army') return '#405F48';
+    if (name === 'Sort') return '#151A21';
+    if (name === 'Hvit') return '#FFFFFF';
+    if (name === 'Blå') return '#3B82F6';
+    if (name === 'Rød') return '#DC2626';
+    if (name === 'Lysegrønn') return '#83A275';
+    if (name === 'Grønn') return '#16A34A';
+    if (name === 'Gul') return '#EAB308';
+    if (name === 'Mørk Rosa') return '#DB2777';
+    if (name === 'Rosa') return '#FF8AC9';
+    if (name === 'Beige') return '#DDD6D6';
+    if (name === 'Terrakotta') return '#CC712B';
+    if (name === 'Orange') return '#F18820';
+    if (name === 'Lilla') return '#A855F7';
+    if (name === 'Lys Grå') return '#DCDCDC';
+    if (name === 'Mørk Grå') return '#595858';
+    if (name === 'Grå') return '#A8A8A8';
+    return fallbackHex;
+  };
+
   // Helper to extract clean human-friendly color name from any string or description
   const getFriendlyName = (text) => {
     if (!text) return '';
@@ -86,7 +110,7 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
     if (t.includes('mørkeblå') || t.includes('navy') || t.includes('marine') || t.includes('deep teal') || t.includes('teal') || t.includes('storm')) return 'Mørkeblå';
     if (t.includes('kongeblå') || t.includes('royal blue') || t.includes('royalblue')) return 'Kongeblå';
     if (t.includes('blå') || t.includes('blue') || t.includes('denim') || t.includes('aqua') || t.includes('sky')) return 'Blå';
-    if (t.includes('burgundy') || t.includes('maroon') || t.includes('burgunder')) return 'Burgunder';
+    if (t.includes('burgundy') || t.includes('maroon') || t.includes('burgunder') || t.includes('begunder')) return 'Burgunder';
     if (t.includes('rød') || t.includes('red') || t.includes('cherry') || t.includes('cardinal')) return 'Rød';
     if (t.includes('lysegrønn') || t.includes('lys grønn') || t.includes('mint') || t.includes('sage')) return 'Lysegrønn';
     if (t.includes('grønn') || t.includes('green') || t.includes('forest') || t.includes('olive') || t.includes('oliven')) return 'Grønn';
@@ -116,37 +140,18 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
       resolvedName = closest.name;
     }
 
+    const standardHex = getStandardHex(resolvedName, lower);
+
     return { 
       name: resolvedName, 
-      hex: lower 
+      hex: standardHex 
     };
   }
 
   // 2. Friendly text name matching:
   const friendlyName = getFriendlyName(inputStr) || (desc ? getFriendlyName(desc) : '');
   let displayName = friendlyName || capitalize(inputStr);
-  let hexCode = '#888888';
-
-  if (displayName === 'Army') hexCode = '#405F48';
-  else if (displayName === 'Sort') hexCode = '#151A21';
-  else if (displayName === 'Hvit') hexCode = '#FFFFFF';
-  else if (displayName === 'Mørkeblå') hexCode = '#1B4965';
-  else if (displayName === 'Kongeblå') hexCode = '#4743f7';
-  else if (displayName === 'Blå') hexCode = '#3b82f6';
-  else if (displayName === 'Burgunder') hexCode = '#800020';
-  else if (displayName === 'Rød') hexCode = '#ef4444';
-  else if (displayName === 'Lysegrønn') hexCode = '#83A275';
-  else if (displayName === 'Grønn') hexCode = '#16a34a';
-  else if (displayName === 'Gul') hexCode = '#eab308';
-  else if (displayName === 'Mørk Rosa') hexCode = '#db2777';
-  else if (displayName === 'Rosa') hexCode = '#FF8AC9';
-  else if (displayName === 'Beige') hexCode = '#DDD6D6';
-  else if (displayName === 'Terrakotta') hexCode = '#CC712B';
-  else if (displayName === 'Orange') hexCode = '#f18820';
-  else if (displayName === 'Lilla') hexCode = '#a855f7';
-  else if (displayName === 'Lys Grå') hexCode = '#DCDCDC';
-  else if (displayName === 'Mørk Grå') hexCode = '#595858';
-  else if (displayName === 'Grå') hexCode = '#A8A8A8';
+  let hexCode = getStandardHex(displayName, '#888888');
 
   return { name: displayName, hex: hexCode };
 };
