@@ -13,9 +13,20 @@ export default function useMeta(title, description, ogProperties = null) {
   const { language } = useLanguage();
 
   useEffect(() => {
-    const formattedTitle = title 
-      ? (title.includes("His Kingdom Designs") ? title : `${title} | His Kingdom Designs`)
-      : "His Kingdom Designs";
+    let formattedTitle = "His Kingdom Designs";
+    if (title) {
+      const cleanTitle = title.trim();
+      if (cleanTitle.includes("His Kingdom Designs")) {
+        formattedTitle = cleanTitle.length > 58 ? `${cleanTitle.substring(0, 55)}...` : cleanTitle;
+      } else {
+        const fullTitle = `${cleanTitle} | His Kingdom Designs`;
+        if (fullTitle.length > 58) {
+          formattedTitle = `${cleanTitle.substring(0, 35)}... | His Kingdom Designs`;
+        } else {
+          formattedTitle = fullTitle;
+        }
+      }
+    }
     document.title = formattedTitle;
 
     // Helper to get or create a meta tag
@@ -36,20 +47,24 @@ export default function useMeta(title, description, ogProperties = null) {
       return element;
     };
 
-    // 2. Update meta description
-    if (description) {
-      const descMeta = getOrCreateMetaTag('description');
-      descMeta.setAttribute('content', description);
+    // 2. Update meta description (optimal 120-155 characters)
+    let optimizedDesc = description || "Oppdag eksklusive kristne klær, hettegensere, t-skjorter og tilbehør med meningsfulle budskap. Rask levering fra Norge hos His Kingdom Designs.";
+    if (optimizedDesc.length < 110) {
+      optimizedDesc = `${optimizedDesc}. Kjøp hos His Kingdom Designs med rask levering og god kvalitet.`;
     }
+    if (optimizedDesc.length > 155) {
+      optimizedDesc = `${optimizedDesc.substring(0, 150).trim()}...`;
+    }
+
+    const descMeta = getOrCreateMetaTag('description');
+    descMeta.setAttribute('content', optimizedDesc);
 
     // 3. Update standard Open Graph tags for social sharing
     const ogTitle = getOrCreateMetaTag(null, 'og:title');
     ogTitle.setAttribute('content', formattedTitle);
 
-    if (description) {
-      const ogDesc = getOrCreateMetaTag(null, 'og:description');
-      ogDesc.setAttribute('content', description);
-    }
+    const ogDesc = getOrCreateMetaTag(null, 'og:description');
+    ogDesc.setAttribute('content', optimizedDesc);
 
     const ogUrl = getOrCreateMetaTag(null, 'og:url');
     ogUrl.setAttribute('content', window.location.href);
@@ -83,7 +98,7 @@ export default function useMeta(title, description, ogProperties = null) {
       routeKey = 'home';
     } else {
       for (const [key, langs] of Object.entries(routeTranslations)) {
-        for (const [lang, pathVal] of Object.entries(langs)) {
+        for (const [, pathVal] of Object.entries(langs)) {
           if (cleanPath === pathVal) {
             routeKey = key;
             break;
@@ -119,28 +134,28 @@ export default function useMeta(title, description, ogProperties = null) {
       document.head.appendChild(link);
     };
 
-    // Add new alternate hreflang tags
-    if (routeKey === 'home') {
-      addAlternateLink('no', '/');
-      addAlternateLink('en', '/');
-      addAlternateLink('es', '/');
-      addAlternateLink('x-default', '/');
-    } else if (routeKey && routeTranslations[routeKey]) {
+    // Add valid, non-conflicting alternate hreflang tags
+    if (routeKey && routeTranslations[routeKey]) {
       const translation = routeTranslations[routeKey];
-      addAlternateLink('no', translation.no);
-      addAlternateLink('en', translation.en);
-      addAlternateLink('es', translation.es);
-      addAlternateLink('x-default', translation.no); // Default to Norwegian
+      // Only emit distinct localized URLs
+      if (translation.no !== translation.en) {
+        addAlternateLink('no', translation.no);
+        addAlternateLink('en', translation.en);
+        addAlternateLink('es', translation.es);
+        addAlternateLink('x-default', translation.no);
+      } else {
+        addAlternateLink('no', translation.no);
+        addAlternateLink('x-default', translation.no);
+      }
     } else if (isProduct && productId) {
       addAlternateLink('no', `/produkt/${productId}`);
       addAlternateLink('en', `/product/${productId}`);
       addAlternateLink('es', `/producto/${productId}`);
       addAlternateLink('x-default', `/produkt/${productId}`);
-    } else if (isCategory) {
-      addAlternateLink('no', cleanPath);
-      addAlternateLink('en', cleanPath);
-      addAlternateLink('es', cleanPath);
-      addAlternateLink('x-default', cleanPath);
+    } else {
+      // For single URL routes (e.g. /, /category/...) declare primary language + x-default without duplicate multi-language claims
+      addAlternateLink('no', cleanPath === '/' ? '' : cleanPath);
+      addAlternateLink('x-default', cleanPath === '/' ? '' : cleanPath);
     }
 
     // Update HTML lang attribute dynamically for accessibility and localized search

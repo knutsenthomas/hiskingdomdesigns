@@ -26,17 +26,17 @@ const routeTranslations = {
 const staticContent = {
   home: {
     no: {
-      title: 'His Kingdom Designs | Bær troen med stolthet - Norsk Kristen Nettbutikk',
+      title: 'His Kingdom Designs | Bær troen med stolthet',
       description: 'Oppdag eksklusive kristne klær, hettegensere, t-skjorter og tilbehør med meningsfulle budskap. Høy kvalitet og rask levering fra Norge.',
       h1: 'Bær troen med stolthet'
     },
     en: {
-      title: 'His Kingdom Designs | Wear Your Faith with Pride - Christian Apparel',
+      title: 'His Kingdom Designs | Wear Your Faith with Pride',
       description: 'Discover exclusive Christian clothing, hoodies, t-shirts, and accessories with meaningful messages. Premium quality and fast shipping from Norway.',
       h1: 'Wear Your Faith with Pride'
     },
     es: {
-      title: 'His Kingdom Designs | Lleva tu fe con orgullo - Ropa Cristiana',
+      title: 'His Kingdom Designs | Lleva tu fe con orgullo',
       description: 'Descubre ropa cristiana exclusiva, sudaderas con capucha, camisetas y accesorios con mensajes significativos. Calidad premium y envío rápido.',
       h1: 'Lleva tu fe con orgullo'
     }
@@ -44,120 +44,120 @@ const staticContent = {
   products: {
     no: {
       title: 'Våre Produkter | His Kingdom Designs',
-      description: 'Se hele vårt utvalg av kristne klær, gensere, t-skjorter, kopper og tilbehør. Høy kvalitet med rask levering fra Norge.',
+      description: 'Se hele vårt utvalg av kristne klær, gensere, t-skjorter, kopper og tilbehør. Høy kvalitet med rask levering fra norsk nettbutikk.',
       h1: 'Våre Produkter & Kolleksjoner'
     },
     en: {
       title: 'Our Products | His Kingdom Designs',
-      description: 'Browse our full collection of Christian clothing, hoodies, t-shirts, mugs, and accessories. Premium quality with fast delivery.',
+      description: 'Browse our full collection of Christian clothing, hoodies, t-shirts, mugs, and accessories. Premium quality with fast delivery from Norway.',
       h1: 'Our Products & Collections'
     },
     es: {
       title: 'Nuestros Productos | His Kingdom Designs',
-      description: 'Explora nuestra colección completa de ropa cristiana, sudaderas, camisetas, tazas y accesorios.',
+      description: 'Explora nuestra colección completa de ropa cristiana, sudaderas, camisetas, tazas y accesorios con entrega rápida y calidad premium.',
       h1: 'Nuestros Productos y Colecciones'
     }
   },
   about: {
     no: {
       title: 'Om Oss | His Kingdom Designs',
-      description: 'Lær mer om historien, visjonen og hjertet bak His Kingdom Designs og His Kingdom Ministry.',
+      description: 'Lær mer om historien, visjonen og hjertet bak His Kingdom Designs og His Kingdom Ministry. Vi brenner for å spre troen gjennom design.',
       h1: 'Om His Kingdom Designs'
     },
     en: {
       title: 'About Us | His Kingdom Designs',
-      description: 'Learn more about the story, vision, and heart behind His Kingdom Designs and His Kingdom Ministry.',
+      description: 'Learn more about the story, vision, and heart behind His Kingdom Designs and His Kingdom Ministry. Sharing faith through modern apparel.',
       h1: 'About His Kingdom Designs'
     },
     es: {
       title: 'Sobre Nosotros | His Kingdom Designs',
-      description: 'Conoce la historia, la visión y el corazón detrás de His Kingdom Designs y His Kingdom Ministry.',
+      description: 'Conoce la historia, la visión y el corazón detrás de His Kingdom Designs y His Kingdom Ministry. Difundiendo la fe a través del diseño.',
       h1: 'Sobre His Kingdom Designs'
     }
   },
   team: {
     no: {
       title: 'Vårt Team | His Kingdom Designs',
-      description: 'Møt teamet bak His Kingdom Designs og vår lidenskap for å spre evangeliet gjennom meningsfull design.',
+      description: 'Møt teamet bak His Kingdom Designs og vår lidenskap for å spre evangeliet gjennom meningsfull design og kristen streetwear i Norge.',
       h1: 'Møt Vårt Team'
     },
     en: {
       title: 'Our Team | His Kingdom Designs',
-      description: 'Meet the team behind His Kingdom Designs and our passion for spreading the gospel through meaningful design.',
+      description: 'Meet the team behind His Kingdom Designs and our passion for spreading the gospel through meaningful design and Christian streetwear.',
       h1: 'Meet Our Team'
     },
     es: {
       title: 'Nuestro Equipo | His Kingdom Designs',
-      description: 'Conoce al equipo detrás de His Kingdom Designs y nuestra pasión por difundir el evangelio.',
+      description: 'Conoce al equipo detrás de His Kingdom Designs y nuestra pasión por difundir el evangelio a través del diseño de ropa cristiana.',
       h1: 'Nuestro Equipo'
     }
   },
   shipping: {
     no: {
       title: 'Frakt og Retur | His Kingdom Designs',
-      description: 'Informasjon om leveringstid, fraktpriser og enkel retur hos His Kingdom Designs.',
+      description: 'Informasjon om leveringstid, fraktpriser og enkel 14 dagers angrerett og retur ved kjøp i nettbutikken His Kingdom Designs.',
       h1: 'Frakt- og Returinformasjon'
     },
     en: {
-      title: 'Shipping and Returns | His Kingdom Designs',
-      description: 'Information on delivery times, shipping rates, and easy returns at His Kingdom Designs.',
+      title: 'Shipping & Returns | His Kingdom Designs',
+      description: 'Information on delivery times, shipping rates, and easy 14-day returns when shopping at His Kingdom Designs Christian apparel.',
       h1: 'Shipping & Returns'
     },
     es: {
       title: 'Envíos y Devoluciones | His Kingdom Designs',
-      description: 'Información sobre tiempos de entrega, tarifas de envío y devoluciones fáciles en His Kingdom Designs.',
+      description: 'Información sobre tiempos de entrega, tarifas de envío y política de devolución fácil de 14 días en His Kingdom Designs.',
       h1: 'Envíos y Devoluciones'
     }
   },
   faq: {
     no: {
-      title: 'Ofte Stilte Spørsmål (FAQ) | His Kingdom Designs',
-      description: 'Finn svar på vanlige spørsmål om bestilling, betaling, størrelser og levering hos His Kingdom Designs.',
-      h1: 'Ofte Stilte Spørsmål'
+      title: 'FAQ - Spørsmål & Svar | His Kingdom Designs',
+      description: 'Finn svar på vanlige spørsmål om bestilling, betaling, størrelser og levering hos den norske kristne nettbutikken His Kingdom Designs.',
+      h1: 'Ofte Stilte Spørsmål (FAQ)'
     },
     en: {
-      title: 'Frequently Asked Questions (FAQ) | His Kingdom Designs',
-      description: 'Find answers to frequently asked questions regarding orders, payment, sizes, and shipping at His Kingdom Designs.',
+      title: 'FAQ - Common Questions | His Kingdom Designs',
+      description: 'Find answers to common questions about orders, payments, sizing, and shipping for His Kingdom Designs Christian apparel.',
       h1: 'Frequently Asked Questions'
     },
     es: {
-      title: 'Preguntas Frecuentes (FAQ) | His Kingdom Designs',
-      description: 'Encuentra respuestas a preguntas frecuentes sobre pedidos, pagos, tallas y envíos en His Kingdom Designs.',
+      title: 'Preguntas Frecuentes | His Kingdom Designs',
+      description: 'Encuentra respuestas a preguntas frecuentes sobre pedidos, pagos, tallas y envíos en la tienda His Kingdom Designs.',
       h1: 'Preguntas Frecuentes'
     }
   },
   privacy: {
     no: {
       title: 'Personvernerklæring | His Kingdom Designs',
-      description: 'Les om hvordan His Kingdom Designs behandler dine personopplysninger i henhold til GDPR.',
+      description: 'Les om hvordan His Kingdom Designs samler inn, behandler og beskytter dine personopplysninger i henhold til GDPR og gjeldende lovverk.',
       h1: 'Personvernerklæring'
     },
     en: {
       title: 'Privacy Policy | His Kingdom Designs',
-      description: 'Learn how His Kingdom Designs processes your personal data in accordance with GDPR.',
+      description: 'Read how His Kingdom Designs collects, processes, and protects your personal data in full compliance with GDPR regulations.',
       h1: 'Privacy Policy'
     },
     es: {
       title: 'Política de Privacidad | His Kingdom Designs',
-      description: 'Conoce cómo His Kingdom Designs trata tus datos personales de acuerdo con el RGPD.',
+      description: 'Conoce cómo His Kingdom Designs recopila, procesa y protege tus datos personales de conformidad con el RGPD.',
       h1: 'Política de Privacidad'
     }
   },
-  betingelser: {
+  terms: {
     no: {
       title: 'Kjøpsbetingelser | His Kingdom Designs',
-      description: 'Vilkår og betingelser for kjøp hos His Kingdom Designs.',
+      description: 'Salgs- og leveringsbetingelser for bestillinger hos His Kingdom Designs. Trygg handel, 14 dagers angrerett og sikre betalinger.',
       h1: 'Kjøpsbetingelser'
     },
     en: {
       title: 'Terms of Service | His Kingdom Designs',
-      description: 'Terms and conditions for purchases at His Kingdom Designs.',
+      description: 'Sales and delivery terms for orders at His Kingdom Designs. Secure shopping, 14-day return policy, and reliable payment methods.',
       h1: 'Terms of Service'
     },
     es: {
-      title: 'Términos y Condiciones | His Kingdom Designs',
-      description: 'Términos y condiciones de compra en His Kingdom Designs.',
-      h1: 'Términos y Condiciones'
+      title: 'Condiciones de Compra | His Kingdom Designs',
+      description: 'Términos y condiciones de compra en His Kingdom Designs. Compra segura, 14 días de derecho de desistimiento y pagos fiables.',
+      h1: 'Condiciones de Compra'
     }
   },
   cancellation: {
@@ -459,8 +459,6 @@ export default async function handler(req, res) {
       h1Text = data.h1;
       hreflangs = [
         { lang: 'no', href: `${DOMAIN}/` },
-        { lang: 'en', href: `${DOMAIN}/` },
-        { lang: 'es', href: `${DOMAIN}/` },
         { lang: 'x-default', href: `${DOMAIN}/` }
       ];
     } else if (routeKey && staticContent[routeKey]) {
@@ -469,19 +467,32 @@ export default async function handler(req, res) {
       description = data.description;
       h1Text = data.h1;
       const trans = routeTranslations[routeKey];
-      hreflangs = [
-        { lang: 'no', href: `${DOMAIN}${trans.no}` },
-        { lang: 'en', href: `${DOMAIN}${trans.en}` },
-        { lang: 'es', href: `${DOMAIN}${trans.es}` },
-        { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
-      ];
+      if (trans.no !== trans.en) {
+        hreflangs = [
+          { lang: 'no', href: `${DOMAIN}${trans.no}` },
+          { lang: 'en', href: `${DOMAIN}${trans.en}` },
+          { lang: 'es', href: `${DOMAIN}${trans.es}` },
+          { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
+        ];
+      } else {
+        hreflangs = [
+          { lang: 'no', href: `${DOMAIN}${trans.no}` },
+          { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
+        ];
+      }
     } else if (isCategory) {
       const catSlug = cleanPath.replace('/category/', '').toLowerCase();
       const seoData = categorySeoData[catSlug]?.[lang] || categorySeoData[catSlug]?.no;
       
       const formattedCategory = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-      title = seoData?.title || `${formattedCategory} | His Kingdom Designs`;
-      description = seoData?.description || `Utforsk vår kolleksjon av ${formattedCategory}. Høy kvalitet og rask levering fra His Kingdom Designs.`;
+      const rawTitle = seoData?.title || `${formattedCategory} | His Kingdom Designs`;
+      title = rawTitle.length > 58 ? `${rawTitle.substring(0, 55)}...` : rawTitle;
+      
+      let rawDesc = seoData?.description || `Utforsk vår kolleksjon av ${formattedCategory}. Høy kvalitet og rask levering fra His Kingdom Designs.`;
+      if (rawDesc.length < 110) {
+        rawDesc = `${rawDesc} Kjøp hos His Kingdom Designs med rask levering og god kvalitet.`;
+      }
+      description = rawDesc.length > 155 ? `${rawDesc.substring(0, 150).trim()}...` : rawDesc;
       h1Text = seoData?.h1 || formattedCategory;
       
       const products = await fetchProducts();
@@ -559,8 +570,6 @@ export default async function handler(req, res) {
 
       hreflangs = [
         { lang: 'no', href: `${DOMAIN}${cleanPath}` },
-        { lang: 'en', href: `${DOMAIN}${cleanPath}` },
-        { lang: 'es', href: `${DOMAIN}${cleanPath}` },
         { lang: 'x-default', href: `${DOMAIN}${cleanPath}` }
       ];
     } else if (isProduct && productId) {
@@ -568,9 +577,21 @@ export default async function handler(req, res) {
       const product = products.find(p => p.id === productId || p.slug === productId);
 
       if (product) {
-        title = `${product.name} | His Kingdom Designs`;
-        const rawDesc = stripHtml(product.description);
-        description = rawDesc.length > 155 ? `${rawDesc.substring(0, 152)}...` : (rawDesc || `Kjøp ${product.name} hos His Kingdom Designs. Rask levering og god kvalitet.`);
+        const cleanName = (product.name || '').trim();
+        if (cleanName.length > 35) {
+          title = `${cleanName.substring(0, 32)}... | His Kingdom Designs`;
+        } else {
+          title = `${cleanName} | His Kingdom Designs`;
+        }
+
+        const rawText = stripHtml(product.description || '');
+        let prodDesc = rawText;
+        if (prodDesc.length < 110) {
+          prodDesc = `Kjøp ${cleanName} hos His Kingdom Designs. Rask levering i Norge, førsteklasses kvalitet og kristen design.`;
+        } else if (prodDesc.length > 155) {
+          prodDesc = `${prodDesc.substring(0, 150).trim()}...`;
+        }
+        description = prodDesc;
         ogImage = getWixImageUrl(product.media?.mainMedia?.image?.url || product.imageUrl);
         ogType = 'product';
         h1Text = product.name;
@@ -579,7 +600,7 @@ export default async function handler(req, res) {
         bodySnippet = `
           <div class="product-summary" style="margin-top: 1rem;">
             <p class="price" style="font-weight: bold; font-size: 1.25rem; color: #a34e36;">${priceVal} NOK</p>
-            <p class="description" style="margin: 1rem 0; line-height: 1.6;">${rawDesc || 'Eksklusivt design fra His Kingdom Designs.'}</p>
+            <p class="description" style="margin: 1rem 0; line-height: 1.6;">${description}</p>
             <img src="${ogImage}" alt="${product.name}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
           </div>
         `;
@@ -622,16 +643,15 @@ export default async function handler(req, res) {
         <ul style="display: flex; flex-wrap: wrap; gap: 1rem; list-style: none; padding: 0; margin: 0;">
           <li><a href="/" style="color: #151a21; text-decoration: underline;">Hjem</a></li>
           <li><a href="/produkter" style="color: #151a21; text-decoration: underline;">Alle Produkter</a></li>
-          <li><a href="/category/hettegensere" style="color: #151a21; text-decoration: underline;">Hettegensere</a></li>
-          <li><a href="/category/t-skjorter" style="color: #151a21; text-decoration: underline;">T-skjorter</a></li>
-          <li><a href="/category/kopper" style="color: #151a21; text-decoration: underline;">Kopper</a></li>
-          <li><a href="/category/tilbehor" style="color: #151a21; text-decoration: underline;">Tilbehør</a></li>
+          <li><a href="/category/kristne-klaer" style="color: #151a21; text-decoration: underline;">Kristne klær</a></li>
+          <li><a href="/category/kristne-t-skjorter" style="color: #151a21; text-decoration: underline;">Kristne T-skjorter</a></li>
+          <li><a href="/category/kristne-gensere" style="color: #151a21; text-decoration: underline;">Kristne gensere</a></li>
+          <li><a href="/category/kristen-streetwear" style="color: #151a21; text-decoration: underline;">Kristen streetwear</a></li>
+          <li><a href="/category/klaer-med-bibelvers" style="color: #151a21; text-decoration: underline;">Klær med bibelvers</a></li>
+          <li><a href="/category/bilder-og-plakater" style="color: #151a21; text-decoration: underline;">Plakater</a></li>
+          <li><a href="/category/cups-bottles" style="color: #151a21; text-decoration: underline;">Kopper & Flasker</a></li>
           <li><a href="/om-oss" style="color: #151a21; text-decoration: underline;">Om Oss</a></li>
           <li><a href="/vart-team" style="color: #151a21; text-decoration: underline;">Vårt Team</a></li>
-          <li><a href="/frakt-og-retur" style="color: #151a21; text-decoration: underline;">Frakt og Retur</a></li>
-          <li><a href="/faq" style="color: #151a21; text-decoration: underline;">FAQ</a></li>
-          <li><a href="/personvern" style="color: #151a21; text-decoration: underline;">Personvern</a></li>
-          <li><a href="/betingelser" style="color: #151a21; text-decoration: underline;">Kjøpsbetingelser</a></li>
         </ul>
       </nav>
     `;
