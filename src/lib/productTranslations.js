@@ -642,6 +642,8 @@ const cleanAndTranslateName = (originalName, lang, product = {}) => {
     type = 'travel-mug';
   } else if (lower.includes('enamel mug') || lower.includes('emaljekopp')) {
     type = 'enamel-mug';
+  } else if (lower.includes('mug') || lower.includes('cup') || lower.includes('kopp') || lower.includes('koppen')) {
+    type = 'mug';
   } else if (lower.includes('glassbrikker') || lower.includes('koppeunderlag') || lower.includes('coasters')) {
     type = 'coasters';
   } else if (lower.includes('water bottle') || lower.includes('drikkeflaske')) {
@@ -663,8 +665,7 @@ const cleanAndTranslateName = (originalName, lang, product = {}) => {
     categoryLower === 'klistermerker' ||
     categoryLower === 'stickers' ||
     subcats.includes('klistermerker') ||
-    subcats.includes('stickers') ||
-    (subcats.includes('israel') && (lower.includes('flagg') || lower.includes('flag') || lower.includes('fredsdue')))
+    subcats.includes('stickers')
   ) {
     type = 'sticker';
   } else if (lower.includes('poster') || lower.includes('print') || lower.includes('plakat')) {
@@ -673,8 +674,6 @@ const cleanAndTranslateName = (originalName, lang, product = {}) => {
     type = 'canvas';
   } else if (lower.includes('wristband') || lower.includes('bracelet') || lower.includes('armbånd')) {
     type = 'wristband';
-  } else if (lower.includes('mug') || lower.includes('cup') || lower.includes('kopp') || lower.includes('koppen')) {
-    type = 'mug';
   } else if (lower.includes('bokmerke') || lower.includes('bookmark')) {
     type = 'bookmark';
   } else if (lower.includes('kort') || lower.includes('card')) {
@@ -1175,7 +1174,12 @@ export function getTranslatedProduct(product, language) {
     return makeTranslated(translation.name, translation.description);
   }
 
-  // 2. Check name keywords fallbacks
+  // 2. For Norwegian ('no'), preserve authentic Wix catalog name and description
+  if (lang === 'no') {
+    return makeTranslated(product.name, product.description);
+  }
+
+  // 3. Check name keywords fallbacks for translations
   if (product.name) {
     const match = productTranslations.keywords.find(k => k.pattern.test(product.name));
     if (match && match.translations[lang]) {
@@ -1184,7 +1188,7 @@ export function getTranslatedProduct(product, language) {
     }
   }
 
-  // 3. Fallback: Clean and Translate dynamically
+  // 4. Fallback: Clean and Translate dynamically
   const autoName = cleanAndTranslateName(product.name, lang, product);
   const autoDesc = cleanAndTranslateDesc(product.description, lang);
   return makeTranslated(autoName, autoDesc);
