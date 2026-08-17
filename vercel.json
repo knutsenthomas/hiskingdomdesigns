@@ -46,7 +46,7 @@
     },
     {
       "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "destination": "/api/render"
     }
   ]
 }
