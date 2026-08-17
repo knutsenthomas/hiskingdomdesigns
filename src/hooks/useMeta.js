@@ -95,8 +95,9 @@ export default function useMeta(title, description, ogProperties = null) {
 
     const isCategory = cleanPath.startsWith('/category/');
 
-    // Update canonical link
+    // Update canonical link (Self-referencing canonical per language URL)
     const canonicalUrl = `https://hiskingdomdesigns.no${cleanPath === '/' ? '' : cleanPath}`;
+
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');

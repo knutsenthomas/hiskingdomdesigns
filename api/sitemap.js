@@ -22,7 +22,7 @@ const staticRoutes = [
   {
     no: '/om-oss',
     en: '/about',
-    es: '/sobre-somos-nosotros', // Wait, let's verify if es is '/sobre-nosotros'
+    es: '/sobre-nosotros',
     priority: '0.7',
     changefreq: 'weekly'
   },
@@ -62,9 +62,6 @@ const staticRoutes = [
     changefreq: 'monthly'
   }
 ];
-
-// Correct es for about from localizedRoutes.js is '/sobre-nosotros'
-staticRoutes[2].es = '/sobre-nosotros';
 
 export default async function handler(req, res) {
   // Set cache control for 1 hour, stale-while-revalidate
@@ -127,9 +124,11 @@ export default async function handler(req, res) {
       const paths = { no: noPath, en: enPath, es: esPath };
       const langs = ['no', 'en', 'es'];
 
-      langs.forEach(lang => {
-        const currentPath = paths[lang];
-        const formattedPath = currentPath === '/' ? '' : currentPath;
+      // Ensure each unique URL path gets only one <loc> node with full hreflang cluster
+      const uniquePaths = Array.from(new Set([noPath, enPath, esPath]));
+
+      uniquePaths.forEach(path => {
+        const formattedPath = path === '/' ? '' : path;
         const loc = `${DOMAIN}${formattedPath}`;
 
         xml += `  <url>\n`;
