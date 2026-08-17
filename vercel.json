@@ -1,52 +1,45 @@
 {
-  "headers": [
+  "routes": [
     {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "src": "/assets/(.*)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
     },
     {
-      "source": "/(.*).(webp|png|jpg|jpeg|gif|svg|ico)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=604800, must-revalidate"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/sitemap.xml",
-      "destination": "/api/sitemap"
+      "src": "/(.*).(webp|png|jpg|jpeg|gif|svg|ico)",
+      "headers": { "cache-control": "public, max-age=604800, must-revalidate" },
+      "continue": true
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "src": "/sitemap.xml",
+      "dest": "/api/sitemap"
     },
     {
-      "source": "/_api/:path*",
-      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/_api/:path*"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     },
     {
-      "source": "/:lang(en|es)/_api/:path*",
-      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/:lang/_api/:path*"
+      "src": "/_api/(.*)",
+      "dest": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/_api/$1"
     },
     {
-      "source": "/__ecom/:path*",
-      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/__ecom/:path*"
+      "src": "/(en|es)/_api/(.*)",
+      "dest": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/$1/_api/$2"
     },
     {
-      "source": "/:lang(en|es)/__ecom/:path*",
-      "destination": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/:lang/__ecom/:path*"
+      "src": "/__ecom/(.*)",
+      "dest": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/__ecom/$1"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/api/render"
+      "src": "/(en|es)/__ecom/(.*)",
+      "dest": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/$1/__ecom/$2"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/render"
     }
   ]
 }
