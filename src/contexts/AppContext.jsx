@@ -908,13 +908,13 @@ export const AppProvider = ({ children }) => {
             // Deduplicate sizes
             sizes = Array.from(new Set(sizes));
 
-          // Fallbacks for color & size if empty
+          // Only include colors and sizes if product has actual options in Wix
           if (colors.length === 0) {
-            colors = ['#CC712B'];
-            colorNames = ['Terracotta'];
+            colors = [];
+            colorNames = [];
           }
           if (sizes.length === 0) {
-            sizes = ['One Size'];
+            sizes = [];
           }
 
           const price = item.price?.discountedPrice || item.price?.price || 0;

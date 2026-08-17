@@ -665,12 +665,13 @@ export default function ProductDetails() {
             // Deduplicate sizes
             sizes = Array.from(new Set(sizes));
 
+            // Only include colors and sizes if product has actual options in Wix
             if (colors.length === 0) {
-              colors = ['#CC712B'];
-              colorNames = ['Terracotta'];
+              colors = [];
+              colorNames = [];
             }
             if (sizes.length === 0) {
-              sizes = ['One Size'];
+              sizes = [];
             }
 
             const price = item.price?.discountedPrice || item.price?.price || 0;
@@ -1445,14 +1446,16 @@ export default function ProductDetails() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="font-label-md text-label-md text-onyx">{t('product.size')}</span>
-                <button 
-                  type="button" 
-                  onClick={() => setIsSizeGuideOpen(true)}
-                  className="text-label-sm text-terracotta hover:underline flex items-center gap-1 cursor-pointer font-semibold"
-                >
-                  <Ruler size={14} />
-                  {t('product.sizeGuide')}
-                </button>
+                {['Klær', 'Bilder & Kunst', 'Plakater'].includes(product.category) && (
+                  <button 
+                    type="button" 
+                    onClick={() => setIsSizeGuideOpen(true)}
+                    className="text-label-sm text-terracotta hover:underline flex items-center gap-1 cursor-pointer font-semibold"
+                  >
+                    <Ruler size={14} />
+                    {t('product.sizeGuide')}
+                  </button>
+                )}
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {product.sizes.map(size => {
