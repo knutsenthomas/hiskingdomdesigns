@@ -474,6 +474,62 @@ export default function ProductDetails() {
       .slice(0, 3);
   }, [productRaw, products]);
 
+  // Helper to reliably find the mockup image URL for any specific color variant
+  const getColorImageUrl = useMemo(() => {
+    return (colorName, sizeValue) => {
+      if (!product || !colorName) return null;
+
+      const colorOpt = product.productOptions?.find(o => {
+        const name = o.name?.trim().toLowerCase();
+        return name === 'color' || name === 'farge';
+      });
+
+      if (!colorOpt || !colorOpt.choices || colorOpt.choices.length === 0) {
+        return product.image;
+      }
+
+      const colorIndex = colorOpt.choices.findIndex(c => {
+        const resolved = resolveColor(c.value, c.description || c.name);
+        return resolved.name.toLowerCase() === colorName.toLowerCase();
+      });
+
+      if (colorIndex === -1) return product.image;
+
+      const choice = colorOpt.choices[colorIndex];
+
+      // 1. Direct media on color choice
+      if (choice.media?.mainMedia?.image?.url) {
+        return choice.media.mainMedia.image.url;
+      }
+      if (choice.media?.items?.[0]?.image?.url) {
+        return choice.media.items[0].image.url;
+      }
+
+      // 2. Media on size choice (Printify / POD pattern)
+      const sizeOpt = product.productOptions?.find(o => {
+        const name = o.name?.trim().toLowerCase();
+        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+      });
+      if (sizeOpt && sizeOpt.choices) {
+        const activeSize = sizeValue || selectedSize;
+        const sizeChoice = sizeOpt.choices.find(c => c.value === activeSize || c.description === activeSize) || sizeOpt.choices[0];
+        if (sizeChoice?.media?.items?.[colorIndex]?.image?.url) {
+          return sizeChoice.media.items[colorIndex].image.url;
+        }
+      }
+
+      // 3. Fallback to product.images gallery matching index
+      if (product.images && product.images.length > 0) {
+        if (product.images[colorIndex]) {
+          return product.images[colorIndex];
+        }
+        return product.images[0];
+      }
+
+      return product.image;
+    };
+  }, [product, selectedSize]);
+
   const imagesList = useMemo(() => {
     if (!product) return [];
 
@@ -482,34 +538,27 @@ export default function ProductDetails() {
       return name === 'color' || name === 'farge';
     });
 
-    if (colorOpt) {
-      const sizeOpt = product.productOptions?.find(o => {
-        const name = o.name?.trim().toLowerCase();
-        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
-      });
-
-      const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize) || sizeOpt?.choices?.[0];
-
+    if (colorOpt && colorOpt.choices?.length > 0) {
       // 1. Build list of color-specific mockup images in the exact order of display colors
       const uniqueDisplayColors = [];
       const colorImages = [];
-      colorOpt.choices?.forEach((c, idx) => {
+      colorOpt.choices.forEach((c) => {
         const resolved = resolveColor(c.value, c.description || c.name);
         if (!uniqueDisplayColors.includes(resolved.name)) {
           uniqueDisplayColors.push(resolved.name);
-          
-          let url = c.media?.mainMedia?.image?.url;
-          if (!url && sizeChoice && sizeChoice.media?.items) {
-            url = sizeChoice.media.items[idx]?.image?.url;
-          }
-          if (url) {
+          const url = getColorImageUrl(resolved.name, selectedSize);
+          if (url && !colorImages.includes(url)) {
             colorImages.push(url);
           }
         }
       });
 
       // 2. Identify all mockup URLs across all variants to filter them out of extra images
-      const allMockupUrls = new Set();
+      const allMockupUrls = new Set(colorImages);
+      const sizeOpt = product.productOptions?.find(o => {
+        const name = o.name?.trim().toLowerCase();
+        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+      });
       if (sizeOpt) {
         sizeOpt.choices?.forEach(sc => {
           sc.media?.items?.forEach(item => {
@@ -519,7 +568,7 @@ export default function ProductDetails() {
           });
         });
       }
-      colorOpt.choices?.forEach(cc => {
+      colorOpt.choices.forEach(cc => {
         if (cc.media?.mainMedia?.image?.url) {
           allMockupUrls.add(cc.media.mainMedia.image.url);
         }
@@ -530,11 +579,11 @@ export default function ProductDetails() {
 
       // Combine color mockups first, then extra images
       const combined = [...colorImages, ...extraImages];
-      return combined.length > 0 ? combined : [product.image];
+      return combined.length > 0 ? combined : (product.images?.length > 0 ? product.images : [product.image]);
     }
 
     return product.images && product.images.length > 0 ? product.images : [product.image];
-  }, [product, selectedSize]);
+  }, [product, selectedSize, getColorImageUrl]);
 
   // Wishlist helper
   const isWishlisted = product ? isInWishlist(product.id) : false;
@@ -743,50 +792,14 @@ export default function ProductDetails() {
     }
   }, [product]);
 
-  // Sync activeImage with selected color variant image if available
+  // Sync activeImage with selected color variant image
   useEffect(() => {
     if (!product || !selectedColor) return;
-
-    const colorOpt = product.productOptions?.find(o => {
-      const name = o.name?.trim().toLowerCase();
-      return name === 'color' || name === 'farge';
-    });
-
-    if (colorOpt) {
-      const colorChoice = colorOpt.choices?.find(c => {
-        const resolved = resolveColor(c.value, c.description || c.name);
-        return resolved.name === selectedColor;
-      });
-
-      const choiceImageUrl = colorChoice?.media?.mainMedia?.image?.url;
-      if (choiceImageUrl) {
-        setActiveImage(choiceImageUrl);
-      } else {
-        // Fallback for print-on-demand products where media is linked to size choices
-        const colorIndex = colorOpt.choices?.findIndex(c => {
-          const resolved = resolveColor(c.value, c.description || c.name);
-          return resolved.name === selectedColor;
-        });
-
-        if (colorIndex !== undefined && colorIndex !== -1) {
-          const sizeOpt = product.productOptions?.find(o => {
-            const name = o.name?.trim().toLowerCase();
-            return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
-          });
-
-          if (sizeOpt) {
-            const sizeChoice = sizeOpt.choices?.find(c => c.value === selectedSize || c.description === selectedSize) || sizeOpt.choices?.[0];
-            if (sizeChoice && sizeChoice.media?.items && sizeChoice.media.items.length >= colorOpt.choices.length) {
-              const mediaItem = sizeChoice.media.items[colorIndex];
-              if (mediaItem?.image?.url) {
-                setActiveImage(mediaItem.image.url);
-              }
-            }
-          }
-        }
-      }
+    const imgUrl = getColorImageUrl(selectedColor, selectedSize);
+    if (imgUrl) {
+      setActiveImage(imgUrl);
     }
-  }, [selectedColor, selectedSize, product]);
+  }, [selectedColor, selectedSize, product, getColorImageUrl]);
 
   // Initialize generic selectedOptions and customTextFieldValues when product changes
   useEffect(() => {
@@ -1343,15 +1356,26 @@ export default function ProductDetails() {
                           const name = o.name?.trim().toLowerCase();
                           return name === 'color' || name === 'farge';
                         });
-                        if (colorOpt) {
-                          const matchingChoice = colorOpt.choices?.find(c => {
-                            return c.media?.mainMedia?.image?.url === imgUrl || c.media?.items?.some(i => i.image?.url === imgUrl);
-                          });
-                          if (matchingChoice) {
-                            const resolved = resolveColor(matchingChoice.value, matchingChoice.description || matchingChoice.name);
-                            if (resolved?.name) {
-                              setSelectedColor(resolved.name);
+                        if (colorOpt && colorOpt.choices) {
+                          let matchedColor = null;
+                          for (let i = 0; i < colorOpt.choices.length; i++) {
+                            const c = colorOpt.choices[i];
+                            const resolved = resolveColor(c.value, c.description || c.name);
+                            const cImg = getColorImageUrl(resolved.name, selectedSize);
+                            if (cImg === imgUrl) {
+                              matchedColor = resolved.name;
+                              break;
                             }
+                          }
+                          if (!matchedColor && product.images) {
+                            const imgIdx = product.images.indexOf(imgUrl);
+                            if (imgIdx !== -1 && imgIdx < colorOpt.choices.length) {
+                              const resolved = resolveColor(colorOpt.choices[imgIdx].value, colorOpt.choices[imgIdx].description || colorOpt.choices[imgIdx].name);
+                              matchedColor = resolved.name;
+                            }
+                          }
+                          if (matchedColor) {
+                            setSelectedColor(matchedColor);
                           }
                         }
                       }
@@ -1461,19 +1485,9 @@ export default function ProductDetails() {
                       key={colorName}
                       onClick={() => {
                         setSelectedColor(colorName);
-                        if (product?.productOptions) {
-                          const colorOpt = product.productOptions.find(o => {
-                            const name = o.name?.trim().toLowerCase();
-                            return name === 'color' || name === 'farge';
-                          });
-                          const choice = colorOpt?.choices?.find(c => {
-                            const resolved = resolveColor(c.value, c.description || c.name);
-                            return resolved.name === colorName;
-                          });
-                          const choiceImg = choice?.media?.mainMedia?.image?.url || choice?.media?.items?.[0]?.image?.url;
-                          if (choiceImg) {
-                            setActiveImage(choiceImg);
-                          }
+                        const imgUrl = getColorImageUrl(colorName, selectedSize);
+                        if (imgUrl) {
+                          setActiveImage(imgUrl);
                         }
                       }}
                       className={`w-8 h-8 rounded-full border ring-offset-2 transition-all ${
