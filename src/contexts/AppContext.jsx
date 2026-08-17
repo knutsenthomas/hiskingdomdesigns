@@ -1610,8 +1610,13 @@ export const AppProvider = ({ children }) => {
     const found = wixCollections.find(c => c.name === name);
     if (found && found.slug) return found.slug;
     
-    // Fallback mapping for standard categories
+    // Fallback mapping for standard categories and SEO landing pages
     const staticMap = {
+      'Kristne klær': 'kristne-klaer',
+      'Kristne T-skjorter': 'kristne-t-skjorter',
+      'Kristne gensere': 'kristne-gensere',
+      'Kristen streetwear': 'kristen-streetwear',
+      'Klær med bibelvers': 'klaer-med-bibelvers',
       'Hatter /caps': 'caps',
       'Hatter/caps': 'caps',
       'Hats/Caps': 'caps',
@@ -1625,11 +1630,11 @@ export const AppProvider = ({ children }) => {
       'armbånd og smykker': 'smykker',
       'Kopper og flasker': 'cups-bottles',
       'Bilder og plakater': 'bilder-og-plakater',
-      'Klær': 'klær',
+      'Klær': 'kristne-klaer',
       'Dameklær': 'dameklær',
-      'Genser': 'genser',
+      'Genser': 'kristne-gensere',
       'Joggebukser': 'bukser',
-      'T-shirts': 't-shirts',
+      'T-shirts': 'kristne-t-skjorter',
       'Sport / Performance /Outdoor': 'sport-performance-outdoor',
       'RUSS': 'russ',
       'BABY': 'babyklær',
@@ -1650,6 +1655,14 @@ export const AppProvider = ({ children }) => {
   const getCategoryNameBySlug = (slug) => {
     if (!slug) return '';
     if (slug === 'salg') return 'Salg';
+    
+    // Dedicated SEO landing pages
+    if (slug === 'kristne-klaer' || slug === 'klaer' || slug === 'klær' || slug === 'kler') return 'Kristne klær';
+    if (slug === 'kristne-t-skjorter' || slug === 't-skjorter' || slug === 't-shirts') return 'Kristne T-skjorter';
+    if (slug === 'kristne-gensere' || slug === 'gensere' || slug === 'genser' || slug === 'hettegensere') return 'Kristne gensere';
+    if (slug === 'kristen-streetwear' || slug === 'streetwear') return 'Kristen streetwear';
+    if (slug === 'klaer-med-bibelvers' || slug === 'bibelvers-klaer' || slug === 'bibelvers') return 'Klær med bibelvers';
+
     const found = wixCollections.find(c => c.slug === slug);
     if (found && found.name) return found.name;
     
@@ -1660,11 +1673,16 @@ export const AppProvider = ({ children }) => {
       'smykker': 'armbånd og smykker',
       'cups-bottles': 'Kopper og flasker',
       'bilder-og-plakater': 'Bilder og plakater',
-      'klær': 'Klær',
+      'kristne-klaer': 'Kristne klær',
+      'klær': 'Kristne klær',
       'dameklær': 'Dameklær',
-      'genser': 'Genser',
+      'kristne-gensere': 'Kristne gensere',
+      'genser': 'Kristne gensere',
       'bukser': 'Joggebukser',
-      't-shirts': 'T-shirts',
+      'kristne-t-skjorter': 'Kristne T-skjorter',
+      't-shirts': 'Kristne T-skjorter',
+      'kristen-streetwear': 'Kristen streetwear',
+      'klaer-med-bibelvers': 'Klær med bibelvers',
       'sport-performance-outdoor': 'Sport / Performance /Outdoor',
       'russ': 'RUSS',
       'babyklær': 'BABY',

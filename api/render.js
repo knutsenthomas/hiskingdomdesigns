@@ -261,9 +261,107 @@ const fetchProducts = async () => {
   }
 };
 
-const stripHtml = (html) => {
-  if (!html) return '';
-  return html.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+const categorySeoData = {
+  'kristne-klaer': {
+    no: {
+      title: 'Kristne klær & Streetwear i Norge | His Kingdom Designs',
+      description: 'Oppdag eksklusive kristne klær med meningsfulle budskap. Hettegensere, t-skjorter og streetwear med bibelvers. Høy kvalitet og rask levering fra Norge.',
+      h1: 'Kristne klær & Streetwear',
+      intro: 'Utforsk vårt utvalg av kristne klær for dame, herre og barn. Hvert plagg er nøye designet for å kombinere moderne streetwear-snitt med oppmuntrende budskap og bibelvers.'
+    },
+    en: {
+      title: 'Christian Clothing & Streetwear | His Kingdom Designs',
+      description: 'Discover exclusive Christian apparel, hoodies, t-shirts, and faith-based streetwear with biblical messages. High quality, fast shipping from Norway.',
+      h1: 'Christian Clothing & Streetwear',
+      intro: 'Explore our curated collection of Christian apparel. Designed to share faith with style and comfort.'
+    },
+    es: {
+      title: 'Ropa Cristiana y Streetwear | His Kingdom Designs',
+      description: 'Descubre ropa cristiana exclusiva, sudaderas y camisetas con versículos y mensajes de fe. Calidad premium.',
+      h1: 'Ropa Cristiana y Streetwear',
+      intro: 'Explora nuestra colección de ropa cristiana con mensajes de fe y diseño urbano moderno.'
+    }
+  },
+  'kristne-t-skjorter': {
+    no: {
+      title: 'Kristne T-skjorter med budskap & kors | His Kingdom Designs',
+      description: 'Kjøp kristne t-skjorter i 100% organisk bomull. Stilrene tees med kors, bibelvers og trosbudskap. Norsk design og rask levering.',
+      h1: 'Kristne T-skjorter',
+      intro: 'Oppdag våre kristne t-skjorter i organisk bomull med stilrene kors, oppmuntrende bibelvers og meningsfylte budskap til hverdagsbruk.'
+    },
+    en: {
+      title: 'Christian T-Shirts & Scripture Tees | His Kingdom Designs',
+      description: 'Shop organic cotton Christian t-shirts with crosses, Bible verses, and faith graphics. Fast delivery.',
+      h1: 'Christian T-Shirts',
+      intro: 'Discover our premium Christian t-shirts crafted from organic cotton with inspiring scripture and faith messages.'
+    },
+    es: {
+      title: 'Camisetas Cristianas con Versículos | His Kingdom Designs',
+      description: 'Camisetas cristianas de algodón orgánico con versículos bíblicos y mensajes de fe.',
+      h1: 'Camisetas Cristianas',
+      intro: 'Descubre nuestras camisetas cristianas con mensajes de fe y citas bíblicas inspiradoras.'
+    }
+  },
+  'kristne-gensere': {
+    no: {
+      title: 'Kristne gensere & hettegensere (Hoodies) | His Kingdom Designs',
+      description: 'Varme og behagelige kristne gensere og hettegensere med Jesus-budskap og bibelvers. Premium kvalitet og rask levering fra Norge.',
+      h1: 'Kristne gensere & hettegensere',
+      intro: 'Hold deg varm med våre behagelige kristne hettegensere, hoodies og sweatshirts med inspirerende budskap og moderne design.'
+    },
+    en: {
+      title: 'Christian Hoodies & Sweatshirts | His Kingdom Designs',
+      description: 'Cozy and stylish Christian hoodies and sweatshirts featuring Jesus and scripture messages. Fast shipping.',
+      h1: 'Christian Hoodies & Sweatshirts',
+      intro: 'Stay warm with our premium Christian hoodies and sweatshirts designed for comfort and faith expression.'
+    },
+    es: {
+      title: 'Sudaderas Cristianas y Hoodies | His Kingdom Designs',
+      description: 'Sudaderas cristianas cómodas y modernas con mensajes de Jesús y versículos bíblicos.',
+      h1: 'Sudaderas Cristianas y Hoodies',
+      intro: 'Sudaderas y hoodies cristianas de alta calidad para llevar tu fe con comodidad.'
+    }
+  },
+  'kristen-streetwear': {
+    no: {
+      title: 'Kristen Streetwear & Urban Fashion | His Kingdom Designs',
+      description: 'Oppdag urban kristen streetwear: oversized hettegensere, t-skjorter, caps og minimalistisk trosdesign. Bær troen din med stil.',
+      h1: 'Kristen Streetwear',
+      intro: 'Urban mote møter kristen tro. Utforsk vår streetwear-kolleksjon med oversized hettegensere, t-skjorter, caps og grafiske elementer.'
+    },
+    en: {
+      title: 'Christian Streetwear & Urban Faith Fashion | His Kingdom Designs',
+      description: 'Discover urban Christian streetwear: oversized hoodies, graphic tees, caps, and faith-inspired fashion.',
+      h1: 'Christian Streetwear',
+      intro: 'Urban fashion meets Christian faith. Explore our modern streetwear collection crafted with purpose.'
+    },
+    es: {
+      title: 'Streetwear Cristiano y Moda Urbana | His Kingdom Designs',
+      description: 'Moda urbana cristiana: sudaderas oversized, camisetas gráficas y gorras con mensajes de fe.',
+      h1: 'Streetwear Cristiano',
+      intro: 'Moda urbana y fe cristiana unidas en prendas de alta calidad y diseño contemporáneo.'
+    }
+  },
+  'klaer-med-bibelvers': {
+    no: {
+      title: 'Klær med bibelvers & kristne sitater | His Kingdom Designs',
+      description: 'Se vårt utvalg av klær med bibelvers og skriftsteder fra Bibelen. Johannes 3:16, Salmene, Jesaja og oppmuntrende Guds ord på t-skjorter og gensere.',
+      h1: 'Klær med bibelvers',
+      intro: 'Bær Guds ord i hverdagen. Våre klær med bibelvers formidler håp, tro og kjærlighet gjennom estetisk og moderne typografi.'
+    },
+    en: {
+      title: 'Bible Verse Clothing & Scripture Apparel | His Kingdom Designs',
+      description: 'Shop clothing featuring powerful Bible verses, Psalms, Isaiah, and gospel messages from His Kingdom Designs.',
+      h1: 'Bible Verse Clothing',
+      intro: 'Wear scripture every day. Beautifully crafted apparel featuring verses from Psalms, John, and Isaiah.'
+    },
+    es: {
+      title: 'Ropa con Versículos Bíblicos | His Kingdom Designs',
+      description: 'Colección de ropa y camisetas con versículos de la Biblia y citas cristianas inspiradoras.',
+      h1: 'Ropa con Versículos Bíblicos',
+      intro: 'Lleva la palabra de Dios cada día con nuestras prendas diseñadas con versículos bíblicos.'
+    }
+  }
 };
 
 export default async function handler(req, res) {
@@ -378,10 +476,87 @@ export default async function handler(req, res) {
         { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
       ];
     } else if (isCategory) {
+      const catSlug = cleanPath.replace('/category/', '').toLowerCase();
+      const seoData = categorySeoData[catSlug]?.[lang] || categorySeoData[catSlug]?.no;
+      
       const formattedCategory = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-      title = `${formattedCategory} | His Kingdom Designs`;
-      description = `Utforsk vår kolleksjon av ${formattedCategory}. Høy kvalitet og rask levering fra His Kingdom Designs.`;
-      h1Text = formattedCategory;
+      title = seoData?.title || `${formattedCategory} | His Kingdom Designs`;
+      description = seoData?.description || `Utforsk vår kolleksjon av ${formattedCategory}. Høy kvalitet og rask levering fra His Kingdom Designs.`;
+      h1Text = seoData?.h1 || formattedCategory;
+      
+      const products = await fetchProducts();
+      let matchedProducts = products;
+
+      if (catSlug === 'kristne-t-skjorter' || catSlug === 't-skjorter' || catSlug === 't-shirts') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          return nameLower.includes('t-skjorte') || nameLower.includes('tskjorte') || nameLower.includes('t-shirt') || nameLower.includes('tee') || nameLower.includes('trøye');
+        });
+      } else if (catSlug === 'kristne-gensere' || catSlug === 'gensere' || catSlug === 'genser' || catSlug === 'hettegensere') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          return nameLower.includes('genser') || nameLower.includes('hoodie') || nameLower.includes('sweatshirt') || nameLower.includes('hettejakke') || nameLower.includes('hettegenser');
+        });
+      } else if (catSlug === 'kristen-streetwear' || catSlug === 'streetwear') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          return nameLower.includes('hoodie') || nameLower.includes('genser') || nameLower.includes('oversized') || nameLower.includes('street') || nameLower.includes('caps') || nameLower.includes('hat') || nameLower.includes('joggebukse');
+        });
+      } else if (catSlug === 'klaer-med-bibelvers' || catSlug === 'bibelvers') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          const descLower = (p.description || '').toLowerCase();
+          return nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || descLower.includes('bibel') || descLower.includes('vers');
+        });
+      } else if (catSlug === 'kristne-klaer' || catSlug === 'klær' || catSlug === 'kler' || catSlug === 'klaer') {
+        matchedProducts = products.filter(p => {
+          const catLower = (p.category || '').toLowerCase();
+          return catLower.includes('klær') || catLower.includes('kler') || catLower.includes('clothing');
+        });
+      }
+
+      bodySnippet = `
+        <div class="category-summary" style="margin-top: 1rem;">
+          <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
+            ${seoData?.intro || description}
+          </p>
+          <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
+            ${matchedProducts.slice(0, 16).map(p => `
+              <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
+                <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
+                  <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl)}" alt="${p.name}" width="200" height="200" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                  <h3 style="font-size: 1rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
+                  <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                </a>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      extraJsonLd = `
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": ${JSON.stringify(h1Text)},
+          "description": ${JSON.stringify(description)},
+          "url": "${canonicalUrl}",
+          "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": ${matchedProducts.length},
+            "itemListElement": ${JSON.stringify(matchedProducts.slice(0, 10).map((p, idx) => ({
+              "@type": "ListItem",
+              "position": idx + 1,
+              "url": `${DOMAIN}/produkt/${p.id}`,
+              "name": p.name,
+              "image": getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl)
+            })))}
+          }
+        }
+        </script>
+      `;
+
       hreflangs = [
         { lang: 'no', href: `${DOMAIN}${cleanPath}` },
         { lang: 'en', href: `${DOMAIN}${cleanPath}` },

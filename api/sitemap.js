@@ -3,13 +3,48 @@ const API_KEY = process.env.WIX_API_KEY || 'IST.eyJraWQiOiJQb3pIX2FDMiIsImFsZyI6
 
 const DOMAIN = 'https://hiskingdomdesigns.no';
 
-// Define static routes with their translations
+// Define static routes and priority SEO topic clusters with their translations
 const staticRoutes = [
   {
     no: '/',
     en: '/',
     es: '/',
     priority: '1.0',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristne-klaer',
+    en: '/category/kristne-klaer',
+    es: '/category/kristne-klaer',
+    priority: '0.9',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristne-t-skjorter',
+    en: '/category/kristne-t-skjorter',
+    es: '/category/kristne-t-skjorter',
+    priority: '0.9',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristne-gensere',
+    en: '/category/kristne-gensere',
+    es: '/category/kristne-gensere',
+    priority: '0.9',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristen-streetwear',
+    en: '/category/kristen-streetwear',
+    es: '/category/kristen-streetwear',
+    priority: '0.9',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/klaer-med-bibelvers',
+    en: '/category/klaer-med-bibelvers',
+    es: '/category/klaer-med-bibelvers',
+    priority: '0.9',
     changefreq: 'daily'
   },
   {

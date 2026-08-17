@@ -7,10 +7,55 @@ import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
 import useMeta from '@/hooks/useMeta';
 
+const SEO_CATEGORY_CONFIG = {
+  'kristne-klaer': {
+    name: 'Kristne klær',
+    title: 'Kristne klær & Streetwear i Norge | His Kingdom Designs',
+    desc: 'Oppdag eksklusive kristne klær med meningsfulle budskap. Hettegensere, t-skjorter og streetwear med bibelvers. Høy kvalitet og rask levering fra Norge.',
+    h1: 'Kristne klær & Streetwear',
+    exploreDesc: 'Utforsk vårt utvalg av kristne klær for dame, herre og barn. Hvert plagg er nøye designet for å kombinere moderne streetwear-snitt med oppmuntrende budskap og bibelvers.',
+    seoText: 'His Kingdom Designs er en norsk kristen nettbutikk med lidenskap for meningsfull mote. Vi tilbyr et bredt spekter av kristne klær, fra minimalistiske t-skjorter og varme hettegensere til moderne streetwear. Alle våre plagg er laget i myke kvalitetsmaterialer som organisk bomull og slitesterk polyesterblanding som holder passformen vask etter vask.'
+  },
+  'kristne-t-skjorter': {
+    name: 'Kristne T-skjorter',
+    title: 'Kristne T-skjorter med budskap & kors | His Kingdom Designs',
+    desc: 'Kjøp kristne t-skjorter i 100% organisk bomull. Stilrene tees med kors, bibelvers og trosbudskap. Norsk design og rask levering.',
+    h1: 'Kristne T-skjorter',
+    exploreDesc: 'Oppdag våre kristne t-skjorter i organisk bomull med stilrene kors, oppmuntrende bibelvers og meningsfylte budskap til hverdagsbruk.',
+    seoText: 'Våre kristne t-skjorter er blant våre mest populære produkter. Her finner du t-skjorter med kjente bibelvers som Johannes 3:16, Salme 23, Jesaja 40:31 samt sterke trosutsagn som Faith Over Fear og Lion of Judah. Trykket er vannbasert og mykt for optimal komfort.'
+  },
+  'kristne-gensere': {
+    name: 'Kristne gensere',
+    title: 'Kristne gensere & hettegensere (Hoodies) | His Kingdom Designs',
+    desc: 'Varme og behagelige kristne gensere og hettegensere med Jesus-budskap og bibelvers. Premium kvalitet og rask levering fra Norge.',
+    h1: 'Kristne gensere & hettegensere',
+    exploreDesc: 'Hold deg varm med våre behagelige kristne hettegensere, hoodies og sweatshirts med inspirerende budskap og moderne design.',
+    seoText: 'Enten du ser etter en behagelig oversized hoodie til bibelskolen, en stilren crewneck-genser til hverdagen eller en varm hettejakke, har His Kingdom Designs et bredt utvalg av kristne gensere. Plaggene er børstet på innsiden for en ekstra myk følelse.'
+  },
+  'kristen-streetwear': {
+    name: 'Kristen streetwear',
+    title: 'Kristen Streetwear & Urban Fashion | His Kingdom Designs',
+    desc: 'Oppdag urban kristen streetwear: oversized hettegensere, t-skjorter, caps og minimalistisk trosdesign. Bær troen din med stil.',
+    h1: 'Kristen Streetwear',
+    exploreDesc: 'Urban mote møter kristen tro. Utforsk vår streetwear-kolleksjon med oversized hettegensere, t-skjorter, caps og grafiske elementer.',
+    seoText: 'Kristen streetwear er en voksende bevegelse for de som ønsker å uttrykke sin tro gjennom moderne og urban mote. Hos His Kingdom Designs designer vi streetwear-plagg med rene linjer, typografi og kraftfulle budskap som skiller seg ut i mengden.'
+  },
+  'klaer-med-bibelvers': {
+    name: 'Klær med bibelvers',
+    title: 'Klær med bibelvers & kristne sitater | His Kingdom Designs',
+    desc: 'Se vårt utvalg av klær med bibelvers og skriftsteder fra Bibelen. Johannes 3:16, Salmene, Jesaja og oppmuntrende Guds ord på t-skjorter og gensere.',
+    h1: 'Klær med bibelvers',
+    exploreDesc: 'Bær Guds ord i hverdagen. Våre klær med bibelvers formidler håp, tro og kjærlighet gjennom estetisk og moderne typografi.',
+    seoText: 'Guds ord har kraft til å forandre og oppmuntre. Vår kolleksjon av klær med bibelvers inneholder nøye utvalgte skriftsteder fra både Det gamle og Det nye testamente, vakkert integrert på t-skjorter, gensere og tilbehør.'
+  }
+};
+
 const getSeoCategoryKey = (slug, name) => {
   if (!slug && !name) return 'default';
   const cleanSlug = (slug || '').toLowerCase();
   const cleanName = (name || '').toLowerCase();
+
+  if (SEO_CATEGORY_CONFIG[cleanSlug]) return cleanSlug;
 
   if (cleanSlug.includes('kler') || cleanSlug.includes('klær') || cleanName.includes('klær') || cleanName.includes('kler') || cleanName.includes('t-shirt') || cleanName.includes('genser')) {
     return 'kler';
@@ -40,15 +85,22 @@ export default function Category() {
   const categoryName = getCategoryNameBySlug(categorySlug);
 
   const seoCatKey = getSeoCategoryKey(categorySlug, categoryName);
-  const exploreDescKey = `category.exploreDesc.${seoCatKey}`;
-  const exploreDesc = t(exploreDescKey) !== exploreDescKey ? t(exploreDescKey) : t('category.exploreDesc');
-  const seoTextKey = `category.seoText.${seoCatKey}`;
-  const seoText = t(seoTextKey) !== seoTextKey ? t(seoTextKey) : t('category.seoText.default');
+  const customSeoConfig = SEO_CATEGORY_CONFIG[categorySlug];
+
+  const exploreDesc = customSeoConfig?.exploreDesc || (() => {
+    const exploreDescKey = `category.exploreDesc.${seoCatKey}`;
+    return t(exploreDescKey) !== exploreDescKey ? t(exploreDescKey) : t('category.exploreDesc');
+  })();
+
+  const seoText = customSeoConfig?.seoText || (() => {
+    const seoTextKey = `category.seoText.${seoCatKey}`;
+    return t(seoTextKey) !== seoTextKey ? t(seoTextKey) : t('category.seoText.default');
+  })();
   
-  useMeta(
-    categoryName ? t(categoryName) : t('category.metaTitle'),
-    t('category.metaDesc', { category: (categoryName ? t(categoryName) : t('category.metaTitle')).toLowerCase() })
-  );
+  const metaTitle = customSeoConfig?.title || (categoryName ? t(categoryName) : t('category.metaTitle'));
+  const metaDesc = customSeoConfig?.desc || t('category.metaDesc', { category: (categoryName ? t(categoryName) : t('category.metaTitle')).toLowerCase() });
+
+  useMeta(metaTitle, metaDesc);
 
   const sidebarRef = useRef(null);
   const [isSidebarTaller, setIsSidebarTaller] = useState(false);
@@ -142,8 +194,48 @@ export default function Category() {
   const categoryProducts = useMemo(() => {
     let result = [...products];
 
-    // Filter by category parameter or selection
-    if (categoryName === 'Salg') {
+    // Dedicated SEO Topic Cluster Filters
+    if (categorySlug === 'kristne-t-skjorter' || categorySlug === 't-skjorter' || categorySlug === 't-shirts') {
+      result = result.filter(p => {
+        const nameLower = p.name.toLowerCase();
+        const pCat = (p.category || '').toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        const isClothing = pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('t-skjorter');
+        const isTee = nameLower.includes('t-skjorte') || nameLower.includes('tskjorte') || nameLower.includes('t-shirt') || nameLower.includes('tee') || nameLower.includes('trøye') || subs.includes('t-shirts') || subs.includes('t-skjorter');
+        return isClothing && isTee;
+      });
+    } else if (categorySlug === 'kristne-gensere' || categorySlug === 'gensere' || categorySlug === 'genser' || categorySlug === 'hettegensere') {
+      result = result.filter(p => {
+        const nameLower = p.name.toLowerCase();
+        const pCat = (p.category || '').toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        const isClothing = pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('genser');
+        const isSweater = nameLower.includes('genser') || nameLower.includes('hoodie') || nameLower.includes('sweatshirt') || nameLower.includes('hettejakke') || nameLower.includes('hettegenser') || subs.includes('genser');
+        return isClothing && isSweater;
+      });
+    } else if (categorySlug === 'kristen-streetwear' || categorySlug === 'streetwear') {
+      result = result.filter(p => {
+        const nameLower = p.name.toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        const isStreet = nameLower.includes('hoodie') || nameLower.includes('genser') || nameLower.includes('oversized') || nameLower.includes('street') || nameLower.includes('caps') || nameLower.includes('hat') || nameLower.includes('joggebukse') || subs.includes('genser') || subs.includes('hatter /caps') || subs.includes('joggebukser');
+        return isStreet;
+      });
+    } else if (categorySlug === 'klaer-med-bibelvers' || categorySlug === 'bibelvers') {
+      result = result.filter(p => {
+        const nameLower = p.name.toLowerCase();
+        const descLower = (p.description || '').toLowerCase();
+        const pCat = (p.category || '').toLowerCase();
+        const isClothing = pCat.includes('klær') || pCat.includes('kler') || (p.subcategories || []).some(s => s.toLowerCase().includes('klær') || s.toLowerCase().includes('t-shirts') || s.toLowerCase().includes('genser'));
+        const hasVerse = nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || nameLower.includes('lord') || nameLower.includes('faith') || nameLower.includes('love god') || descLower.includes('bibel') || descLower.includes('vers') || descLower.includes('salme');
+        return isClothing && hasVerse;
+      });
+    } else if (categorySlug === 'kristne-klaer' || categorySlug === 'klær' || categorySlug === 'kler' || categorySlug === 'klaer') {
+      result = result.filter(p => {
+        const pCat = (p.category || '').toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        return pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær');
+      });
+    } else if (categoryName === 'Salg') {
       result = result.filter(p => p.isSale);
     } else if (categoryName) {
       const targetSlug = getSlugByCategoryName(categoryName);
@@ -173,7 +265,7 @@ export default function Category() {
     }
 
     return result;
-  }, [products, categoryName, selectedCategories, urlSearch, wixCollections]);
+  }, [products, categoryName, categorySlug, selectedCategories, urlSearch, wixCollections]);
 
   const availableSizes = useMemo(() => {
     const sizesSet = new Set();
@@ -269,8 +361,8 @@ export default function Category() {
     };
   }, [filteredProducts, wixCollections, expandedGroups]);
 
-  // Set page title for breadcrumb
-  const displayTitle = categoryName === 'Salg' ? t('category.saleCampaign') : (categoryName ? t(categoryName) : t('category.allProducts'));
+  // Set page title for breadcrumb and H1
+  const displayTitle = customSeoConfig?.h1 || (categoryName === 'Salg' ? t('category.saleCampaign') : (categoryName ? t(categoryName) : t('category.allProducts')));
 
   const filterSidebar = (
     <div className="space-y-8">

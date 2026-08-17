@@ -226,21 +226,27 @@ export default function Footer() {
         {/* Explore Column */}
         <div className="lg:col-span-2">
           <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.explore')}</h4>
-          <ul className="space-y-4 font-body-md text-body-md">
+          <ul className="space-y-3 font-body-md text-body-md">
             <li>
               <Link to={localizedPath('/products')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
             </li>
             <li>
-              <Link to="/category/Klær" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.clothing')}</Link>
+              <Link to="/category/kristne-klaer" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne klær</Link>
             </li>
             <li>
-              <Link to="/category/Klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.stickers')}</Link>
+              <Link to="/category/kristne-t-skjorter" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne T-skjorter</Link>
             </li>
             <li>
-              <Link to="/category/Plakater" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.posters')}</Link>
+              <Link to="/category/kristne-gensere" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne gensere</Link>
             </li>
             <li>
-              <Link to="/category/Tilbehør" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.accessories')}</Link>
+              <Link to="/category/kristen-streetwear" className="text-parchment/80 hover:text-terracotta transition-colors">Kristen streetwear</Link>
+            </li>
+            <li>
+              <Link to="/category/klaer-med-bibelvers" className="text-parchment/80 hover:text-terracotta transition-colors">Klær med bibelvers</Link>
+            </li>
+            <li>
+              <Link to="/category/bilder-og-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.posters')}</Link>
             </li>
           </ul>
         </div>
