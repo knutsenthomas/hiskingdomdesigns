@@ -1363,7 +1363,7 @@ export const AppProvider = ({ children }) => {
       reply = '### 📞 Kontakt Kundeservice\n\n' +
         'Vi vil gjerne høre fra deg! Du kan kontakte oss på:\n' +
         '- **E-post:** post@hiskingdomministry.no\n' +
-        '- **Adresse:** Løkkeveien 3B, 4580 Lyngdal\n\n' +
+        '- **Adresse:** Augerødlia 48, 1591 Sperrebotn\n\n' +
         '💡 Vi svarer vanligvis innen 24 timer på virkedager.';
     }
     else if (lower.includes('samarbeid') || lower.includes('russ') || lower.includes('menighet') || lower.includes('skole') || lower.includes('leir') || lower.includes('spesialbestill') || lower.includes('kvantumsrabatt') || lower.includes('gruppe')) {
@@ -1392,9 +1392,9 @@ export const AppProvider = ({ children }) => {
       reply = '### 📦 Mangler en vare i pakken / feil vare sendt\n\n' +
         'Hei! Beklager så mye for at det har skjedd en feil under pakkingen hos oss. Vennligst oppgi ordrenummeret ditt og fortell hvilken vare som manglet/ble feil, så ettersender vi riktig vare til deg med en gang! 📦';
     }
-    else if (lower.includes('hente') || lower.includes('hente selv') || lower.includes('lyngdal') || lower.includes('henteadresse') || lower.includes('fysisk butikk') || lower.includes('butikk')) {
+    else if (lower.includes('hente') || lower.includes('hente selv') || lower.includes('sperrebotn') || lower.includes('lyngdal') || lower.includes('henteadresse') || lower.includes('fysisk butikk') || lower.includes('butikk')) {
       reply = '### 📍 Hente selv / Fysisk butikk\n\n' +
-        '- Vi har dessverre **ikke mulighet for at du kan hente varene selv** på vår adresse i Lyngdal, og vi har heller ikke en fysisk butikk.\n' +
+        '- Vi har dessverre **ikke mulighet for at du kan hente varene selv** på vår adresse i Sperrebotn, og vi har heller ikke en fysisk butikk.\n' +
         '- Alle bestillinger produseres på bestilling og sendes direkte hjem til deg eller til ditt nærmeste hentested med Posten.\n\n' +
         '💡 Frakten beregnes automatisk i kassen basert på vekt (fra kun 39 kr).';
     }
