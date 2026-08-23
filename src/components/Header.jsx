@@ -98,13 +98,16 @@ export default function Header() {
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.trim().length < 2) return [];
     const query = searchQuery.toLowerCase().trim();
-    return (products || []).filter(p => 
-      p.name.toLowerCase().includes(query) ||
-      p.category.toLowerCase().includes(query) ||
-      (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
-      (p.description && p.description.toLowerCase().includes(query))
-    ).slice(0, 5);
-  }, [searchQuery, products]);
+    return (products || []).filter(p => {
+      if (language !== 'en' && p.isOceaniaExclusive) return false;
+      return (
+        p.name.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query) ||
+        (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
+        (p.description && p.description.toLowerCase().includes(query))
+      );
+    }).slice(0, 5);
+  }, [searchQuery, products, language]);
   const [mobileActiveCategory, setMobileActiveCategory] = useState(null);
   const location = useLocation();
 

@@ -194,6 +194,11 @@ export default function Category() {
   const categoryProducts = useMemo(() => {
     let result = [...products];
 
+    // Hide US, CA & Oceania exclusive products on non-English store
+    if (language !== 'en') {
+      result = result.filter(p => !p.isOceaniaExclusive);
+    }
+
     // Dedicated SEO Topic Cluster Filters
     if (categorySlug === 'kristne-t-skjorter' || categorySlug === 't-skjorter' || categorySlug === 't-shirts') {
       result = result.filter(p => {
@@ -265,7 +270,7 @@ export default function Category() {
     }
 
     return result;
-  }, [products, categoryName, categorySlug, selectedCategories, urlSearch, wixCollections]);
+  }, [products, categoryName, categorySlug, selectedCategories, urlSearch, wixCollections, language]);
 
   const availableSizes = useMemo(() => {
     const sizesSet = new Set();

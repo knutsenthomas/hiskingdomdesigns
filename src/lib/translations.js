@@ -38,6 +38,10 @@ export const translations = {
     'product.customTextPlaceholder': 'Skriv din tekst her...',
     'product.reviews': 'Kundeomtaler',
     'product.noReviews': 'Ingen omtaler ennå.',
+    'product.oceaniaExclusiveTitle': 'Begrenset leveringsområde (US, CA & Oseania)',
+    'product.oceaniaExclusiveDesc': 'Dette produktet produseres og sendes kun til USA, Canada og Oseania, og er ikke tilgjengelig for levering til Norge.',
+    'product.oceaniaSwitchToEn': 'Se produktet på vår engelske side',
+    'product.oceaniaUnavailableBtn': 'Kun tilgjengelig i US, CA & Oseania',
 
     // Cart / Drawer
     'cart.title': 'Din Handlekurv',
@@ -802,6 +806,10 @@ export const translations = {
     'product.customTextPlaceholder': 'Enter your custom text here...',
     'product.reviews': 'Customer Reviews',
     'product.noReviews': 'No reviews yet.',
+    'product.oceaniaExclusiveTitle': 'US, CA & Oceania Exclusive Shipping',
+    'product.oceaniaExclusiveDesc': 'This product is fulfilled and shipped exclusively to the United States, Canada, Australia, and New Zealand.',
+    'product.oceaniaSwitchToEn': 'View in English',
+    'product.oceaniaUnavailableBtn': 'US, CA & Oceania Exclusive',
 
     // Cart / Drawer
     'cart.title': 'Your Shopping Cart',
@@ -1567,6 +1575,10 @@ export const translations = {
     'product.customTextPlaceholder': 'Escribe tu texto personalizado aquí...',
     'product.reviews': 'Opiniones de clientes',
     'product.noReviews': 'Sin opiniones aún.',
+    'product.oceaniaExclusiveTitle': 'Envío exclusivo para EE. UU., Canadá y Oceanía',
+    'product.oceaniaExclusiveDesc': 'Este producto se produce y envía exclusivamente a EE. UU., Canadá y Oceanía.',
+    'product.oceaniaSwitchToEn': 'Ver en inglés',
+    'product.oceaniaUnavailableBtn': 'Exclusivo para EE. UU., CA y Oceanía',
 
     // Cart / Drawer
     'cart.title': 'Tu Carrito',

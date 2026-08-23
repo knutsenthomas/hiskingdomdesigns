@@ -383,9 +383,10 @@ export default function Home() {
       }
     ];
 
-    if (products && products.length > 0) {
+    const availableProducts = language === 'en' ? products : (products || []).filter(p => !p.isOceaniaExclusive);
+    if (availableProducts && availableProducts.length > 0) {
       // Products are fetched sorted descending by createdDate, so the first products are the newest
-      const newestProducts = products.slice(0, 2);
+      const newestProducts = availableProducts.slice(0, 2);
       const productSlides = newestProducts.map(p => {
         const translatedP = translateProduct(p);
         const displayName = translatedP.name ? translatedP.name.split('|')[0].trim() : 'Nytt produkt';
@@ -460,7 +461,7 @@ export default function Home() {
     }
 
     return defaultSlides;
-  }, [products, navigate, t, translateProduct]);
+  }, [products, navigate, t, translateProduct, language]);
 
   useEffect(() => {
     if (heroSlide >= slides.length) {
@@ -657,8 +658,10 @@ export default function Home() {
     }
   ];
 
-  // Filter out bestsellers and translate them dynamically
-  const bestsellers = products.filter(p => p.isBestseller).map(p => translateProduct(p));
+  // Filter out bestsellers and translate them dynamically (exclude regional exclusive for non-English)
+  const bestsellers = products
+    .filter(p => p.isBestseller && (language === 'en' || !p.isOceaniaExclusive))
+    .map(p => translateProduct(p));
 
   useEffect(() => {
     // Intersection Observer for reveal-on-scroll animations

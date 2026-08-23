@@ -217,6 +217,25 @@ const getWixImageUrl = (url, width = 1200, height = 630) => {
   return url;
 };
 
+const isProductOceaniaExclusive = (p) => {
+  if (!p) return false;
+  const desc = ((p.description || '') + ' ' + (p.additionalInfoSections?.map(s => s.description).join(' ') || '')).replace(/<[^>]*>/g, ' ');
+  const lower = desc.toLowerCase();
+  
+  return (
+    lower.includes('oceania exclusive') ||
+    lower.includes('shipping: us, ca and oceania exclusive') ||
+    lower.includes('shipping: us, ca & oceania exclusive') ||
+    lower.includes('shipping exclusively usa, canada and oceania') ||
+    lower.includes('shipping exclusively us, canada and oceania') ||
+    lower.includes('shipping: usa, ca and oceania') ||
+    lower.includes('usa, canada and oceania') ||
+    lower.includes('us, ca and oceania') ||
+    lower.includes('us, ca, oceania') ||
+    (lower.includes('oceania') && (lower.includes('shipping') || lower.includes('exclusive') || lower.includes('levering')))
+  );
+};
+
 const fetchProducts = async () => {
   const now = Date.now();
   if (productsCache.data && now - productsCache.timestamp < CACHE_TTL_MS) {
@@ -524,6 +543,10 @@ export default async function handler(req, res) {
           const catLower = (p.category || '').toLowerCase();
           return catLower.includes('klær') || catLower.includes('kler') || catLower.includes('clothing');
         });
+      }
+
+      if (lang !== 'en') {
+        matchedProducts = matchedProducts.filter(p => !isProductOceaniaExclusive(p));
       }
 
       bodySnippet = `

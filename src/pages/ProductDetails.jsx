@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler, X } from 'lucide-react';
-import { useApp } from '@/contexts/AppContext';
+import { useApp, isProductOceaniaExclusive } from '@/contexts/AppContext';
 import { useCart } from '@/contexts/CartContext';
 import ProductCard from '@/components/ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -371,7 +371,7 @@ const PRODUCT_COLOR_IMAGE_OVERRIDES = {
 };
 
 export default function ProductDetails() {
-  const { t, translateProduct, language, formatPrice, localizedPath } = useLanguage();
+  const { t, translateProduct, language, setLanguage, formatPrice, localizedPath } = useLanguage();
   const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
@@ -504,7 +504,7 @@ export default function ProductDetails() {
     const currentSubcategories = productRaw.subcategories || [];
 
     const scored = products
-      .filter(p => p.id !== productRaw.id) // Exclude current product
+      .filter(p => p.id !== productRaw.id && (language === 'en' || !p.isOceaniaExclusive)) // Exclude current product and regional exclusives on non-English store
       .map(p => {
         let score = 0;
 
@@ -538,7 +538,7 @@ export default function ProductDetails() {
       .sort((a, b) => b.score - a.score)
       .map(item => item.product)
       .slice(0, 3);
-  }, [productRaw, products]);
+  }, [productRaw, products, language]);
 
   // Helper to reliably find the mockup image URL for any specific color variant
   const getColorImageUrl = useMemo(() => {
@@ -823,6 +823,7 @@ export default function ProductDetails() {
               images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
               isBestseller: false,
               isSale: isSale,
+              isOceaniaExclusive: isProductOceaniaExclusive(item),
               description: item.description || '',
               subcategories: [],
               productOptions: item.productOptions,
@@ -1536,6 +1537,25 @@ export default function ProductDetails() {
                 </span>
               )}
             </div>
+
+            {product.isOceaniaExclusive && language !== 'en' && (
+              <div className="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-onyx flex items-start gap-3 shadow-xs">
+                <span className="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5 select-none">public_off</span>
+                <div className="space-y-1">
+                  <p className="font-bold text-sm text-onyx">{t('product.oceaniaExclusiveTitle')}</p>
+                  <p className="text-xs text-secondary leading-relaxed">{t('product.oceaniaExclusiveDesc')}</p>
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setLanguage('en')}
+                      className="text-xs font-bold text-terracotta hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      {t('product.oceaniaSwitchToEn')} &rarr;
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="h-px bg-outline-variant/50 w-full" />

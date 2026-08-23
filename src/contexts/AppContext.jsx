@@ -369,6 +369,25 @@ export const PRODUCT_COLOR_ORDER_OVERRIDES = {
   ]
 };
 
+export const isProductOceaniaExclusive = (item) => {
+  if (!item) return false;
+  const desc = ((item.description || '') + ' ' + (item.additionalInfoSections?.map(s => s.description).join(' ') || '')).replace(/<[^>]*>/g, ' ');
+  const lower = desc.toLowerCase();
+  
+  return (
+    lower.includes('oceania exclusive') ||
+    lower.includes('shipping: us, ca and oceania exclusive') ||
+    lower.includes('shipping: us, ca & oceania exclusive') ||
+    lower.includes('shipping exclusively usa, canada and oceania') ||
+    lower.includes('shipping exclusively us, canada and oceania') ||
+    lower.includes('shipping: usa, ca and oceania') ||
+    lower.includes('usa, canada and oceania') ||
+    lower.includes('us, ca and oceania') ||
+    lower.includes('us, ca, oceania') ||
+    (lower.includes('oceania') && (lower.includes('shipping') || lower.includes('exclusive') || lower.includes('levering')))
+  );
+};
+
 export const AppProvider = ({ children }) => {
   const { language } = useLanguage();
   const [products, setProducts] = useState(() => {
@@ -995,6 +1014,7 @@ export const AppProvider = ({ children }) => {
             images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
             isBestseller: isBestseller,
             isSale: isSale,
+            isOceaniaExclusive: isProductOceaniaExclusive(item),
             description: item.description || '',
             subcategories: resolvedCollections,
             productOptions: item.productOptions,
@@ -1022,6 +1042,7 @@ export const AppProvider = ({ children }) => {
               image: p.image,
               isBestseller: p.isBestseller,
               isSale: p.isSale,
+              isOceaniaExclusive: p.isOceaniaExclusive,
               subcategories: p.subcategories
             }));
             localStorage.setItem('hkm-products-cache', JSON.stringify(lightweight));
