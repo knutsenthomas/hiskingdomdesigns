@@ -80,7 +80,7 @@ const getSeoCategoryKey = (slug, name) => {
 
 export default function Category() {
   const { products, isLoadingProducts, categoryTaxonomy, getCategoryNameBySlug, getSlugByCategoryName, wixCollections } = useApp();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { categoryName: categorySlug } = useParams();
   const categoryName = getCategoryNameBySlug(categorySlug);
 
