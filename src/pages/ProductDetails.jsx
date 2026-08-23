@@ -319,6 +319,17 @@ export const PRODUCT_COLOR_ORDER_OVERRIDES = {
     { name: 'Rød', hex: '#D70E0E', image: 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png' },
     { name: 'Rosa', hex: '#ED2EBD', image: 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png' },
     { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png' }
+  ],
+  // Organic Cotton Baby Bodysuit - Cute Lamb
+  '86bb3ff5-1d3c-2400-433c-156cdf78751b': [
+    { name: 'Grønn', hex: '#81D0B2', image: 'https://static.wixstatic.com/media/3a1544_f433ebb2c2ee440f8bb7c7fcbb0e7373~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Gammelrosa', hex: '#D98D8D', image: 'https://static.wixstatic.com/media/3a1544_89081a2c740b4145a70b1eab1a5bb094~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Burgunder', hex: '#722F37', image: 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Lyserosa', hex: '#F595DD', image: 'https://static.wixstatic.com/media/3a1544_4ea7decda6df47b3b6653376a7bab537~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Hvit', hex: '#F5F4F4', image: 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Mørkeblå', hex: '#1364AC', image: 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Blå', hex: '#396EF9', image: 'https://static.wixstatic.com/media/3a1544_2a8ccc7bf2904927a71960a61d8fca09~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Lyseblå', hex: '#82B1F1', image: 'https://static.wixstatic.com/media/3a1544_1ff917d9a31f4c85937afe95e8e5f1a6~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
   ]
 };
 
@@ -343,6 +354,19 @@ const PRODUCT_COLOR_IMAGE_OVERRIDES = {
     'rød': 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png',
     'rosa': 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png',
     'grå': 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png'
+  },
+  '86bb3ff5-1d3c-2400-433c-156cdf78751b': {
+    'grønn': 'https://static.wixstatic.com/media/3a1544_f433ebb2c2ee440f8bb7c7fcbb0e7373~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'gammelrosa': 'https://static.wixstatic.com/media/3a1544_89081a2c740b4145a70b1eab1a5bb094~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'begunder': 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'burgunder': 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'lyserosa': 'https://static.wixstatic.com/media/3a1544_4ea7decda6df47b3b6653376a7bab537~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'offwhite': 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'hvit': 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'blå melange': 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'mørkeblå': 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'blå': 'https://static.wixstatic.com/media/3a1544_2a8ccc7bf2904927a71960a61d8fca09~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'lyseblå': 'https://static.wixstatic.com/media/3a1544_1ff917d9a31f4c85937afe95e8e5f1a6~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
   }
 };
 
