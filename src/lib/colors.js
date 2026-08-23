@@ -24,6 +24,7 @@ export const getClosestColor = (r, g, b) => {
     { name: 'Grå', r: 168, g: 168, b: 168, hex: '#A8A8A8' },
     { name: 'Lys Grå', r: 220, g: 220, b: 220, hex: '#DCDCDC' },
     { name: 'Mørk Grå', r: 89, g: 88, b: 88, hex: '#595858' },
+    { name: 'Lyseblå', r: 146, g: 199, b: 227, hex: '#92C7E3' },
     { name: 'Blå', r: 59, g: 130, b: 246, hex: '#3b82f6' },
     { name: 'Mørkeblå', r: 27, g: 73, b: 101, hex: '#1B4965' },
     { name: 'Rød', r: 239, g: 68, b: 68, hex: '#ef4444' },
@@ -79,6 +80,7 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
   const getStandardHex = (name, fallbackHex) => {
     if (name === 'Mørkeblå') return '#1B4965'; // True midnight navy matching cap & clothing photos
     if (name === 'Kongeblå') return '#2563EB'; // True royal blue
+    if (name === 'Lyseblå' || name === 'Babyblå') return '#92C7E3'; // True light pastel baby blue
     if (name === 'Burgunder') return '#722F37'; // True burgundy
     if (name === 'Army') return '#405F48';
     if (name === 'Sort') return '#151A21';
@@ -109,6 +111,7 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
     if (t.includes('hvit') || t.includes('white') || t.includes('off-white') || t.includes('ivory') || t.includes('cream')) return 'Hvit';
     if (t.includes('mørkeblå') || t.includes('navy') || t.includes('marine') || t.includes('deep teal') || t.includes('teal') || t.includes('storm')) return 'Mørkeblå';
     if (t.includes('kongeblå') || t.includes('royal blue') || t.includes('royalblue')) return 'Kongeblå';
+    if (t.includes('lyseblå') || t.includes('lys blå') || t.includes('baby blue') || t.includes('babyblå') || t.includes('light blue') || t === '#92c7e3') return 'Lyseblå';
     if (t.includes('blå') || t.includes('blue') || t.includes('denim') || t.includes('aqua') || t.includes('sky')) return 'Blå';
     if (t.includes('burgundy') || t.includes('maroon') || t.includes('burgunder') || t.includes('begunder')) return 'Burgunder';
     if (t.includes('rød') || t.includes('red') || t.includes('cherry') || t.includes('cardinal')) return 'Rød';

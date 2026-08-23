@@ -304,6 +304,48 @@ function formatDescription(html, lang = 'no') {
   return html;
 }
 
+export const PRODUCT_COLOR_ORDER_OVERRIDES = {
+  // LOVED - babysmekke
+  '43ced8bd-218e-a5dd-0185-df6c13f54691': [
+    { name: 'Rosa', hex: '#FF8DA1', image: 'https://static.wixstatic.com/media/3a1544_1712758067814192932cd35348660f65~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Rød', hex: '#E31647', image: 'https://static.wixstatic.com/media/3a1544_450b863bf0cd4d46a3b45c038c208840~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_9fa88c959dc844308d0cd382ac4f2c78~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Lyseblå', hex: '#92C7E3', image: 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Sort', hex: '#151A21', image: 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
+  ],
+  // Jesus passer på oss - smekke
+  '9f55138f-b127-a7e9-db63-017bcfd820b3': [
+    { name: 'Hvit', hex: '#FFFFFF', image: 'https://static.wixstatic.com/media/3a1544_116d099a0a6f4fd3a10dbe984a2f6959~mv2.png/v1/fit/w_1262,h_1482,q_90/file.png' },
+    { name: 'Rød', hex: '#D70E0E', image: 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png' },
+    { name: 'Rosa', hex: '#ED2EBD', image: 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png' },
+    { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png' }
+  ]
+};
+
+const PRODUCT_COLOR_IMAGE_OVERRIDES = {
+  '7d464596-9655-ca07-77d0-a290d2acbaf4': {
+    'hvit': 'https://static.wixstatic.com/media/3a1544_4f7fe33df6c64c2aac168003dbdd83cb~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'rød': 'https://static.wixstatic.com/media/3a1544_6dce23ea561d443ca299c373a408a400~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'grønn': 'https://static.wixstatic.com/media/3a1544_f1c5a64930794de2b25f294c259b858f~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'grå': 'https://static.wixstatic.com/media/3a1544_2631c508aa4d4e7ea873d27cf228d730~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
+  },
+  '43ced8bd-218e-a5dd-0185-df6c13f54691': {
+    'rosa': 'https://static.wixstatic.com/media/3a1544_1712758067814192932cd35348660f65~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'rød': 'https://static.wixstatic.com/media/3a1544_450b863bf0cd4d46a3b45c038c208840~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'grå': 'https://static.wixstatic.com/media/3a1544_9fa88c959dc844308d0cd382ac4f2c78~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'lyseblå': 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'blå': 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'sort': 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
+    'svart': 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
+  },
+  '9f55138f-b127-a7e9-db63-017bcfd820b3': {
+    'hvit': 'https://static.wixstatic.com/media/3a1544_116d099a0a6f4fd3a10dbe984a2f6959~mv2.png/v1/fit/w_1262,h_1482,q_90/file.png',
+    'rød': 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png',
+    'rosa': 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png',
+    'grå': 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png'
+  }
+};
+
 export default function ProductDetails() {
   const { t, translateProduct, language, formatPrice, localizedPath } = useLanguage();
   const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
@@ -474,15 +516,6 @@ export default function ProductDetails() {
       .slice(0, 3);
   }, [productRaw, products]);
 
-const PRODUCT_COLOR_IMAGE_OVERRIDES = {
-  '7d464596-9655-ca07-77d0-a290d2acbaf4': {
-    'hvit': 'https://static.wixstatic.com/media/3a1544_4f7fe33df6c64c2aac168003dbdd83cb~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'rød': 'https://static.wixstatic.com/media/3a1544_6dce23ea561d443ca299c373a408a400~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'grønn': 'https://static.wixstatic.com/media/3a1544_f1c5a64930794de2b25f294c259b858f~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'grå': 'https://static.wixstatic.com/media/3a1544_2631c508aa4d4e7ea873d27cf228d730~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
-  }
-};
-
   // Helper to reliably find the mockup image URL for any specific color variant
   const getColorImageUrl = useMemo(() => {
     return (colorName, sizeValue) => {
@@ -548,6 +581,11 @@ const PRODUCT_COLOR_IMAGE_OVERRIDES = {
 
   const imagesList = useMemo(() => {
     if (!product) return [];
+
+    // Check if product has explicit override for images and colors
+    if (product.id && PRODUCT_COLOR_ORDER_OVERRIDES[product.id]) {
+      return PRODUCT_COLOR_ORDER_OVERRIDES[product.id].map(c => c.image);
+    }
 
     const colorOpt = product.productOptions?.find(o => {
       const name = o.name?.trim().toLowerCase();
@@ -724,6 +762,11 @@ const PRODUCT_COLOR_IMAGE_OVERRIDES = {
                 });
                 colorNames = uniqueNames;
                 colors = uniqueHexes;
+              }
+
+              if (PRODUCT_COLOR_ORDER_OVERRIDES[item._id]) {
+                colorNames = PRODUCT_COLOR_ORDER_OVERRIDES[item._id].map(c => c.name);
+                colors = PRODUCT_COLOR_ORDER_OVERRIDES[item._id].map(c => c.hex);
               }
             }
 
@@ -1358,7 +1401,7 @@ const PRODUCT_COLOR_IMAGE_OVERRIDES = {
           </div>
           {/* Thumbnails (for visual complete design look and active image switching) */}
           {imagesList && imagesList.length > 0 && (
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin select-none">
+            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar select-none">
               {imagesList.map((imgUrl, idx) => {
                 const isActive = (activeImage || product.image) === imgUrl;
                 return (
@@ -1367,6 +1410,13 @@ const PRODUCT_COLOR_IMAGE_OVERRIDES = {
                     type="button"
                     onClick={() => {
                       setActiveImage(imgUrl);
+                      if (product?.id && PRODUCT_COLOR_ORDER_OVERRIDES[product.id]) {
+                        const override = PRODUCT_COLOR_ORDER_OVERRIDES[product.id][idx];
+                        if (override) {
+                          setSelectedColor(override.name);
+                          return;
+                        }
+                      }
                       if (product?.productOptions) {
                         const colorOpt = product.productOptions.find(o => {
                           const name = o.name?.trim().toLowerCase();
