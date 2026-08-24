@@ -145,50 +145,54 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
   // Helper to extract clean human-friendly color name from any string or description
   const getFriendlyName = (text) => {
     if (!text) return '';
-    const t = text.toLowerCase();
+    const t = text.toLowerCase().trim();
     if (t.includes('army') || t.includes('camo') || t.includes('kamuflasje') || t.includes('militær')) return 'Army';
     if (t.includes('sort') || t.includes('svart') || t.includes('black') || t.includes('charcoal') || t.includes('coal') || t.includes('vintage black')) return 'Sort';
     if (t.includes('hvit') || t.includes('white') || t.includes('off-white') || t.includes('ivory') || t.includes('cream')) return 'Hvit';
     if (t.includes('mørkeblå') || t.includes('navy') || t.includes('marine') || t.includes('deep teal') || t.includes('teal') || t.includes('storm')) return 'Mørkeblå';
     if (t.includes('kongeblå') || t.includes('royal blue') || t.includes('royalblue')) return 'Kongeblå';
-    if (t.includes('lyseblå') || t.includes('lys blå') || t.includes('baby blue') || t.includes('babyblå') || t.includes('light blue') || t === '#92c7e3') return 'Lyseblå';
+    if (t.includes('lyseblå') || t.includes('lys blå') || t.includes('baby blue') || t.includes('babyblå') || t.includes('light blue')) return 'Lyseblå';
+    if (t.includes('blå melange')) return 'Blå Melange';
     if (t.includes('blå') || t.includes('blue') || t.includes('denim') || t.includes('aqua') || t.includes('sky')) return 'Blå';
     if (t.includes('burgundy') || t.includes('maroon') || t.includes('burgunder') || t.includes('begunder')) return 'Burgunder';
     if (t.includes('rød') || t.includes('red') || t.includes('cherry') || t.includes('cardinal')) return 'Rød';
-    if (t.includes('lysegrønn') || t.includes('lys grønn') || t.includes('mint') || t.includes('sage')) return 'Lysegrønn';
-    if (t.includes('grønn') || t.includes('green') || t.includes('forest') || t.includes('olive') || t.includes('oliven')) return 'Grønn';
+    if (t.includes('lysegrønn') || t.includes('lys grønn') || t.includes('mint') || t.includes('sage') || t.includes('mintgrønn') || t.includes('sage green')) return 'Lysegrønn';
+    if (t.includes('oliven') || t.includes('olive')) return 'Oliven';
+    if (t.includes('mørkegrønn') || t.includes('dark green') || t.includes('forest')) return 'Mørkegrønn';
+    if (t.includes('grønn') || t.includes('green')) return 'Grønn';
     if (t.includes('gul') || t.includes('yellow') || t.includes('gold') || t.includes('mustard')) return 'Gul';
     if (t.includes('mørk rosa') || t.includes('fuchsia') || t.includes('hot pink')) return 'Mørk Rosa';
-    if (t.includes('rosa') || t.includes('pink') || t.includes('peach') || t.includes('coral') || t.includes('mauve')) return 'Rosa';
-    if (t === 'sand' || t.includes(' sand') || t.startsWith('sand ')) return 'Sand';
-    if (t.includes('beige') || t.includes('khaki') || t.includes('natural') || t.includes('stone') || t.includes('tan') || t.includes('natur')) return 'Beige';
+    if (t.includes('candy pink') || t.includes('rosa') || t.includes('pink') || t.includes('peach') || t.includes('coral') || t.includes('mauve') || t.includes('fersken') || t.includes('gammelrosa') || t.includes('lyserosa')) return 'Rosa';
+    if (t === 'sand' || t.includes(' sand') || t.startsWith('sand ') || t.includes('stein') || t.includes('stone') || t.includes('lys khaki')) return 'Sand';
+    if (t.includes('beige') || t.includes('khaki') || t.includes('natural') || t.includes('tan') || t.includes('natur')) return 'Beige';
     if (t.includes('terrakotta') || t.includes('terracotta') || t.includes('clay') || t.includes('burnt orange')) return 'Terrakotta';
     if (t.includes('oransje') || t.includes('orange')) return 'Orange';
     if (t.includes('lilla') || t.includes('purple') || t.includes('lavender')) return 'Lilla';
-    if (t.includes('lys grå') || t.includes('light grey') || t.includes('ash') || t.includes('silver')) return 'Lys Grå';
+    if (t.includes('lys grå') || t.includes('lysegrå') || t.includes('light grey') || t.includes('ash') || t.includes('silver') || t.includes('aske')) return 'Lysegrå';
     if (t.includes('mørk grå') || t.includes('dark grey') || t.includes('graphite')) return 'Mørk Grå';
     if (t.includes('grå') || t.includes('grey') || t.includes('gray')) return 'Grå';
+    if (t.includes('brun') || t.includes('brown')) return 'Brun';
     return '';
   };
 
-  // 1. If input is a hex code or rgb code:
+  // 1. If input is a hex code or rgb code from Wix:
   if (lower.startsWith('rgb') || lower.startsWith('#')) {
+    const { r, g, b } = lower.startsWith('#') ? parseHex(lower) : parseRgb(lower);
+    const hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+
     let resolvedName = desc ? getFriendlyName(desc) : '';
     if (!resolvedName && desc && !desc.startsWith('#') && !desc.startsWith('rgb')) {
       resolvedName = capitalize(desc);
     }
 
     if (!resolvedName) {
-      const { r, g, b } = lower.startsWith('#') ? parseHex(lower) : parseRgb(lower);
       const closest = getClosestColor(r, g, b);
       resolvedName = closest.name;
     }
 
-    const standardHex = getStandardHex(resolvedName, lower);
-
     return { 
       name: resolvedName, 
-      hex: standardHex 
+      hex: hex 
     };
   }
 
