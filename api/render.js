@@ -645,12 +645,54 @@ export default async function handler(req, res) {
             "name": ${JSON.stringify(product.name)},
             "image": ${JSON.stringify(ogImage)},
             "description": ${JSON.stringify(description)},
+            "sku": ${JSON.stringify(product.id || productId)},
+            "brand": {
+              "@type": "Brand",
+              "name": "His Kingdom Designs"
+            },
             "offers": {
               "@type": "Offer",
               "priceCurrency": "NOK",
               "price": "${priceVal}",
               "availability": "${product.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}",
-              "url": "${canonicalUrl}"
+              "url": "${canonicalUrl}",
+              "seller": {
+                "@type": "Organization",
+                "name": "His Kingdom Designs"
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "NO",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 14,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnFees": "https://schema.org/FreeReturn"
+              },
+              "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                  "@type": "MonetaryAmount",
+                  "value": "0",
+                  "currency": "NOK"
+                },
+                "shippingDestination": {
+                  "@type": "DefinedRegion",
+                  "addressCountry": "NO"
+                },
+                "deliveryTime": {
+                  "@type": "ShippingDeliveryTime",
+                  "businessDays": {
+                    "@type": "OpeningHoursSpecification",
+                    "dayOfWeek": ["https://schema.org/Monday", "https://schema.org/Tuesday", "https://schema.org/Wednesday", "https://schema.org/Thursday", "https://schema.org/Friday"]
+                  },
+                  "transitTime": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 2,
+                    "maxValue": 5,
+                    "unitCode": "d"
+                  }
+                }
+              }
             }
           }
           </script>
