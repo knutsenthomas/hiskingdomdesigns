@@ -703,17 +703,17 @@ export default function ProductDetails() {
             const item = res.product;
             const nameLower = item.name?.toLowerCase() || '';
             
-            const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker)\b/i;
+            const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib)\b/i;
             const stickerRegex = /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
-            const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas)\b/i;
+            const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|semi-glossy|wall art|veggkunst|digital plakat|digital poster)\b/i;
 
             let category = 'Tilbehør';
-            if (clothingRegex.test(nameLower)) {
-              category = 'Klær';
-            } else if (stickerRegex.test(nameLower)) {
+            if (stickerRegex.test(nameLower)) {
               category = 'Klistermerker';
             } else if (posterRegex.test(nameLower)) {
               category = 'Plakater';
+            } else if (clothingRegex.test(nameLower)) {
+              category = 'Klær';
             }
 
             let sizes = [];

@@ -720,29 +720,34 @@ export const AppProvider = ({ children }) => {
         console.log(`Hentet totalt ${allItems.length} produkter fra Wix.`);
 
         // Define lists of collection names belonging to each primary category
-        const klaerCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS', 'BABY', 'BARN & UNGDOM'];
+        const pureClothingCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'RUSS'];
         const plakaterCollections = ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'];
         const klistermerkerCollections = ['Klistermerker'];
 
         // Precise regexes with word boundaries for name keyword matching
-        const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker)\b/i;
+        const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib)\b/i;
         const stickerRegex = /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
-        const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas)\b/i;
+        const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|semi-glossy|wall art|veggkunst|digital plakat|digital poster)\b/i;
 
         const mapped = allItems.map(item => {
           const nameLower = item.name.toLowerCase();
           const resolvedCollections = item.collectionIds?.map(id => collectionsMap[id]).filter(Boolean) || [];
           
-          let isSticker = resolvedCollections.some(c => klistermerkerCollections.includes(c)) || stickerRegex.test(nameLower);
-          let isClothing = resolvedCollections.some(c => klaerCollections.includes(c)) || clothingRegex.test(nameLower);
-          let isPoster = resolvedCollections.some(c => plakaterCollections.includes(c)) || posterRegex.test(nameLower);
+          const hasPosterCollection = resolvedCollections.some(c => plakaterCollections.includes(c));
+          const hasPosterName = posterRegex.test(nameLower);
+          const hasClothingCollection = resolvedCollections.some(c => pureClothingCollections.includes(c));
+          const hasClothingName = clothingRegex.test(nameLower);
+          const hasStickerCollection = resolvedCollections.some(c => klistermerkerCollections.includes(c));
+          const hasStickerName = stickerRegex.test(nameLower);
 
           let category = 'Tilbehør';
-          if (isClothing) {
-            category = 'Klær';
-          } else if (isSticker) {
+          if (hasStickerName || (hasStickerCollection && !hasPosterName && !hasClothingName)) {
             category = 'Klistermerker';
-          } else if (isPoster) {
+          } else if (hasPosterName || (hasPosterCollection && !hasClothingName && !hasClothingCollection)) {
+            category = 'Plakater';
+          } else if (hasClothingName || hasClothingCollection) {
+            category = 'Klær';
+          } else if (hasPosterCollection) {
             category = 'Plakater';
           }
 

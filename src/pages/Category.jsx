@@ -238,7 +238,9 @@ export default function Category() {
       result = result.filter(p => {
         const pCat = (p.category || '').toLowerCase();
         const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        return pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær');
+        const isPoster = pCat.includes('plakat') || pCat.includes('bilde') || /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper)\b/i.test(p.name);
+        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær')) && !isPoster;
+        return isClothing;
       });
     } else if (categoryName === 'Salg') {
       result = result.filter(p => p.isSale);
