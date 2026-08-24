@@ -169,15 +169,19 @@ export default async function handler(req, res) {
         xml += `  <url>\n`;
         xml += `    <loc>${loc}</loc>\n`;
         
-        // Add alternate links for all languages
-        langs.forEach(altLang => {
-          const altPath = paths[altLang] === '/' ? '' : paths[altLang];
-          xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${DOMAIN}${altPath}" />\n`;
-        });
-        
-        // Add x-default (using Norwegian as default)
-        const defaultPath = paths['no'] === '/' ? '' : paths['no'];
-        xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${defaultPath}" />\n`;
+        // Add alternate links for all languages only if separate language routes exist
+        if (noPath !== enPath || noPath !== esPath) {
+          langs.forEach(altLang => {
+            const altPath = paths[altLang] === '/' ? '' : paths[altLang];
+            xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${DOMAIN}${altPath}" />\n`;
+          });
+          const defaultPath = paths['no'] === '/' ? '' : paths['no'];
+          xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${defaultPath}" />\n`;
+        } else {
+          const defaultPath = noPath === '/' ? '' : noPath;
+          xml += `    <xhtml:link rel="alternate" hreflang="no" href="${DOMAIN}${defaultPath}" />\n`;
+          xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${defaultPath}" />\n`;
+        }
 
         xml += `    <changefreq>${changefreq}</changefreq>\n`;
         xml += `    <priority>${priority}</priority>\n`;

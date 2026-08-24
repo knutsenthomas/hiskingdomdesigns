@@ -706,20 +706,22 @@ export default async function handler(req, res) {
     let html = getBaseHtml();
 
     // Replace HTML lang
-    html = html.replace(/<html lang="[^"]*"/i, `<html lang="${lang}"`);
+    html = html.replace(/<html\s+lang="[^"]*"/i, `<html lang="${lang}"`);
 
     // Strip static fallback meta tags from template to avoid duplicates
-    html = html.replace(/<title>.*?<\/title>/i, '');
-    html = html.replace(/<meta name="description"[^>]*>/i, '');
-    html = html.replace(/<link rel="canonical"[^>]*>/i, '');
-    html = html.replace(/<link rel="alternate"[^>]*hreflang[^>]*>/gi, '');
+    html = html.replace(/<title>.*?<\/title>/gi, '');
+    html = html.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
+    html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+    html = html.replace(/<link\s+rel=["']alternate["'][^>]*hreflang[^>]*>/gi, '');
+    html = html.replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '');
+    html = html.replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '');
 
     html = html.replace('</head>', `${headInject}\n</head>`);
 
     // Inject semantic crawler markup inside <div id="root">
     const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${h1Text}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
 
-    html = html.replace(/<div id="root"><\/div>/i, semanticCrawlerHtml);
+    html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
 
     // 8. Send Response
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
