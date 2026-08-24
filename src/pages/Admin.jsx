@@ -1076,11 +1076,11 @@ export default function Admin() {
                   ) : (
                     <>
                       {/* Status Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-4 text-left">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-3 text-left">
                           <div className="flex justify-between items-start">
-                            <div className="w-10 h-10 bg-[#1B4965]/10 text-[#1B4965] rounded-xl flex items-center justify-center shrink-0">
-                              <DollarSign size={20} />
+                            <div className="w-9 h-9 bg-[#1B4965]/10 text-[#1B4965] rounded-xl flex items-center justify-center shrink-0">
+                              <DollarSign size={18} />
                             </div>
                             <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5">
                               <TrendingUp size={10} />
@@ -1089,14 +1089,14 @@ export default function Admin() {
                           </div>
                           <div>
                             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Salg (Wix)</p>
-                            <p className="text-xl font-extrabold text-onyx mt-0.5">{activeWixStats.revenue}</p>
+                            <p className="text-lg font-extrabold text-onyx mt-0.5">{activeWixStats.revenue}</p>
                           </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-4 text-left">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-3 text-left">
                           <div className="flex justify-between items-start">
-                            <div className="w-10 h-10 bg-[#d17d39]/10 text-[#d17d39] rounded-xl flex items-center justify-center shrink-0">
-                              <ShoppingBag size={20} />
+                            <div className="w-9 h-9 bg-[#d17d39]/10 text-[#d17d39] rounded-xl flex items-center justify-center shrink-0">
+                              <ShoppingBag size={18} />
                             </div>
                             <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5">
                               <TrendingUp size={10} />
@@ -1105,14 +1105,14 @@ export default function Admin() {
                           </div>
                           <div>
                             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Ordrer</p>
-                            <p className="text-xl font-extrabold text-onyx mt-0.5">{activeWixStats.orders}</p>
+                            <p className="text-lg font-extrabold text-onyx mt-0.5">{activeWixStats.orders}</p>
                           </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-4 text-left">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-3 text-left">
                           <div className="flex justify-between items-start">
-                            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
-                              <Users size={20} />
+                            <div className="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+                              <TrendingUp size={18} />
                             </div>
                             <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5">
                               <TrendingUp size={10} />
@@ -1121,22 +1121,37 @@ export default function Admin() {
                           </div>
                           <div>
                             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Gj. ordreverdi</p>
-                            <p className="text-xl font-extrabold text-onyx mt-0.5">{activeWixStats.aov}</p>
+                            <p className="text-lg font-extrabold text-onyx mt-0.5">{activeWixStats.aov}</p>
                           </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-4 text-left">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-3 text-left">
                           <div className="flex justify-between items-start">
-                            <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0">
-                              <Globe size={20} />
+                            <div className="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+                              <Users size={18} />
+                            </div>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5">
+                              Google GA4
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Unike besøk</p>
+                            <p className="text-lg font-extrabold text-onyx mt-0.5">{activeGaStats.visitors}</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-3 text-left">
+                          <div className="flex justify-between items-start">
+                            <div className="w-9 h-9 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center shrink-0">
+                              <Globe size={18} />
                             </div>
                             <span className="text-[10px] font-bold text-[#1B4965] bg-slate-50 px-2 py-0.5 rounded-full border flex items-center gap-0.5">
-                              Total registrert
+                              Registrert
                             </span>
                           </div>
                           <div>
                             <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Kunder i Wix</p>
-                            <p className="text-xl font-extrabold text-onyx mt-0.5">{activeWixStats.totalContacts} stk</p>
+                            <p className="text-lg font-extrabold text-onyx mt-0.5">{activeWixStats.totalContacts} stk</p>
                           </div>
                         </div>
                       </div>
@@ -1547,9 +1562,9 @@ export default function Admin() {
                       )}
                       
                       {/* Visits stats */}
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        {/* Brukere akkurat nå (col-span-2) */}
-                        <div className="md:col-span-2 bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Brukere akkurat nå */}
+                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
                           <div className="flex justify-between items-start">
                             <span className="text-[10px] text-secondary font-bold uppercase tracking-widest flex items-center gap-1.5">
                               <span className="relative flex h-2 w-2">
@@ -1564,22 +1579,43 @@ export default function Admin() {
                           </div>
                           <div className="flex items-end justify-between mt-2">
                             <div>
-                              <p className="text-4xl font-extrabold text-onyx leading-none">{activeGaStats.realtime}</p>
-                              <p className="text-[10px] text-secondary font-semibold mt-1">Aktive økter på nettstedet de siste 5 minutter</p>
+                              <p className="text-3xl font-extrabold text-onyx leading-none">{activeGaStats.realtime}</p>
+                              <p className="text-[10px] text-secondary font-semibold mt-1">Siste 5 minutter</p>
                             </div>
                             
                             {/* Realtime sparkline bar chart */}
-                            <div className="flex items-end gap-1 h-12 pb-1">
+                            <div className="flex items-end gap-1 h-10 pb-1">
                               {[35, 45, 25, 60, 50, 30, 40, 75, 55, 65, 80].map((height, i) => (
                                 <div 
                                   key={i} 
-                                  className={`w-2 sm:w-2.5 rounded-t-sm transition-all duration-500 ${
+                                  className={`w-1.5 sm:w-2 rounded-t-sm transition-all duration-500 ${
                                     i === 10 ? 'bg-[#d17d39] h-[80%]' : 'bg-[#d17d39]/20'
                                   }`} 
                                   style={{ height: `${height}%` }}
                                 />
                               ))}
                             </div>
+                          </div>
+                        </div>
+
+                        {/* Unike besøkende */}
+                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                          <div className="flex justify-between items-start">
+                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Unike besøkende</span>
+                            <div className="w-8 h-8 rounded-full bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center">
+                              <Users size={16} />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-3xl font-extrabold text-onyx">{activeGaStats.visitors}</p>
+                            <p className="text-[10px] text-secondary font-semibold mt-1">
+                              {timeRange === 'today' ? 'I dag' :
+                               timeRange === 'yesterday' ? 'I går' :
+                               timeRange === '7d' ? 'Siste 7 dager' :
+                               timeRange === '30d' ? 'Siste 30 dager' :
+                               timeRange === '90d' ? 'Siste 90 dager' :
+                               timeRange === '12m' ? 'Siste 12 måneder' : 'Valgt periode'}
+                            </p>
                           </div>
                         </div>
 
