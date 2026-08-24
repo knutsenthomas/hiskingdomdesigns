@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from '@/lib/colors';
 
 const getWixClient = async () => {
   const { wixClient } = await import('@/lib/wix');
@@ -21,141 +22,6 @@ export const useApp = () => {
     throw new Error('useApp must be used within an AppProvider');
   }
   return context;
-};
-
-const parseHex = (hexStr) => {
-  let hex = hexStr.replace('#', '');
-  if (hex.length === 3) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-  }
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  return { r, g, b };
-};
-
-const parseRgb = (rgbStr) => {
-  const match = rgbStr.match(/\d+/g);
-  if (match && match.length >= 3) {
-    return { r: parseInt(match[0]), g: parseInt(match[1]), b: parseInt(match[2]) };
-  }
-  return { r: 128, g: 128, b: 128 };
-};
-
-const getClosestColor = (r, g, b) => {
-  const standards = [
-    { name: 'Sort', r: 21, g: 26, b: 33, hex: '#151A21' },
-    { name: 'Hvit', r: 255, g: 255, b: 255, hex: '#FFFFFF' },
-    { name: 'Grå', r: 229, g: 231, b: 235, hex: '#E5E7EB' },
-    { name: 'Blå', r: 59, g: 130, b: 246, hex: '#3b82f6' },
-    { name: 'Mørkeblå', r: 27, g: 73, b: 101, hex: '#1B4965' },
-    { name: 'Rød', r: 239, g: 68, b: 68, hex: '#ef4444' },
-    { name: 'Grønn', r: 22, g: 163, b: 74, hex: '#16a34a' },
-    { name: 'Gul', r: 234, g: 179, b: 8, hex: '#eab308' },
-    { name: 'Rosa', r: 219, g: 39, b: 119, hex: '#db2777' },
-    { name: 'Beige', r: 212, g: 196, b: 181, hex: '#d4c4b5' },
-    { name: 'Terrakotta', r: 204, g: 113, b: 43, hex: '#CC712B' },
-    { name: 'Orange', r: 249, g: 115, b: 22, hex: '#f97316' },
-    { name: 'Lilla', r: 168, g: 85, b: 247, hex: '#a855f7' }
-  ];
-
-  let minDistance = Infinity;
-  let closest = standards[0];
-
-  standards.forEach(std => {
-    const dist = Math.sqrt(
-      Math.pow(r - std.r, 2) +
-      Math.pow(g - std.g, 2) +
-      Math.pow(b - std.b, 2)
-    );
-    if (dist < minDistance) {
-      minDistance = dist;
-      closest = std;
-    }
-  });
-
-  return closest;
-};
-
-export const resolveColor = (rawName) => {
-  if (!rawName) return { name: 'Sort', hex: '#151A21' };
-  
-  let trimName = rawName.trim();
-  
-  const capitalize = (str) => {
-    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  };
-
-  // If it's a dual color split by /
-  if (trimName.includes('/')) {
-    const parts = trimName.split('/');
-    const res1 = resolveColor(parts[0]);
-    const res2 = resolveColor(parts[1]);
-    const formattedName = [res1.name, res2.name].join('/');
-    const gradient = `linear-gradient(135deg, ${res1.hex} 50%, ${res2.hex} 50%)`;
-    return { name: formattedName, hex: gradient };
-  }
-
-  const lower = trimName.toLowerCase();
-  
-  // 1. Check if it's an rgb or hex code and classify using RGB distance
-  if (lower.startsWith('rgb') || lower.startsWith('#')) {
-    const { r, g, b } = lower.startsWith('#') ? parseHex(lower) : parseRgb(lower);
-    const closest = getClosestColor(r, g, b);
-    return { name: closest.name, hex: closest.hex };
-  }
-
-  // 2. Friendly name matching with expanded dictionary
-  let displayName = capitalize(trimName);
-  let hexCode = '#888888';
-
-  if (lower.includes('sort') || lower.includes('svart') || lower.includes('black') || lower.includes('charcoal') || lower.includes('coal') || lower.includes('dark grey') || lower.includes('night')) {
-    displayName = 'Sort';
-    hexCode = '#151A21';
-  } else if (lower.includes('hvit') || lower.includes('white') || lower.includes('off-white') || lower.includes('weiß') || lower.includes('ivory') || lower.includes('bone') || lower.includes('soft cream')) {
-    displayName = 'Hvit';
-    hexCode = '#FFFFFF';
-  } else if (lower.includes('navy') || lower.includes('marine') || lower.includes('mørkeblå') || lower.includes('deep teal') || lower.includes('teal') || lower.includes('sapphire') || lower.includes('storm')) {
-    displayName = 'Mørkeblå';
-    hexCode = '#1B4965';
-  } else if (lower.includes('royalblue') || lower.includes('royal') || lower.includes('carolina blue') || lower.includes('blue') || lower.includes('blå') || lower.includes('denim') || lower.includes('cornflower') || lower.includes('aqua') || lower.includes('caribbean') || lower.includes('chambray') || lower.includes('sky') || lower.includes('ocean') || lower.includes('chill')) {
-    displayName = 'Blå';
-    hexCode = '#3b82f6';
-  } else if (lower.includes('rød') || lower.includes('red') || lower.includes('maroon') || lower.includes('burgundy') || lower.includes('garnet') || lower.includes('cherry') || lower.includes('cardinal') || lower.includes('bright salmon') || lower.includes('watermelon')) {
-    displayName = 'Rød';
-    hexCode = '#ef4444';
-  } else if (lower.includes('grønn') || lower.includes('green') || lower.includes('forest') || lower.includes('olive') || lower.includes('oliven') || lower.includes('military') || lower.includes('kelly') || lower.includes('irish') || lower.includes('army') || lower.includes('mint') || lower.includes('dusty sage') || lower.includes('fern') || lower.includes('kiwi') || lower.includes('neo mint') || lower.includes('cool mint') || lower.includes('chalky mint') || lower.includes('pistachio')) {
-    displayName = 'Grønn';
-    hexCode = '#16a34a';
-  } else if (lower.includes('gul') || lower.includes('yellow') || lower.includes('gold') || lower.includes('butter') || lower.includes('citron') || lower.includes('daisy') || lower.includes('mustard')) {
-    displayName = 'Gul';
-    hexCode = '#eab308';
-  } else if (lower.includes('rosa') || lower.includes('pink') || lower.includes('azalea') || lower.includes('heliconia') || lower.includes('orchid') || lower.includes('fuchsia') || lower.includes('cotton candy') || lower.includes('peach') || lower.includes('coral') || lower.includes('coral silk') || lower.includes('tangerine') || lower.includes('berry') || lower.includes('mauve') || lower.includes('hibiscus')) {
-    displayName = 'Rosa';
-    hexCode = '#db2777';
-  } else if (lower.includes('beige') || lower.includes('sand') || lower.includes('natural') || lower.includes('stone') || lower.includes('khaki') || lower.includes('tan') || lower.includes('rope') || lower.includes('toast') || lower.includes('saddle') || lower.includes('cocoa') || lower.includes('umber') || lower.includes('dark chocolate') || lower.includes('triblend brown') || lower.includes('natur')) {
-    displayName = 'Beige';
-    hexCode = '#d4c4b5';
-  } else if (lower.includes('terrakotta') || lower.includes('terracotta') || lower.includes('clay')) {
-    displayName = 'Terrakotta';
-    hexCode = '#CC712B';
-  } else if (lower.includes('orange') || lower.includes('tangerine')) {
-    displayName = 'Orange';
-    hexCode = '#f97316';
-  } else if (lower.includes('lilla') || lower.includes('purple') || lower.includes('lavender') || lower.includes('amethyst') || lower.includes('lilak') || lower.includes('future lavender')) {
-    displayName = 'Lilla';
-    hexCode = '#a855f7';
-  } else if (lower.includes('grå') || lower.includes('grey') || lower.includes('gray') || lower.includes('ash') || lower.includes('silver') || lower.includes('cement') || lower.includes('sport grey') || lower.includes('heather') || lower.includes('gravel') || lower.includes('smoke') || lower.includes('paragon')) {
-    displayName = 'Grå';
-    hexCode = '#E5E7EB';
-  }
-
-  // Fallback to closest color if we resolved to standard gray fallback but have a specific name
-  if (hexCode === '#888888') {
-    return { name: 'Grå', hex: '#E5E7EB' };
-  }
-
-  return { name: displayName, hex: hexCode };
 };
 
 // Complete product list based on downloaded e-commerce pages
@@ -340,34 +206,7 @@ const FALLBACK_TAXONOMY = {
   'Temaer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
 };
 
-export const PRODUCT_COLOR_ORDER_OVERRIDES = {
-  // LOVED - babysmekke
-  '43ced8bd-218e-a5dd-0185-df6c13f54691': [
-    { name: 'Rosa', hex: '#FF8DA1', image: 'https://static.wixstatic.com/media/3a1544_1712758067814192932cd35348660f65~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Rød', hex: '#E31647', image: 'https://static.wixstatic.com/media/3a1544_450b863bf0cd4d46a3b45c038c208840~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_9fa88c959dc844308d0cd382ac4f2c78~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Lyseblå', hex: '#92C7E3', image: 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Sort', hex: '#151A21', image: 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
-  ],
-  // Jesus passer på oss - smekke
-  '9f55138f-b127-a7e9-db63-017bcfd820b3': [
-    { name: 'Hvit', hex: '#FFFFFF', image: 'https://static.wixstatic.com/media/3a1544_116d099a0a6f4fd3a10dbe984a2f6959~mv2.png/v1/fit/w_1262,h_1482,q_90/file.png' },
-    { name: 'Rød', hex: '#D70E0E', image: 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png' },
-    { name: 'Rosa', hex: '#ED2EBD', image: 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png' },
-    { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png' }
-  ],
-  // Organic Cotton Baby Bodysuit - Cute Lamb
-  '86bb3ff5-1d3c-2400-433c-156cdf78751b': [
-    { name: 'Grønn', hex: '#81D0B2', image: 'https://static.wixstatic.com/media/3a1544_f433ebb2c2ee440f8bb7c7fcbb0e7373~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Gammelrosa', hex: '#D98D8D', image: 'https://static.wixstatic.com/media/3a1544_89081a2c740b4145a70b1eab1a5bb094~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Burgunder', hex: '#722F37', image: 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Lyserosa', hex: '#F595DD', image: 'https://static.wixstatic.com/media/3a1544_4ea7decda6df47b3b6653376a7bab537~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Hvit', hex: '#F5F4F4', image: 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Mørkeblå', hex: '#1364AC', image: 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Blå', hex: '#396EF9', image: 'https://static.wixstatic.com/media/3a1544_2a8ccc7bf2904927a71960a61d8fca09~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
-    { name: 'Lyseblå', hex: '#82B1F1', image: 'https://static.wixstatic.com/media/3a1544_1ff917d9a31f4c85937afe95e8e5f1a6~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
-  ]
-};
+
 
 export const isProductOceaniaExclusive = (item) => {
   if (!item) return false;

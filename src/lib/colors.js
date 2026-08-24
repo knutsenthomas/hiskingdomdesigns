@@ -34,6 +34,7 @@ export const getClosestColor = (r, g, b) => {
     { name: 'Rosa', r: 255, g: 138, b: 201, hex: '#FF8AC9' },
     { name: 'Mørk Rosa', r: 219, g: 39, b: 119, hex: '#db2777' },
     { name: 'Beige', r: 221, g: 214, b: 214, hex: '#DDD6D6' },
+    { name: 'Sand', r: 227, g: 218, b: 192, hex: '#E3DAC0' },
     { name: 'Terrakotta', r: 204, g: 113, b: 43, hex: '#CC712B' },
     { name: 'Orange', r: 241, g: 136, b: 32, hex: '#f18820' },
     { name: 'Lilla', r: 168, g: 85, b: 247, hex: '#a855f7' }
@@ -57,6 +58,35 @@ export const getClosestColor = (r, g, b) => {
   return closest;
 };
 
+export const PRODUCT_COLOR_ORDER_OVERRIDES = {
+  // LOVED - babysmekke
+  '43ced8bd-218e-a5dd-0185-df6c13f54691': [
+    { name: 'Rosa', hex: '#FF8DA1', image: 'https://static.wixstatic.com/media/3a1544_1712758067814192932cd35348660f65~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Rød', hex: '#E31647', image: 'https://static.wixstatic.com/media/3a1544_450b863bf0cd4d46a3b45c038c208840~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_9fa88c959dc844308d0cd382ac4f2c78~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Lyseblå', hex: '#92C7E3', image: 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Sort', hex: '#151A21', image: 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
+  ],
+  // Jesus passer på oss - smekke
+  '9f55138f-b127-a7e9-db63-017bcfd820b3': [
+    { name: 'Hvit', hex: '#FFFFFF', image: 'https://static.wixstatic.com/media/3a1544_116d099a0a6f4fd3a10dbe984a2f6959~mv2.png/v1/fit/w_1262,h_1482,q_90/file.png' },
+    { name: 'Rød', hex: '#D70E0E', image: 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png' },
+    { name: 'Rosa', hex: '#ED2EBD', image: 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png' },
+    { name: 'Grå', hex: '#A8A8A8', image: 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png' }
+  ],
+  // Organic Cotton Baby Bodysuit - Cute Lamb
+  '86bb3ff5-1d3c-2400-433c-156cdf78751b': [
+    { name: 'Grønn', hex: '#81D0B2', image: 'https://static.wixstatic.com/media/3a1544_f433ebb2c2ee440f8bb7c7fcbb0e7373~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Gammelrosa', hex: '#D98D8D', image: 'https://static.wixstatic.com/media/3a1544_89081a2c740b4145a70b1eab1a5bb094~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Burgunder', hex: '#722F37', image: 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Lyserosa', hex: '#F595DD', image: 'https://static.wixstatic.com/media/3a1544_4ea7decda6df47b3b6653376a7bab537~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Hvit', hex: '#F5F4F4', image: 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Mørkeblå', hex: '#1364AC', image: 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Blå', hex: '#396EF9', image: 'https://static.wixstatic.com/media/3a1544_2a8ccc7bf2904927a71960a61d8fca09~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
+    { name: 'Lyseblå', hex: '#82B1F1', image: 'https://static.wixstatic.com/media/3a1544_1ff917d9a31f4c85937afe95e8e5f1a6~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
+  ]
+};
+
 export const resolveColor = (rawName, fallbackDescription = '') => {
   const inputStr = (rawName || fallbackDescription || '').trim();
   if (!inputStr) return { name: 'Sort', hex: '#151A21' };
@@ -78,10 +108,10 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
   const desc = (fallbackDescription || '').trim();
 
   const getStandardHex = (name, fallbackHex) => {
-    if (name === 'Mørkeblå') return '#1B4965'; // True midnight navy matching cap & clothing photos
-    if (name === 'Kongeblå') return '#2563EB'; // True royal blue
-    if (name === 'Lyseblå' || name === 'Babyblå') return '#92C7E3'; // True light pastel baby blue
-    if (name === 'Burgunder') return '#722F37'; // True burgundy
+    if (name === 'Mørkeblå') return '#1B4965';
+    if (name === 'Kongeblå') return '#2563EB';
+    if (name === 'Lyseblå' || name === 'Babyblå') return '#92C7E3';
+    if (name === 'Burgunder') return '#722F37';
     if (name === 'Army') return '#405F48';
     if (name === 'Sort') return '#151A21';
     if (name === 'Hvit') return '#FFFFFF';
@@ -92,6 +122,7 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
     if (name === 'Gul') return '#EAB308';
     if (name === 'Mørk Rosa') return '#DB2777';
     if (name === 'Rosa') return '#FF8AC9';
+    if (name === 'Sand') return '#E3DAC0';
     if (name === 'Beige') return '#DDD6D6';
     if (name === 'Terrakotta') return '#CC712B';
     if (name === 'Orange') return '#F18820';
@@ -120,7 +151,8 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
     if (t.includes('gul') || t.includes('yellow') || t.includes('gold') || t.includes('mustard')) return 'Gul';
     if (t.includes('mørk rosa') || t.includes('fuchsia') || t.includes('hot pink')) return 'Mørk Rosa';
     if (t.includes('rosa') || t.includes('pink') || t.includes('peach') || t.includes('coral') || t.includes('mauve')) return 'Rosa';
-    if (t.includes('beige') || t.includes('sand') || t.includes('khaki') || t.includes('natural') || t.includes('stone') || t.includes('tan') || t.includes('natur')) return 'Beige';
+    if (t === 'sand' || t.includes(' sand') || t.startsWith('sand ')) return 'Sand';
+    if (t.includes('beige') || t.includes('khaki') || t.includes('natural') || t.includes('stone') || t.includes('tan') || t.includes('natur')) return 'Beige';
     if (t.includes('terrakotta') || t.includes('terracotta') || t.includes('clay') || t.includes('burnt orange')) return 'Terrakotta';
     if (t.includes('oransje') || t.includes('orange')) return 'Orange';
     if (t.includes('lilla') || t.includes('purple') || t.includes('lavender')) return 'Lilla';
