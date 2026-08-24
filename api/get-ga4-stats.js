@@ -149,7 +149,8 @@ export default async function handler(req, res) {
       deviceResponse,
       geoResponse,
       pagesResponse,
-      realtimeResponse
+      realtimeResponse,
+      eventsResponse
     ] = await Promise.all([
       // 1. Fetch Overview Metrics
       analyticsDataClient.runReport({
@@ -159,7 +160,9 @@ export default async function handler(req, res) {
           { name: 'activeUsers' },
           { name: 'screenPageViews' },
           { name: 'bounceRate' },
-          { name: 'averageSessionDuration' }
+          { name: 'averageSessionDuration' },
+          { name: 'eventCount' },
+          { name: 'totalUsers' }
         ]
       }),
       // 2. Fetch Chart Data (Active Users over time)
@@ -211,6 +214,18 @@ export default async function handler(req, res) {
       }).catch(err => {
         console.warn('Realtime report failed:', err.message);
         return [null];
+      }),
+      // 8. Fetch Top Events
+      analyticsDataClient.runReport({
+        property: formattedProperty,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'eventName' }],
+        metrics: [{ name: 'eventCount' }],
+        orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
+        limit: 8
+      }).catch(err => {
+        console.warn('Events report failed:', err.message);
+        return [null];
       })
     ]);
 
@@ -220,12 +235,16 @@ export default async function handler(req, res) {
         activeUsers: overviewResponse[0].rows[0].metricValues[0].value,
         screenPageViews: overviewResponse[0].rows[0].metricValues[1].value,
         bounceRate: parseFloat(overviewResponse[0].rows[0].metricValues[2].value * 100).toFixed(1) + '%',
-        averageSessionDuration: overviewResponse[0].rows[0].metricValues[3].value
+        averageSessionDuration: overviewResponse[0].rows[0].metricValues[3].value,
+        eventCount: overviewResponse[0].rows[0].metricValues[4]?.value || '0',
+        totalUsers: overviewResponse[0].rows[0].metricValues[5]?.value || overviewResponse[0].rows[0].metricValues[0].value
       } : {
         activeUsers: '0',
         screenPageViews: '0',
         bounceRate: '0.0%',
-        averageSessionDuration: '0'
+        averageSessionDuration: '0',
+        eventCount: '0',
+        totalUsers: '0'
       },
       chart: chartResponse[0].rows?.map(row => ({
         dimension: row.dimensionValues[0].value,
@@ -247,6 +266,10 @@ export default async function handler(req, res) {
         pageTitle: row.dimensionValues[0].value,
         pageviews: parseInt(row.metricValues[0].value, 10)
       })) || [],
+      events: eventsResponse && eventsResponse[0] && eventsResponse[0].rows ? eventsResponse[0].rows.map(row => ({
+        name: row.dimensionValues[0].value,
+        count: parseInt(row.metricValues[0].value, 10)
+      })) : [],
       realtime: realtimeResponse && realtimeResponse[0] && realtimeResponse[0].rows?.[0] 
         ? parseInt(realtimeResponse[0].rows[0].metricValues[0].value, 10) 
         : 0

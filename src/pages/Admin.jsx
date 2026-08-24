@@ -10,7 +10,8 @@ import {
   ChevronDown, ChevronUp, TrendingUp, DollarSign, 
   ShoppingBag, Globe, Calendar, Smartphone, 
   Laptop, Tablet, Menu, Activity, Lock, ChevronRight,
-  Clock, Sparkles, Mic, BookOpen, ExternalLink
+  Clock, Sparkles, Mic, BookOpen, ExternalLink,
+  MousePointerClick, Zap
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -573,12 +574,53 @@ const getParsedGaStats = (gaStats, wixStatsParam) => {
     pct: Math.round(((item.pageviews || 0) / totalPageviews) * 100)
   })) : defaultGa.pages;
 
+  const formatEventCount = (numStr) => {
+    const n = parseInt(numStr, 10);
+    if (isNaN(n) || n === 0) return '0';
+    if (n >= 1000) {
+      return (n / 1000).toLocaleString('no-NO', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + 'K';
+    }
+    return n.toLocaleString('no-NO');
+  };
+
+  const rawEventCount = overview?.eventCount ? String(overview.eventCount) : '0';
+  const eventCountFormatted = formatEventCount(rawEventCount);
+  const rawEventsList = gaStats?.events || [];
+  const totalEventsSum = rawEventsList.reduce((acc, curr) => acc + (curr.count || 0), 0) || parseInt(rawEventCount, 10) || 1;
+
+  const eventFriendlyMap = {
+    'page_view': { label: 'Sidevisninger (Page views)', desc: 'Produktsider og kategorier åpnet' },
+    'user_engagement': { label: 'Brukerengasjement (Engagement)', desc: 'Aktiv lesetid, fokus og interesse' },
+    'scroll': { label: 'Sidescrolling (Scroll 90%)', desc: 'Rullet nedover for å se på produkter' },
+    'session_start': { label: 'Øktstarter (Session start)', desc: 'Nye besøk og påloggede økter' },
+    'first_visit': { label: 'Førstegangsbesøk (First visit)', desc: 'Helt nye unike kunder i butikken' },
+    'click': { label: 'Knappeklikk & menyer (Clicks)', desc: 'Klikk på farger, størrelser og lenker' },
+    'view_item': { label: 'Produktoppslag (View item)', desc: 'Detaljvisning av produktkort' },
+    'add_to_cart': { label: 'Lagt i handlekurv (Add to cart)', desc: 'Varer lagt til i handlekurven' },
+    'begin_checkout': { label: 'Gått til kassen (Checkout)', desc: 'Startet betalingsprosessen' },
+    'purchase': { label: 'Fullført kjøp (Purchase)', desc: 'Vellykkede bestillinger' }
+  };
+
+  const parsedEvents = rawEventsList.map(item => {
+    const config = eventFriendlyMap[item.name] || { label: item.name, desc: 'Registrert brukerhandling i butikken' };
+    return {
+      rawName: item.name,
+      name: config.label,
+      desc: config.desc,
+      count: item.count,
+      pct: Math.round(((item.count || 0) / totalEventsSum) * 100)
+    };
+  });
+
   const realtime = typeof rawRealtime === 'number' ? rawRealtime : defaultGa.realtime;
 
   return {
     visitors,
     visitorsVal,
     pageviews,
+    eventCount: eventCountFormatted,
+    rawEventCount,
+    events: parsedEvents,
     bounceRate,
     avgDuration,
     trafficSources,
@@ -1562,33 +1604,33 @@ export default function Admin() {
                       )}
                       
                       {/* Visits stats */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                         {/* Brukere akkurat nå */}
-                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[140px]">
                           <div className="flex justify-between items-start">
                             <span className="text-[10px] text-secondary font-bold uppercase tracking-widest flex items-center gap-1.5">
                               <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                               </span>
-                              Brukere akkurat nå
+                              Brukere nå
                             </span>
                             <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-wider">
                               Live
                             </span>
                           </div>
-                          <div className="flex items-end justify-between mt-2">
+                          <div className="flex items-end justify-between mt-1">
                             <div>
-                              <p className="text-3xl font-extrabold text-onyx leading-none">{activeGaStats.realtime}</p>
+                              <p className="text-2xl font-extrabold text-onyx leading-none">{activeGaStats.realtime}</p>
                               <p className="text-[10px] text-secondary font-semibold mt-1">Siste 5 minutter</p>
                             </div>
                             
                             {/* Realtime sparkline bar chart */}
-                            <div className="flex items-end gap-1 h-10 pb-1">
+                            <div className="flex items-end gap-0.5 h-8 pb-1">
                               {[35, 45, 25, 60, 50, 30, 40, 75, 55, 65, 80].map((height, i) => (
                                 <div 
                                   key={i} 
-                                  className={`w-1.5 sm:w-2 rounded-t-sm transition-all duration-500 ${
+                                  className={`w-1.5 rounded-t-sm transition-all duration-500 ${
                                     i === 10 ? 'bg-[#d17d39] h-[80%]' : 'bg-[#d17d39]/20'
                                   }`} 
                                   style={{ height: `${height}%` }}
@@ -1599,15 +1641,15 @@ export default function Admin() {
                         </div>
 
                         {/* Unike besøkende */}
-                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[140px]">
                           <div className="flex justify-between items-start">
-                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Unike besøkende</span>
+                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Unike besøk</span>
                             <div className="w-8 h-8 rounded-full bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center">
                               <Users size={16} />
                             </div>
                           </div>
                           <div>
-                            <p className="text-3xl font-extrabold text-onyx">{activeGaStats.visitors}</p>
+                            <p className="text-2xl font-extrabold text-onyx">{activeGaStats.visitors}</p>
                             <p className="text-[10px] text-secondary font-semibold mt-1">
                               {timeRange === 'today' ? 'I dag' :
                                timeRange === 'yesterday' ? 'I går' :
@@ -1620,7 +1662,7 @@ export default function Admin() {
                         </div>
 
                         {/* Sidevisninger */}
-                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[140px]">
                           <div className="flex justify-between items-start">
                             <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Sidevisninger</span>
                             <div className="w-8 h-8 rounded-full bg-blue-50 text-[#1B4965] flex items-center justify-center">
@@ -1628,7 +1670,7 @@ export default function Admin() {
                             </div>
                           </div>
                           <div>
-                            <p className="text-3xl font-extrabold text-onyx">{activeGaStats.pageviews}</p>
+                            <p className="text-2xl font-extrabold text-onyx">{activeGaStats.pageviews}</p>
                             <p className="text-[10px] text-secondary font-semibold mt-1">
                               {timeRange === 'today' ? 'I dag' :
                                timeRange === 'yesterday' ? 'I går' :
@@ -1640,8 +1682,22 @@ export default function Admin() {
                           </div>
                         </div>
 
+                        {/* Interaksjoner / Events */}
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[140px]">
+                          <div className="flex justify-between items-start">
+                            <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Interaksjoner</span>
+                            <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+                              <MousePointerClick size={16} />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-extrabold text-onyx">{activeGaStats.eventCount}</p>
+                            <p className="text-[10px] text-secondary font-semibold mt-1">Hendelser i Google GA4</p>
+                          </div>
+                        </div>
+
                         {/* Snittid */}
-                        <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[150px]">
+                        <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm text-left flex flex-col justify-between h-[140px]">
                           <div className="flex justify-between items-start">
                             <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Snittid</span>
                             <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -1649,8 +1705,8 @@ export default function Admin() {
                             </div>
                           </div>
                           <div>
-                            <p className="text-3xl font-extrabold text-onyx">{activeGaStats.avgDuration}</p>
-                            <p className="text-[10px] text-secondary font-semibold mt-1">Gjennomsnittlig øktvarighet</p>
+                            <p className="text-2xl font-extrabold text-onyx">{activeGaStats.avgDuration}</p>
+                            <p className="text-[10px] text-secondary font-semibold mt-1">Gjennomsnittlig økt</p>
                           </div>
                         </div>
                       </div>
@@ -1790,6 +1846,56 @@ export default function Admin() {
                                 </div>
                               ))}
                             </div>
+                          </div>
+
+                          {/* Hendelser & Interaksjoner (Event Count) */}
+                          <div className="bg-white p-6 rounded-3xl border border-outline-variant/30 shadow-sm text-left space-y-5">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="font-bold text-onyx text-base flex items-center gap-2">
+                                  <span>Hendelser & Brukeraktivitet</span>
+                                  <span className="text-[10px] font-bold text-[#1B4965] bg-[#1B4965]/10 px-2 py-0.5 rounded-full">
+                                    {activeGaStats.eventCount} totalt
+                                  </span>
+                                </h4>
+                                <p className="text-xs text-secondary">Hva brukerne faktisk klikker på og gjør i butikken (Google Event Tracking).</p>
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                <MousePointerClick size={16} />
+                              </div>
+                            </div>
+
+                            {activeGaStats.events && activeGaStats.events.length > 0 ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                                {activeGaStats.events.map((ev, idx) => (
+                                  <div key={idx} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100/80 flex flex-col justify-between gap-2.5">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <p className="font-bold text-onyx text-xs">{ev.name}</p>
+                                        <p className="text-[10px] text-secondary/80 mt-0.5">{ev.desc}</p>
+                                      </div>
+                                      <span className="font-extrabold text-xs text-[#1B4965] bg-white px-2 py-0.5 rounded-lg border shadow-xs shrink-0 ml-2">
+                                        {ev.count.toLocaleString('no-NO')}
+                                      </span>
+                                    </div>
+                                    <div className="space-y-1">
+                                      <div className="flex justify-between text-[10px] font-semibold text-secondary">
+                                        <span>Andel av aktivitet</span>
+                                        <span>{ev.pct}%</span>
+                                      </div>
+                                      <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                        <div className="bg-[#1B4965] h-full rounded-full transition-all duration-500" style={{ width: `${Math.max(ev.pct, 4)}%` }} />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="bg-slate-50 p-6 rounded-2xl text-center space-y-1 text-xs text-secondary">
+                                <p className="font-semibold text-onyx">Henter detaljerte hendelser fra Google Analytics...</p>
+                                <p>Sidevisninger, lesetid, klikk og kasseoppstart registreres fortløpende.</p>
+                              </div>
+                            )}
                           </div>
 
                         </div>
