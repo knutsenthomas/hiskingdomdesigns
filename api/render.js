@@ -396,9 +396,13 @@ export default async function handler(req, res) {
     }
 
     // 1. Resolve requested path
-    const rawUrl = req.url || '/';
-    const parsedUrl = new URL(rawUrl, DOMAIN);
-    const cleanPath = '/' + parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
+    const forwardedPath = req.headers['x-matched-path'] || req.headers['x-invoke-path'] || req.url || '/';
+    const parsedUrl = new URL(forwardedPath, DOMAIN);
+    let pathName = parsedUrl.pathname;
+    if (pathName.startsWith('/api/render')) {
+      pathName = pathName.replace('/api/render', '') || '/';
+    }
+    const cleanPath = '/' + pathName.replace(/^\/+|\/+$/g, '');
 
     // 2. Detect language
     let lang = 'no';
