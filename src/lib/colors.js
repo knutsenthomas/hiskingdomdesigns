@@ -84,6 +84,15 @@ export const PRODUCT_COLOR_ORDER_OVERRIDES = {
     { name: 'Mørkeblå', hex: '#1364AC', image: 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
     { name: 'Blå', hex: '#396EF9', image: 'https://static.wixstatic.com/media/3a1544_2a8ccc7bf2904927a71960a61d8fca09~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' },
     { name: 'Lyseblå', hex: '#82B1F1', image: 'https://static.wixstatic.com/media/3a1544_1ff917d9a31f4c85937afe95e8e5f1a6~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg' }
+  ],
+  // Mor og barn - genser
+  '9c8d938d-e72d-4115-eaa0-25d5727e7bbb': [
+    { name: 'Grå', hex: '#BCBBBB', image: 'https://static.wixstatic.com/media/3a1544_c0a6c113369947e893694a9a4d5cccad~mv2.png/v1/fit/w_1264,h_1540,q_90/file.png' },
+    { name: 'Lyseblå', hex: '#ADC6EB', image: 'https://static.wixstatic.com/media/3a1544_7920813b71dd4df685e11264aacbf939~mv2.png/v1/fit/w_1394,h_1534,q_90/file.png' },
+    { name: 'Rosa', hex: '#D8A4A7', image: 'https://static.wixstatic.com/media/3a1544_3f57f1af3e704c74924c4e229868824d~mv2.png/v1/fit/w_1378,h_1534,q_90/file.png' },
+    { name: 'Sand', hex: '#E3DAC0', image: 'https://static.wixstatic.com/media/3a1544_643f41ac4ecc4a04b24ee1704e591acc~mv2.png/v1/fit/w_1256,h_1534,q_90/file.png' },
+    { name: 'Lysegrønn', hex: '#96B4A6', image: 'https://static.wixstatic.com/media/3a1544_15c24d805ec6409ca888d0ea4b2650ea~mv2.png/v1/fit/w_1370,h_1530,q_90/file.png' },
+    { name: 'Rød', hex: '#C82333', image: 'https://static.wixstatic.com/media/3a1544_5ba4295b98574efea48b562ed01f9e13~mv2.png/v1/fit/w_1100,h_1274,q_90/file.png' }
   ]
 };
 
@@ -110,18 +119,18 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
   const getStandardHex = (name, fallbackHex) => {
     if (name === 'Mørkeblå') return '#1B4965';
     if (name === 'Kongeblå') return '#2563EB';
-    if (name === 'Lyseblå' || name === 'Babyblå') return '#92C7E3';
+    if (name === 'Lyseblå' || name === 'Babyblå') return '#ADC6EB';
     if (name === 'Burgunder') return '#722F37';
     if (name === 'Army') return '#405F48';
     if (name === 'Sort') return '#151A21';
     if (name === 'Hvit') return '#FFFFFF';
     if (name === 'Blå') return '#3B82F6';
-    if (name === 'Rød') return '#DC2626';
-    if (name === 'Lysegrønn') return '#83A275';
+    if (name === 'Rød') return '#C82333';
+    if (name === 'Lysegrønn') return '#96B4A6';
     if (name === 'Grønn') return '#16A34A';
     if (name === 'Gul') return '#EAB308';
     if (name === 'Mørk Rosa') return '#DB2777';
-    if (name === 'Rosa') return '#FF8AC9';
+    if (name === 'Rosa') return '#D8A4A7';
     if (name === 'Sand') return '#E3DAC0';
     if (name === 'Beige') return '#DDD6D6';
     if (name === 'Terrakotta') return '#CC712B';
@@ -129,7 +138,7 @@ export const resolveColor = (rawName, fallbackDescription = '') => {
     if (name === 'Lilla') return '#A855F7';
     if (name === 'Lys Grå') return '#DCDCDC';
     if (name === 'Mørk Grå') return '#595858';
-    if (name === 'Grå') return '#A8A8A8';
+    if (name === 'Grå') return '#BCBBBB';
     return fallbackHex;
   };
 
