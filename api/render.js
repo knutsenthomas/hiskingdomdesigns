@@ -143,7 +143,7 @@ const staticContent = {
       h1: 'Política de Privacidad'
     }
   },
-  terms: {
+  betingelser: {
     no: {
       title: 'Kjøpsbetingelser | His Kingdom Designs',
       description: 'Salgs- og leveringsbetingelser for bestillinger hos His Kingdom Designs. Trygg handel, 14 dagers angrerett og sikre betalinger.',
@@ -486,7 +486,7 @@ export default async function handler(req, res) {
       description = data.description;
       h1Text = data.h1;
       const trans = routeTranslations[routeKey];
-      if (trans.no !== trans.en) {
+      if (trans.no !== trans.en || trans.no !== trans.es) {
         hreflangs = [
           { lang: 'no', href: `${DOMAIN}${trans.no}` },
           { lang: 'en', href: `${DOMAIN}${trans.en}` },
