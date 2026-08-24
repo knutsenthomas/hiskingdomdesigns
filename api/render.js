@@ -196,6 +196,11 @@ const getBaseHtml = () => {
   return `<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><title>His Kingdom Designs</title></head><body><div id="root"></div></body></html>`;
 };
 
+const stripHtml = (html) => {
+  if (!html || typeof html !== 'string') return '';
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+};
+
 const getWixImageUrl = (url, width = 1200, height = 630) => {
   if (!url || typeof url !== 'string') return `${DOMAIN}/hero_fashion.webp`;
   if (url.startsWith('wix:image://')) {
