@@ -2,8 +2,44 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { resolveColor } from '@/lib/colors';
 
 const getWixClient = async () => {
-  const { wixClient } = await import('@/lib/wix');
-  return wixClient;
+  const { wixClient, resetWixTokens, isWixAuthError, isWixConflictError } = await import('@/lib/wix');
+  return { wixClient, resetWixTokens, isWixAuthError, isWixConflictError };
+};
+
+/**
+ * Resilient wrapper for Wix Cart / eCommerce API calls.
+ * Automatically recovers from 401/403 (expired/invalid tokens) and 409 (revision conflicts).
+ */
+const withCartRecovery = async (operation, maxRetries = 2) => {
+  let attempt = 0;
+  while (attempt <= maxRetries) {
+    try {
+      return await operation();
+    } catch (err) {
+      attempt++;
+      const { resetWixTokens, isWixAuthError, isWixConflictError } = await getWixClient();
+      
+      if (isWixAuthError(err)) {
+        console.warn(`CartContext [withCartRecovery]: Auth error (401/403) on attempt ${attempt}. Resetting tokens and retrying...`, err);
+        await resetWixTokens();
+        window.dispatchEvent(new Event('wix-auth-change'));
+        if (attempt <= maxRetries) {
+          await new Promise(r => setTimeout(r, 200));
+          continue;
+        }
+      } else if (isWixConflictError(err)) {
+        console.warn(`CartContext [withCartRecovery]: Revision conflict (409) on attempt ${attempt}. Retrying with fresh server state...`, err);
+        if (attempt <= maxRetries) {
+          await new Promise(r => setTimeout(r, 300));
+          continue;
+        }
+      }
+      
+      if (attempt > maxRetries) {
+        throw err;
+      }
+    }
+  }
 };
 
 // Context API Sikkerhetsnett: Initialiser med tom brakett for å unngå "White screen of death"
@@ -146,11 +182,15 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-  const addToCart = (product, selectedSize = 'M', selectedColor = 'Hvit', qty = 1, selectedOptions = {}, customTextFields = []) => {
+  const addToCart = (product, selectedSize = 'M', selectedColor = 'Hvit', qty = 1, selectedOptions = {}, customTextFields = [], variantId = null, sku = null) => {
     setIsCartDrawerOpen(true); // Open the drawer immediately on add
     setCartItems(prev => {
+      const resolvedVariantId = variantId || product.variantId || product.selectedVariantId || null;
+      const resolvedSku = sku || product.sku || null;
+
       const existingIndex = prev.findIndex(item => 
         item.id === product.id && 
+        (resolvedVariantId && item.variantId ? item.variantId === resolvedVariantId : true) &&
         item.selectedSize === selectedSize && 
         item.selectedColor === selectedColor &&
         JSON.stringify(item.selectedOptions || {}) === JSON.stringify(selectedOptions) &&
@@ -160,10 +200,18 @@ export const CartProvider = ({ children }) => {
       if (existingIndex > -1) {
         const updated = [...prev];
         updated[existingIndex].quantity += qty;
+        if (resolvedVariantId && !updated[existingIndex].variantId) {
+          updated[existingIndex].variantId = resolvedVariantId;
+        }
+        if (resolvedSku && !updated[existingIndex].sku) {
+          updated[existingIndex].sku = resolvedSku;
+        }
         return updated;
       } else {
         return [...prev, {
           ...product,
+          variantId: resolvedVariantId,
+          sku: resolvedSku,
           selectedSize,
           selectedColor,
           selectedOptions,
@@ -252,9 +300,9 @@ export const CartProvider = ({ children }) => {
 
 
   const forceSyncCartWithWix = async (items = cartItems) => {
-    try {
+    return await withCartRecovery(async () => {
       console.log('Force synchronizing local cart with Wix currentCart...');
-      const wixClient = await getWixClient();
+      const { wixClient } = await getWixClient();
       const localMapped = await mapCartItemsToWixLineItems(items);
       
       let wixCartRes;
@@ -366,10 +414,7 @@ export const CartProvider = ({ children }) => {
 
       console.log('Force Wix cart synchronization complete.');
       return finalCart;
-    } catch (err) {
-      console.error('Error during forceSyncCartWithWix:', err);
-      throw err;
-    }
+    });
   };
 
   const serializedCartItems = JSON.stringify(cartItems.map(item => ({ id: item.id, qty: item.quantity })));
@@ -400,7 +445,7 @@ export const CartProvider = ({ children }) => {
       return productCache[productId];
     }
     try {
-      const wixClient = await getWixClient();
+      const { wixClient } = await getWixClient();
       const res = await wixClient.products.getProduct(productId);
       if (res && res.product) {
         productCache[productId] = res.product;
@@ -411,6 +456,132 @@ export const CartProvider = ({ children }) => {
     }
     return null;
   };
+
+  /**
+   * Synchronizes server cart line items from Wix eCommerce to local React state.
+   * Maps variantIds, options, and customTextFields into the app's rich cart item model.
+   */
+  const syncServerCartToLocal = async (serverCart) => {
+    if (!serverCart || !Array.isArray(serverCart.lineItems) || serverCart.lineItems.length === 0) {
+      return;
+    }
+    try {
+      console.log('CartContext: Mapping server cart items to local state...', serverCart.lineItems.length);
+      const mappedItems = await Promise.all(serverCart.lineItems.map(async (lineItem) => {
+        const catalogItemId = lineItem.catalogReference?.catalogItemId;
+        if (!catalogItemId) return null;
+        
+        const variantId = lineItem.catalogReference?.options?.variantId;
+        const customTextFieldsMap = lineItem.catalogReference?.options?.customTextFields || {};
+        const optionsMap = lineItem.catalogReference?.options?.options || {};
+        
+        const fullProduct = await resolveProductDetails(catalogItemId);
+        if (!fullProduct) return null;
+        
+        let selectedSize = 'M';
+        let selectedColor = 'Hvit';
+        let sku = lineItem.physicalProperties?.sku || fullProduct.sku || fullProduct._id;
+        
+        if (variantId && fullProduct.variants) {
+          const vMatch = fullProduct.variants.find(v => (v._id === variantId || v.id === variantId));
+          if (vMatch) {
+            sku = vMatch.variant?.sku || vMatch.sku || sku;
+            if (vMatch.choices) {
+              Object.entries(vMatch.choices).forEach(([k, v]) => {
+                const kLower = k.toLowerCase();
+                if (kLower === 'color' || kLower === 'farge') {
+                  selectedColor = resolveColor(v).name;
+                } else if (kLower.includes('size') || kLower.includes('størrelse') || kLower === 'str') {
+                  selectedSize = v;
+                }
+              });
+            }
+          }
+        }
+        
+        const customTextFields = Object.entries(customTextFieldsMap).map(([title, value]) => ({
+          title,
+          value
+        }));
+        
+        return {
+          id: fullProduct._id || catalogItemId,
+          name: fullProduct.name || lineItem.productName?.original || 'Produkt',
+          price: fullProduct.price?.discountedPrice || fullProduct.price?.price || parseFloat(lineItem.price?.amount || '0'),
+          image: lineItem.image?.url || fullProduct.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
+          images: fullProduct.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
+          media: fullProduct.media,
+          mediaItems: fullProduct.media?.items || [],
+          productOptions: fullProduct.productOptions,
+          manageVariants: fullProduct.manageVariants,
+          variants: fullProduct.variants,
+          variantId,
+          sku,
+          selectedSize,
+          selectedColor,
+          selectedOptions: optionsMap,
+          customTextFields,
+          customTextFieldDefinitions: fullProduct.customTextFields || [],
+          quantity: lineItem.quantity || 1
+        };
+      }));
+      
+      const validItems = mappedItems.filter(Boolean);
+      if (validItems.length > 0) {
+        setCartItems(validItems);
+      }
+    } catch (err) {
+      console.warn('Failed to sync server cart to local state:', err);
+    }
+  };
+
+  // Listen for login/logout and session token changes to immediately sync server cart
+  useEffect(() => {
+    let isHandlingAuth = false;
+    const handleAuthChange = async () => {
+      if (isHandlingAuth) return;
+      isHandlingAuth = true;
+      console.log('CartContext: wix-auth-change / storage change detected. Synchronizing with fresh server cart...');
+      try {
+        const { wixClient } = await getWixClient();
+        let serverCart = null;
+        try {
+          serverCart = await withCartRecovery(() => wixClient.currentCart.getCurrentCart());
+        } catch (getErr) {
+          if (getErr.code === 'OWNED_CART_NOT_FOUND' || getErr.message?.includes('Cart not found')) {
+            console.log('CartContext: No server cart exists for this session yet.');
+          } else {
+            console.warn('CartContext: Could not get current cart on auth change:', getErr);
+          }
+        }
+        
+        if (serverCart && Array.isArray(serverCart.lineItems) && serverCart.lineItems.length > 0) {
+          console.log(`CartContext: Found ${serverCart.lineItems.length} items in server cart after login/auth change. Syncing to local...`);
+          await syncServerCartToLocal(serverCart);
+        } else if (cartItems.length > 0) {
+          console.log('CartContext: Transferring guest cart items to active logged in session...');
+          await forceSyncCartWithWix(cartItems);
+        }
+      } catch (err) {
+        console.warn('CartContext: Error during handleAuthChange cart sync:', err);
+      } finally {
+        isHandlingAuth = false;
+      }
+    };
+
+    window.addEventListener('wix-auth-change', handleAuthChange);
+    const handleStorage = (e) => {
+      if (e.key === 'wix_oauth_tokens') {
+        handleAuthChange();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('wix-auth-change', handleAuthChange);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [cartItems]);
 
   const mapCartItemsToWixLineItems = async (items) => {
     return Promise.all(items.map(async (item) => {
@@ -473,26 +644,54 @@ export const CartProvider = ({ children }) => {
           }
         });
 
-        // Set variantId or options based on manageVariants
-        if (manageVariants && variants && variants.length > 0) {
-          const match = variants.find(v => {
+        // Set variantId or options: ALWAYS ensure exact variantId when variants exist
+        let matchedVariant = null;
+
+        // 1. Direct match by item.variantId if already stored
+        if (item.variantId && variants && variants.length > 0) {
+          matchedVariant = variants.find(v => (v._id === item.variantId || v.id === item.variantId));
+        }
+
+        // 2. Match by exact choices in selectedOptions
+        if (!matchedVariant && variants && variants.length > 0) {
+          matchedVariant = variants.find(v => {
+            if (!v || !v.choices) return false;
             return Object.entries(v.choices).every(([optName, optVal]) => {
               return selectedOptions[optName] === optVal;
             });
           });
+        }
 
-          if (match) {
-            catalogReference.options = {
-              variantId: match._id
-            };
-          } else {
-            // If managed variants fails to match, fall back to first variant as a safe default
-            catalogReference.options = {
-              variantId: variants[0]._id
-            };
-          }
+        // 3. Match with resolveColor and normalized options
+        if (!matchedVariant && variants && variants.length > 0) {
+          matchedVariant = variants.find(v => {
+            if (!v || !v.choices) return false;
+            return Object.entries(v.choices).every(([optName, optVal]) => {
+              const lowerName = optName.toLowerCase();
+              if (lowerName === 'color' || lowerName === 'farge') {
+                const vColor = resolveColor(optVal);
+                const sColor = resolveColor(selectedOptions[optName] || item.selectedColor);
+                return vColor.name === sColor.name;
+              }
+              if (lowerName.includes('size') || lowerName.includes('størrelse') || lowerName.includes('str')) {
+                return String(optVal).trim().toLowerCase() === String(selectedOptions[optName] || item.selectedSize).trim().toLowerCase();
+              }
+              return selectedOptions[optName] === optVal;
+            });
+          });
+        }
+
+        if (matchedVariant) {
+          catalogReference.options = {
+            variantId: matchedVariant._id || matchedVariant.id
+          };
+        } else if (variants && variants.length > 0) {
+          // Never add base product without variantId when variants exist (critical for Gelato/T-shirt.no sync)
+          catalogReference.options = {
+            variantId: variants[0]._id || variants[0].id
+          };
         } else {
-          // If manageVariants is false, Wix requires the options choice descriptions (e.g. 'lilla'), not the hex values for colors!
+          // Fallback only if product truly has no variants defined in Wix Stores
           const apiOptions = { ...selectedOptions };
           if (productOptions) {
             productOptions.forEach(opt => {
@@ -558,39 +757,41 @@ export const CartProvider = ({ children }) => {
     setIsApplyingCoupon(true);
     setCouponError('');
     try {
-      const wixClient = await getWixClient();
-      const lineItems = await mapCartItemsToWixLineItems(cartItems);
-      
-      // Create a temporary checkout to validate coupon
-      const testCheckout = await wixClient.checkout.createCheckout({
-        lineItems,
-        channelType: 'WEB'
-      });
+      return await withCartRecovery(async () => {
+        const { wixClient } = await getWixClient();
+        const lineItems = await mapCartItemsToWixLineItems(cartItems);
+        
+        // Create a temporary checkout to validate coupon
+        const testCheckout = await wixClient.checkout.createCheckout({
+          lineItems,
+          channelType: 'WEB'
+        });
 
-      const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {
-        appliedDiscounts: [{
-          coupon: {
-            code: code.trim()
+        const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {
+          appliedDiscounts: [{
+            coupon: {
+              code: code.trim()
+            }
+          }]
+        });
+
+        if (updatedCheckout.appliedDiscounts && updatedCheckout.appliedDiscounts.length > 0) {
+          const discountVal = parseFloat(updatedCheckout.priceSummary.discount.amount || '0');
+          if (discountVal > 0) {
+            setAppliedCoupon({
+              code: code.trim(),
+              discount: discountVal
+            });
+            setIsApplyingCoupon(false);
+            setCouponError('');
+            return true;
           }
-        }]
-      });
-
-      if (updatedCheckout.appliedDiscounts && updatedCheckout.appliedDiscounts.length > 0) {
-        const discountVal = parseFloat(updatedCheckout.priceSummary.discount.amount || '0');
-        if (discountVal > 0) {
-          setAppliedCoupon({
-            code: code.trim(),
-            discount: discountVal
-          });
-          setIsApplyingCoupon(false);
-          setCouponError('');
-          return true;
         }
-      }
-      
-      setCouponError('Ugyldig rabattkode');
-      setIsApplyingCoupon(false);
-      return false;
+        
+        setCouponError('Ugyldig rabattkode');
+        setIsApplyingCoupon(false);
+        return false;
+      });
     } catch (err) {
       console.error('Error validating coupon:', err);
       setCouponError('Ugyldig rabattkode eller tilkoblingsfeil');
@@ -599,41 +800,41 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-
-
   const applyGiftCardCode = async (code) => {
     if (!code || code.trim() === '') return false;
     setIsApplyingGiftCard(true);
     setGiftCardError('');
     try {
-      const wixClient = await getWixClient();
-      const lineItems = await mapCartItemsToWixLineItems(cartItems);
-      
-      // Create a temporary checkout to validate gift card
-      const testCheckout = await wixClient.checkout.createCheckout({
-        lineItems,
-        channelType: 'WEB'
-      });
-
-      const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {}, {
-        giftCardCode: code.trim()
-      });
-
-      if (updatedCheckout.giftCard) {
-        const giftCardVal = parseFloat(updatedCheckout.giftCard.amount?.amount || '0');
-        setAppliedGiftCard({
-          code: code.trim(),
-          amount: giftCardVal,
-          obfuscatedCode: updatedCheckout.giftCard.obfuscatedCode
+      return await withCartRecovery(async () => {
+        const { wixClient } = await getWixClient();
+        const lineItems = await mapCartItemsToWixLineItems(cartItems);
+        
+        // Create a temporary checkout to validate gift card
+        const testCheckout = await wixClient.checkout.createCheckout({
+          lineItems,
+          channelType: 'WEB'
         });
+
+        const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {}, {
+          giftCardCode: code.trim()
+        });
+
+        if (updatedCheckout.giftCard) {
+          const giftCardVal = parseFloat(updatedCheckout.giftCard.amount?.amount || '0');
+          setAppliedGiftCard({
+            code: code.trim(),
+            amount: giftCardVal,
+            obfuscatedCode: updatedCheckout.giftCard.obfuscatedCode
+          });
+          setIsApplyingGiftCard(false);
+          setGiftCardError('');
+          return true;
+        }
+        
+        setGiftCardError('Ugyldig gavekortkode');
         setIsApplyingGiftCard(false);
-        setGiftCardError('');
-        return true;
-      }
-      
-      setGiftCardError('Ugyldig gavekortkode');
-      setIsApplyingGiftCard(false);
-      return false;
+        return false;
+      });
     } catch (err) {
       console.error('Error validating gift card:', err);
       setGiftCardError('Ugyldig gavekortkode eller tilkoblingsfeil');
@@ -645,6 +846,132 @@ export const CartProvider = ({ children }) => {
   const removeGiftCard = () => {
     setAppliedGiftCard(null);
     setGiftCardError('');
+  };
+
+  /**
+   * Generates a guaranteed fresh checkout session for the active logged-in or guest session.
+   * Forces fresh server cart synchronization and revision alignment right before creating the redirect.
+   *
+   * @param {Object} options - Redirect callbacks
+   * @param {string} options.returnUrl - Post-checkout return URL
+   * @param {string} options.thankYouUrl - Post-purchase thank you URL
+   * @returns {Promise<string>} Fresh Wix Checkout Redirect URL
+   */
+  const startCheckoutRedirect = async ({
+    returnUrl = window.location.origin + '/cart',
+    thankYouUrl = window.location.origin + '/profile'
+  } = {}) => {
+    if (cartItems.length === 0) {
+      throw new Error('Handlekurven er tom.');
+    }
+
+    return await withCartRecovery(async () => {
+      console.log('CartContext: Generating fresh checkout session...');
+      const { wixClient } = await getWixClient();
+      
+      // 1. Force sync local cart with Wix currentCart to ensure identical state and fresh revision
+      const syncedCart = await forceSyncCartWithWix(cartItems);
+
+      // 2. Create fresh checkout directly from the active currentCart
+      let checkoutResult = null;
+      if (syncedCart && Array.isArray(syncedCart.lineItems) && syncedCart.lineItems.length > 0) {
+        checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
+          channelType: 'WEB'
+        });
+      } else {
+        const lineItems = await mapCartItemsToWixLineItems(cartItems);
+        if (!lineItems || lineItems.length === 0) {
+          throw new Error('Ingen gyldige varer å utsjekke.');
+        }
+        checkoutResult = await wixClient.checkout.createCheckout({
+          lineItems,
+          channelType: 'WEB'
+        });
+      }
+
+      let checkoutId = checkoutResult?.checkoutId || checkoutResult?._id || checkoutResult?.checkout?._id;
+      if (!checkoutId) {
+        throw new Error('Kunne ikke opprette gyldig kasse-økt.');
+      }
+
+      // 3. Attach buyer email if available (enables Wix Abandoned Cart recovery automations)
+      let buyerEmail = null;
+      try {
+        if (wixClient.auth.loggedIn()) {
+          const currentMember = await wixClient.members.getCurrentMember();
+          buyerEmail = currentMember?.member?.loginEmail || currentMember?.member?.contactDetails?.emails?.[0] || null;
+        }
+      } catch (e) {
+        // Guest user
+      }
+      if (!buyerEmail) {
+        try {
+          buyerEmail = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
+        } catch (e) {}
+      }
+
+      if (buyerEmail) {
+        try {
+          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {
+            billingInfo: {
+              contactDetails: {
+                email: buyerEmail
+              }
+            }
+          });
+          checkoutId = checkoutResult._id || checkoutId;
+        } catch (buyerErr) {
+          console.warn('Could not attach buyer email to checkout:', buyerErr);
+        }
+      }
+
+      // 4. Apply active coupon code if set
+      if (appliedCoupon) {
+        try {
+          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {
+            appliedDiscounts: [{
+              coupon: {
+                code: appliedCoupon.code
+              }
+            }]
+          });
+          checkoutId = checkoutResult._id || checkoutId;
+        } catch (couponErr) {
+          console.warn('Could not apply coupon to checkout redirect:', couponErr);
+        }
+      }
+
+      // 4. Apply active gift card if set
+      if (appliedGiftCard) {
+        try {
+          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {}, {
+            giftCardCode: appliedGiftCard.code
+          });
+          checkoutId = checkoutResult._id || checkoutId;
+        } catch (giftCardErr) {
+          console.warn('Could not apply gift card to checkout redirect:', giftCardErr);
+        }
+      }
+
+      // 5. Create fresh redirect session
+      const redirectSession = await wixClient.redirects.createRedirectSession({
+        ecomCheckout: {
+          checkoutId: checkoutId
+        },
+        callbacks: {
+          postFlowUrl: returnUrl,
+          thankYouPageUrl: thankYouUrl
+        }
+      });
+
+      const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
+      if (!redirectUrl) {
+        throw new Error('Mottok ingen omdirigerings-URL fra Wix.');
+      }
+
+      console.log('CartContext: Fresh checkout redirect URL created successfully.');
+      return redirectUrl;
+    });
   };
 
   useEffect(() => {
@@ -689,61 +1016,63 @@ export const CartProvider = ({ children }) => {
     setIsEstimating(true);
     setEstimateError('');
     try {
-      const wixClient = await getWixClient();
-      const shippingAddressParam = {
-        country: countryCode
-      };
-      if (postalCode) shippingAddressParam.postalCode = postalCode.trim();
-      if (city) shippingAddressParam.city = city.trim();
+      return await withCartRecovery(async () => {
+        const { wixClient } = await getWixClient();
+        const shippingAddressParam = {
+          country: countryCode
+        };
+        if (postalCode) shippingAddressParam.postalCode = postalCode.trim();
+        if (city) shippingAddressParam.city = city.trim();
 
-      const response = await wixClient.currentCart.estimateCurrentCartTotals({
-        shippingAddress: shippingAddressParam
-      });
+        const response = await wixClient.currentCart.estimateCurrentCartTotals({
+          shippingAddress: shippingAddressParam
+        });
 
-      if (response && response.priceSummary) {
-        const shipCost = parseFloat(response.priceSummary.shipping?.amount || '0');
-        const taxCost = parseFloat(response.priceSummary.tax?.amount || '0');
-        const totalCost = parseFloat(response.priceSummary.total?.amount || '0');
+        if (response && response.priceSummary) {
+          const shipCost = parseFloat(response.priceSummary.shipping?.amount || '0');
+          const taxCost = parseFloat(response.priceSummary.tax?.amount || '0');
+          const totalCost = parseFloat(response.priceSummary.total?.amount || '0');
 
-        setEstimatedShipping(shipCost);
-        setEstimatedTax(taxCost);
-        setEstimatedTotal(totalCost);
-        setIsEstimated(true);
-        if (postalCode && city) {
-          setShippingAddress({ postalCode, city, country: countryCode });
-        }
+          setEstimatedShipping(shipCost);
+          setEstimatedTax(taxCost);
+          setEstimatedTotal(totalCost);
+          setIsEstimated(true);
+          if (postalCode && city) {
+            setShippingAddress({ postalCode, city, country: countryCode });
+          }
 
-        // Extract and populate actual shipping options from Wix
-        const rates = [];
-        if (response.shippingInfo?.carrierServiceOptions) {
-          response.shippingInfo.carrierServiceOptions.forEach(carrier => {
-            if (carrier.shippingOptions) {
-              carrier.shippingOptions.forEach(opt => {
-                let deliveryTime = opt.logistics?.deliveryTime || '';
-                if (deliveryTime === '2-3 uker') {
-                  deliveryTime = 'ca. 2 uker';
-                }
-                rates.push({
-                  code: opt.code,
-                  title: opt.title,
-                  deliveryTime: deliveryTime,
-                  cost: parseFloat(opt.cost?.price?.amount || '0')
+          // Extract and populate actual shipping options from Wix
+          const rates = [];
+          if (response.shippingInfo?.carrierServiceOptions) {
+            response.shippingInfo.carrierServiceOptions.forEach(carrier => {
+              if (carrier.shippingOptions) {
+                carrier.shippingOptions.forEach(opt => {
+                  let deliveryTime = opt.logistics?.deliveryTime || '';
+                  if (deliveryTime === '2-3 uker') {
+                    deliveryTime = 'ca. 2 uker';
+                  }
+                  rates.push({
+                    code: opt.code,
+                    title: opt.title,
+                    deliveryTime: deliveryTime,
+                    cost: parseFloat(opt.cost?.price?.amount || '0')
+                  });
                 });
-              });
-            }
-          });
+              }
+            });
+          }
+          setEstimatedRates(rates);
+
+          const activeCode = response.shippingInfo?.selectedCarrierServiceOption?.code;
+          const activeRate = rates.find(r => r.code === activeCode) || rates[0] || null;
+          setSelectedShippingRate(activeRate);
+
+          setIsEstimating(false);
+          setEstimateError('');
+          return true;
         }
-        setEstimatedRates(rates);
-
-        const activeCode = response.shippingInfo?.selectedCarrierServiceOption?.code;
-        const activeRate = rates.find(r => r.code === activeCode) || rates[0] || null;
-        setSelectedShippingRate(activeRate);
-
-        setIsEstimating(false);
-        setEstimateError('');
-        return true;
-      }
-      throw new Error('Mottok ingen prisoppsummering fra Wix.');
+        throw new Error('Mottok ingen prisoppsummering fra Wix.');
+      });
     } catch (err) {
       console.error('Error estimating cart totals:', err);
       setEstimateError('Kunne ikke beregne frakt. Vennligst sjekk postnummeret og prøv igjen.');
@@ -832,6 +1161,8 @@ export const CartProvider = ({ children }) => {
       removeGiftCard,
       mapCartItemsToWixLineItems,
       forceSyncCartWithWix,
+      syncServerCartToLocal,
+      startCheckoutRedirect,
       estimatedShipping,
       estimatedTax,
       estimatedTotal,

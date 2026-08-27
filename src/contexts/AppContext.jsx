@@ -24,171 +24,6 @@ export const useApp = () => {
   return context;
 };
 
-// Complete product list based on downloaded e-commerce pages
-const INITIAL_PRODUCTS = [
-  {
-    id: 'prod-1',
-    name: 'Kingdom Life T-skjorte',
-    price: 299,
-    originalPrice: 399,
-    category: 'Klær',
-    gender: 'Herre',
-    colors: ['#151A21', '#FFFFFF', '#E5E7EB', '#2F4F4F', '#CC712B'], // Onyx, White, Gray, Dark Green, Terracotta
-    colorNames: ['Sort', 'Hvit', 'Grå', 'Mørk Grønn', 'Terracotta'],
-    sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
-    image: 'https://static.wixstatic.com/media/3a1544_32a63101ef9342c5a099d64f67dca66f~mv2.jpg',
-    isBestseller: true,
-    isSale: true,
-    description: 'En kvalitets t-skjorte i organisk bomull med et kraftfullt budskap. Designet for komfort og stil, perfekt til hverdagsbruk.',
-    subcategories: ['T-shirts', 'Klær', 'NORSKE produkter', 'Jesus', 'Bestselgere', 'Populære produkter']
-  },
-  {
-    id: 'prod-2',
-    name: 'Faithful Floral Tee',
-    price: 349,
-    category: 'Klær',
-    gender: 'Dame',
-    colors: ['#FFFFFF', '#E5E7EB', '#CC712B'],
-    colorNames: ['Hvit', 'Grå', 'Terracotta'],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    image: 'https://static.wixstatic.com/media/db4f96_4c1b787ab60b4bd1bdf56cbaae8d76d8~mv2.png',
-    isBestseller: false,
-    isSale: false,
-    description: 'En elegant og feminin t-skjorte med et vakkert blomsterbroderi og et diskret trosbudskap.',
-    subcategories: ['Dameklær', 'T-shirts', 'Klær', 'ENGLISH products', 'Romantisk']
-  },
-  {
-    id: 'prod-3',
-    name: 'Grace Oversized Tee',
-    price: 449,
-    category: 'Klær',
-    gender: 'Unisex',
-    colors: ['#FFFFFF', '#E5E7EB', '#151A21'],
-    colorNames: ['Hvit', 'Grå', 'Sort'],
-    sizes: ['S', 'M', 'L', 'XL', '2XL'],
-    image: 'https://static.wixstatic.com/media/db4f96_89d461f1115340b688d96ec9d7c9867d~mv2.png',
-    isBestseller: false,
-    isSale: false,
-    description: 'En tidsriktig oversized t-skjorte i tykk, premium bomull. Gir en avslappet look samtidig som den bærer et klart budskap om nåde.',
-    subcategories: ['T-shirts', 'Klær', 'ENGLISH products', 'Minimalistisk']
-  },
-  {
-    id: 'prod-4',
-    name: 'Little Disciple T-skjorte',
-    price: 199,
-    category: 'Klær',
-    gender: 'Barn',
-    colors: ['#FFFFFF', '#E5E7EB', '#CC712B'],
-    colorNames: ['Hvit', 'Grå', 'Terracotta'],
-    sizes: ['XS', 'S', 'M', 'L'],
-    image: 'https://static.wixstatic.com/media/db4f96_babead17427a481da29bd53ac7f7a08d~mv2.png',
-    isBestseller: false,
-    isSale: false,
-    description: 'En søt og slitesterk t-skjorte for de minste disiplene. Laget i supermyk økologisk bomull som tåler lek og moro.',
-    subcategories: ['BARN & UNGDOM', 'T-shirts', 'Klær', 'ENGLISH products', 'Mirakel familie']
-  },
-  {
-    id: 'prod-5',
-    name: 'Herren velsigne deg T-skjorte',
-    price: 299,
-    category: 'Klær',
-    gender: 'Unisex',
-    colors: ['#FFFFFF', '#151A21', '#E5E7EB', '#CC712B'],
-    colorNames: ['Hvit', 'Sort', 'Grå', 'Terracotta'],
-    sizes: ['S', 'M', 'L', 'XL'],
-    image: 'https://static.wixstatic.com/media/db4f96_9fcdd8aa200f474fa0bf49db2b353504~mv2.png',
-    isBestseller: true,
-    isSale: false,
-    description: 'Vår absolutte signatur-tee. Bærer det kjente velsignelses-skriftstedet i et minimalistisk og moderne oppsett.',
-    subcategories: ['T-shirts', 'Klær', 'NORSKE produkter', 'Jesus', 'Bestselgere', 'Populære produkter']
-  },
-  {
-    id: 'prod-6',
-    name: 'Velsignelse Klistermerkepakke',
-    price: 149,
-    category: 'Klistermerker',
-    colors: [],
-    colorNames: [],
-    sizes: [],
-    image: 'https://static.wixstatic.com/media/3a1544_3f2314e5b0af4427a546223573a01df2~mv2.jpg',
-    isBestseller: true,
-    isSale: false,
-    description: 'En pakke med 8 ulike slitesterke vinyl-klistermerker med oppmuntrende bibelvers og symboler.',
-    subcategories: ['Klistermerker', 'NORSKE produkter', 'Jesus', 'Bestselgere', 'Populære produkter']
-  },
-  {
-    id: 'prod-7',
-    name: 'Guds Fred Plakat (A3)',
-    price: 199,
-    originalPrice: 299,
-    category: 'Plakater',
-    colors: [],
-    colorNames: [],
-    sizes: ['A3', 'A4'],
-    image: 'https://static.wixstatic.com/media/db4f96_ee8af66a5a3049c199edd5249b078797~mv2.png',
-    isBestseller: false,
-    isSale: true,
-    description: 'Et minimalistisk og elegant kunsttrykk med skriftstedet om Guds fred som overgår all forstand.',
-    subcategories: ['Bilder og plakater', 'Minimalistisk', 'NORSKE produkter', 'Svart-hvit', 'Maleri']
-  },
-  {
-    id: 'prod-8',
-    name: 'Embroidered Beanie',
-    price: 329,
-    category: 'Tilbehør',
-    colors: ['#151A21', '#CC712B'],
-    colorNames: ['Sort', 'Terrakotta'],
-    sizes: ['One Size'],
-    image: 'https://static.wixstatic.com/media/3a1544_d7b0cebde0834129a6862789c043ddef~mv2.jpg',
-    isBestseller: false,
-    isSale: false,
-    description: 'En varm og lun lue med brodert krone-detalj. Laget i myk, elastisk strikk.',
-    subcategories: ['Tilbehør', 'Hatter /caps', 'Hats/Caps', 'Hats/caps', 'caps', 'ENGLISH products']
-  },
-  {
-    id: 'prod-9',
-    name: 'Kingdom Phone Case',
-    price: 289,
-    category: 'Tilbehør',
-    colors: ['#151A21', '#CC712B', '#D4C4B5'],
-    colorNames: ['Sort', 'Terrakotta', 'Beige'],
-    sizes: ['iPhone 13', 'iPhone 14', 'iPhone 15'],
-    image: 'https://static.wixstatic.com/media/db4f96_7cfdf4fa14c9452e8c3cdb77828d7a3e~mv2.png',
-    isBestseller: false,
-    isSale: false,
-    description: 'Et robust mobildeksel med vakkert, preget design som beskytter telefonen din og minner deg om kongeriket.',
-    subcategories: ['Tilbehør', 'Mobildeksel', 'ENGLISH products', 'Spiritual Battle']
-  },
-  {
-    id: 'prod-10',
-    name: 'Woven Tote Bag',
-    price: 199,
-    category: 'Tilbehør',
-    colors: ['#E5E7EB', '#CC712B'],
-    colorNames: ['Natur', 'Terrakotta'],
-    sizes: ['One Size'],
-    image: 'https://static.wixstatic.com/media/db4f96_9b030a75d28c4edeb5b27c820a1f6bda~mv2.png',
-    isBestseller: false,
-    isSale: false,
-    description: 'Et romslig og slitesterkt handlenett vevd av økologisk bomull. Perfekt til bibel, notatbok eller dagligvarehandel.',
-    subcategories: ['Tilbehør', 'Handlenett / Totebag', 'Handlenett/Totebag', 'totebag', 'ENGLISH products', 'Jesus']
-  },
-  {
-    id: 'prod-11',
-    name: 'Salme 23 Plakat',
-    price: 249,
-    category: 'Plakater',
-    colors: [],
-    colorNames: [],
-    sizes: ['A3', 'A4'],
-    image: 'https://static.wixstatic.com/media/db4f96_b157119ccbfb4ae58a98be624a71b6bd~mv2.png',
-    isBestseller: true,
-    isSale: false,
-    description: 'Et vakkert kunsttrykk med hele teksten fra Salme 23 ("Herren er min hyrde"). Rammet inn i moderne og elegant oppsett.',
-    subcategories: ['Bilder og plakater', 'Typografi', 'NORSKE produkter', 'Retro', 'Maleri']
-  }
-];
-
 const INITIAL_MESSAGES = [
   {
     id: 'msg-init-1',
@@ -235,13 +70,16 @@ export const AppProvider = ({ children }) => {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          const validRealProducts = parsed.filter(p => p.id && !String(p.id).startsWith('prod-'));
+          if (validRealProducts.length > 0) {
+            return validRealProducts;
+          }
         }
       }
     } catch (e) {
       console.warn('Feil ved lesing av produkt-cache fra localStorage:', e);
     }
-    return INITIAL_PRODUCTS;
+    return [];
   });
 
   const [isLoadingProducts, setIsLoadingProducts] = useState(() => {
@@ -854,8 +692,11 @@ export const AppProvider = ({ children }) => {
             colorNames: colorNames,
             sizes: sizes,
             weight: weight,
+            sku: item.sku || item._id,
             image: item.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
             images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
+            media: item.media,
+            mediaItems: item.media?.items || [],
             isBestseller: isBestseller,
             isSale: isSale,
             isOceaniaExclusive: isProductOceaniaExclusive(item),

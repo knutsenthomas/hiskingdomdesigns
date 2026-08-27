@@ -21,36 +21,6 @@ const smartTruncate = (text, maxLength = 150) => {
   return truncated.replace(/[,;.\-\s]+$/, '') + '...';
 };
 
-const MOCK_TESTIMONIALS = [
-  {
-    _id: 'e1ba5a6c-d6b3-45d2-a543-15fb5147cdf8',
-    author: { authorName: 'Anne' },
-    content: {
-      rating: 5,
-      title: 'Flott bibelvers!',
-      body: 'Jeg liker at bibelverset står både på baksiden og med liten skrift på framsiden. Teksten minner meg om å la Den Hellige Ånd lede livet mitt. Trykket er stort og fint på ryggen og vitner til folk rundt også, om å la seg lede av Gud.'
-    }
-  },
-  {
-    _id: 'de6ba802-88fc-4182-a35c-318f6e6db083',
-    author: { authorName: 'Anne' },
-    content: {
-      rating: 5,
-      title: 'Flott trykk!',
-      body: 'Tskjorten er god i størrelsen og stoffet er bra. Jeg likte veldig godt trykket og elsker den blå fargen på skjorten.'
-    }
-  },
-  {
-    _id: 'd70acda0-1f5c-444c-87cf-c073f8d41f3a',
-    author: { authorName: 'Kari' },
-    content: {
-      rating: 5,
-      title: 'Feminin og nydelig Tskjorte',
-      body: 'Veldig stilig design og trykket var overraskende mykt på Tskjorten. Jeg er kjempefornøyd. Kjøpte hvit Tskjorte str. M. Fint at det var dametskjorte med bittelita innsving i livet.'
-    }
-  }
-];
-
 const FALLBACK_INSTAGRAM_FEED = [
   {
     id: 'static-1',
@@ -338,27 +308,6 @@ export default function Home() {
 
   // Plan translation helper
   const getTranslatedPlan = (plan) => {
-    if (language === 'no') return plan;
-    if (plan._id === 'mock-plan-1') {
-      return {
-        ...plan,
-        name: language === 'es' ? 'Club de Pegatinas' : 'Sticker Club',
-        description: language === 'es' ? 'Recibe 5 pegatinas únicas y alentadoras en tu buzón cada mes.' : 'Get 5 unique and encouraging stickers straight to your mailbox every month.',
-        benefits: language === 'es' 
-          ? ['5 pegatinas únicas al mes', 'Diseños exclusivos', 'Compromiso de 1 mes (mín. 2 paquetes)']
-          : ['5 unique stickers/mo', 'Exclusive designs', '1-month commitment (min. 2 packs)']
-      };
-    }
-    if (plan._id === 'mock-plan-2') {
-      return {
-        ...plan,
-        name: language === 'es' ? 'Taza y Calidez' : 'Mug & Cozy',
-        description: language === 'es' ? 'Cada mes te enviamos una taza nueva con un mensaje de fe y café/té.' : 'Every month we send you a brand new mug with a faith message and coffee/tea.',
-        benefits: language === 'es'
-          ? ['1 taza premium al mes', 'Café o té seleccionado', 'Compromiso de 1 mes (mín. 2 paquetes)']
-          : ['1 premium mug/mo', 'Selected coffee or tea', '1-month commitment (min. 2 packs)']
-      };
-    }
     return plan;
   };
 
@@ -484,9 +433,12 @@ export default function Home() {
         const items = response.items || response._items;
         if (items && items.length > 0) {
           setPlansList(items);
+        } else {
+          setPlansList([]);
         }
       } catch (err) {
-        console.warn('Wix Pricing Plans API not available or app not installed. Using mock fallback plans.', err);
+        console.warn('Wix Pricing Plans API not available or app not installed.', err);
+        setPlansList([]);
       } finally {
         setIsLoadingPlans(false);
       }
@@ -498,31 +450,28 @@ export default function Home() {
     async function fetchTestimonials() {
       setIsLoadingTestimonials(true);
       try {
-        console.log("HKD Debug: Henter omtaler fra Wix Reviews API...");
         const { wixClient } = await import('@/lib/wix');
         const response = await wixClient.reviews.queryReviews()
           .descending('_createdDate')
           .limit(10)
           .find();
-        console.log("HKD Debug: Wix API respons:", response);
         if (response && response.items && response.items.length > 0) {
           // Filter to only include approved reviews with body text
           const approvedReviews = response.items.filter(item => 
             (!item.moderation || item.moderation.moderationStatus === 'APPROVED') && 
             item.content?.body
           );
-          console.log(`HKD Debug: Fant ${approvedReviews.length} godkjente omtaler:`, approvedReviews);
           if (approvedReviews.length > 0) {
             setTestimonialsList(approvedReviews.slice(0, 3));
           } else {
-            setTestimonialsList(MOCK_TESTIMONIALS);
+            setTestimonialsList([]);
           }
         } else {
-          console.log("HKD Debug: API-et returnerte 0 godkjente omtaler. Sjekk om de må godkjennes i Wix-dashbordet.");
-          setTestimonialsList(MOCK_TESTIMONIALS);
+          setTestimonialsList([]);
         }
       } catch (err) {
-        console.warn('HKD Debug: Wix Reviews API feilet. Bruker mock-data.', err);
+        console.warn('Wix Reviews API feilet:', err);
+        setTestimonialsList([]);
       } finally {
         setIsLoadingTestimonials(false);
       }
@@ -563,15 +512,7 @@ export default function Home() {
   }, []);
 
   const handleSubscribe = async (plan) => {
-    if (plan._id.startsWith('mock-')) {
-      const msg = language === 'es' 
-        ? `¡Gracias por tu interés en el plan de suscripción "${getTranslatedPlan(plan).name}"! Como esta es una tienda de prueba, esta función de suscripción está actualmente en modo de demostración.`
-        : language === 'en'
-        ? `Thank you for your interest in the "${getTranslatedPlan(plan).name}" subscription plan! As this is a test store, this subscription feature is currently in demo mode.`
-        : `Takk for din interesse i abonnementsplanen "${plan.name}"! Siden dette er en testbutikk, er denne abonnementsfunksjonen for øyeblikket i demomodus.`;
-      alert(msg);
-      return;
-    }
+    if (!plan?._id) return;
     setSubscribingId(plan._id);
     try {
       const { wixClient } = await import('@/lib/wix');
@@ -629,34 +570,6 @@ export default function Home() {
       setNewsletterLoading(false);
     }
   };
-
-  const MOCK_PLANS = [
-    {
-      _id: 'mock-plan-1',
-      name: 'Klistermerkeklubben',
-      description: 'Få 5 unike og oppmuntrende klistermerker rett i postkassen hver måned.',
-      price: { amount: '49', currency: 'kr' },
-      recurring: true,
-      benefits: [
-        '5 unike klistermerker/mnd',
-        'Eksklusive design',
-        '1 mnd bindingstid (min. 2 pakker)'
-      ]
-    },
-    {
-      _id: 'mock-plan-2',
-      name: 'Kopp & Kos',
-      description: 'Hver måned sender vi deg en splitter ny kopp med tro-budskap og kaffe/te.',
-      price: { amount: '199', currency: 'kr' },
-      recurring: true,
-      benefits: [
-        '1 premium kopp/mnd',
-        'Utvalgt kaffe eller te',
-        '1 mnd bindingstid (min. 2 pakker)'
-      ],
-      popular: true
-    }
-  ];
 
   // Filter out bestsellers and translate them dynamically (exclude regional exclusive for non-English)
   const bestsellers = products
@@ -906,152 +819,156 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-parchment py-section-gap overflow-hidden reveal-on-scroll">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
-          <CmsText
-            slug="home-testimonials-title"
-            fallback={t('home.testimonials.title')}
-            as="h2"
-            className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 text-onyx block"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-            {(testimonialsList.length > 0 ? testimonialsList : MOCK_TESTIMONIALS).map((item) => {
-              const translatedItem = getTranslatedTestimonial(item);
-              return (
-                <div 
-                  key={translatedItem._id} 
-                  className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between hover:shadow-md transition-all duration-300"
-                >
-                  <div>
-                    <div className="flex text-terracotta mb-4">
-                      {[...Array(translatedItem.content?.rating || 5)].map((_, i) => (
-                        <Star key={i} size={18} fill="currentColor" />
-                      ))}
-                    </div>
-                    {translatedItem.content?.title && (
-                      <h4 className="font-bold text-sm text-onyx mb-2">{translatedItem.content.title}</h4>
-                    )}
-                    <p className="font-body-md text-body-md italic mb-6 text-onyx/80 leading-relaxed">
-                      {translatedItem.content?.body}
-                    </p>
-                  </div>
-                  <p className="font-label-md text-label-md text-onyx font-bold">
-                    - {translatedItem.author?.authorName || 'Anonym'}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Subscription Packages */}
-      <section id="manedspakker" className="bg-white py-section-gap overflow-hidden reveal-on-scroll scroll-mt-24">
-        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="w-full lg:w-1/2 relative">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
-            <img 
-              alt="Monthly package showcase" 
-              className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[450px]" 
-              src={getOptimizedWixImageUrl("https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png", 600, 450)}
-              loading="lazy"
-            />
-          </div>
-          <div className="w-full lg:w-1/2">
-            <CmsText 
-              slug="home-subscription-badge" 
-              fallback={t('home.subscription.badge')} 
-              as="span" 
-              className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold"
-            />
-            <CmsText 
-              slug="home-subscription-title" 
-              fallback={t('home.subscription.title')} 
-              as="h2" 
-              className="font-headline-xl text-2xl md:text-3xl lg:text-[40px] mb-4 text-onyx font-extrabold"
-              style={{ lineHeight: '1.2' }}
-            />
+      {testimonialsList.length > 0 && (
+        <section className="bg-parchment py-section-gap overflow-hidden reveal-on-scroll">
+          <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
             <CmsText
-              slug="home-subscription-desc"
-              fallback={t('home.subscription.desc')}
-              as="p"
-              className="font-body-md text-body-md mb-8 text-secondary leading-relaxed"
+              slug="home-testimonials-title"
+              fallback={t('home.testimonials.title')}
+              as="h2"
+              className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 text-onyx block"
             />
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-              {(plansList.length > 0 ? plansList : MOCK_PLANS).map((p) => {
-                const plan = getTranslatedPlan(p);
-                const planId = plan._id;
-                const priceVal = plan.price?.amount || plan.pricing?.price?.value || '0';
-                const currencyVal = plan.price?.currency || plan.pricing?.price?.currency || 'kr';
-                const isRecurring = plan.recurring || plan.pricing?.planProductType === 'RECURRING' || planId.startsWith('mock-');
-                const planBenefits = plan.benefits || plan.perks?.values || [];
-                
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+              {testimonialsList.map((item) => {
+                const translatedItem = getTranslatedTestimonial(item);
                 return (
                   <div 
-                    key={planId}
-                    className={`bg-white rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between shadow-sm relative ${
-                      plan.popular ? 'border-terracotta ring-2 ring-terracotta/25' : 'border-outline-variant/60 hover:border-terracotta/35'
-                    }`}
+                    key={translatedItem._id} 
+                    className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between hover:shadow-md transition-all duration-300"
                   >
-                    {plan.popular && (
-                      <span className="absolute -top-3 left-4 bg-terracotta text-white text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
-                        {t('home.subscription.popular')}
-                      </span>
-                    )}
                     <div>
-                      <h3 className="font-bold text-onyx text-base mb-1">
-                        {plan.name}
-                      </h3>
-                      <p className="text-secondary text-xs mb-4 leading-relaxed line-clamp-3">
-                        {plan.description}
-                      </p>
-                      <div className="flex items-baseline gap-0.5 mb-4">
-                        <span className="text-lg font-black text-terracotta">
-                          {formatPrice(priceVal)}
-                        </span>
-                        <span className="text-secondary text-[10px]">
-                          /{isRecurring ? t('home.subscription.month') : t('home.subscription.oneTime')}
-                        </span>
+                      <div className="flex text-terracotta mb-4">
+                        {[...Array(translatedItem.content?.rating || 5)].map((_, i) => (
+                          <Star key={i} size={18} fill="currentColor" />
+                        ))}
                       </div>
-                      
-                      {planBenefits.length > 0 && (
-                        <ul className="space-y-2 mb-6">
-                          {planBenefits.map((b, idx) => (
-                            <li key={idx} className="flex items-start gap-1.5 text-[11px] text-onyx/90">
-                              <span className="material-symbols-outlined text-emerald-600 text-xs shrink-0 select-none">check_circle</span>
-                              <span>{typeof b === 'string' ? b : (b.text || '')}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      {translatedItem.content?.title && (
+                        <h4 className="font-bold text-sm text-onyx mb-2">{translatedItem.content.title}</h4>
                       )}
+                      <p className="font-body-md text-body-md italic mb-6 text-onyx/80 leading-relaxed">
+                        {translatedItem.content?.body}
+                      </p>
                     </div>
-                    
-                    <button 
-                      onClick={() => handleSubscribe(plan)}
-                      disabled={subscribingId !== null}
-                      className={`w-full py-2.5 rounded-lg font-bold transition-all active:scale-[0.98] shadow-sm text-center text-xs flex items-center justify-center gap-2 ${
-                        plan.popular 
-                          ? 'bg-terracotta text-white hover:opacity-95' 
-                          : 'bg-onyx text-white hover:bg-slate-800'
-                      } ${subscribingId !== null ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                      {subscribingId === planId ? (
-                        <>
-                          <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                          <span>{t('home.subscription.loading')}</span>
-                        </>
-                      ) : (
-                        t('home.subscription.subscribe')
-                      )}
-                    </button>
+                    <p className="font-label-md text-label-md text-onyx font-bold">
+                      - {translatedItem.author?.authorName || 'Anonym'}
+                    </p>
                   </div>
                 );
               })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Subscription Packages */}
+      {plansList.length > 0 && (
+        <section id="manedspakker" className="bg-white py-section-gap overflow-hidden reveal-on-scroll scroll-mt-24">
+          <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16">
+            <div className="w-full lg:w-1/2 relative">
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
+              <img 
+                alt="Monthly package showcase" 
+                className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[450px]" 
+                src={getOptimizedWixImageUrl("https://static.wixstatic.com/media/db4f96_347a150a309040d4b72d07b052456337~mv2.png", 600, 450)}
+                loading="lazy"
+              />
+            </div>
+            <div className="w-full lg:w-1/2">
+              <CmsText 
+                slug="home-subscription-badge" 
+                fallback={t('home.subscription.badge')} 
+                as="span" 
+                className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-4 block font-semibold"
+              />
+              <CmsText 
+                slug="home-subscription-title" 
+                fallback={t('home.subscription.title')} 
+                as="h2" 
+                className="font-headline-xl text-2xl md:text-3xl lg:text-[40px] mb-4 text-onyx font-extrabold"
+                style={{ lineHeight: '1.2' }}
+              />
+              <CmsText
+                slug="home-subscription-desc"
+                fallback={t('home.subscription.desc')}
+                as="p"
+                className="font-body-md text-body-md mb-8 text-secondary leading-relaxed"
+              />
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                {plansList.map((p) => {
+                  const plan = getTranslatedPlan(p);
+                  const planId = plan._id;
+                  const priceVal = plan.price?.amount || plan.pricing?.price?.value || '0';
+                  const currencyVal = plan.price?.currency || plan.pricing?.price?.currency || 'kr';
+                  const isRecurring = plan.recurring || plan.pricing?.planProductType === 'RECURRING';
+                  const planBenefits = plan.benefits || plan.perks?.values || [];
+                  
+                  return (
+                    <div 
+                      key={planId}
+                      className={`bg-white rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between shadow-sm relative ${
+                        plan.popular ? 'border-terracotta ring-2 ring-terracotta/25' : 'border-outline-variant/60 hover:border-terracotta/35'
+                      }`}
+                    >
+                      {plan.popular && (
+                        <span className="absolute -top-3 left-4 bg-terracotta text-white text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
+                          {t('home.subscription.popular')}
+                        </span>
+                      )}
+                      <div>
+                        <h3 className="font-bold text-onyx text-base mb-1">
+                          {plan.name}
+                        </h3>
+                        <p className="text-secondary text-xs mb-4 leading-relaxed line-clamp-3">
+                          {plan.description}
+                        </p>
+                        <div className="flex items-baseline gap-0.5 mb-4">
+                          <span className="text-lg font-black text-terracotta">
+                            {formatPrice(priceVal)}
+                          </span>
+                          <span className="text-secondary text-[10px]">
+                            /{isRecurring ? t('home.subscription.month') : t('home.subscription.oneTime')}
+                          </span>
+                        </div>
+                        
+                        {planBenefits.length > 0 && (
+                          <ul className="space-y-2 mb-6">
+                            {planBenefits.map((b, idx) => (
+                              <li key={idx} className="flex items-start gap-1.5 text-[11px] text-onyx/90">
+                                <span className="material-symbols-outlined text-emerald-600 text-xs shrink-0 select-none">check_circle</span>
+                                <span>{typeof b === 'string' ? b : (b.text || '')}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      
+                      <button 
+                        onClick={() => handleSubscribe(plan)}
+                        disabled={subscribingId !== null}
+                        className={`w-full py-2.5 rounded-lg font-bold transition-all active:scale-[0.98] shadow-sm text-center text-xs flex items-center justify-center gap-2 ${
+                          plan.popular 
+                            ? 'bg-terracotta text-white hover:opacity-95' 
+                            : 'bg-onyx text-white hover:bg-slate-800'
+                        } ${subscribingId !== null ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        {subscribingId === planId ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                            <span>{t('home.subscription.loading')}</span>
+                          </>
+                        ) : (
+                          t('home.subscription.subscribe')
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Brand Story & Values */}
       <section id="historie" className="py-section-gap bg-parchment reveal-on-scroll scroll-mt-24">

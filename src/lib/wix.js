@@ -78,5 +78,60 @@ export const staticWixClient = createClient({
   }),
 });
 
+/**
+ * Resets stored OAuth tokens and resets Wix client auth to empty/anonymous session.
+ */
+export const resetWixTokens = async () => {
+  try {
+    localStorage.removeItem('wix_oauth_tokens');
+    await wixClient.auth.setTokens(EMPTY_TOKENS);
+  } catch (e) {
+    console.warn('Failed to reset Wix tokens:', e);
+  }
+};
+
+/**
+ * Checks if an error is an authentication/authorization error (401, 403, invalid token).
+ */
+export const isWixAuthError = (err) => {
+  if (!err) return false;
+  const msg = (err.message || String(err)).toLowerCase();
+  const status = err.status || err.code || err.details?.applicationError?.code;
+  return (
+    status === 401 ||
+    status === 403 ||
+    status === 'UNAUTHENTICATED' ||
+    status === 'PERMISSION_DENIED' ||
+    status === 'INVALID_TOKEN' ||
+    msg.includes('401') ||
+    msg.includes('403') ||
+    msg.includes('unauthorized') ||
+    msg.includes('forbidden') ||
+    msg.includes('invalid token') ||
+    msg.includes('invalid_grant') ||
+    msg.includes('jwt') ||
+    msg.includes('token expired')
+  );
+};
+
+/**
+ * Checks if an error is a revision conflict or cart state mismatch error (409 Conflict).
+ */
+export const isWixConflictError = (err) => {
+  if (!err) return false;
+  const msg = (err.message || String(err)).toLowerCase();
+  const status = err.status || err.code || err.details?.applicationError?.code;
+  return (
+    status === 409 ||
+    status === 'ABORTED' ||
+    status === 'REVISION_CONFLICT' ||
+    msg.includes('409') ||
+    msg.includes('conflict') ||
+    msg.includes('revision') ||
+    msg.includes('mismatch') ||
+    msg.includes('already modified')
+  );
+};
+
 
 

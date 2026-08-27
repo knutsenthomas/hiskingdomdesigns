@@ -401,7 +401,7 @@ export default function ProductDetails() {
     return translateProduct(productRaw);
   }, [productRaw, translateProduct]);
 
-  // Find the selected variant matching selectedSize and selectedColor
+  // Find the selected variant matching selectedSize, selectedColor and any other selected options
   const selectedVariant = useMemo(() => {
     if (!product || !product.variants || product.variants.length === 0) return null;
     
@@ -420,17 +420,39 @@ export default function ProductDetails() {
       return resolved.name === selectedColor;
     });
 
-    const targetChoices = {};
+    const targetChoices = { ...selectedOptions };
     if (sizeOpt && sizeChoice) targetChoices[sizeOpt.name] = sizeChoice.value;
     if (colorOpt && colorChoice) targetChoices[colorOpt.name] = colorChoice.value;
 
-    return product.variants.find(v => {
+    // 1. Exact match on choices
+    let match = product.variants.find(v => {
       if (!v || !v.choices) return false;
       return Object.entries(v.choices).every(([optName, optVal]) => {
         return targetChoices[optName] === optVal;
       });
     });
-  }, [product, selectedSize, selectedColor]);
+
+    // 2. Fallback match resolving colors with resolveColor
+    if (!match) {
+      match = product.variants.find(v => {
+        if (!v || !v.choices) return false;
+        return Object.entries(v.choices).every(([optName, optVal]) => {
+          const lower = optName.toLowerCase();
+          if (lower === 'color' || lower === 'farge') {
+            const vResolved = resolveColor(optVal);
+            const tResolved = resolveColor(targetChoices[optName] || selectedColor);
+            return vResolved.name === tResolved.name;
+          }
+          if (lower.includes('size') || lower.includes('størrelse') || lower === 'str') {
+            return String(optVal).trim().toLowerCase() === String(targetChoices[optName] || selectedSize).trim().toLowerCase();
+          }
+          return targetChoices[optName] === optVal;
+        });
+      });
+    }
+
+    return match || product.variants[0] || null;
+  }, [product, selectedSize, selectedColor, selectedOptions]);
 
   // Dynamic prices based on selected variant if present
   const activePrice = useMemo(() => {
@@ -452,14 +474,35 @@ export default function ProductDetails() {
     return product ? product.originalPrice : undefined;
   }, [selectedVariant, product]);
 
-  // Aggregate stock information from wix client structures (always return in-stock to prevent purchase limits)
+  // Aggregate stock information from wix client structures
   const stockStatus = useMemo(() => {
+    if (selectedVariant && selectedVariant.stock && typeof selectedVariant.stock.inStock === 'boolean') {
+      return { 
+        inStock: selectedVariant.stock.inStock, 
+        trackQuantity: selectedVariant.stock.trackQuantity || false, 
+        quantity: selectedVariant.stock.quantity ?? 999999 
+      };
+    }
+    if (productRaw?.stock && typeof productRaw.stock.inStock === 'boolean') {
+      return {
+        inStock: productRaw.stock.inStock,
+        trackQuantity: productRaw.stock.trackQuantity || false,
+        quantity: productRaw.stock.quantity ?? 999999
+      };
+    }
+    if (productRaw && typeof productRaw.inStock === 'boolean') {
+      return {
+        inStock: productRaw.inStock,
+        trackQuantity: false,
+        quantity: 999999
+      };
+    }
     return { 
       inStock: true, 
       trackQuantity: false, 
       quantity: 999999 
     };
-  }, []);
+  }, [selectedVariant, productRaw]);
 
   // Related products (intelligent similarity ranking based on raw properties)
   const relatedProducts = useMemo(() => {
@@ -513,7 +556,7 @@ export default function ProductDetails() {
       .slice(0, 3);
   }, [productRaw, products, language]);
 
-  // Helper to reliably find the mockup image URL for any specific color variant
+  // Helper to reliably find the mockup image URL for any specific color variant using Wix variant mediaId and options
   const getColorImageUrl = useMemo(() => {
     return (colorName, sizeValue) => {
       if (!product || !colorName) return null;
@@ -530,51 +573,115 @@ export default function ProductDetails() {
         return name === 'color' || name === 'farge';
       });
 
-      if (!colorOpt || !colorOpt.choices || colorOpt.choices.length === 0) {
-        return product.image;
-      }
-
-      const colorIndex = colorOpt.choices.findIndex(c => {
-        const resolved = resolveColor(c.value, c.description || c.name);
-        return resolved.name.toLowerCase() === colorName.toLowerCase();
-      });
-
-      if (colorIndex === -1) return product.image;
-
-      const choice = colorOpt.choices[colorIndex];
-
-      // 1. Direct media on color choice
-      if (choice.media?.mainMedia?.image?.url) {
-        return choice.media.mainMedia.image.url;
-      }
-      if (choice.media?.items?.[0]?.image?.url) {
-        return choice.media.items[0].image.url;
-      }
-
-      // 2. Media on size choice (Printify / POD pattern)
       const sizeOpt = product.productOptions?.find(o => {
         const name = o.name?.trim().toLowerCase();
         return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
       });
-      if (sizeOpt && sizeOpt.choices) {
-        const activeSize = sizeValue || selectedSize;
-        const sizeChoice = sizeOpt.choices.find(c => c.value === activeSize || c.description === activeSize) || sizeOpt.choices[0];
-        if (sizeChoice?.media?.items?.[colorIndex]?.image?.url) {
-          return sizeChoice.media.items[colorIndex].image.url;
+
+      const activeSize = sizeValue || selectedSize;
+      const sizeChoice = sizeOpt?.choices?.find(c => c.value === activeSize || c.description === activeSize);
+      const colorChoice = colorOpt?.choices?.find(c => {
+        const resolved = resolveColor(c.value, c.description || c.name);
+        return resolved.name.toLowerCase() === colorName.toLowerCase();
+      });
+
+      // 1. Direct mediaId lookup from Wix variants
+      if (product.variants && product.variants.length > 0) {
+        const matchingVariant = product.variants.find(v => {
+          if (!v || !v.choices) return false;
+          let colorMatch = false;
+          let sizeMatch = true;
+          Object.entries(v.choices).forEach(([optName, optVal]) => {
+            const lower = optName.toLowerCase();
+            if (lower === 'color' || lower === 'farge') {
+              const vResolved = resolveColor(optVal);
+              const targetResolved = resolveColor(colorName);
+              if (vResolved.name === targetResolved.name) {
+                colorMatch = true;
+              }
+            } else if (lower.includes('size') || lower.includes('størrelse') || lower === 'str') {
+              if (sizeChoice && optVal !== sizeChoice.value && optVal.toLowerCase() !== activeSize.toLowerCase()) {
+                sizeMatch = false;
+              }
+            }
+          });
+          return colorMatch && sizeMatch;
+        }) || product.variants.find(v => {
+          if (!v || !v.choices) return false;
+          return Object.entries(v.choices).some(([optName, optVal]) => {
+            const lower = optName.toLowerCase();
+            if (lower === 'color' || lower === 'farge') {
+              const vResolved = resolveColor(optVal);
+              const targetResolved = resolveColor(colorName);
+              return vResolved.name === targetResolved.name;
+            }
+            return false;
+          });
+        });
+
+        if (matchingVariant) {
+          // Check mediaId from Wix variant
+          const varMediaId = matchingVariant.mediaId || matchingVariant.variant?.mediaId || matchingVariant.media?.mainMedia?.id;
+          if (varMediaId) {
+            const allMediaItems = product.mediaItems || product.media?.items || productRaw?.media?.items || [];
+            const mediaMatch = allMediaItems.find(mi => mi._id === varMediaId || mi.id === varMediaId || mi.image?.id === varMediaId);
+            if (mediaMatch?.image?.url) {
+              return mediaMatch.image.url;
+            }
+          }
+          if (matchingVariant.media?.mainMedia?.image?.url) {
+            return matchingVariant.media.mainMedia.image.url;
+          }
+          if (matchingVariant.media?.items?.[0]?.image?.url) {
+            return matchingVariant.media.items[0].image.url;
+          }
         }
       }
 
-      // 3. Fallback to product.images gallery matching index
-      if (product.images && product.images.length > 0) {
-        if (product.images[colorIndex]) {
-          return product.images[colorIndex];
+      // 2. Direct media on color choice
+      if (colorChoice) {
+        if (colorChoice.media?.mainMedia?.image?.url) {
+          return colorChoice.media.mainMedia.image.url;
         }
-        return product.images[0];
+        if (colorChoice.media?.items?.[0]?.image?.url) {
+          return colorChoice.media.items[0].image.url;
+        }
+        const choiceMediaId = colorChoice.media?.mainMedia?.id || colorChoice.mediaId;
+        if (choiceMediaId) {
+          const allMediaItems = product.mediaItems || product.media?.items || productRaw?.media?.items || [];
+          const mediaMatch = allMediaItems.find(mi => mi._id === choiceMediaId || mi.id === choiceMediaId || mi.image?.id === choiceMediaId);
+          if (mediaMatch?.image?.url) {
+            return mediaMatch.image.url;
+          }
+        }
+      }
+
+      // 3. Media on size choice (Printify / POD pattern)
+      if (colorOpt && colorOpt.choices) {
+        const colorIndex = colorOpt.choices.findIndex(c => {
+          const resolved = resolveColor(c.value, c.description || c.name);
+          return resolved.name.toLowerCase() === colorName.toLowerCase();
+        });
+
+        if (colorIndex !== -1 && sizeOpt && sizeOpt.choices) {
+          const currentSizeChoice = sizeChoice || sizeOpt.choices[0];
+          if (currentSizeChoice?.media?.items?.[colorIndex]?.image?.url) {
+            return currentSizeChoice.media.items[colorIndex].image.url;
+          }
+        }
+
+        // 4. Fallback to product.images gallery matching index
+        if (colorIndex !== -1 && product.images && product.images.length > 0) {
+          if (product.images[colorIndex]) {
+            return product.images[colorIndex];
+          }
+          return product.images[0];
+        }
       }
 
       return product.image;
     };
-  }, [product, selectedSize]);
+  }, [product, selectedSize, productRaw]);
 
   const imagesList = useMemo(() => {
     if (!product) return [];
@@ -792,8 +899,11 @@ export default function ProductDetails() {
               colors: colors,
               colorNames: colorNames,
               sizes: sizes,
+              sku: item.sku || item._id,
               image: item.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
               images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
+              media: item.media,
+              mediaItems: item.media?.items || [],
               isBestseller: false,
               isSale: isSale,
               isOceaniaExclusive: isProductOceaniaExclusive(item),
@@ -1229,15 +1339,22 @@ export default function ProductDetails() {
       };
     });
 
-    // Override product image and price with active variant-specific choices
+    // Extract exact variant ID and SKU from selectedVariant
+    const variantId = selectedVariant?._id || selectedVariant?.id || null;
+    const sku = selectedVariant?.variant?.sku || selectedVariant?.sku || product.sku || null;
+
+    // Override product image, price, variantId and sku with active variant-specific choices
     const productWithActiveImage = {
       ...product,
+      variantId,
+      selectedVariantId: variantId,
+      sku,
       image: activeImage || product.image,
       price: activePrice,
       originalPrice: activeOriginalPrice
     };
 
-    addToCart(productWithActiveImage, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload);
+    addToCart(productWithActiveImage, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload, variantId, sku);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -2164,7 +2281,7 @@ export default function ProductDetails() {
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold select-none">
                   <span className="material-symbols-outlined text-sm">person</span>
                   <span>{language === 'es' ? 'Escrito por' : language === 'en' ? 'Written by' : 'Skrevet av'} {rev.author?.authorName || 'Anonym'}</span>
-                  {rev._id.startsWith('mock') && (
+                  {rev.verified && (
                     <span className="text-[9px] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
                       {language === 'es' ? 'Comprador Verificado' : language === 'en' ? 'Verified Buyer' : 'Verifisert Kjøper'}
                     </span>

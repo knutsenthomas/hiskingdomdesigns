@@ -36,11 +36,13 @@ export default async function handler(req, res) {
   try {
     const {
       productId,
+      variantId,
       productName,
       quantity,
       price,
       buyerName,
       buyerEmail,
+      buyerPhone,
       paymentMethod
     } = req.body || {};
 
@@ -52,6 +54,23 @@ export default async function handler(req, res) {
     const nameParts = (buyerName || '').trim().split(/\s+/);
     const firstName = nameParts[0] || 'Manuell';
     const lastName = nameParts.slice(1).join(' ') || 'Bestilling';
+
+    // Format phone to E.164 (+47XXXXXXXX for Norwegian numbers)
+    let formattedPhone = null;
+    if (buyerPhone) {
+      const cleaned = String(buyerPhone).trim().replace(/[\s\-\.\(\)\/]/g, '');
+      if (cleaned.startsWith('00')) {
+        formattedPhone = '+' + cleaned.slice(2);
+      } else if (cleaned.startsWith('+')) {
+        formattedPhone = cleaned;
+      } else if (cleaned.length === 8) {
+        formattedPhone = `+47${cleaned}`;
+      } else if (cleaned.length === 10 && cleaned.startsWith('47')) {
+        formattedPhone = `+${cleaned}`;
+      } else {
+        formattedPhone = `+${cleaned}`;
+      }
+    }
 
     const numericPrice = parseFloat(price);
     const numericQuantity = parseInt(quantity, 10) || 1;
@@ -80,7 +99,8 @@ export default async function handler(req, res) {
     if (productId && productId !== 'custom') {
       lineItem.catalogReference = {
         appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
-        catalogItemId: productId
+        catalogItemId: productId,
+        ...(variantId ? { options: { variantId } } : {})
       };
     }
 
@@ -92,7 +112,8 @@ export default async function handler(req, res) {
       billingInfo: {
         contactDetails: {
           firstName,
-          lastName
+          lastName,
+          ...(formattedPhone ? { phone: formattedPhone } : {})
         }
       },
       currency: 'NOK',

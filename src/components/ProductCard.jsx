@@ -7,6 +7,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { motion } from 'framer-motion';
 
+import { resolveColor } from '@/lib/colors';
+
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useApp();
@@ -24,7 +26,31 @@ export default function ProductCard({ product }) {
     const defaultSize = translatedProduct.sizes && translatedProduct.sizes.length > 0 ? translatedProduct.sizes[0] : 'M';
     const defaultColor = translatedProduct.colorNames && translatedProduct.colorNames.length > 0 ? translatedProduct.colorNames[0] : 'Hvit';
 
-    addToCart(translatedProduct, defaultSize, defaultColor, 1);
+    let defaultVariantId = null;
+    let defaultSku = translatedProduct.sku || null;
+
+    if (translatedProduct.variants && translatedProduct.variants.length > 0) {
+      const match = translatedProduct.variants.find(v => {
+        if (!v || !v.choices) return false;
+        return Object.entries(v.choices).every(([k, val]) => {
+          const kLower = k.toLowerCase();
+          if (kLower === 'color' || kLower === 'farge') {
+            return resolveColor(val).name.toLowerCase() === defaultColor.toLowerCase();
+          }
+          if (kLower.includes('size') || kLower.includes('størrelse') || kLower === 'str') {
+            return String(val).trim().toLowerCase() === defaultSize.toLowerCase();
+          }
+          return true;
+        });
+      }) || translatedProduct.variants[0];
+
+      if (match) {
+        defaultVariantId = match._id || match.id;
+        defaultSku = match.variant?.sku || match.sku || defaultSku;
+      }
+    }
+
+    addToCart(translatedProduct, defaultSize, defaultColor, 1, {}, [], defaultVariantId, defaultSku);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

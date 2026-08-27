@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
+import { formatE164Phone } from '@/lib/phone';
 
 // Helper to safely extract email from Wix member object across various schema versions
 const getMemberEmail = (member) => {
@@ -205,7 +206,11 @@ export default function Profile() {
     setAddressError('');
     try {
       console.log('Updating member address book in Wix...');
-      const phonePayload = phone ? [phone] : [];
+      const formattedPhone = phone ? formatE164Phone(phone, 'NO') : '';
+      const phonePayload = formattedPhone ? [formattedPhone] : [];
+      if (formattedPhone && formattedPhone !== phone) {
+        setPhone(formattedPhone);
+      }
       
       const addressPayload = [
         {
@@ -236,38 +241,6 @@ export default function Profile() {
       setIsUpdatingAddress(false);
     }
   };
-
-  const MOCK_ORDERS = [
-    { 
-      _id: 'HK-9821', 
-      _createdDate: '2026-05-02T12:00:00Z', 
-      priceSummary: { total: { amount: '648' } }, 
-      status: 'DELIVERED', 
-      lineItems: [
-        { name: 'Salme 23 Plakat (M)', quantity: 1 },
-        { name: 'Herren velsigne deg T-skjorte (L)', quantity: 1 }
-      ] 
-    },
-    { 
-      _id: 'HK-9710', 
-      _createdDate: '2026-03-14T12:00:00Z', 
-      priceSummary: { total: { amount: '249' } }, 
-      status: 'DELIVERED', 
-      lineItems: [
-        { name: 'Tro Håp Kjærlighet Armbånd', quantity: 1 }
-      ] 
-    }
-  ];
-
-  const MOCK_SUBSCRIPTIONS = [
-    { 
-      _id: 'mock-sub-1',
-      planName: 'Kopp & Kos Månedspakke', 
-      price: { amount: '199' }, 
-      status: 'ACTIVE', 
-      nextShipmentDate: '2026-06-10T12:00:00Z' 
-    }
-  ];
 
   // 1. Handle OAuth callback query parameters from Wix redirect
   useEffect(() => {
@@ -388,13 +361,6 @@ export default function Profile() {
         console.warn('Failed to check if logged in:', e);
       }
       
-      let mockMemberStr = null;
-      try {
-        mockMemberStr = localStorage.getItem('hkd-mock-vipps-member');
-      } catch (e) {
-        console.warn('Failed to get mock member from localStorage:', e);
-      }
-      
       if (logged) {
         setIsLoggedIn(true);
         if (!member) {
@@ -425,11 +391,11 @@ export default function Profile() {
           if (response.orders && response.orders.length > 0) {
             setOrdersList(response.orders);
           } else {
-            setOrdersList(MOCK_ORDERS);
+            setOrdersList([]);
           }
         } catch (err) {
-          console.warn('Wix Orders API error or not available. Using mock orders.', err);
-          setOrdersList(MOCK_ORDERS);
+          console.warn('Wix Orders API error or not available:', err);
+          setOrdersList([]);
         }
 
         // Get subscriptions from Wix Pricing Plans
@@ -457,8 +423,8 @@ export default function Profile() {
             setSubscriptionsList([]);
           }
         } catch (err) {
-          console.warn('Wix Pricing Plans memberListOrders API error. Using mock subscriptions fallback.', err);
-          setSubscriptionsList(MOCK_SUBSCRIPTIONS);
+          console.warn('Wix Pricing Plans memberListOrders API error:', err);
+          setSubscriptionsList([]);
         }
         setIsLoading(false);
       } else {
@@ -591,7 +557,7 @@ export default function Profile() {
         .filter(item => item.quantity > 0);
 
       const payload = {
-        memberId: member?._id || 'mock-vipps-member-id',
+        memberId: member?._id || '',
         memberName: displayName,
         memberEmail: displayEmail,
         orderId: selectedOrderForReturn._id,
@@ -678,7 +644,6 @@ export default function Profile() {
     try {
       try {
         localStorage.removeItem('wix_oauth_tokens');
-        localStorage.removeItem('hkd-mock-vipps-member');
       } catch (storageErr) {
         console.error('Failed to remove tokens from localStorage:', storageErr);
       }
@@ -735,22 +700,22 @@ export default function Profile() {
     ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ''}`.trim() 
     : member?.contact?.firstName 
       ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
-      : (member?.profile?.nickname || 'Christian Lyngdal');
+      : (member?.profile?.nickname || member?.loginEmail?.split('@')[0] || 'Medlem');
 
   const displayInitials = String(displayName || '')
     .split(' ')
     .map(n => n ? n[0] : '')
     .join('')
-    .toUpperCase();
+    .toUpperCase() || 'M';
 
-  const displayEmail = getMemberEmail(member) || 'christian@hiskingdomministry.no';
+  const displayEmail = getMemberEmail(member) || member?.loginEmail || '';
   
-  const displayPhone = getMemberPhone(member) || '987 65 432';
+  const displayPhone = getMemberPhone(member) || '';
   
   const addrDetails = getMemberAddress(member);
   const displayAddress = (addrDetails && (addrDetails.addressLine || addrDetails.postalCode || addrDetails.city))
     ? `${addrDetails.addressLine || ''}, ${addrDetails.postalCode || ''} ${addrDetails.city || ''}`.trim().replace(/^,\s*/, '')
-    : 'Løkkeveien 3B, 4580 Lyngdal';
+    : '';
 
   // Affiliate states
   const [affiliateStatus, setAffiliateStatus] = useState('none'); // 'none' | 'pending' | 'approved'
@@ -821,46 +786,6 @@ export default function Profile() {
     localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
     setAffiliateSuccess(true);
     setIsSubmittingAffiliate(false);
-  };
-
-  const handleSimulateApprove = async () => {
-    if (!member?._id) return;
-    try {
-      const docRef = doc(db, 'affiliate_applications', member._id);
-      await updateDoc(docRef, { status: 'approved' });
-    } catch (err) {
-      console.warn('updateDoc feilet, prøver setDoc...', err);
-      try {
-        const docRef = doc(db, 'affiliate_applications', member._id);
-        await setDoc(docRef, {
-          memberId: member._id,
-          name: affiliateName,
-          email: affiliateEmail,
-          address: affiliateAddress,
-          socialMedia: affiliateSocials || 'N/A',
-          motivation: affiliateMotivation || 'N/A',
-          status: 'approved',
-          appliedAt: new Date().toISOString()
-        });
-      } catch (innerErr) {
-        console.warn('Kunne ikke lagre godkjent status i Firestore, bruker lokal fallback:', innerErr);
-      }
-    }
-    setAffiliateStatus('approved');
-    localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
-  };
-
-  const handleSimulateReset = async () => {
-    if (!member?._id) return;
-    try {
-      const docRef = doc(db, 'affiliate_applications', member._id);
-      await deleteDoc(docRef);
-    } catch (err) {
-      console.warn('Kunne ikke slette søknad fra Firestore, bruker lokal fallback:', err);
-    }
-    setAffiliateStatus('none');
-    localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
-    setAffiliateSuccess(false);
   };
 
   // Admin Affiliate states & hooks
@@ -1115,11 +1040,11 @@ export default function Profile() {
           <div className="space-y-4 w-full text-left font-body-sm text-secondary">
             <div>
               <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.phone')}</span>
-              <span>{displayPhone}</span>
+              <span>{displayPhone || (language === 'es' ? 'Ikke registrert' : language === 'en' ? 'Not registered' : 'Ikke registrert')}</span>
             </div>
             <div>
               <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.defaultAddress')}</span>
-              <span className="block leading-relaxed">{displayAddress}</span>
+              <span className="block leading-relaxed">{displayAddress || (language === 'es' ? 'Ingen adresse registrert' : language === 'en' ? 'No address registered' : 'Ingen adresse registrert')}</span>
             </div>
             <div>
               <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.memberSince')}</span>
@@ -1856,17 +1781,6 @@ export default function Profile() {
                       </button>
                     </form>
                   </div>
-                  
-                  {/* Subtle Simulation Tool for Testing */}
-                  <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
-                    <span>{t('profile.simApproveTitle')}</span>
-                    <button 
-                      onClick={handleSimulateApprove} 
-                      className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-                    >
-                      {t('profile.simApproveBtn')}
-                    </button>
-                  </div>
                 </div>
               )}
 
@@ -1878,25 +1792,6 @@ export default function Profile() {
                     <p className="text-xs text-secondary max-w-md leading-relaxed">
                       {t('profile.affiliatePendingDesc')}
                     </p>
-                  </div>
-                  
-                  {/* Simulation Tools for Testing */}
-                  <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
-                    <span>{t('profile.simManageTitle')}</span>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={handleSimulateApprove} 
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
-                      >
-                        {t('profile.approve')}
-                      </button>
-                      <button 
-                        onClick={handleSimulateReset} 
-                        className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
-                      >
-                        {t('profile.simReset')}
-                      </button>
-                    </div>
                   </div>
                 </div>
               )}
@@ -1975,73 +1870,25 @@ export default function Profile() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
                         <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.clicksLink')}</span>
-                        <span className="text-2xl font-extrabold text-[#1B4965]">48</span>
+                        <span className="text-2xl font-extrabold text-[#1B4965]">0</span>
                       </div>
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
                         <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.affiliateSales')}</span>
-                        <span className="text-2xl font-extrabold text-[#1B4965]">3</span>
+                        <span className="text-2xl font-extrabold text-[#1B4965]">0</span>
                       </div>
                       <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
                         <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.bonusPaid')}</span>
-                        <span className="text-2xl font-extrabold text-green-600">{formatPrice(325)}</span>
+                        <span className="text-2xl font-extrabold text-green-600">{formatPrice(0)}</span>
                       </div>
                     </div>
 
                     {/* Sales history */}
                     <div className="space-y-3">
                       <h5 className="font-bold text-xs text-onyx">{t('profile.commissionHistory')}</h5>
-                      <div className="border border-outline-variant/20 rounded-2xl overflow-hidden bg-white shadow-sm">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse text-[11px]">
-                            <thead>
-                              <tr className="bg-slate-50 text-secondary border-b border-outline-variant/20 font-bold">
-                                <th className="p-3">{t('profile.colSource')}</th>
-                                <th className="p-3">{t('profile.colDate')}</th>
-                                <th className="p-3">{t('profile.colStatus')}</th>
-                                <th className="p-3 text-right">{t('profile.colBonus')}</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-onyx font-medium">
-                              <tr>
-                                <td className="p-3">#HKD-4912</td>
-                                <td className="p-3">{language === 'no' ? '12. Mai 2026' : language === 'es' ? '12 de mayo de 2026' : 'May 12, 2026'}</td>
-                                <td className="p-3">
-                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.paid')}</span>
-                                </td>
-                                <td className="p-3 text-right text-green-600 font-bold">{formatPrice(120)}</td>
-                              </tr>
-                              <tr>
-                                <td className="p-3">#HKD-4985</td>
-                                <td className="p-3">{language === 'no' ? '2. Juni 2026' : language === 'es' ? '2 de junio de 2026' : 'June 2, 2026'}</td>
-                                <td className="p-3">
-                                  <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.paid')}</span>
-                                </td>
-                                <td className="p-3 text-right text-green-600 font-bold">{formatPrice(85)}</td>
-                              </tr>
-                              <tr>
-                                <td className="p-3">#HKD-5044</td>
-                                <td className="p-3">{language === 'no' ? '7. Juni 2026' : language === 'es' ? '7 de junio de 2026' : 'June 7, 2026'}</td>
-                                <td className="p-3">
-                                  <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('profile.pending')}</span>
-                                </td>
-                                <td className="p-3 text-right text-amber-600 font-bold">{formatPrice(120)}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                      <div className="border border-outline-variant/20 rounded-2xl p-6 text-center bg-slate-50/50">
+                        <p className="text-xs text-secondary/70 italic">Ingen provisjoner registrert ennå.</p>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Reset simulation for testing */}
-                  <div className="bg-slate-50 border border-dashed border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-secondary mt-8">
-                    <span>{t('profile.simResetTitle')}</span>
-                    <button 
-                      onClick={handleSimulateReset} 
-                      className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
-                    >
-                      {t('profile.simReset')}
-                    </button>
                   </div>
                 </div>
               )}

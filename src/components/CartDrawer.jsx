@@ -19,7 +19,8 @@ export default function CartDrawer() {
     appliedCoupon,
     appliedGiftCard,
     mapCartItemsToWixLineItems,
-    forceSyncCartWithWix
+    forceSyncCartWithWix,
+    startCheckoutRedirect
   } = useCart();
 
   const navigate = useNavigate();
@@ -74,60 +75,10 @@ export default function CartDrawer() {
     window.hkd_is_checking_out = true;
 
     try {
-      const { wixClient } = await import('@/lib/wix');
-      // 1. Force sync the local cart with Wix to guarantee they are identical (defensive)
-      try {
-        await forceSyncCartWithWix(cartItems);
-      } catch (syncErr) {
-        console.warn('Wix Cart sync failed before checkout creation:', syncErr);
-      }
-
-      // 2. Create the checkout directly from the Wix currentCart
-      let checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
-        channelType: 'WEB'
+      const redirectUrl = await startCheckoutRedirect({
+        returnUrl: window.location.origin + '/cart',
+        thankYouUrl: window.location.origin + '/profile'
       });
-
-      let checkoutId = checkoutResult.checkoutId || checkoutResult._id || checkoutResult.checkout?._id;
-
-      // Apply coupon code if active in context
-      if (appliedCoupon) {
-        try {
-          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {
-            appliedDiscounts: [{
-              coupon: {
-                code: appliedCoupon.code
-              }
-            }]
-          });
-          checkoutId = checkoutResult._id;
-        } catch (cErr) {
-          console.warn('Could not apply coupon in CartDrawer checkout:', cErr);
-        }
-      }
-
-      // Apply gift card code if active in context
-      if (appliedGiftCard) {
-        try {
-          checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {}, {
-            giftCardCode: appliedGiftCard.code
-          });
-          checkoutId = checkoutResult._id;
-        } catch (gErr) {
-          console.warn('Could not apply gift card in CartDrawer checkout:', gErr);
-        }
-      }
-
-      const redirectSession = await wixClient.redirects.createRedirectSession({
-        ecomCheckout: {
-          checkoutId: checkoutId
-        },
-        callbacks: {
-          postFlowUrl: window.location.origin + '/cart',
-          thankYouPageUrl: window.location.origin + '/profile'
-        }
-      });
-
-      const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
       if (redirectUrl) {
         setIsCartDrawerOpen(false);
         window.location.href = redirectUrl;
