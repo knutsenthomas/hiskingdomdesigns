@@ -11,7 +11,8 @@ import {
   ShoppingBag, Globe, Calendar, Smartphone, 
   Laptop, Tablet, Menu, Activity, Lock, ChevronRight,
   Clock, Sparkles, Mic, BookOpen, ExternalLink,
-  MousePointerClick, Zap
+  MousePointerClick, Zap, UserCheck, ShoppingCart,
+  Phone, Eye, UserX, CreditCard
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -909,6 +910,36 @@ export default function Admin() {
     );
   });
 
+  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+  const [abandonedSearchQuery, setAbandonedSearchQuery] = useState('');
+  const [selectedCustomerModal, setSelectedCustomerModal] = useState(null);
+
+  // Helper to find orders belonging to a customer
+  const getCustomerOrders = (cust) => {
+    if (!wixStats || !wixStats.orders) return [];
+    const memberId = cust._id;
+    const memberEmail = (cust.loginEmail || cust.contact?.emails?.[0]?.email || '').toLowerCase().trim();
+    return wixStats.orders.filter(o => {
+      const orderMemberId = o.buyerInfo?.memberId;
+      const orderEmail = (o.buyerInfo?.email || '').toLowerCase().trim();
+      if (memberId && orderMemberId && memberId === orderMemberId) return true;
+      if (memberEmail && orderEmail && memberEmail === orderEmail) return true;
+      return false;
+    });
+  };
+
+  const filteredCustomers = (wixStats?.members || []).filter(cust => {
+    const q = customerSearchQuery.toLowerCase().trim();
+    if (!q) return true;
+    const name = `${cust.contact?.firstName || ''} ${cust.contact?.lastName || ''}`.toLowerCase();
+    const nickname = (cust.profile?.nickname || '').toLowerCase();
+    const email = (cust.loginEmail || cust.contact?.emails?.[0]?.email || '').toLowerCase();
+    const phone = (cust.contact?.phones?.[0] || '').toLowerCase();
+    const city = (cust.contact?.addresses?.[0]?.city || '').toLowerCase();
+    const addr = (cust.contact?.addresses?.[0]?.addressLine || '').toLowerCase();
+    return name.includes(q) || nickname.includes(q) || email.includes(q) || phone.includes(q) || city.includes(q) || addr.includes(q);
+  });
+
   const activeWixStats = getParsedWixStats(wixStats, timeRange, customStartDate, customEndDate);
   const activeGaStats = getParsedGaStats(gaStats, activeWixStats);
 
@@ -938,6 +969,8 @@ export default function Admin() {
   const menuItems = [
     { id: 'overview', label: 'Oversikt', icon: Activity },
     { id: 'sales', label: 'Salg (Wix)', icon: ShoppingBag },
+    { id: 'customers', label: 'Kunder & Medlemmer', icon: UserCheck, badge: (wixStats?.members || []).length || (wixStats?.totalContacts > 0 ? wixStats.totalContacts : null) },
+    { id: 'abandoned', label: 'Forlatte kurver', icon: ShoppingCart, badge: (wixStats?.abandonedCheckouts || []).length > 0 ? (wixStats.abandonedCheckouts).length : null },
     { id: 'visits', label: 'Besøk (Analytics)', icon: Globe },
     { id: 'affiliates', label: 'Affiliates', icon: Users, badge: pendingCount > 0 ? pendingCount : null }
   ];
@@ -1014,7 +1047,7 @@ export default function Admin() {
       <div className="w-full min-w-0 space-y-6">
           
           {/* Header Controls for Tab (Tidsfilter) */}
-          {activeTab !== 'affiliates' && (
+          {activeTab !== 'affiliates' && activeTab !== 'customers' && activeTab !== 'abandoned' && (
             <div className="bg-white rounded-2xl border border-outline-variant/30 p-4 shadow-sm flex flex-col gap-4 text-left">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -1543,6 +1576,421 @@ export default function Admin() {
                               )}
                             </tbody>
                           </table>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* TAB: CUSTOMERS & MEMBERS */}
+              {activeTab === 'customers' && (
+                <div className="space-y-6">
+                  {wixLoading ? (
+                    <div className="bg-white rounded-3xl border border-outline-variant/30 py-24 flex flex-col items-center justify-center">
+                      <div className="w-10 h-10 border-4 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="mt-4 text-secondary text-xs font-semibold">Henter registrerte kunder og medlemmer fra Wix...</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Customer Metrics Overview */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Totalt registrerte</p>
+                            <div className="w-8 h-8 rounded-lg bg-[#1B4965]/10 text-[#1B4965] flex items-center justify-center">
+                              <Users size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">{wixStats?.members?.length || wixStats?.totalContacts || 0}</p>
+                          <p className="text-[11px] text-secondary mt-1">Kunder & nettstedsmedlemmer</p>
+                        </div>
+
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Aktive profiler</p>
+                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                              <UserCheck size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">
+                            {(wixStats?.members || []).filter(m => m.status === 'APPROVED' || m.activityStatus === 'ACTIVE' || !m.status || m.status === 'UNKNOWN').length}
+                          </p>
+                          <p className="text-[11px] text-emerald-600 font-semibold mt-1">Godkjente medlemskontoer</p>
+                        </div>
+
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Kunder med kjøp</p>
+                            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                              <ShoppingBag size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">
+                            {(() => {
+                              const orders = wixStats?.orders || [];
+                              const buyerEmails = new Set(orders.map(o => (o.buyerInfo?.email || '').toLowerCase()).filter(Boolean));
+                              const memberEmails = (wixStats?.members || []).map(m => (m.loginEmail || m.contact?.emails?.[0]?.email || '').toLowerCase());
+                              return memberEmails.filter(e => buyerEmails.has(e)).length;
+                            })()}
+                          </p>
+                          <p className="text-[11px] text-secondary mt-1">Gjentakende betalende kunder</p>
+                        </div>
+
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Wix CRM Kontakter</p>
+                            <div className="w-8 h-8 rounded-lg bg-[#d17d39]/10 text-[#d17d39] flex items-center justify-center">
+                              <Sparkles size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">{wixStats?.totalContacts || (wixStats?.members || []).length}</p>
+                          <a 
+                            href="https://manage.wix.com" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-[#d17d39] font-bold hover:underline inline-flex items-center gap-1 mt-1"
+                          >
+                            <span>Åpne i Wix Dashboard</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Customer Search & Table */}
+                      <div className="bg-white rounded-3xl border border-outline-variant/30 shadow-sm overflow-hidden text-left">
+                        <div className="p-6 border-b border-outline-variant/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                          <div>
+                            <h3 className="font-bold text-onyx text-base sm:text-lg">Kunder & Nettstedsmedlemmer</h3>
+                            <p className="text-xs text-secondary mt-0.5">Oversikt over alle registrerte profiler med kontaktinformasjon og kjøpsaktivitet.</p>
+                          </div>
+                          <div className="relative w-full md:w-80">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" size={16} />
+                            <input
+                              type="text"
+                              placeholder="Søk navn, e-post, telefon, by..."
+                              value={customerSearchQuery}
+                              onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-outline-variant/60 rounded-xl text-xs focus:outline-none focus:border-[#1B4965] focus:bg-white transition-all text-onyx"
+                            />
+                            {customerSearchQuery && (
+                              <button
+                                onClick={() => setCustomerSearchQuery('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-onyx"
+                              >
+                                <X size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-slate-50/80 border-b border-outline-variant/30 text-[10px] font-bold text-secondary uppercase tracking-wider">
+                                <th className="py-4 px-6">Kunde / Profil</th>
+                                <th className="py-4 px-6">Kontaktinfo</th>
+                                <th className="py-4 px-6">Adresse</th>
+                                <th className="py-4 px-6 text-center">Registrert</th>
+                                <th className="py-4 px-6 text-center">Ordrer & Kjøp</th>
+                                <th className="py-4 px-6 text-right">Handlinger</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-outline-variant/20 text-xs">
+                              {filteredCustomers.length === 0 ? (
+                                <tr>
+                                  <td colSpan={6} className="py-16 text-center text-secondary">
+                                    <Users size={32} className="mx-auto text-slate-300 mb-2" />
+                                    <p className="font-semibold text-xs text-onyx">Ingen kunder matcher søket</p>
+                                    <p className="text-[11px] text-secondary mt-1">Prøv et annet søkeord eller tilbakestill filteret.</p>
+                                  </td>
+                                </tr>
+                              ) : (
+                                filteredCustomers.map((cust) => {
+                                  const custOrders = getCustomerOrders(cust);
+                                  const totalSpent = custOrders.reduce((sum, o) => sum + parseFloat(o.priceSummary?.total?.amount || o.totalPrice?.amount || 0), 0);
+                                  const photoUrl = cust.profile?.photo?.url;
+                                  const displayName = cust.contact?.firstName 
+                                    ? `${cust.contact.firstName} ${cust.contact.lastName || ''}`.trim()
+                                    : cust.profile?.nickname || cust.loginEmail?.split('@')[0] || 'Kunde';
+                                  const email = cust.loginEmail || cust.contact?.emails?.[0]?.email || '';
+                                  const phone = cust.contact?.phones?.[0] || '';
+                                  const addr = cust.contact?.addresses?.[0];
+                                  const addressStr = addr ? `${addr.addressLine || ''}, ${addr.postalCode || ''} ${addr.city || ''}`.replace(/^,\s*|,\s*$/g, '').trim() : '';
+
+                                  return (
+                                    <tr key={cust._id} className="hover:bg-slate-50/50 transition-colors">
+                                      <td className="py-4 px-6">
+                                        <div className="flex items-center gap-3">
+                                          {photoUrl ? (
+                                            <img 
+                                              src={photoUrl} 
+                                              alt={displayName} 
+                                              className="w-10 h-10 rounded-full object-cover border border-outline-variant/50 shadow-sm shrink-0" 
+                                            />
+                                          ) : (
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1B4965]/10 to-[#d17d39]/15 text-[#1B4965] border border-[#1B4965]/20 flex items-center justify-center font-bold text-xs shrink-0">
+                                              {displayName.charAt(0).toUpperCase()}
+                                            </div>
+                                          )}
+                                          <div className="min-w-0">
+                                            <p className="font-bold text-onyx text-xs truncate max-w-[180px]">{displayName}</p>
+                                            {cust.profile?.title && (
+                                              <p className="text-[10px] text-[#d17d39] font-semibold">{cust.profile.title}</p>
+                                            )}
+                                            <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase mt-0.5 ${
+                                              cust.status === 'APPROVED' || cust.activityStatus === 'ACTIVE' 
+                                                ? 'bg-emerald-50 text-emerald-700' 
+                                                : 'bg-slate-100 text-secondary'
+                                            }`}>
+                                              {cust.status === 'APPROVED' ? 'Aktiv' : cust.status || 'Medlem'}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </td>
+
+                                      <td className="py-4 px-6">
+                                        <div className="space-y-1">
+                                          {email && (
+                                            <a href={`mailto:${email}`} className="text-xs text-onyx hover:text-[#d17d39] font-medium flex items-center gap-1.5 truncate max-w-[200px]">
+                                              <Mail size={12} className="text-secondary shrink-0" />
+                                              <span className="truncate">{email}</span>
+                                            </a>
+                                          )}
+                                          {phone && (
+                                            <a href={`tel:${phone}`} className="text-[11px] text-secondary hover:text-onyx flex items-center gap-1.5">
+                                              <Phone size={11} className="text-secondary shrink-0" />
+                                              <span>{phone}</span>
+                                            </a>
+                                          )}
+                                        </div>
+                                      </td>
+
+                                      <td className="py-4 px-6">
+                                        {addressStr ? (
+                                          <div className="flex items-start gap-1.5 text-secondary text-xs max-w-[180px]">
+                                            <MapPin size={13} className="text-secondary shrink-0 mt-0.5" />
+                                            <span className="truncate">{addressStr}</span>
+                                          </div>
+                                        ) : (
+                                          <span className="text-[11px] text-slate-400 italic">Ingen adresse lagret</span>
+                                        )}
+                                      </td>
+
+                                      <td className="py-4 px-6 text-center whitespace-nowrap">
+                                        <p className="text-xs text-onyx font-medium">
+                                          {cust._createdDate ? new Date(cust._createdDate).toLocaleDateString('no-NO', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                        </p>
+                                        {cust.lastLoginDate && (
+                                          <p className="text-[10px] text-secondary">
+                                            Sist: {new Date(cust.lastLoginDate).toLocaleDateString('no-NO', { day: '2-digit', month: '2-digit' })}
+                                          </p>
+                                        )}
+                                      </td>
+
+                                      <td className="py-4 px-6 text-center whitespace-nowrap">
+                                        {custOrders.length > 0 ? (
+                                          <div>
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                              <Check size={11} />
+                                              <span>{custOrders.length} {custOrders.length === 1 ? 'ordre' : 'ordrer'}</span>
+                                            </span>
+                                            <p className="text-xs font-bold text-onyx mt-1">{totalSpent.toLocaleString('no-NO')} kr</p>
+                                          </div>
+                                        ) : (
+                                          <span className="text-[11px] text-slate-400">0 ordrer</span>
+                                        )}
+                                      </td>
+
+                                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                                        {custOrders.length > 0 ? (
+                                          <button
+                                            onClick={() => setSelectedCustomerModal({ customer: cust, orders: custOrders })}
+                                            className="px-3 py-1.5 bg-[#1B4965]/10 hover:bg-[#1B4965]/20 text-[#1B4965] rounded-lg font-bold text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                                          >
+                                            <Eye size={13} />
+                                            <span>Se ordrer ({custOrders.length})</span>
+                                          </button>
+                                        ) : (
+                                          <a
+                                            href="https://manage.wix.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-secondary hover:text-onyx text-xs font-medium inline-flex items-center gap-1"
+                                          >
+                                            <span>Wix profil</span>
+                                            <ExternalLink size={11} />
+                                          </a>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* TAB: ABANDONED CARTS */}
+              {activeTab === 'abandoned' && (
+                <div className="space-y-6">
+                  {wixLoading ? (
+                    <div className="bg-white rounded-3xl border border-outline-variant/30 py-24 flex flex-col items-center justify-center">
+                      <div className="w-10 h-10 border-4 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="mt-4 text-secondary text-xs font-semibold">Henter forlatte handlekurver fra Wix...</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Abandoned Metrics Row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Forlatte kurver</p>
+                            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                              <ShoppingCart size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">{wixStats?.abandonedCheckouts?.length || 0} stk</p>
+                          <p className="text-[11px] text-secondary mt-1">Uavsluttede kasser registrert</p>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Potensiell tapt omsetning</p>
+                            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+                              <DollarSign size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">
+                            {(() => {
+                              const total = (wixStats?.abandonedCheckouts || []).reduce((sum, ab) => sum + parseFloat(ab.totalPrice?.amount || ab.total || 0), 0);
+                              return `${total.toLocaleString('no-NO')} kr`;
+                            })()}
+                          </p>
+                          <p className="text-[11px] text-rose-600 font-semibold mt-1">Samlet handlekurv-verdi</p>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-sm text-left">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Gjenoppretting</p>
+                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                              <Zap size={16} />
+                            </div>
+                          </div>
+                          <p className="text-2xl font-extrabold text-onyx">Wix Automasjon</p>
+                          <a 
+                            href="https://manage.wix.com" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-[#d17d39] font-bold hover:underline inline-flex items-center gap-1 mt-1"
+                          >
+                            <span>Sett opp e-postsekvens i Wix</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Abandoned Checkouts List */}
+                      <div className="bg-white rounded-3xl border border-outline-variant/30 shadow-sm overflow-hidden text-left">
+                        <div className="p-6 border-b border-outline-variant/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                          <div>
+                            <h3 className="font-bold text-onyx text-base sm:text-lg">Uavsluttede Kjøp & Forlatte Kurver</h3>
+                            <p className="text-xs text-secondary mt-0.5">Se hvilke produkter som lå i kassen da kunden forlot siden.</p>
+                          </div>
+                          <div className="relative w-full md:w-80">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" size={16} />
+                            <input
+                              type="text"
+                              placeholder="Søk i forlatte kurver..."
+                              value={abandonedSearchQuery}
+                              onChange={(e) => setAbandonedSearchQuery(e.target.value)}
+                              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-outline-variant/60 rounded-xl text-xs focus:outline-none focus:border-[#1B4965] focus:bg-white transition-all text-onyx"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="p-6">
+                          {(wixStats?.abandonedCheckouts || []).length === 0 ? (
+                            <div className="py-12 text-center text-secondary max-w-md mx-auto">
+                              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3">
+                                <ShoppingCart size={28} />
+                              </div>
+                              <h4 className="font-bold text-onyx text-sm">Ingen forlatte handlekurver akkurat nå</h4>
+                              <p className="text-xs text-secondary mt-1 leading-relaxed">
+                                Når besøkende legger varer i kurven, fyller ut e-post i kassen og ikke fullfører betalingen, vil de automatisk listes opp her med varer og gjenopprettingslenker.
+                              </p>
+                              <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-outline-variant/40 text-left text-xs space-y-1.5">
+                                <p className="font-bold text-onyx flex items-center gap-1.5">
+                                  <Sparkles size={14} className="text-[#d17d39]" />
+                                  Tips: Automatisk oppfølging i Wix
+                                </p>
+                                <p className="text-secondary text-[11px] leading-normal">
+                                  I <strong>Wix Dashboard ➔ Markedsføring ➔ Automasjoner</strong> kan du aktivere automatisk utsendelse av e-post med rabattkode 1 time etter at en kurv blir forlatt for å hente kunden tilbake!
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {(wixStats?.abandonedCheckouts || [])
+                                .filter(ab => {
+                                  const q = abandonedSearchQuery.toLowerCase();
+                                  const buyerEmail = (ab.buyerInfo?.email || ab.contactDetails?.emails?.[0] || '').toLowerCase();
+                                  const buyerName = (ab.buyerInfo?.name || ab.contactDetails?.firstName || '').toLowerCase();
+                                  return buyerEmail.includes(q) || buyerName.includes(q);
+                                })
+                                .map((ab, idx) => (
+                                  <div key={ab._id || idx} className="p-5 rounded-2xl border border-outline-variant/40 bg-slate-50/50 hover:bg-slate-50 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-2">
+                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                          Forlatt kurv
+                                        </span>
+                                        <span className="text-[11px] text-secondary">
+                                          {ab._createdDate ? new Date(ab._createdDate).toLocaleString('no-NO') : 'Nylig'}
+                                        </span>
+                                      </div>
+                                      <p className="font-bold text-xs text-onyx">
+                                        Kunde: {ab.buyerInfo?.email || ab.contactDetails?.emails?.[0] || 'Anonym besøkende'}
+                                      </p>
+                                      {ab.lineItems && ab.lineItems.length > 0 && (
+                                        <div className="text-xs text-secondary flex flex-wrap gap-2 pt-1">
+                                          {ab.lineItems.map((item, itemIdx) => (
+                                            <span key={itemIdx} className="bg-white border border-outline-variant/50 px-2 py-1 rounded-md text-[11px]">
+                                              {item.quantity}x {item.productName?.original || item.name || 'Produkt'}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-outline-variant/30">
+                                      <div className="text-left md:text-right">
+                                        <p className="text-[10px] text-secondary font-bold uppercase">Verdi</p>
+                                        <p className="text-base font-extrabold text-onyx">
+                                          {ab.totalPrice?.amount ? `${parseFloat(ab.totalPrice.amount).toLocaleString('no-NO')} kr` : '-'}
+                                        </p>
+                                      </div>
+                                      {ab.checkoutUrl && (
+                                        <a
+                                          href={ab.checkoutUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="bg-[#1B4965] hover:bg-[#153a50] text-white px-4 py-2 rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5"
+                                        >
+                                          <span>Gjenopprett kasse</span>
+                                          <ExternalLink size={12} />
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </>
@@ -2283,6 +2731,92 @@ export default function Admin() {
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* CUSTOMER ORDER PREVIEW MODAL */}
+        <AnimatePresence>
+          {selectedCustomerModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-outline-variant/30 max-h-[85vh] overflow-y-auto text-left space-y-6"
+              >
+                <div className="flex justify-between items-start border-b border-outline-variant/30 pb-4">
+                  <div>
+                    <span className="text-[10px] font-bold text-[#d17d39] uppercase tracking-wider">Kundeordrehistorikk</span>
+                    <h3 className="text-lg font-bold text-onyx">
+                      {selectedCustomerModal.customer.contact?.firstName 
+                        ? `${selectedCustomerModal.customer.contact.firstName} ${selectedCustomerModal.customer.contact.lastName || ''}`.trim()
+                        : selectedCustomerModal.customer.profile?.nickname || selectedCustomerModal.customer.loginEmail}
+                    </h3>
+                    <p className="text-xs text-secondary mt-0.5">
+                      {selectedCustomerModal.customer.loginEmail} • {selectedCustomerModal.orders.length} {selectedCustomerModal.orders.length === 1 ? 'bestilling' : 'bestillinger'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedCustomerModal(null)}
+                    className="p-2 rounded-xl text-secondary hover:text-onyx hover:bg-slate-100 transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {selectedCustomerModal.orders.map((order, idx) => (
+                    <div key={order._id || idx} className="p-4 rounded-2xl bg-slate-50 border border-outline-variant/40 space-y-3">
+                      <div className="flex justify-between items-center text-xs">
+                        <div>
+                          <span className="font-bold text-onyx">Ordre #{order.number || order._id?.substring(0, 8)}</span>
+                          <span className="text-secondary ml-2">
+                            {order._createdDate ? new Date(order._createdDate).toLocaleDateString('no-NO') : ''}
+                          </span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 uppercase">
+                          {order.status === 'PAID' ? 'Betalt' : order.status}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 pt-1">
+                        {(order.lineItems || []).map((li, lIdx) => (
+                          <div key={lIdx} className="flex justify-between items-center text-xs text-secondary">
+                            <span className="truncate max-w-[280px]">{li.quantity}x {li.productName?.original || li.name}</span>
+                            <span className="font-semibold text-onyx">{li.totalPrice?.amount ? `${li.totalPrice.amount} kr` : ''}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 text-xs">
+                        <span className="font-bold text-secondary">Totalbeløp:</span>
+                        <span className="font-extrabold text-sm text-onyx">
+                          {order.priceSummary?.total?.amount || order.totalPrice?.amount} kr
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <a
+                    href="https://manage.wix.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#1B4965] text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:brightness-105 transition-all inline-flex items-center gap-1.5"
+                  >
+                    <span>Åpne i Wix Studio</span>
+                    <ExternalLink size={12} />
+                  </a>
+                  <button
+                    onClick={() => setSelectedCustomerModal(null)}
+                    className="bg-slate-100 hover:bg-slate-200 text-onyx px-5 py-2.5 rounded-xl font-bold text-xs transition-colors"
+                  >
+                    Lukk
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
