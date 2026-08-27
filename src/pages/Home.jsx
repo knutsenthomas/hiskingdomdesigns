@@ -579,8 +579,8 @@ export default function Home() {
   useEffect(() => {
     // Intersection Observer for reveal-on-scroll animations
     const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+      threshold: 0.05,
+      rootMargin: '50px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -592,7 +592,13 @@ export default function Home() {
     }, observerOptions);
 
     const animatedElements = document.querySelectorAll('.reveal-on-scroll');
-    animatedElements.forEach(el => observer.observe(el));
+    animatedElements.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= (window.innerHeight || document.documentElement.clientHeight) + 100) {
+        el.classList.add('visible');
+      }
+      observer.observe(el);
+    });
 
     return () => {
       animatedElements.forEach(el => observer.unobserve(el));
@@ -603,24 +609,25 @@ export default function Home() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
       className="pt-20"
     >
       {/* Hero Section */}
-      <section className="relative h-[85vh] flex items-center overflow-hidden">
+      <section className="relative h-[85vh] min-h-[550px] bg-onyx flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           {slides.map((slide, idx) => (
             <motion.div
               key={slide.image + idx}
-              initial={{ opacity: 0 }}
+              initial={false}
               animate={{ opacity: heroSlide === idx ? 1 : 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
               className="absolute inset-0"
+              style={{ pointerEvents: heroSlide === idx ? 'auto' : 'none' }}
             >
-              {(idx === heroSlide || idx === (heroSlide + 1) % slides.length || idx === (heroSlide - 1 + slides.length) % slides.length) && (
+              {(idx === heroSlide || idx === 0 || idx === (heroSlide + 1) % slides.length || idx === (heroSlide - 1 + slides.length) % slides.length) && (
                 <img 
                   alt={`Hero faith slide ${idx + 1}`} 
                   className="w-full h-full object-cover" 
@@ -632,14 +639,14 @@ export default function Home() {
             </motion.div>
           ))}
           {/* Cinema gradient overlay for extreme readability and visual depth */}
-          <div className="absolute inset-0 bg-gradient-to-r from-onyx/85 via-onyx/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent"></div>
         </div>
         <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <motion.div
             key={heroSlide}
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.3 }}
             className="max-w-2xl text-white"
           >
             <button 
@@ -701,7 +708,7 @@ export default function Home() {
       </section>
 
       {/* Benefits Bar */}
-      <section className="bg-white border-b border-outline-variant/30 py-6 reveal-on-scroll">
+      <section className="bg-white border-b border-outline-variant/30 py-6">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-center md:text-left">
             <span className="material-symbols-outlined text-terracotta text-3xl shrink-0">local_shipping</span>
@@ -728,7 +735,7 @@ export default function Home() {
       </section>
 
       {/* Featured Categories (Bento Grid) */}
-      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto py-section-gap reveal-on-scroll">
+      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto py-section-gap">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
           <div>
             <CmsText slug="home-categories-badge" fallback={t('nav.categories')} as="span" className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-2 block font-semibold" />
