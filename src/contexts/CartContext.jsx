@@ -574,6 +574,24 @@ export const CartProvider = ({ children }) => {
       if (e.key === 'wix_oauth_tokens') {
         handleAuthChange();
       }
+      if (e.key === 'hkd-cart' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setCartItems(parsed);
+          }
+        } catch (err) {}
+      }
+      if (e.key === 'hkd-applied-coupon') {
+        try {
+          setAppliedCoupon(e.newValue ? JSON.parse(e.newValue) : null);
+        } catch (err) {}
+      }
+      if (e.key === 'hkd-applied-giftcard') {
+        try {
+          setAppliedGiftCard(e.newValue ? JSON.parse(e.newValue) : null);
+        } catch (err) {}
+      }
     };
     window.addEventListener('storage', handleStorage);
 
