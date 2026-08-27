@@ -139,7 +139,41 @@
     </script>
   </head>
   <body class="bg-parchment text-onyx overflow-x-hidden selection:bg-terracotta selection:text-white">
-    <div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">Bær troen med stolthet</h1><p>Oppdag eksklusive kristne klær, hettegensere, t-skjorter og tilbehør med meningsfulle budskap. Høy kvalitet og rask levering fra Norge.</p><nav aria-label="Hovednavigasjon" style="margin-top: 2rem; padding: 1.5rem; background: #f8f6f0; border-radius: 12px;"><h2 style="font-size: 1.1rem; margin-bottom: 0.75rem; font-weight: 600;">Utforsk His Kingdom Designs</h2><ul style="display: flex; flex-wrap: wrap; gap: 1rem; list-style: none; padding: 0; margin: 0;"><li><a href="/" style="color: #151a21; text-decoration: underline;">Hjem</a></li><li><a href="/produkter" style="color: #151a21; text-decoration: underline;">Alle Produkter</a></li><li><a href="/category/kristne-klaer" style="color: #151a21; text-decoration: underline;">Kristne klær</a></li><li><a href="/category/kristne-t-skjorter" style="color: #151a21; text-decoration: underline;">Kristne T-skjorter</a></li><li><a href="/category/kristne-gensere" style="color: #151a21; text-decoration: underline;">Kristne gensere</a></li><li><a href="/category/kristen-streetwear" style="color: #151a21; text-decoration: underline;">Kristen streetwear</a></li><li><a href="/category/klaer-med-bibelvers" style="color: #151a21; text-decoration: underline;">Klær med bibelvers</a></li><li><a href="/om-oss" style="color: #151a21; text-decoration: underline;">Om Oss</a></li><li><a href="/vart-team" style="color: #151a21; text-decoration: underline;">Vårt Team</a></li><li><a href="/frakt-og-retur" style="color: #151a21; text-decoration: underline;">Frakt og Retur</a></li><li><a href="/faq" style="color: #151a21; text-decoration: underline;">FAQ</a></li><li><a href="/personvern" style="color: #151a21; text-decoration: underline;">Personvern</a></li><li><a href="/betingelser" style="color: #151a21; text-decoration: underline;">Kjøpsbetingelser</a></li></ul></nav></main></div>
+    <div id="root">
+      <!-- Sleek placeholder preventing unstyled text flash before React mounts -->
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: #FAF7F2;">
+        <div style="width: 36px; height: 36px; border: 3px solid rgba(27, 73, 101, 0.15); border-top-color: #1B4965; border-radius: 50%; animation: hkd-spin 0.8s linear infinite;"></div>
+      </div>
+      <style>
+        @keyframes hkd-spin { to { transform: rotate(360deg); } }
+      </style>
+    </div>
+    <!-- Fallback navigation for search engine bots without JavaScript -->
+    <noscript>
+      <header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header>
+      <main style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+        <h1 style="font-size: 2rem; margin-bottom: 1rem;">Bær troen med stolthet</h1>
+        <p>Oppdag eksklusive kristne klær, hettegensere, t-skjorter og tilbehør med meningsfulle budskap. Høy kvalitet og rask levering fra Norge.</p>
+        <nav aria-label="Hovednavigasjon" style="margin-top: 2rem; padding: 1.5rem; background: #f8f6f0; border-radius: 12px;">
+          <h2 style="font-size: 1.1rem; margin-bottom: 0.75rem; font-weight: 600;">Utforsk His Kingdom Designs</h2>
+          <ul style="display: flex; flex-wrap: wrap; gap: 1rem; list-style: none; padding: 0; margin: 0;">
+            <li><a href="/" style="color: #151a21; text-decoration: underline;">Hjem</a></li>
+            <li><a href="/produkter" style="color: #151a21; text-decoration: underline;">Alle Produkter</a></li>
+            <li><a href="/category/kristne-klaer" style="color: #151a21; text-decoration: underline;">Kristne klær</a></li>
+            <li><a href="/category/kristne-t-skjorter" style="color: #151a21; text-decoration: underline;">Kristne T-skjorter</a></li>
+            <li><a href="/category/kristne-gensere" style="color: #151a21; text-decoration: underline;">Kristne gensere</a></li>
+            <li><a href="/category/kristen-streetwear" style="color: #151a21; text-decoration: underline;">Kristen streetwear</a></li>
+            <li><a href="/category/klaer-med-bibelvers" style="color: #151a21; text-decoration: underline;">Klær med bibelvers</a></li>
+            <li><a href="/om-oss" style="color: #151a21; text-decoration: underline;">Om Oss</a></li>
+            <li><a href="/vart-team" style="color: #151a21; text-decoration: underline;">Vårt Team</a></li>
+            <li><a href="/frakt-og-retur" style="color: #151a21; text-decoration: underline;">Frakt og Retur</a></li>
+            <li><a href="/faq" style="color: #151a21; text-decoration: underline;">FAQ</a></li>
+            <li><a href="/personvern" style="color: #151a21; text-decoration: underline;">Personvern</a></li>
+            <li><a href="/betingelser" style="color: #151a21; text-decoration: underline;">Kjøpsbetingelser</a></li>
+          </ul>
+        </nav>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
