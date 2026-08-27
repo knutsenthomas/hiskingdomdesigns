@@ -1650,7 +1650,7 @@ export default function Admin() {
                           </div>
                           <p className="text-2xl font-extrabold text-onyx">{wixStats?.totalContacts || (wixStats?.members || []).length}</p>
                           <a 
-                            href="https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/contacts/all-contacts" 
+                            href="https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/contacts" 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-[11px] text-[#d17d39] font-bold hover:underline inline-flex items-center gap-1 mt-1"
@@ -2920,7 +2920,7 @@ export default function Admin() {
                 {/* Footer Buttons */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-outline-variant/30">
                   <a
-                    href={`https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/contacts/contact/${selectedCustomerModal.customer.contactId || selectedCustomerModal.customer.contact?.contactId || selectedCustomerModal.customer._id}`}
+                    href={`https://manage.wix.com/dashboard/7682a906-41f6-4e8d-b0b1-bfdb5ee596e7/contacts?contactId=${selectedCustomerModal.customer.contactId || selectedCustomerModal.customer._id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-secondary hover:text-onyx text-xs font-medium inline-flex items-center gap-1.5"
