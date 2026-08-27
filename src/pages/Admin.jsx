@@ -919,26 +919,30 @@ export default function Admin() {
     if (!wixStats || !wixStats.orders) return [];
     const memberId = cust._id;
     const memberEmail = (cust.loginEmail || cust.contact?.emails?.[0]?.email || '').toLowerCase().trim();
-    return wixStats.orders.filter(o => {
-      const orderMemberId = o.buyerInfo?.memberId;
-      const orderEmail = (o.buyerInfo?.email || '').toLowerCase().trim();
-      if (memberId && orderMemberId && memberId === orderMemberId) return true;
-      if (memberEmail && orderEmail && memberEmail === orderEmail) return true;
-      return false;
-    });
+    return wixStats.orders
+      .filter(o => {
+        const orderMemberId = o.buyerInfo?.memberId;
+        const orderEmail = (o.buyerInfo?.email || '').toLowerCase().trim();
+        if (memberId && orderMemberId && memberId === orderMemberId) return true;
+        if (memberEmail && orderEmail && memberEmail === orderEmail) return true;
+        return false;
+      })
+      .sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
   };
 
-  const filteredCustomers = (wixStats?.members || []).filter(cust => {
-    const q = customerSearchQuery.toLowerCase().trim();
-    if (!q) return true;
-    const name = `${cust.contact?.firstName || ''} ${cust.contact?.lastName || ''}`.toLowerCase();
-    const nickname = (cust.profile?.nickname || '').toLowerCase();
-    const email = (cust.loginEmail || cust.contact?.emails?.[0]?.email || '').toLowerCase();
-    const phone = (cust.contact?.phones?.[0] || '').toLowerCase();
-    const city = (cust.contact?.addresses?.[0]?.city || '').toLowerCase();
-    const addr = (cust.contact?.addresses?.[0]?.addressLine || '').toLowerCase();
-    return name.includes(q) || nickname.includes(q) || email.includes(q) || phone.includes(q) || city.includes(q) || addr.includes(q);
-  });
+  const filteredCustomers = (wixStats?.members || [])
+    .filter(cust => {
+      const q = customerSearchQuery.toLowerCase().trim();
+      if (!q) return true;
+      const name = `${cust.contact?.firstName || ''} ${cust.contact?.lastName || ''}`.toLowerCase();
+      const nickname = (cust.profile?.nickname || '').toLowerCase();
+      const email = (cust.loginEmail || cust.contact?.emails?.[0]?.email || '').toLowerCase();
+      const phone = (cust.contact?.phones?.[0] || '').toLowerCase();
+      const city = (cust.contact?.addresses?.[0]?.city || '').toLowerCase();
+      const addr = (cust.contact?.addresses?.[0]?.addressLine || '').toLowerCase();
+      return name.includes(q) || nickname.includes(q) || email.includes(q) || phone.includes(q) || city.includes(q) || addr.includes(q);
+    })
+    .sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
 
   const activeWixStats = getParsedWixStats(wixStats, timeRange, customStartDate, customEndDate);
   const activeGaStats = getParsedGaStats(gaStats, activeWixStats);

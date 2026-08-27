@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         filter: {},
         cursorPaging: { limit: 100 }
       });
-      ordersList = ordersRes.orders || [];
+      ordersList = (ordersRes.orders || []).sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
       totalOrders = ordersRes.totalCount || ordersList.length || 0;
     } catch (oErr) {
       console.warn('API Warning: Failed to fetch orders from Wix:', oErr);
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       })
         .limit(100)
         .find();
-      membersList = membersRes.items || [];
+      membersList = (membersRes.items || []).sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
       totalContacts = membersRes.totalCount || membersList.length || 0;
     } catch (mErr) {
       console.warn('API Warning: Failed to fetch members from Wix:', mErr);
@@ -66,11 +66,11 @@ export default async function handler(req, res) {
     let abandonedList = [];
     try {
       const abRes = await wixClient.abandonedCheckouts.searchAbandonedCheckouts({});
-      abandonedList = abRes.abandonedCheckouts || [];
+      abandonedList = (abRes.abandonedCheckouts || []).sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
     } catch (abErr) {
       try {
         const abQueryRes = await wixClient.abandonedCheckouts.queryAbandonedCheckouts().limit(100).find();
-        abandonedList = abQueryRes.items || [];
+        abandonedList = (abQueryRes.items || []).sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
       } catch (abQueryErr) {
         console.warn('API Warning: Failed to fetch abandoned checkouts from Wix:', abQueryErr);
       }
