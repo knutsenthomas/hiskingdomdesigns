@@ -576,35 +576,6 @@ export default function Home() {
     .filter(p => p.isBestseller && (language === 'en' || !p.isOceaniaExclusive))
     .map(p => translateProduct(p));
 
-  useEffect(() => {
-    // Intersection Observer for reveal-on-scroll animations
-    const observerOptions = {
-      threshold: 0.05,
-      rootMargin: '50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, observerOptions);
-
-    const animatedElements = document.querySelectorAll('.reveal-on-scroll');
-    animatedElements.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top <= (window.innerHeight || document.documentElement.clientHeight) + 100) {
-        el.classList.add('visible');
-      }
-      observer.observe(el);
-    });
-
-    return () => {
-      animatedElements.forEach(el => observer.unobserve(el));
-    };
-  }, []);
-
   const currentSlide = slides[heroSlide] || slides[0] || {};
 
   return (
@@ -809,7 +780,7 @@ export default function Home() {
       </section>
 
       {/* Best Sellers */}
-      <section className="bg-white py-section-gap reveal-on-scroll">
+      <section className="bg-white py-section-gap">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <CmsText 
             slug="home-bestsellers-title" 
@@ -827,7 +798,7 @@ export default function Home() {
 
       {/* Testimonials */}
       {testimonialsList.length > 0 && (
-        <section className="bg-parchment py-section-gap overflow-hidden reveal-on-scroll">
+        <section className="bg-parchment py-section-gap overflow-hidden">
           <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
             <CmsText
               slug="home-testimonials-title"
@@ -869,7 +840,7 @@ export default function Home() {
 
       {/* Subscription Packages */}
       {plansList.length > 0 && (
-        <section id="manedspakker" className="bg-white py-section-gap overflow-hidden reveal-on-scroll scroll-mt-24">
+        <section id="manedspakker" className="bg-white py-section-gap overflow-hidden scroll-mt-24">
           <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16">
             <div className="w-full lg:w-1/2 relative">
               <div className="absolute -top-10 -left-10 w-40 h-40 bg-terracotta/10 rounded-full blur-3xl"></div>
@@ -978,7 +949,7 @@ export default function Home() {
       )}
 
       {/* Brand Story & Values */}
-      <section id="historie" className="py-section-gap bg-parchment reveal-on-scroll scroll-mt-24">
+      <section id="historie" className="py-section-gap bg-parchment scroll-mt-24">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto text-center">
           <div className="max-w-[800px] mx-auto mb-12">
             <div className="w-20 h-20 mb-8 flex items-center justify-center mx-auto overflow-hidden">
@@ -1035,7 +1006,7 @@ export default function Home() {
       </section>
 
       {/* Instagram Feed */}
-      <section className="py-section-gap bg-white reveal-on-scroll">
+      <section className="py-section-gap bg-white">
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <div className="text-center mb-12">
             <CmsText slug="home-instagram-title" fallback={t('home.instagram.title')} as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold mb-4 text-onyx block" />
@@ -1065,8 +1036,8 @@ export default function Home() {
           <div className="text-center">
             <a 
               href="https://www.instagram.com/hiskingdomdesigns/" 
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" 
+              rel="noopener noreferrer" 
               className="inline-flex items-center gap-2 bg-onyx text-white px-8 py-4 rounded font-label-md text-label-md hover:bg-terracotta hover:scale-[1.02] transition-all"
             >
               @hiskingdomdesigns
@@ -1076,7 +1047,7 @@ export default function Home() {
       </section>
 
       {/* Newsletter */}
-      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto mb-section-gap reveal-on-scroll">
+      <section className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto mb-section-gap">
         <div className="bg-onyx rounded-3xl p-12 md:p-20 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-terracotta/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-terracotta/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
