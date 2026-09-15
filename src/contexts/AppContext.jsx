@@ -1035,7 +1035,24 @@ export const AppProvider = ({ children }) => {
     }
 
     // 1. Prioritize specific customer service topics to prevent false matches on helper words
-    if (lower.includes('retur') || lower.includes('bytte') || lower.includes('angre') || lower.includes('angrerett') || lower.includes('fortre')) {
+    if (
+      lower.includes('feilmelding') || 
+      lower.includes('handlekurv') || 
+      lower.includes('handlekurven') || 
+      lower.includes('kurven er tom') || 
+      lower.includes('får ikke bestilt') || 
+      lower.includes('får ikke betalt') || 
+      lower.includes('kassen fungerer ikke') ||
+      lower.includes('problem med bestilling')
+    ) {
+      reply = '### 🛒 Hjelp med bestilling & handlekurv\n\n' +
+        'Hei! Beklager så mye for at du opplever problemer med bestillingen eller handlekurven!\n\n' +
+        'Vi vil gjerne hjelpe deg med en gang! Du kan enten:\n' +
+        '1. **Sende oss en melding her i Kundeservice (Live)** med hva du ønsker å bestille (produktnavn, størrelse, farge, samt ditt navn, adresse og telefonnummer), så oppretter vi bestillingen manuelt for deg med Vipps.\n' +
+        '2. Eller sende en e-post direkte til **post@hiskingdomministry.no**.\n\n' +
+        'Vi svarer raskt og ordner dette for deg! 🤍';
+    }
+    else if (lower.includes('retur') || lower.includes('bytte') || lower.includes('angre') || lower.includes('angrerett') || lower.includes('fortre')) {
       reply = '### 🔄 Enkel Retur & Bytte\n\n' +
         'Hei! Det er helt i orden å ombestemme seg eller bytte størrelse. Du har **14 dagers angrerett** fra du mottar varen.\n' +
         'Produktet må være ubrukt, i original stand og i originalemballasjen. Du må selv dekke returportoen med mindre annet er avtalt.\n' +
@@ -1046,7 +1063,7 @@ export const AppProvider = ({ children }) => {
         'Hei! Beklager at rabattkoden ikke fungerer som den skal. Vennligst dobbeltsjekk at den er stavet riktig, og at den ikke har utløpt.\n' +
         'Merk at rabattkoder ofte ikke gjelder på allerede nedsatte varer. Hvis det fortsatt ikke fungerer, send koden til meg her, så skal jeg sjekke den for deg med en gang! 🎟️';
     }
-    else if (lower.includes('frakt') || lower.includes('levering') || lower.includes('sende')) {
+    else if (lower.includes('frakt') || lower.includes('leveringstid') || lower.includes('porto') || (lower.includes('levering') && !lower.includes('adresse')) || lower.includes('hva koster frakt')) {
       reply = '### 🚚 Leveringstid & Frakt\n\n' +
         'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid ca. **2 uker** (produksjonstid 1-2 uker pluss frakt).\n' +
         'Du vil motta en bekreftelse på e-post med sporingsinfo så snart pakken din er på vei! 📦\n\n' +

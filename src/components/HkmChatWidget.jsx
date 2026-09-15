@@ -715,52 +715,6 @@ export default function HkmChatWidget() {
       
       // Refresh messages so the user message has its real Wix status
       fetchLiveMessages(activeConvId);
-
-      setIsLiveTyping(true);
-      setTimeout(async () => {
-        try {
-          const aiReply = generateAiResponseText(textToSend);
-
-          const aiMessagePayload = {
-            direction: 'BUSINESS_TO_PARTICIPANT',
-            visibility: 'BUSINESS_AND_PARTICIPANT',
-            content: {
-              basic: {
-                items: [
-                  {
-                    text: aiReply
-                  }
-                ]
-              }
-            }
-          };
-
-          await fetchWithTimeout(
-            fetch(`${host}/api/send-message`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ conversationId: activeConvId, message: aiMessagePayload })
-            }).then(async (r) => {
-              if (!r.ok) {
-                const errJson = await r.json().catch(() => ({}));
-                const err = new Error(errJson.error || `HTTP error ${r.status}`);
-                err.status = r.status;
-                err.details = errJson.details || errJson.error;
-                throw err;
-              }
-              return r.json();
-            }),
-            15000
-          );
-          
-          fetchLiveMessages(activeConvId);
-        } catch (aiErr) {
-          console.error('Failed to send automated AI response to Wix Inbox:', aiErr);
-        } finally {
-          setIsLiveTyping(false);
-        }
-      }, 1500);
-
     } catch (err) {
       console.error('Failed to send message to Wix Inbox:', err);
       const errStr = (err.message || '').toLowerCase();
