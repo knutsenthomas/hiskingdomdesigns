@@ -115,6 +115,7 @@ export const staticWixClient = createClient({
 export const resetWixTokens = async () => {
   try {
     localStorage.removeItem('wix_oauth_tokens');
+    setCookieToken(null);
     await wixClient.auth.setTokens(EMPTY_TOKENS);
   } catch (e) {
     console.warn('Failed to reset Wix tokens:', e);
@@ -128,12 +129,15 @@ export const isWixAuthError = (err) => {
   if (!err) return false;
   const msg = (err.message || String(err)).toLowerCase();
   const status = err.status || err.code || err.details?.applicationError?.code;
+  const violations = err.details?.validationError?.fieldViolations || [];
+  const hasExpiredRule = violations.some(v => v.ruleName === 'EXPIRED_SESSION_CANT_BE_USED');
   return (
     status === 401 ||
     status === 403 ||
     status === 'UNAUTHENTICATED' ||
     status === 'PERMISSION_DENIED' ||
     status === 'INVALID_TOKEN' ||
+    hasExpiredRule ||
     msg.includes('401') ||
     msg.includes('403') ||
     msg.includes('unauthorized') ||
@@ -141,7 +145,8 @@ export const isWixAuthError = (err) => {
     msg.includes('invalid token') ||
     msg.includes('invalid_grant') ||
     msg.includes('jwt') ||
-    msg.includes('token expired')
+    msg.includes('token expired') ||
+    msg.includes('session expired')
   );
 };
 
