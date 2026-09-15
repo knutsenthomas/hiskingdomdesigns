@@ -11,18 +11,47 @@ import { giftVouchers } from '@wix/gift-vouchers';
 import { conversations as inboxConversations, messages as inboxMessages } from '@wix/inbox';
 import { headlessSite } from '@wix/headless-site';
 
-// Custom localStorage token storage to persist client OAuth session tokens across page reloads
+// Cookie helpers to ensure cross-storage resilience (Safari ITP / private browsing)
+const getCookieToken = () => {
+  try {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(/(?:^|;\s*)wix_oauth_tokens=([^;]+)/);
+    if (match && match[1]) {
+      const decoded = decodeURIComponent(match[1]);
+      const parsed = JSON.parse(decoded);
+      return (parsed && typeof parsed === 'object') ? parsed : null;
+    }
+  } catch (e) {}
+  return null;
+};
+
+const setCookieToken = (tokens) => {
+  try {
+    if (typeof document === 'undefined') return;
+    if (!tokens) {
+      document.cookie = 'wix_oauth_tokens=; path=/; max-age=0; SameSite=Lax';
+    } else {
+      const val = encodeURIComponent(JSON.stringify(tokens));
+      document.cookie = `wix_oauth_tokens=${val}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+  } catch (e) {}
+};
+
+// Custom dual localStorage + Cookie token storage to persist client OAuth session tokens across page reloads
 const customTokenStorage = {
   getTokens: () => {
     try {
       const stored = localStorage.getItem('wix_oauth_tokens');
-      if (!stored || stored === 'null' || stored === 'undefined') {
-        return EMPTY_TOKENS;
+      if (stored && stored !== 'null' && stored !== 'undefined') {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') return parsed;
       }
-      const parsed = JSON.parse(stored);
-      return (parsed && typeof parsed === 'object') ? parsed : EMPTY_TOKENS;
+      const cookieToken = getCookieToken();
+      if (cookieToken) return cookieToken;
+      return EMPTY_TOKENS;
     } catch (e) {
-      console.error('Failed to read Wix tokens from localStorage:', e);
+      const cookieToken = getCookieToken();
+      if (cookieToken) return cookieToken;
       return EMPTY_TOKENS;
     }
   },
@@ -30,11 +59,13 @@ const customTokenStorage = {
     try {
       if (!tokens) {
         localStorage.removeItem('wix_oauth_tokens');
+        setCookieToken(null);
       } else {
         localStorage.setItem('wix_oauth_tokens', JSON.stringify(tokens));
+        setCookieToken(tokens);
       }
     } catch (e) {
-      console.error('Failed to write Wix tokens to localStorage:', e);
+      setCookieToken(tokens);
     }
   }
 };

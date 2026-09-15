@@ -193,10 +193,23 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product, selectedSize = 'M', selectedColor = 'Hvit', qty = 1, selectedOptions = {}, customTextFields = [], variantId = null, sku = null) => {
     setIsCartDrawerOpen(true); // Open the drawer immediately on add
-    setCartItems(prev => {
-      const resolvedVariantId = variantId || product.variantId || product.selectedVariantId || null;
-      const resolvedSku = sku || product.sku || null;
+    const resolvedVariantId = variantId || product.variantId || product.selectedVariantId || null;
+    const resolvedSku = sku || product.sku || null;
 
+    const newItem = {
+      ...product,
+      id: product.id || product._id,
+      variantId: resolvedVariantId,
+      sku: resolvedSku,
+      selectedSize,
+      selectedColor,
+      selectedOptions,
+      customTextFields,
+      customTextFieldDefinitions: product.customTextFields || [],
+      quantity: qty
+    };
+
+    setCartItems(prev => {
       const existingIndex = prev.findIndex(item => 
         item.id === product.id && 
         (resolvedVariantId && item.variantId ? item.variantId === resolvedVariantId : true) &&
@@ -217,19 +230,23 @@ export const CartProvider = ({ children }) => {
         }
         return updated;
       } else {
-        return [...prev, {
-          ...product,
-          variantId: resolvedVariantId,
-          sku: resolvedSku,
-          selectedSize,
-          selectedColor,
-          selectedOptions,
-          customTextFields,
-          customTextFieldDefinitions: product.customTextFields || [],
-          quantity: qty
-        }];
+        return [...prev, newItem];
       }
     });
+
+    // Immediate asynchronous background sync of this item to Wix currentCart
+    (async () => {
+      try {
+        const { wixClient } = await getWixClient();
+        const mapped = await mapCartItemsToWixLineItems([newItem]);
+        if (mapped && mapped.length > 0) {
+          await withCartRecovery(() => wixClient.currentCart.addToCurrentCart({ lineItems: mapped }));
+          console.log('CartContext: Immediately sent line item to Wix currentCart:', product.id);
+        }
+      } catch (err) {
+        console.warn('CartContext: Immediate line item add caught, will reconcile on debounce/checkout:', err);
+      }
+    })();
   };
 
   const removeFromCart = (productId, selectedSize, selectedColor, selectedOptions = {}, customTextFields = []) => {
