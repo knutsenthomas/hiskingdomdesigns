@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from '@/lib/colors';
+import { notifySlackChatMessage } from '@/lib/incidentAlerts';
 
 const getWixClient = async () => {
   const { wixClient } = await import('@/lib/wix');
@@ -1347,6 +1348,20 @@ export const AppProvider = ({ children }) => {
           text: reply,
           time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
         }]);
+
+        // Send real-time Slack notification about customer inquiry
+        const email = member?.loginEmail || member?.contactDetails?.emails?.[0]?.email || member?.contact?.emails?.[0]?.email || null;
+        const name = member?.contactDetails?.firstName 
+          ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ''}`.trim()
+          : (member?.contact?.firstName ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() : null);
+
+        notifySlackChatMessage({
+          userMessage: text,
+          assistantReply: reply,
+          customerEmail: email,
+          customerName: name,
+          mode: 'ai'
+        });
       } catch (err) {
         console.error('Error in HKD Assistant reply generator:', err);
         setAssistantMessages(prev => [...prev, {

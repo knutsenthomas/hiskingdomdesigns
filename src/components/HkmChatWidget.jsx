@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
+import { notifySlackChatMessage } from '@/lib/incidentAlerts';
 
 // Helper to parse bold (**), italic (*), and markdown links ([text](url)) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
@@ -715,6 +716,15 @@ export default function HkmChatWidget() {
       
       // Refresh messages so the user message has its real Wix status
       fetchLiveMessages(activeConvId);
+
+      // Notify Slack channel about the live customer message!
+      notifySlackChatMessage({
+        userMessage: textToSend,
+        customerEmail: contactEmail || (member ? getMemberEmail(member) : null),
+        customerName: contactName || displayName,
+        mode: 'live',
+        conversationId: activeConvId
+      });
     } catch (err) {
       console.error('Failed to send message to Wix Inbox:', err);
       const errStr = (err.message || '').toLowerCase();

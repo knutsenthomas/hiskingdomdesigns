@@ -90,3 +90,49 @@ export async function reportCheckoutIncident({
     console.warn('[IncidentAlert] Global handler exception (non-blocking):', outerErr);
   }
 }
+
+/**
+ * Notifies Slack in real-time when a customer sends a message to the HKM Assistant or Live chat.
+ */
+export async function notifySlackChatMessage({
+  userMessage,
+  assistantReply = null,
+  customerEmail = null,
+  customerName = null,
+  mode = 'ai',
+  conversationId = null
+} = {}) {
+  try {
+    if (!userMessage || !userMessage.trim()) return;
+
+    let email = customerEmail;
+    if (!email) {
+      try {
+        email = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
+      } catch (e) {}
+    }
+
+    const payload = {
+      userMessage: userMessage.trim(),
+      assistantReply: assistantReply ? assistantReply.trim() : null,
+      customerEmail: email,
+      customerName: customerName || null,
+      pageUrl: typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '/',
+      mode,
+      conversationId,
+      timestamp: new Date().toISOString()
+    };
+
+    fetch('/api/notify-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(err => {
+      console.warn('[ChatNotify] Failed to dispatch to /api/notify-chat:', err);
+    });
+  } catch (err) {
+    console.warn('[ChatNotify] Error in notifySlackChatMessage:', err);
+  }
+}
+
