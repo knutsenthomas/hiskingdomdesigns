@@ -112,6 +112,17 @@ export async function notifySlackChatMessage({
       } catch (e) {}
     }
 
+    let sessionId = null;
+    let threadTs = null;
+    try {
+      sessionId = localStorage.getItem('hkd-chat-session-id');
+      if (!sessionId) {
+        sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        localStorage.setItem('hkd-chat-session-id', sessionId);
+      }
+      threadTs = localStorage.getItem('hkd-slack-thread-ts');
+    } catch (e) {}
+
     const payload = {
       userMessage: userMessage.trim(),
       assistantReply: assistantReply ? assistantReply.trim() : null,
@@ -120,6 +131,8 @@ export async function notifySlackChatMessage({
       pageUrl: typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '/',
       mode,
       conversationId,
+      sessionId,
+      threadTs,
       timestamp: new Date().toISOString()
     };
 
@@ -128,9 +141,20 @@ export async function notifySlackChatMessage({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       keepalive: true
-    }).catch(err => {
-      console.warn('[ChatNotify] Failed to dispatch to /api/notify-chat:', err);
-    });
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          const json = await res.json().catch(() => ({}));
+          if (json.threadTs) {
+            try {
+              localStorage.setItem('hkd-slack-thread-ts', json.threadTs);
+            } catch (e) {}
+          }
+        }
+      })
+      .catch(err => {
+        console.warn('[ChatNotify] Failed to dispatch to /api/notify-chat:', err);
+      });
   } catch (err) {
     console.warn('[ChatNotify] Error in notifySlackChatMessage:', err);
   }

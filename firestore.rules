@@ -13,5 +13,14 @@ service cloud.firestore {
     match /order_returns/{document=**} {
       allow read, write: if true;
     }
+    match /chat_sessions/{document=**} {
+      allow read, write: if true;
+    }
+    match /slack_chat_threads/{document=**} {
+      allow read, write: if true;
+    }
+    match /checkout_incidents/{document=**} {
+      allow read, write: if true;
+    }
   }
 }

@@ -4,6 +4,8 @@ import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import { notifySlackChatMessage } from '@/lib/incidentAlerts';
+import { db } from '@/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 // Helper to parse bold (**), italic (*), and markdown links ([text](url)) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
@@ -518,6 +520,48 @@ export default function HkmChatWidget() {
       if (interval) clearInterval(interval);
     };
   }, [chatMode, conversationId]);
+
+  // Real-time Firestore listener: instantly renders replies sent by store owner in Slack
+  useEffect(() => {
+    const sessionId = safeStorage.getItem('hkd-chat-session-id') || conversationId;
+    if (!sessionId || !db) return;
+
+    try {
+      const q = query(
+        collection(db, 'chat_sessions', sessionId, 'messages'),
+        orderBy('createdAt', 'asc')
+      );
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const data = change.doc.data();
+            if (data.source === 'slack' && data.sender === 'assistant') {
+              const newMsg = {
+                id: change.doc.id,
+                sender: 'assistant',
+                text: data.text,
+                time: data.time || new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+              };
+
+              setLiveMessages((prev) => {
+                if (prev.some((m) => m.id === newMsg.id || (m.text === newMsg.text && m.sender === 'assistant'))) {
+                  return prev;
+                }
+                return [...prev, newMsg];
+              });
+            }
+          }
+        });
+      }, (err) => {
+        console.warn('[ChatWidget] Firestore real-time listener error:', err);
+      });
+
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn('[ChatWidget] Failed attaching real-time listener:', e);
+    }
+  }, [conversationId]);
 
   // Scroll to the top of the newest reply
   const messagesToScroll = chatMode === 'ai' ? assistantMessages : liveMessages;
