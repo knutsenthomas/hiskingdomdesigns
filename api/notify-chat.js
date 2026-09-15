@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
+    const slackWebhookUrl = process.env.SLACK_CHAT_WEBHOOK_URL || process.env.SLACK_WEBHOOK_URL;
     const nowFormatted = new Date().toLocaleString('nb-NO', { timeZone: 'Europe/Oslo' });
 
     console.log(`[ChatNotify] New message from ${customerEmail || customerName || 'Anonym'}: "${userMessage.substring(0, 50)}..."`);
