@@ -116,15 +116,21 @@ const normalizeSelectedOptions = (selectedOptions, productOptions) => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => {
+  // Helper to safely load cart from storage with fallback
+  const loadSavedCartItems = () => {
     try {
-      const saved = localStorage.getItem('hkd-cart-items');
-      return saved ? JSON.parse(saved) : [];
+      const saved = localStorage.getItem('hkd-cart-items') || localStorage.getItem('hkd-cart') || sessionStorage.getItem('hkd-cart-items');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch (e) {
       console.error('Failed to load cart items from localStorage', e);
-      return [];
     }
-  });
+    return [];
+  };
+
+  const [cartItems, setCartItems] = useState(loadSavedCartItems);
 
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
 
@@ -177,6 +183,9 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     try {
       localStorage.setItem('hkd-cart-items', JSON.stringify(cartItems));
+      localStorage.setItem('hkd-cart', JSON.stringify(cartItems)); // legacy alias
+      sessionStorage.setItem('hkd-cart-items', JSON.stringify(cartItems)); // resilient session fallback
+      window.dispatchEvent(new CustomEvent('hkd-cart-updated', { detail: { count: cartItems.length } }));
     } catch (e) {
       console.error('Failed to save cart items to localStorage', e);
     }
@@ -323,31 +332,38 @@ export const CartProvider = ({ children }) => {
         throw getErr;
       }
 
-      const wixLineItems = wixCartRes.lineItems || [];
-      
+      const isCartItemMatch = (wixItem, loc) => {
+        if (!wixItem || !loc) return false;
+        const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference?.appId;
+        const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference?.catalogItemId;
+        if (!appIdMatch || !itemIdMatch) return false;
+
+        const wixVariantId = wixItem.catalogReference?.options?.variantId;
+        const locVariantId = loc.catalogReference?.options?.variantId;
+        if (wixVariantId && locVariantId) {
+          if (wixVariantId !== locVariantId) return false;
+        }
+
+        const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
+        const locCustomFields = loc.catalogReference?.options?.customTextFields || {};
+        if (JSON.stringify(wixCustomFields) !== JSON.stringify(locCustomFields)) return false;
+
+        return true;
+      };
+
       // 1. Find items in Wix cart that are NOT in local cart and remove them
       const itemsToRemove = [];
-      wixLineItems.forEach(wixItem => {
-        const localMatch = localMapped.find(loc => {
-          const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
-          const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
-          const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
-          
-          const wixOptions = wixItem.catalogReference?.options?.options || {};
-          const locOptions = loc.catalogReference.options?.options || {};
-          const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
-          
-          const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
-          const locCustomFields = loc.catalogReference.options?.customTextFields || {};
-          const customFieldsMatch = JSON.stringify(wixCustomFields) === JSON.stringify(locCustomFields);
-          
-          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch && customFieldsMatch;
+      if (localMapped.length > 0) {
+        wixLineItems.forEach(wixItem => {
+          const localMatch = localMapped.find(loc => isCartItemMatch(wixItem, loc));
+          if (!localMatch) {
+            itemsToRemove.push(wixItem._id);
+          }
         });
-        
-        if (!localMatch) {
-          itemsToRemove.push(wixItem._id);
-        }
-      });
+      } else if (items.length === 0 && wixLineItems.length > 0) {
+        // User explicitly emptied cart
+        wixLineItems.forEach(wixItem => itemsToRemove.push(wixItem._id));
+      }
       
       if (itemsToRemove.length > 0) {
         console.log('Removing items from Wix cart:', itemsToRemove);
@@ -366,21 +382,7 @@ export const CartProvider = ({ children }) => {
       const itemsToAdd = [];
 
       for (const loc of localMapped) {
-        const wixMatch = updatedWixLineItems.find(wixItem => {
-          const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference.appId;
-          const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference.catalogItemId;
-          const variantIdMatch = wixItem.catalogReference?.options?.variantId === loc.catalogReference.options?.variantId;
-          
-          const wixOptions = wixItem.catalogReference?.options?.options || {};
-          const locOptions = loc.catalogReference.options?.options || {};
-          const optionsMatch = JSON.stringify(wixOptions) === JSON.stringify(locOptions);
-          
-          const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
-          const locCustomFields = loc.catalogReference.options?.customTextFields || {};
-          const customFieldsMatch = JSON.stringify(wixCustomFields) === JSON.stringify(locCustomFields);
-          
-          return appIdMatch && itemIdMatch && variantIdMatch && optionsMatch && customFieldsMatch;
-        });
+        const wixMatch = updatedWixLineItems.find(wixItem => isCartItemMatch(wixItem, loc));
         
         if (wixMatch) {
           if (wixMatch.quantity !== loc.quantity) {
@@ -475,14 +477,18 @@ export const CartProvider = ({ children }) => {
         const customTextFieldsMap = lineItem.catalogReference?.options?.customTextFields || {};
         const optionsMap = lineItem.catalogReference?.options?.options || {};
         
-        const fullProduct = await resolveProductDetails(catalogItemId);
-        if (!fullProduct) return null;
+        let fullProduct = null;
+        try {
+          fullProduct = await resolveProductDetails(catalogItemId);
+        } catch (err) {
+          console.warn(`Could not fetch full details for ${catalogItemId}, using lineItem fallback:`, err);
+        }
         
         let selectedSize = 'M';
         let selectedColor = 'Hvit';
-        let sku = lineItem.physicalProperties?.sku || fullProduct.sku || fullProduct._id;
+        let sku = lineItem.physicalProperties?.sku || fullProduct?.sku || fullProduct?._id || catalogItemId;
         
-        if (variantId && fullProduct.variants) {
+        if (variantId && fullProduct?.variants) {
           const vMatch = fullProduct.variants.find(v => (v._id === variantId || v.id === variantId));
           if (vMatch) {
             sku = vMatch.variant?.sku || vMatch.sku || sku;
@@ -497,6 +503,15 @@ export const CartProvider = ({ children }) => {
               });
             }
           }
+        } else if (optionsMap) {
+          Object.entries(optionsMap).forEach(([k, v]) => {
+            const kLower = k.toLowerCase();
+            if (kLower === 'color' || kLower === 'farge') {
+              selectedColor = resolveColor(v).name;
+            } else if (kLower.includes('size') || kLower.includes('størrelse') || kLower === 'str') {
+              selectedSize = v;
+            }
+          });
         }
         
         const customTextFields = Object.entries(customTextFieldsMap).map(([title, value]) => ({
@@ -505,30 +520,47 @@ export const CartProvider = ({ children }) => {
         }));
         
         return {
-          id: fullProduct._id || catalogItemId,
-          name: fullProduct.name || lineItem.productName?.original || 'Produkt',
-          price: fullProduct.price?.discountedPrice || fullProduct.price?.price || parseFloat(lineItem.price?.amount || '0'),
-          image: lineItem.image?.url || fullProduct.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
-          images: fullProduct.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
-          media: fullProduct.media,
-          mediaItems: fullProduct.media?.items || [],
-          productOptions: fullProduct.productOptions,
-          manageVariants: fullProduct.manageVariants,
-          variants: fullProduct.variants,
+          id: fullProduct?._id || catalogItemId,
+          name: fullProduct?.name || lineItem.productName?.original || lineItem.productName?.translated || 'Produkt',
+          price: fullProduct?.price?.discountedPrice || fullProduct?.price?.price || parseFloat(lineItem.price?.amount || '0'),
+          image: lineItem.image?.url || fullProduct?.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
+          images: fullProduct?.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || (lineItem.image?.url ? [lineItem.image.url] : []),
+          media: fullProduct?.media,
+          mediaItems: fullProduct?.media?.items || [],
+          productOptions: fullProduct?.productOptions,
+          manageVariants: fullProduct?.manageVariants,
+          variants: fullProduct?.variants,
           variantId,
           sku,
           selectedSize,
           selectedColor,
           selectedOptions: optionsMap,
           customTextFields,
-          customTextFieldDefinitions: fullProduct.customTextFields || [],
+          customTextFieldDefinitions: fullProduct?.customTextFields || [],
           quantity: lineItem.quantity || 1
         };
       }));
       
       const validItems = mappedItems.filter(Boolean);
       if (validItems.length > 0) {
-        setCartItems(validItems);
+        setCartItems(prev => {
+          // Merge server items with local items to ensure nothing is lost
+          const merged = [...prev];
+          validItems.forEach(serverItem => {
+            const idx = merged.findIndex(m => 
+              m.id === serverItem.id &&
+              (serverItem.variantId && m.variantId ? m.variantId === serverItem.variantId : true) &&
+              m.selectedSize === serverItem.selectedSize &&
+              m.selectedColor === serverItem.selectedColor
+            );
+            if (idx === -1) {
+              merged.push(serverItem);
+            } else {
+              merged[idx].quantity = Math.max(merged[idx].quantity, serverItem.quantity);
+            }
+          });
+          return merged;
+        });
       }
     } catch (err) {
       console.warn('Failed to sync server cart to local state:', err);
@@ -555,12 +587,13 @@ export const CartProvider = ({ children }) => {
           }
         }
         
+        const activeLocal = loadSavedCartItems();
         if (serverCart && Array.isArray(serverCart.lineItems) && serverCart.lineItems.length > 0) {
           console.log(`CartContext: Found ${serverCart.lineItems.length} items in server cart after login/auth change. Syncing to local...`);
           await syncServerCartToLocal(serverCart);
-        } else if (cartItems.length > 0) {
+        } else if (activeLocal.length > 0) {
           console.log('CartContext: Transferring guest cart items to active logged in session...');
-          await forceSyncCartWithWix(cartItems);
+          await forceSyncCartWithWix(activeLocal);
         }
       } catch (err) {
         console.warn('CartContext: Error during handleAuthChange cart sync:', err);
@@ -574,10 +607,10 @@ export const CartProvider = ({ children }) => {
       if (e.key === 'wix_oauth_tokens') {
         handleAuthChange();
       }
-      if (e.key === 'hkd-cart' && e.newValue) {
+      if ((e.key === 'hkd-cart-items' || e.key === 'hkd-cart') && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
+          if (Array.isArray(parsed) && parsed.length > 0) {
             setCartItems(parsed);
           }
         } catch (err) {}
@@ -599,7 +632,7 @@ export const CartProvider = ({ children }) => {
       window.removeEventListener('wix-auth-change', handleAuthChange);
       window.removeEventListener('storage', handleStorage);
     };
-  }, [cartItems]);
+  }, []);
 
   const mapCartItemsToWixLineItems = async (items) => {
     return Promise.all(items.map(async (item) => {
@@ -879,16 +912,26 @@ export const CartProvider = ({ children }) => {
     returnUrl = window.location.origin + '/cart',
     thankYouUrl = window.location.origin + '/profile'
   } = {}) => {
-    if (cartItems.length === 0) {
+    // Safety check: if React state is temporarily empty, try to restore from storage fallback first
+    let itemsToCheckout = cartItems;
+    if (!itemsToCheckout || itemsToCheckout.length === 0) {
+      const saved = loadSavedCartItems();
+      if (saved && saved.length > 0) {
+        itemsToCheckout = saved;
+        setCartItems(saved);
+      }
+    }
+
+    if (!itemsToCheckout || itemsToCheckout.length === 0) {
       throw new Error('Handlekurven er tom.');
     }
 
     return await withCartRecovery(async () => {
-      console.log('CartContext: Generating fresh checkout session...');
+      console.log('CartContext: Generating fresh checkout session for', itemsToCheckout.length, 'items...');
       const { wixClient } = await getWixClient();
       
       // 1. Force sync local cart with Wix currentCart to ensure identical state and fresh revision
-      const syncedCart = await forceSyncCartWithWix(cartItems);
+      const syncedCart = await forceSyncCartWithWix(itemsToCheckout);
 
       // 2. Create fresh checkout directly from the active currentCart
       let checkoutResult = null;
@@ -897,7 +940,7 @@ export const CartProvider = ({ children }) => {
           channelType: 'WEB'
         });
       } else {
-        const lineItems = await mapCartItemsToWixLineItems(cartItems);
+        const lineItems = await mapCartItemsToWixLineItems(itemsToCheckout);
         if (!lineItems || lineItems.length === 0) {
           throw new Error('Ingen gyldige varer å utsjekke.');
         }
@@ -959,7 +1002,7 @@ export const CartProvider = ({ children }) => {
         }
       }
 
-      // 4. Apply active gift card if set
+      // 5. Apply active gift card if set
       if (appliedGiftCard) {
         try {
           checkoutResult = await wixClient.checkout.updateCheckout(checkoutId, {}, {
@@ -971,7 +1014,7 @@ export const CartProvider = ({ children }) => {
         }
       }
 
-      // 5. Create fresh redirect session
+      // 6. Create fresh redirect session
       const redirectSession = await wixClient.redirects.createRedirectSession({
         ecomCheckout: {
           checkoutId: checkoutId
@@ -995,8 +1038,9 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.has('orderId') || params.has('checkoutId')) {
-        console.log('Detected return from successful checkout. Clearing cart.');
+      const isCompletedOrder = (params.has('orderId') && params.get('orderId')?.trim()) || params.get('wixResult') === 'success' || params.get('payment') === 'success';
+      if (isCompletedOrder) {
+        console.log('Detected return from confirmed successful checkout. Clearing cart.');
         setCartItems([]);
         setAppliedCoupon(null);
         setCouponError('');
@@ -1004,6 +1048,13 @@ export const CartProvider = ({ children }) => {
         setGiftCardError('');
         localStorage.removeItem('hkd-applied-coupon');
         localStorage.removeItem('hkd-applied-giftcard');
+        localStorage.removeItem('hkd-cart-items');
+        localStorage.removeItem('hkd-cart');
+        sessionStorage.removeItem('hkd-cart-items');
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      } else if (params.has('checkoutId')) {
+        console.log('Detected return from checkout flow without orderId. Preserving active cart items.');
         const newUrl = window.location.pathname + window.location.hash;
         window.history.replaceState({}, document.title, newUrl);
       }

@@ -180,7 +180,7 @@ export default function Cart() {
                   const translatedItem = translateProduct(item);
                   return (
                     <div 
-                      key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} 
+                      key={item.cartItemId || `${item.id}-${item.variantId || ''}-${item.selectedSize || ''}-${item.selectedColor || ''}-${JSON.stringify(item.selectedOptions || {})}-${JSON.stringify(item.customTextFields || [])}`} 
                       className="bg-white p-6 rounded-2xl shadow-sm border border-outline-variant/30 flex flex-col md:flex-row gap-6 items-center"
                     >
                       <div className="w-full md:w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-parchment flex items-center justify-center p-2 border border-outline-variant/20">

@@ -168,7 +168,7 @@ export default function CartDrawer() {
                   const translatedItem = translateProduct(item);
                   return (
                     <div 
-                      key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
+                      key={item.cartItemId || `${item.id}-${item.variantId || ''}-${item.selectedSize || ''}-${item.selectedColor || ''}-${JSON.stringify(item.selectedOptions || {})}-${JSON.stringify(item.customTextFields || [])}`}
                       className="flex gap-4 p-3 border border-outline-variant/30 rounded-xl bg-white hover:border-outline-variant transition-all"
                     >
                       {/* Item Image */}
