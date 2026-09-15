@@ -5,6 +5,7 @@ import { X, Plus, Minus, Trash2, ArrowRight, ArrowLeft, ShoppingCart, Lock } fro
 import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { reportCheckoutIncident } from '@/lib/incidentAlerts';
 
 export default function CartDrawer() {
   const { t, translateProduct, formatPrice, getActiveCurrency } = useLanguage();
@@ -92,6 +93,11 @@ export default function CartDrawer() {
       } catch (jsonErr) {
         console.error('Wix Checkout Error Details (raw):', err.details || err);
       }
+      reportCheckoutIncident({
+        source: 'CartDrawer',
+        error: err,
+        cartItems: cartItems
+      });
       setCheckoutError('Kunne ikke opprette betaling. Vennligst gå til handlekurven.');
       window.hkd_is_checking_out = false;
       setIsRedirecting(false);

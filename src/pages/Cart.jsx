@@ -7,6 +7,7 @@ import { wixClient } from '@/lib/wix';
 import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
+import { reportCheckoutIncident } from '@/lib/incidentAlerts';
 
 export default function Cart() {
   const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
@@ -128,6 +129,11 @@ export default function Cart() {
       } catch (jsonErr) {
         console.error('Wix Checkout Error Details (raw):', err.details || err);
       }
+      reportCheckoutIncident({
+        source: 'CartPage',
+        error: err,
+        cartItems: cartItems
+      });
       setErrorMessage('Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.');
       window.hkd_is_checking_out = false;
       setIsRedirecting(false);
