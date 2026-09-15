@@ -933,13 +933,19 @@ export const CartProvider = ({ children }) => {
       // 1. Force sync local cart with Wix currentCart to ensure identical state and fresh revision
       const syncedCart = await forceSyncCartWithWix(itemsToCheckout);
 
-      // 2. Create fresh checkout directly from the active currentCart
+      // 2. Create fresh checkout directly from the active currentCart with fallback to lineItems checkout
       let checkoutResult = null;
       if (syncedCart && Array.isArray(syncedCart.lineItems) && syncedCart.lineItems.length > 0) {
-        checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
-          channelType: 'WEB'
-        });
-      } else {
+        try {
+          checkoutResult = await wixClient.currentCart.createCheckoutFromCurrentCart({
+            channelType: 'WEB'
+          });
+        } catch (currentCartErr) {
+          console.warn('Could not create checkout from currentCart, falling back to direct lineItems checkout:', currentCartErr);
+        }
+      }
+
+      if (!checkoutResult) {
         const lineItems = await mapCartItemsToWixLineItems(itemsToCheckout);
         if (!lineItems || lineItems.length === 0) {
           throw new Error('Ingen gyldige varer å utsjekke.');
