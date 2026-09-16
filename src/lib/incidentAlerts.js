@@ -114,8 +114,12 @@ export async function notifySlackChatMessage({
 
     let sessionId = null;
     let threadTs = null;
+    let convId = conversationId;
     try {
-      sessionId = localStorage.getItem('hkd-chat-session-id');
+      if (!convId) {
+        convId = localStorage.getItem('hkd-inbox-conv-id') || null;
+      }
+      sessionId = localStorage.getItem('hkd-chat-session-id') || localStorage.getItem('hkd-chat-anon-id');
       if (!sessionId) {
         sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         localStorage.setItem('hkd-chat-session-id', sessionId);
@@ -130,7 +134,7 @@ export async function notifySlackChatMessage({
       customerName: customerName || null,
       pageUrl: typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '/',
       mode,
-      conversationId,
+      conversationId: convId,
       sessionId,
       threadTs,
       timestamp: new Date().toISOString()

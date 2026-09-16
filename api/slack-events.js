@@ -41,23 +41,27 @@ export default async function handler(req, res) {
   // 1. Slack URL Verification Handshake
   if (req.body?.type === 'url_verification') {
     console.log('[SlackEvents] URL verification challenge received.');
-    res.status(200).json({ challenge: req.body.challenge });
-    return;
+    return res.status(200).json({ challenge: req.body.challenge });
   }
 
-  // Acknowledge Slack request immediately (Slack requires 200 OK within 3000ms)
-  res.status(200).json({ ok: true });
+  // Deduplicate Slack retries immediately
+  if (req.headers['x-slack-retry-num']) {
+    console.log('[SlackEvents] Ignoring Slack retry attempt #', req.headers['x-slack-retry-num']);
+    return res.status(200).json({ ok: true, ignored: 'retry' });
+  }
 
   try {
     const { event_id, type, event } = req.body || {};
 
     if (type !== 'event_callback' || !event) {
-      return;
+      return res.status(200).json({ ok: true });
     }
 
     // Deduplicate identical Slack events
     if (event_id) {
-      if (processedEvents.has(event_id)) return;
+      if (processedEvents.has(event_id)) {
+        return res.status(200).json({ ok: true, duplicate: true });
+      }
       processedEvents.add(event_id);
       if (processedEvents.size > 1000) {
         const first = processedEvents.values().next().value;
@@ -67,39 +71,92 @@ export default async function handler(req, res) {
 
     // Ignore bot messages, message updates, or messages without text to prevent infinite loops
     if (event.bot_id || event.subtype === 'bot_message' || !event.text) {
-      return;
+      return res.status(200).json({ ok: true, ignored: 'bot_or_empty' });
     }
 
-    // We only care about replies inside a thread (thread_ts must exist)
+    // We only care about replies inside a thread (thread_ts must exist and differ from root ts)
     const threadTs = event.thread_ts;
-    if (!threadTs) {
-      return;
+    if (!threadTs || threadTs === event.ts) {
+      return res.status(200).json({ ok: true, ignored: 'not_thread_reply' });
     }
 
     const replyText = event.text.trim();
-    if (!replyText) return;
+    if (!replyText) {
+      return res.status(200).json({ ok: true, ignored: 'empty_text' });
+    }
 
     console.log(`[SlackEvents] Received reply in thread ${threadTs}: "${replyText.substring(0, 40)}..."`);
 
-    // 2. Look up the thread in Firestore to find the matching conversationId / sessionId
-    let threadDocData = null;
-    try {
-      const threadSnap = await getDoc(doc(db, 'slack_chat_threads', threadTs));
-      if (threadSnap.exists()) {
-        threadDocData = threadSnap.data();
+    // 2. Fetch the parent/root message directly from Slack (stateless - eliminates database dependency)
+    const slackBotToken = process.env.SLACK_BOT_TOKEN;
+    const channel = event.channel;
+    let conversationId = null;
+    let sessionId = null;
+
+    if (slackBotToken && channel) {
+      try {
+        console.log(`[SlackEvents] Fetching parent message for thread ${threadTs} in channel ${channel}...`);
+        const slackRes = await fetch(
+          `https://slack.com/api/conversations.replies?channel=${channel}&ts=${threadTs}&limit=1&inclusive=true`,
+          {
+            headers: {
+              'Authorization': `Bearer ${slackBotToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        const slackData = await slackRes.json();
+        if (slackData.ok && slackData.messages && slackData.messages.length > 0) {
+          const parentMsg = slackData.messages[0];
+
+          // A) Extract from metadata
+          conversationId = parentMsg.metadata?.event_payload?.conversationId || null;
+          sessionId = parentMsg.metadata?.event_payload?.sessionId || null;
+
+          // B) Fallback: Extract from text / blocks regex [hkd:conv:...|sess:...]
+          const str = JSON.stringify(parentMsg);
+          if (!conversationId || conversationId === 'none') {
+            const convMatch = str.match(/\[hkd:conv:([a-zA-Z0-9_-]+)/);
+            if (convMatch && convMatch[1] !== 'none') {
+              conversationId = convMatch[1];
+            }
+          }
+          if (!sessionId || sessionId === 'none') {
+            const sessMatch = str.match(/\|sess:([a-zA-Z0-9_-]+)\]/);
+            if (sessMatch && sessMatch[1] !== 'none') {
+              sessionId = sessMatch[1];
+            }
+          }
+
+          console.log('[SlackEvents] Resolved conversation from Slack parent message:', { conversationId, sessionId });
+        } else {
+          console.warn('[SlackEvents] Slack conversations.replies failed:', slackData.error);
+        }
+      } catch (slackFetchErr) {
+        console.warn('[SlackEvents] Error fetching parent message from Slack:', slackFetchErr);
       }
-    } catch (e) {
-      console.warn('[SlackEvents] Failed reading thread from Firestore:', e);
     }
 
-    const conversationId = threadDocData?.conversationId;
-    const sessionId = threadDocData?.sessionId;
+    // 3. Fallback to Firestore cache if not found in Slack metadata
+    if (!conversationId) {
+      try {
+        const threadSnap = await getDoc(doc(db, 'slack_chat_threads', threadTs));
+        if (threadSnap.exists()) {
+          const data = threadSnap.data();
+          conversationId = data.conversationId;
+          sessionId = sessionId || data.sessionId;
+        }
+      } catch (fsErr) {
+        // Non-blocking fallback
+      }
+    }
 
-    // 3. Send reply to Wix Inbox (if linked to a Wix conversation)
-    if (conversationId) {
+    // 4. Send reply to Wix Inbox (if linked to a Wix conversation)
+    let deliveredToWix = false;
+    if (conversationId && conversationId !== 'none') {
       try {
         console.log('[SlackEvents] Forwarding reply to Wix Inbox conversation:', conversationId);
-        await wixClient.inboxMessages.sendMessage(conversationId, {
+        const wixRes = await wixClient.inboxMessages.sendMessage(conversationId, {
           direction: 'BUSINESS_TO_PARTICIPANT',
           visibility: 'BUSINESS_AND_PARTICIPANT',
           content: {
@@ -108,15 +165,18 @@ export default async function handler(req, res) {
             }
           }
         });
-        console.log('[SlackEvents] Successfully delivered reply to Wix Inbox');
+        deliveredToWix = true;
+        console.log('[SlackEvents] Successfully delivered reply to Wix Inbox:', wixRes?.message?._id || 'ok');
       } catch (wixErr) {
         console.error('[SlackEvents] Wix Inbox sendMessage error:', wixErr);
       }
+    } else {
+      console.warn('[SlackEvents] Could not resolve conversationId for thread:', threadTs);
     }
 
-    // 4. Save reply to Firestore for real-time instant display on the web widget
+    // 5. Save reply to Firestore for real-time instant display on web widget (if Firestore works)
     const targetSessionId = sessionId || conversationId;
-    if (targetSessionId) {
+    if (targetSessionId && targetSessionId !== 'none') {
       try {
         await addDoc(collection(db, 'chat_sessions', targetSessionId, 'messages'), {
           sender: 'assistant',
@@ -128,10 +188,13 @@ export default async function handler(req, res) {
         });
         console.log('[SlackEvents] Saved reply to Firestore real-time collection for session:', targetSessionId);
       } catch (fsErr) {
-        console.error('[SlackEvents] Failed writing reply to Firestore:', fsErr);
+        // Non-blocking fallback
       }
     }
+
+    return res.status(200).json({ ok: true, deliveredToWix, conversationId });
   } catch (err) {
     console.error('[SlackEvents] Unexpected error processing event:', err);
+    return res.status(500).json({ ok: false, error: err.message });
   }
 }

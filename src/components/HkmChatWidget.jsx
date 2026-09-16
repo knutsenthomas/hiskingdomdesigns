@@ -507,19 +507,19 @@ export default function HkmChatWidget() {
     }
   };
 
-  // Poll for live chat messages
+  // Poll for live chat messages (every 3 seconds for instant response)
   useEffect(() => {
     let interval = null;
-    if (chatMode === 'live' && conversationId) {
+    if (conversationId) {
       fetchLiveMessages(conversationId);
       interval = setInterval(() => {
         fetchLiveMessages(conversationId);
-      }, 5000);
+      }, 3000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [chatMode, conversationId]);
+  }, [conversationId]);
 
   // Real-time Firestore listener: instantly renders replies sent by store owner in Slack
   useEffect(() => {

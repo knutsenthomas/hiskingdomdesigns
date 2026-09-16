@@ -124,7 +124,7 @@ export default async function handler(req, res) {
       elements: [
         {
           type: 'mrkdwn',
-          text: `💬 *Svar i denne tråden i Slack* for å sende meldingen direkte tilbake til kunden på nettsiden!`
+          text: `💬 *Svar i denne tråden i Slack* for å sende meldingen direkte tilbake til kunden på nettsiden!\n_ID: [hkd:conv:${conversationId || 'none'}|sess:${sessionId || 'none'}]_`
         }
       ]
     });
@@ -136,7 +136,17 @@ export default async function handler(req, res) {
       const postPayload = {
         channel: slackChannelId,
         text: `💬 Ny kundemelding: "${userMessage}"`,
-        blocks
+        blocks,
+        metadata: {
+          event_type: 'customer_chat',
+          event_payload: {
+            conversationId: conversationId || '',
+            sessionId: sessionId || '',
+            mode: mode || 'live',
+            customerEmail: customerEmail || '',
+            customerName: customerName || ''
+          }
+        }
       };
       if (threadTs) {
         postPayload.thread_ts = threadTs;
@@ -154,7 +164,7 @@ export default async function handler(req, res) {
       const resJson = await slackRes.json();
       if (resJson.ok && resJson.ts) {
         messageTs = resJson.ts;
-        // Save thread mapping to Firestore so replies to this thread reach the customer
+        // Optional: Save thread mapping to Firestore if available (non-blocking fallback)
         const activeThreadTs = threadTs || resJson.ts;
         try {
           await setDoc(doc(db, 'slack_chat_threads', activeThreadTs), {
@@ -166,7 +176,7 @@ export default async function handler(req, res) {
             updatedAt: serverTimestamp()
           }, { merge: true });
         } catch (fsErr) {
-          console.warn('[ChatNotify] Could not save thread mapping to Firestore:', fsErr);
+          console.warn('[ChatNotify] Firestore thread write skipped (using stateless metadata):', fsErr?.message || fsErr);
         }
       } else {
         console.error('[ChatNotify] Slack chat.postMessage failed:', resJson.error);
