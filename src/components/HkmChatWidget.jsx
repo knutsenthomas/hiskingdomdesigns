@@ -432,11 +432,12 @@ export default function HkmChatWidget() {
     if (!convId) return;
     try {
       const host = window.location.origin;
+      const threadTs = safeStorage.getItem('hkd-slack-thread-ts') || null;
       const res = await fetchWithTimeout(
         fetch(`${host}/api/list-messages`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ conversationId: convId })
+          body: JSON.stringify({ conversationId: convId, threadTs })
         }).then(async (r) => {
           if (!r.ok) {
             const errJson = await r.json().catch(() => ({}));

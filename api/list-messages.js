@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { conversationId } = req.body;
+    const { conversationId, threadTs } = req.body;
     if (!conversationId) {
       res.status(400).json({ error: 'Missing conversationId in request body.' });
       return;
@@ -40,6 +40,59 @@ export default async function handler(req, res) {
 
     console.log('Backend calling listMessages for conversationId:', conversationId);
     const result = await wixClient.inboxMessages.listMessages(conversationId, 'BUSINESS_AND_PARTICIPANT');
+
+    // Self-healing dual sync: check if there are recent replies from store owner in Slack thread
+    const slackBotToken = process.env.SLACK_BOT_TOKEN;
+    const slackChannelId = process.env.SLACK_CHAT_CHANNEL_ID;
+    if (slackBotToken && slackChannelId && threadTs) {
+      try {
+        const slackRes = await fetch(
+          `https://slack.com/api/conversations.replies?channel=${slackChannelId}&ts=${threadTs}&limit=20`,
+          {
+            headers: {
+              'Authorization': `Bearer ${slackBotToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        const slackData = await slackRes.json();
+        if (slackData.ok && slackData.messages) {
+          const wixExisting = (result.messages || []).map(m => {
+            return m.content?.basic?.items?.map(i => i.text).join('\n') || m.content?.minimal?.text || '';
+          });
+
+          for (const sm of slackData.messages) {
+            // Find replies from human users (not bot)
+            if (!sm.bot_id && sm.text && sm.ts !== threadTs) {
+              const text = sm.text.trim();
+              if (text && !wixExisting.some(w => w.includes(text) || text.includes(w))) {
+                console.log('[ListMessages Sync] Forwarding new Slack reply to Wix Inbox:', text);
+                try {
+                  const sent = await wixClient.inboxMessages.sendMessage(conversationId, {
+                    direction: 'BUSINESS_TO_PARTICIPANT',
+                    visibility: 'BUSINESS_AND_PARTICIPANT',
+                    content: {
+                      basic: {
+                        items: [{ text }]
+                      }
+                    }
+                  });
+                  if (sent?.message) {
+                    result.messages = [sent.message, ...(result.messages || [])];
+                    wixExisting.push(text);
+                  }
+                } catch (sendErr) {
+                  console.warn('[ListMessages Sync] Error sending to Wix:', sendErr);
+                }
+              }
+            }
+          }
+        }
+      } catch (syncErr) {
+        console.warn('[ListMessages Sync] Slack check error:', syncErr);
+      }
+    }
+
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in list-messages serverless function:', error);
