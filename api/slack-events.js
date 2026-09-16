@@ -74,20 +74,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, ignored: 'bot_or_empty' });
     }
 
-    // We only care about replies inside a thread (thread_ts must exist and differ from root ts)
+    // We support both replies inside a thread AND direct messages in the channel
     const threadTs = event.thread_ts;
-    if (!threadTs || threadTs === event.ts) {
-      return res.status(200).json({ ok: true, ignored: 'not_thread_reply' });
-    }
+    const isThreadReply = Boolean(threadTs && threadTs !== event.ts);
 
     const replyText = event.text.trim();
     if (!replyText) {
       return res.status(200).json({ ok: true, ignored: 'empty_text' });
     }
 
-    console.log(`[SlackEvents] Received reply in thread ${threadTs}: "${replyText.substring(0, 40)}..."`);
+    console.log(`[SlackEvents] Received message (thread: ${isThreadReply ? threadTs : 'no'}, channel: ${event.channel}): "${replyText.substring(0, 40)}..."`);
 
-    // 2. Fetch the parent/root message directly from Slack (stateless - eliminates database dependency)
+    // 2. Fetch thread or recent channel history directly from Slack (stateless - eliminates database dependency)
     const slackBotToken = process.env.SLACK_BOT_TOKEN;
     const channel = event.channel;
     let conversationId = null;
@@ -95,26 +93,58 @@ export default async function handler(req, res) {
 
     if (slackBotToken && channel) {
       try {
-        console.log(`[SlackEvents] Fetching parent message for thread ${threadTs} in channel ${channel}...`);
-        const slackRes = await fetch(
-          `https://slack.com/api/conversations.replies?channel=${channel}&ts=${threadTs}&limit=1&inclusive=true`,
-          {
-            headers: {
-              'Authorization': `Bearer ${slackBotToken}`,
-              'Content-Type': 'application/json'
+        let messagesToScan = [];
+        if (isThreadReply) {
+          console.log(`[SlackEvents] Fetching messages in thread ${threadTs} in channel ${channel}...`);
+          const slackRes = await fetch(
+            `https://slack.com/api/conversations.replies?channel=${channel}&ts=${threadTs}&limit=50`,
+            {
+              headers: {
+                'Authorization': `Bearer ${slackBotToken}`,
+                'Content-Type': 'application/json'
+              }
             }
+          );
+          const slackData = await slackRes.json();
+          if (slackData.ok && slackData.messages) {
+            messagesToScan = slackData.messages;
+          } else {
+            console.warn('[SlackEvents] conversations.replies failed:', slackData.error);
           }
-        );
-        const slackData = await slackRes.json();
-        if (slackData.ok && slackData.messages && slackData.messages.length > 0) {
-          const parentMsg = slackData.messages[0];
+        } else {
+          // If store owner replied directly in the DM/channel without creating a thread:
+          console.log(`[SlackEvents] No threadTs provided; scanning recent history for channel ${channel}...`);
+          const slackRes = await fetch(
+            `https://slack.com/api/conversations.history?channel=${channel}&limit=20`,
+            {
+              headers: {
+                'Authorization': `Bearer ${slackBotToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          const slackData = await slackRes.json();
+          if (slackData.ok && slackData.messages) {
+            messagesToScan = slackData.messages;
+          } else {
+            console.warn('[SlackEvents] conversations.history failed:', slackData.error);
+          }
+        }
 
-          // A) Extract from metadata
-          conversationId = parentMsg.metadata?.event_payload?.conversationId || null;
-          sessionId = parentMsg.metadata?.event_payload?.sessionId || null;
+        // Scan messages backwards (newest customer inquiry first) to find latest conversationId
+        for (let i = messagesToScan.length - 1; i >= 0; i--) {
+          const m = messagesToScan[i];
 
-          // B) Fallback: Extract from text / blocks regex [hkd:conv:...|sess:...]
-          const str = JSON.stringify(parentMsg);
+          // A) Metadata check
+          if (!conversationId && m.metadata?.event_payload?.conversationId) {
+            conversationId = m.metadata.event_payload.conversationId;
+          }
+          if (!sessionId && m.metadata?.event_payload?.sessionId) {
+            sessionId = m.metadata.event_payload.sessionId;
+          }
+
+          // B) Text / blocks regex check for [hkd:conv:...|sess:...]
+          const str = JSON.stringify(m);
           if (!conversationId || conversationId === 'none') {
             const convMatch = str.match(/\[hkd:conv:([a-zA-Z0-9_-]+)/);
             if (convMatch && convMatch[1] !== 'none') {
@@ -128,12 +158,14 @@ export default async function handler(req, res) {
             }
           }
 
-          console.log('[SlackEvents] Resolved conversation from Slack parent message:', { conversationId, sessionId });
-        } else {
-          console.warn('[SlackEvents] Slack conversations.replies failed:', slackData.error);
+          if (conversationId && conversationId !== 'none') {
+            break;
+          }
         }
+
+        console.log('[SlackEvents] Resolved conversation from Slack messages:', { conversationId, sessionId });
       } catch (slackFetchErr) {
-        console.warn('[SlackEvents] Error fetching parent message from Slack:', slackFetchErr);
+        console.warn('[SlackEvents] Error fetching messages from Slack:', slackFetchErr);
       }
     }
 
