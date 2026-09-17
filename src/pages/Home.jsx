@@ -878,7 +878,13 @@ export default function Home() {
                   const planId = plan._id;
                   const priceVal = plan.price?.amount || plan.pricing?.price?.value || '0';
                   const currencyVal = plan.price?.currency || plan.pricing?.price?.currency || 'kr';
-                  const isRecurring = !!plan.pricing?.subscription || plan.recurring || plan.pricing?.planProductType === 'RECURRING';
+                  const isRecurring = 
+                    !!plan.pricing?.subscription || 
+                    !!plan.pricing?.prices?.some(p => p.cycleDuration || p.duration?.unit === 'MONTH') ||
+                    plan.recurring === true || 
+                    plan.pricing?.planProductType === 'RECURRING' ||
+                    plan.pricing?.type === 'RECURRING' ||
+                    (plan.pricing && !plan.pricing.singlePaymentForDuration && !plan.pricing.singlePayment);
                   const planBenefits = plan.benefits || plan.perks?.values || [];
                   
                   return (

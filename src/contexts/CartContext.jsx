@@ -584,15 +584,19 @@ export const CartProvider = ({ children }) => {
         handleAuthChange();
       }
       if (e.key === 'hkd-cart-items' || e.key === 'hkd-cart') {
-        if (!e.newValue) {
+        if (!e.newValue || e.newValue === '[]' || e.newValue === 'null' || e.newValue === '""') {
           setCartItems([]);
         } else {
           try {
             const parsed = JSON.parse(e.newValue);
             if (Array.isArray(parsed)) {
               setCartItems(parsed);
+            } else {
+              setCartItems([]);
             }
-          } catch (err) {}
+          } catch (err) {
+            setCartItems([]);
+          }
         }
       }
       if (e.key === 'hkd-applied-coupon') {
