@@ -337,7 +337,8 @@ export const CartProvider = ({ children }) => {
       
       let wixCartRes;
       try {
-        wixCartRes = await wixClient.currentCart.getCurrentCart();
+        const rawCart = await wixClient.currentCart.getCurrentCart();
+        wixCartRes = rawCart?.cart || rawCart;
       } catch (getErr) {
         if (getErr.code === 'OWNED_CART_NOT_FOUND' || getErr.message?.includes('Cart not found')) {
           if (localMapped.length > 0) {
@@ -346,7 +347,7 @@ export const CartProvider = ({ children }) => {
               lineItems: localMapped
             });
             console.log('Wix cart created and items added.');
-            return cart;
+            return cart?.cart || cart;
           }
           return null;
         }
@@ -396,9 +397,10 @@ export const CartProvider = ({ children }) => {
       // Re-fetch cart if we removed items to get updated IDs and revisions
       let updatedWixCart = wixCartRes;
       if (itemsToRemove.length > 0) {
-        updatedWixCart = await wixClient.currentCart.getCurrentCart();
+        const rawUpdated = await wixClient.currentCart.getCurrentCart();
+        updatedWixCart = rawUpdated?.cart || rawUpdated;
       }
-      const updatedWixLineItems = updatedWixCart.lineItems || [];
+      const updatedWixLineItems = updatedWixCart?.lineItems || [];
       
       // 2. Add or update remaining items
       const itemsToUpdate = [];
@@ -425,7 +427,7 @@ export const CartProvider = ({ children }) => {
       if (itemsToUpdate.length > 0) {
         console.log('Batch updating quantities in Wix cart:', itemsToUpdate);
         const res = await wixClient.currentCart.updateCurrentCartLineItemQuantity(itemsToUpdate);
-        finalCart = res.cart || res;
+        finalCart = res?.cart || res;
       }
 
       // Batch item additions in a single API call
@@ -434,11 +436,11 @@ export const CartProvider = ({ children }) => {
         const res = await wixClient.currentCart.addToCurrentCart({
           lineItems: itemsToAdd
         });
-        finalCart = res.cart || res;
+        finalCart = res?.cart || res;
       }
 
       console.log('Force Wix cart synchronization complete.');
-      return finalCart;
+      return finalCart?.cart || finalCart;
     });
   };
 
@@ -962,7 +964,8 @@ export const CartProvider = ({ children }) => {
       // 2. VERIFISER WIX CURRENT CART FØR CHECKOUT
       let serverCart = null;
       try {
-        serverCart = await wixClient.currentCart.getCurrentCart();
+        const rawCart = await wixClient.currentCart.getCurrentCart();
+        serverCart = rawCart?.cart || rawCart;
         console.log(`[WixCart] [GET_CART] time: ${new Date().toISOString()} serverLineItems: ${serverCart?.lineItems?.length || 0}`);
       } catch (getErr) {
         console.warn(`[WixCart] [GET_CART_NOTICE] Ingen serverkurv funnet ennå (${getErr.code || getErr.message}). Synkroniserer nå...`);
@@ -970,21 +973,21 @@ export const CartProvider = ({ children }) => {
 
       // Synkroniser kun hvis Wix currentCart mangler eller er tom
       if (!serverCart || !Array.isArray(serverCart.lineItems) || serverCart.lineItems.length === 0) {
-        serverCart = await forceSyncCartWithWix(itemsToCheckout);
-        console.log(`[WixCart] [SYNC_COMPLETE] time: ${new Date().toISOString()} syncedLineItems: ${serverCart?.lineItems?.length || 0}`);
-      }
-
-      // Kontroller at vi har faktiske varer i Wix
-      if (!serverCart?.lineItems?.length) {
-        throw new Error('Handlekurven er tom i Wix. Vennligst prøv å legge varene til på nytt.');
+        try {
+          const syncRes = await forceSyncCartWithWix(itemsToCheckout);
+          serverCart = syncRes?.cart || syncRes;
+          console.log(`[WixCart] [SYNC_COMPLETE] time: ${new Date().toISOString()} syncedLineItems: ${serverCart?.lineItems?.length || 0}`);
+        } catch (syncErr) {
+          console.warn(`[WixCart] [SYNC_WARNING] Forhåndssynkronisering mot currentCart ga feil:`, syncErr?.message || syncErr);
+        }
       }
 
       // Kontroller eventuelle violations (utsolgt / utilstrekkelig lager)
-      if (serverCart.summary?.violations && serverCart.summary.violations.length > 0) {
+      if (serverCart?.summary?.violations && serverCart.summary.violations.length > 0) {
         console.warn(`[WixCart] [VIOLATIONS] time: ${new Date().toISOString()}`, serverCart.summary.violations);
       }
 
-      // 3. OPPRETT CHECKOUT FRA WIX CURRENT CART MED AUTOMATISK HÅNDTERING AV UTLØPTE ØKTER
+      // 3. OPPRETT CHECKOUT FRA WIX CURRENT CART MED AUTOMATISK HÅNDTERING AV UTLØPTE ØKTER OG FALLBACK
       let checkoutResult = null;
       let lineItemsFallback = null;
 
@@ -1006,22 +1009,25 @@ export const CartProvider = ({ children }) => {
         return false;
       };
 
-      try {
-        const potentialCheckout = await wixClient.currentCart.createCheckoutFromCurrentCart({
-          channelType: 'WEB'
-        });
-        if (potentialCheckout && !isCheckoutExpired(potentialCheckout)) {
-          checkoutResult = potentialCheckout;
-        } else {
-          console.warn(`[WixCart] [EXPIRED_CART_CHECKOUT] Checkout fra currentCart var utløpt eller nær utløp (${potentialCheckout?.expirationTime}). Oppretter fersk kasseøkt direkte...`);
-          const lineItems = await getFallbackLineItems();
-          checkoutResult = await wixClient.checkout.createCheckout({
-            lineItems,
+      // Forsøk først via currentCart dersom serverCart har linjevarer
+      if (serverCart?.lineItems && serverCart.lineItems.length > 0) {
+        try {
+          const potentialCheckout = await wixClient.currentCart.createCheckoutFromCurrentCart({
             channelType: 'WEB'
           });
+          if (potentialCheckout && !isCheckoutExpired(potentialCheckout)) {
+            checkoutResult = potentialCheckout;
+          } else {
+            console.warn(`[WixCart] [EXPIRED_CART_CHECKOUT] Checkout fra currentCart var utløpt eller nær utløp (${potentialCheckout?.expirationTime}). Oppretter fersk kasseøkt direkte...`);
+          }
+        } catch (currentCartErr) {
+          console.warn(`[WixCart] [CREATE_CHECKOUT_ERR] Kunne ikke opprette fra currentCart, fallback til direkte linjevarer:`, currentCartErr?.message || currentCartErr);
         }
-      } catch (currentCartErr) {
-        console.warn(`[WixCart] [CREATE_CHECKOUT_ERR] Fallback til direkte linjevarer:`, currentCartErr);
+      }
+
+      // Hvis kasse ikke ble opprettet (f.eks. tom/feilet serverCart eller utløpt kasse), opprett direkte fra lokale linjevarer
+      if (!checkoutResult) {
+        console.log(`[WixCart] [DIRECT_CHECKOUT] Oppretter kasse direkte fra linjevarer for ${itemsToCheckout.length} varer...`);
         const lineItems = await getFallbackLineItems();
         checkoutResult = await wixClient.checkout.createCheckout({
           lineItems,
