@@ -525,7 +525,9 @@ export const CartProvider = ({ children }) => {
               m.id === serverItem.id &&
               (serverItem.variantId && m.variantId ? m.variantId === serverItem.variantId : true) &&
               m.selectedSize === serverItem.selectedSize &&
-              m.selectedColor === serverItem.selectedColor
+              m.selectedColor === serverItem.selectedColor &&
+              JSON.stringify(m.selectedOptions || {}) === JSON.stringify(serverItem.selectedOptions || {}) &&
+              JSON.stringify(m.customTextFields || []) === JSON.stringify(serverItem.customTextFields || [])
             );
             if (idx === -1) {
               merged.push(serverItem);
@@ -581,13 +583,17 @@ export const CartProvider = ({ children }) => {
       if (e.key === 'wix_oauth_tokens') {
         handleAuthChange();
       }
-      if ((e.key === 'hkd-cart-items' || e.key === 'hkd-cart') && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setCartItems(parsed);
-          }
-        } catch (err) {}
+      if (e.key === 'hkd-cart-items' || e.key === 'hkd-cart') {
+        if (!e.newValue) {
+          setCartItems([]);
+        } else {
+          try {
+            const parsed = JSON.parse(e.newValue);
+            if (Array.isArray(parsed)) {
+              setCartItems(parsed);
+            }
+          } catch (err) {}
+        }
       }
       if (e.key === 'hkd-applied-coupon') {
         try {

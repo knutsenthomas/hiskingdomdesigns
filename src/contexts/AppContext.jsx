@@ -509,11 +509,11 @@ export const AppProvider = ({ children }) => {
           if (isAuthError && localStorage.getItem('wix_oauth_tokens')) {
             console.warn('Wix auth token invalid or expired. Performing token recovery (logout)...');
             try {
-              localStorage.removeItem('wix_oauth_tokens');
-              await wixClient.auth.logout();
+              const { resetWixTokens } = await import('@/lib/wix');
+              await resetWixTokens();
               window.dispatchEvent(new Event('wix-auth-change'));
             } catch (logoutErr) {
-              console.warn('Failed to logout during token recovery:', logoutErr);
+              console.warn('Failed to reset tokens during token recovery:', logoutErr);
             }
           }
 

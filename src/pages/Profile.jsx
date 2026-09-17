@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck, Heart } from 'lucide-react';
-import { wixClient } from '@/lib/wix';
+import { wixClient, resetWixTokens } from '@/lib/wix';
 import { db } from '@/firebase';
 import { collection, query, where, getDocs, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { media } from '@wix/sdk';
@@ -376,7 +376,7 @@ export default function Profile() {
         } catch (err) {
           console.error('Failed to get current member:', err);
           if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
-            wixClient.auth.logout();
+            await resetWixTokens();
             setIsLoggedIn(false);
           }
         }
@@ -642,21 +642,24 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
+      let logoutUrl = null;
       try {
-        localStorage.removeItem('wix_oauth_tokens');
-      } catch (storageErr) {
-        console.error('Failed to remove tokens from localStorage:', storageErr);
-      }
-      try {
-        await wixClient.auth.logout();
+        const res = await wixClient.auth.logout(window.location.origin + '/profile');
+        logoutUrl = res?.logoutUrl;
       } catch (logoutErr) {
         console.warn('Wix auth logout callback warning:', logoutErr);
       }
+
+      await resetWixTokens();
       setIsLoggedIn(false);
       window.dispatchEvent(new Event('wix-auth-change'));
       setMember(null);
       setOrdersList([]);
       setRefreshKey(prev => prev + 1);
+
+      if (logoutUrl) {
+        window.location.href = logoutUrl;
+      }
     } catch (err) {
       console.error('Logout failed:', err);
     }
