@@ -89,3 +89,71 @@ test('custom text is preserved and distinguishes otherwise identical products', 
   actual[0].catalogReference.options.customTextFields.Navn = 'Eva';
   assert.throws(() => assertCheckoutMatches({ _id: 'wrong', lineItems: actual }, lines), /mangler varer/);
 });
+
+test('buyerInfo email and shipping destination are passed to updateCheckout', async () => {
+  let capturedPayload = null;
+  let capturedOptions = null;
+  const mockClient = {
+    checkout: {
+      updateCheckout: async (id, payload, options) => {
+        capturedPayload = payload;
+        capturedOptions = options;
+        return { _id: id, ...payload };
+      }
+    }
+  };
+
+  const { enrichCheckout } = await import('../src/lib/wixCheckout.js');
+  await enrichCheckout(mockClient, 'test-checkout-123', {
+    buyerEmail: 'kunde@hiskingdomdesigns.no',
+    shippingAddress: { postalCode: '0150', city: 'Oslo', country: 'NO' },
+    selectedShippingRate: { code: 'standard-rate' }
+  });
+
+  assert.equal(capturedPayload.buyerInfo?.email, 'kunde@hiskingdomdesigns.no');
+  assert.equal(capturedPayload.shippingInfo?.shippingDestination?.address?.postalCode, '0150');
+  assert.equal(capturedPayload.shippingInfo?.shippingDestination?.address?.city, 'Oslo');
+  assert.equal(capturedPayload.shippingInfo?.shippingDestination?.address?.country, 'NO');
+  assert.equal(capturedPayload.shippingInfo?.selectedCarrierServiceOption?.code, 'standard-rate');
+});
+
+test('coupon is applied via options object, not appliedDiscounts', async () => {
+  const calls = [];
+  const mockClient = {
+    checkout: {
+      updateCheckout: async (id, payload, options) => {
+        calls.push({ id, payload, options });
+        return { _id: id, appliedDiscounts: [{ coupon: { code: options.couponCode } }] };
+      }
+    }
+  };
+
+  const { enrichCheckout } = await import('../src/lib/wixCheckout.js');
+  await enrichCheckout(mockClient, 'chk-456', { couponCode: 'VELKOMMEN10' });
+
+  const couponCall = calls.find(c => c.options?.couponCode);
+  assert.ok(couponCall, 'updateCheckout should be called with couponCode in options');
+  assert.equal(couponCall.options.couponCode, 'VELKOMMEN10');
+  assert.equal(couponCall.payload.appliedDiscounts, undefined);
+});
+
+test('coupon failure stops checkout enrichment and throws user-friendly error', async () => {
+  const mockClient = {
+    checkout: {
+      updateCheckout: async (id, payload, options) => {
+        if (options?.couponCode) {
+          const err = new Error('coupon not found');
+          err.details = { applicationError: { code: 'ERROR_COUPON_DOES_NOT_EXIST' } };
+          throw err;
+        }
+        return { _id: id };
+      }
+    }
+  };
+
+  const { enrichCheckout } = await import('../src/lib/wixCheckout.js');
+  await assert.rejects(
+    enrichCheckout(mockClient, 'chk-err', { couponCode: 'INVALID' }),
+    /Rabattkoden "INVALID" finnes ikke/
+  );
+});

@@ -98,7 +98,10 @@ export default function CartDrawer() {
         error: err,
         cartItems: cartItems
       });
-      setCheckoutError('Kunne ikke opprette betaling. Vennligst gå til handlekurven.');
+      const userMessage = (err?.message && !err.message.includes('[object Object]') && !err.message.includes('SDKError'))
+        ? err.message
+        : 'Kunne ikke opprette betaling. Vennligst gå til handlekurven.';
+      setCheckoutError(userMessage);
       window.hkd_is_checking_out = false;
       setIsRedirecting(false);
     }

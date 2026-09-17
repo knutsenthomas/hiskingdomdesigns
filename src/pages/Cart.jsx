@@ -134,7 +134,10 @@ export default function Cart() {
         error: err,
         cartItems: cartItems
       });
-      setErrorMessage('Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.');
+      const userMessage = (err?.message && !err.message.includes('[object Object]') && !err.message.includes('SDKError'))
+        ? err.message
+        : 'Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.';
+      setErrorMessage(userMessage);
       window.hkd_is_checking_out = false;
       setIsRedirecting(false);
     }

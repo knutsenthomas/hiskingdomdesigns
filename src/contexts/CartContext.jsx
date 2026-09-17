@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { resolveColor } from '@/lib/colors';
 import { mapCartItemsToWixLineItems as mapWixCartItems } from '@/lib/wixCartItems';
-import { createVerifiedCheckout, verifyCheckout } from '@/lib/wixCheckout';
+import { createVerifiedCheckout, verifyCheckout, enrichCheckout } from '@/lib/wixCheckout';
 
 const getWixClient = async () => {
   const { wixClient, staticWixClient, resetWixTokens, isWixAuthError, isWixConflictError } = await import('@/lib/wix');
@@ -622,25 +622,20 @@ export const CartProvider = ({ children }) => {
         // Create a temporary checkout to validate coupon
         const testCheckout = await createVerifiedCheckout(wixClient, lineItems);
 
-        const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {
-          appliedDiscounts: [{
-            coupon: {
-              code: code.trim()
-            }
-          }]
+        const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {}, {
+          couponCode: code.trim()
         });
 
         if (updatedCheckout.appliedDiscounts && updatedCheckout.appliedDiscounts.length > 0) {
-          const discountVal = parseFloat(updatedCheckout.priceSummary.discount.amount || '0');
-          if (discountVal > 0) {
-            setAppliedCoupon({
-              code: code.trim(),
-              discount: discountVal
-            });
-            setIsApplyingCoupon(false);
-            setCouponError('');
-            return true;
-          }
+          const discountVal = parseFloat(updatedCheckout.priceSummary?.discount?.amount || '0');
+          setAppliedCoupon({
+            code: code.trim(),
+            discount: discountVal,
+            name: updatedCheckout.appliedDiscounts[0]?.coupon?.name || code.trim()
+          });
+          setIsApplyingCoupon(false);
+          setCouponError('');
+          return true;
         }
         
         setCouponError('Ugyldig rabattkode');
@@ -649,7 +644,18 @@ export const CartProvider = ({ children }) => {
       });
     } catch (err) {
       console.error('Error validating coupon:', err);
-      setCouponError('Ugyldig rabattkode eller tilkoblingsfeil');
+      const appCode = err?.details?.applicationError?.code || '';
+      let errorMsg = 'Ugyldig rabattkode eller tilkoblingsfeil';
+      if (appCode === 'ERROR_COUPON_DOES_NOT_EXIST') {
+        errorMsg = 'Rabattkoden finnes ikke';
+      } else if (appCode === 'ERROR_COUPON_EXPIRED') {
+        errorMsg = 'Rabattkoden er utløpt';
+      } else if (appCode === 'ERROR_COUPON_MINIMUM_SUBTOTAL_NOT_REACHED') {
+        errorMsg = 'Kjøpesummen er for lav for denne rabattkoden';
+      } else if (err?.message && !err.message.includes('UNKNOWN')) {
+        errorMsg = err.message;
+      }
+      setCouponError(errorMsg);
       setIsApplyingCoupon(false);
       return false;
     }
@@ -743,70 +749,28 @@ export const CartProvider = ({ children }) => {
       const checkoutResult = await createVerifiedCheckout(wixClient, lineItems);
       let checkoutId = checkoutResult._id;
 
-      // Helper til å berike checkout med e-post, rabattkode og gavekort
-      const enrichCheckout = async (targetId) => {
-        let currentId = targetId;
-        // 4. Attach buyer email if available (enables Wix Abandoned Cart recovery automations)
-        let buyerEmail = null;
+      // 4. Attach buyer email if available (enables Wix Abandoned Cart recovery automations)
+      let buyerEmail = null;
+      try {
+        if (wixClient.auth.loggedIn()) {
+          const currentMember = await wixClient.members.getCurrentMember();
+          buyerEmail = currentMember?.member?.loginEmail || currentMember?.member?.contactDetails?.emails?.[0] || null;
+        }
+      } catch (e) {}
+      if (!buyerEmail) {
         try {
-          if (wixClient.auth.loggedIn()) {
-            const currentMember = await wixClient.members.getCurrentMember();
-            buyerEmail = currentMember?.member?.loginEmail || currentMember?.member?.contactDetails?.emails?.[0] || null;
-          }
+          buyerEmail = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
         } catch (e) {}
-        if (!buyerEmail) {
-          try {
-            buyerEmail = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
-          } catch (e) {}
-        }
+      }
 
-        if (buyerEmail) {
-          try {
-            const updated = await wixClient.checkout.updateCheckout(currentId, {
-              billingInfo: {
-                contactDetails: {
-                  email: buyerEmail
-                }
-              }
-            });
-            currentId = updated._id || currentId;
-          } catch (buyerErr) {
-            console.warn('Could not attach buyer email to checkout:', buyerErr);
-          }
-        }
+      checkoutId = await enrichCheckout(wixClient, checkoutId, {
+        buyerEmail,
+        shippingAddress,
+        selectedShippingRate,
+        couponCode: appliedCoupon?.code,
+        giftCardCode: appliedGiftCard?.code
+      });
 
-        // 5. Apply active coupon code if set
-        if (appliedCoupon) {
-          try {
-            const updated = await wixClient.checkout.updateCheckout(currentId, {
-              appliedDiscounts: [{
-                coupon: {
-                  code: appliedCoupon.code
-                }
-              }]
-            });
-            currentId = updated._id || currentId;
-          } catch (couponErr) {
-            console.warn('Could not apply coupon to checkout redirect:', couponErr);
-          }
-        }
-
-        // 6. Apply active gift card if set
-        if (appliedGiftCard) {
-          try {
-            const updated = await wixClient.checkout.updateCheckout(currentId, {}, {
-              giftCardCode: appliedGiftCard.code
-            });
-            currentId = updated._id || currentId;
-          } catch (giftCardErr) {
-            console.warn('Could not apply gift card to checkout redirect:', giftCardErr);
-          }
-        }
-
-        return currentId;
-      };
-
-      checkoutId = await enrichCheckout(checkoutId);
       await verifyCheckout(wixClient, checkoutId, lineItems);
 
       // 7. Create fresh redirect session with automatic fallback on expired checkout session
@@ -834,7 +798,13 @@ export const CartProvider = ({ children }) => {
           const freshCheckout = await createVerifiedCheckout(wixClient, lineItems);
           let freshId = freshCheckout._id || freshCheckout.checkoutId || freshCheckout.checkout?._id;
           if (freshId) {
-            freshId = await enrichCheckout(freshId);
+            freshId = await enrichCheckout(wixClient, freshId, {
+              buyerEmail,
+              shippingAddress,
+              selectedShippingRate,
+              couponCode: appliedCoupon?.code,
+              giftCardCode: appliedGiftCard?.code
+            });
             await verifyCheckout(wixClient, freshId, lineItems);
             redirectSession = await wixClient.redirects.createRedirectSession({
               ecomCheckout: {
@@ -860,6 +830,9 @@ export const CartProvider = ({ children }) => {
       }
 
       console.log(`[WixCart] [REDIRECT_SUCCESS] time: ${new Date().toISOString()} checkoutId: ${checkoutId}`);
+      try {
+        sessionStorage.setItem('hkd_pending_checkout_id', checkoutId);
+      } catch (e) {}
       return redirectUrl;
     });
   };
@@ -867,24 +840,57 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      const isCompletedOrder = (params.has('orderId') && params.get('orderId')?.trim()) || params.get('wixResult') === 'success' || params.get('payment') === 'success';
-      if (isCompletedOrder) {
-        const orderId = params.get('orderId') || 'bekreftet';
-        console.log(`[WixCart] [ORDER_COMPLETED] time: ${new Date().toISOString()} orderId: ${orderId} - Tømmer handlekurv etter bekreftet kjøp.`);
-        setCartItems([]);
-        setAppliedCoupon(null);
-        setCouponError('');
-        setAppliedGiftCard(null);
-        setGiftCardError('');
-        localStorage.removeItem('hkd-applied-coupon');
-        localStorage.removeItem('hkd-applied-giftcard');
-        localStorage.removeItem('hkd-cart-items');
-        localStorage.removeItem('hkd-cart');
-        sessionStorage.removeItem('hkd-cart-items');
-        const newUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, document.title, newUrl);
-      } else if (params.has('checkoutId')) {
+      const hasOrderId = params.has('orderId') && params.get('orderId')?.trim();
+      const hasCheckoutId = params.has('checkoutId') && params.get('checkoutId')?.trim();
+
+      if (hasOrderId) {
+        const orderId = params.get('orderId').trim();
+        const pendingCheckoutId = sessionStorage.getItem('hkd_pending_checkout_id');
+
+        const verifyAndClearOrder = async () => {
+          let shouldClear = false;
+
+          // Sjekk 1: Aktiv checkout-økt i denne nettleseren
+          if (pendingCheckoutId) {
+            shouldClear = true;
+          } else {
+            // Sjekk 2: Verifiser mot Wix Orders API hvis pendingCheckoutId mangler
+            try {
+              const { wixClient } = await getWixClient();
+              const order = await wixClient.orders.getOrder(orderId);
+              if (order?._id) {
+                shouldClear = true;
+              }
+            } catch (orderErr) {
+              console.warn('[WixCart] Kunne ikke verifisere orderId mot Wix:', orderErr?.message || orderErr);
+            }
+          }
+
+          if (shouldClear) {
+            console.log(`[WixCart] [ORDER_COMPLETED] time: ${new Date().toISOString()} orderId: ${orderId} - Tømmer handlekurv etter bekreftet kjøp.`);
+            sessionStorage.removeItem('hkd_pending_checkout_id');
+            setCartItems([]);
+            setAppliedCoupon(null);
+            setCouponError('');
+            setAppliedGiftCard(null);
+            setGiftCardError('');
+            localStorage.removeItem('hkd-applied-coupon');
+            localStorage.removeItem('hkd-applied-giftcard');
+            localStorage.removeItem('hkd-cart-items');
+            localStorage.removeItem('hkd-cart');
+            sessionStorage.removeItem('hkd-cart-items');
+          } else {
+            console.warn(`[WixCart] [UNVERIFIED_ORDER_RETURN] Ingen aktiv checkout eller gyldig ordre for ${orderId}. Handlekurven bevares.`);
+          }
+
+          const newUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, document.title, newUrl);
+        };
+
+        verifyAndClearOrder();
+      } else if (hasCheckoutId) {
         console.log(`[WixCart] [CHECKOUT_RETURN] time: ${new Date().toISOString()} checkoutId: ${params.get('checkoutId')} - Bevarer kundenes varer.`);
+        sessionStorage.removeItem('hkd_pending_checkout_id');
         const newUrl = window.location.pathname + window.location.hash;
         window.history.replaceState({}, document.title, newUrl);
       }
