@@ -99,8 +99,9 @@ export const wixClient = createClient({
   }),
 });
 
+// Fetch original catalog names without the host's default English language header.
+// Translated option labels are display text, not valid eCommerce identifiers.
 export const staticWixClient = createClient({
-  host: headlessSite.host(),
   modules: {
     products,
   },
