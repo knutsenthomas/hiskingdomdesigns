@@ -157,3 +157,12 @@ test('coupon failure stops checkout enrichment and throws user-friendly error', 
     /Rabattkoden "INVALID" finnes ikke/
   );
 });
+
+test('catalog customTextFields is automatically populated when cart item lacks it', async () => {
+  const customTextProduct = {
+    ...product,
+    customTextFields: [{ title: 'Spesielt motiv', mandatory: true }]
+  };
+  const [line] = await mapCartItemsToWixLineItems([item], async () => customTextProduct);
+  assert.equal(line.catalogReference.options.customTextFields['Spesielt motiv'], 'Tilfeldig');
+});

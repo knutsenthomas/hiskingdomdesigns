@@ -205,9 +205,10 @@ export const mapCartItemsToWixLineItems = async (items, resolveProductDetails) =
       });
     }
 
-    // 2. Fallback to product definitions if stored on the cart item
-    if (item.customTextFieldDefinitions && item.customTextFieldDefinitions.length > 0) {
-      item.customTextFieldDefinitions.forEach(field => {
+    // 2. Fallback to product definitions from Wix Catalog or stored on the cart item
+    const catalogCustomFields = fullProduct.customTextFields || item.customTextFieldDefinitions || [];
+    if (catalogCustomFields && catalogCustomFields.length > 0) {
+      catalogCustomFields.forEach(field => {
         if (field.title && !customTextFieldsMap[field.title]) {
           customTextFieldsMap[field.title] = 'Tilfeldig';
         }
