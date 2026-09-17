@@ -366,6 +366,12 @@ export const CartProvider = ({ children }) => {
         const locVariantId = loc.catalogReference?.options?.variantId;
         if (wixVariantId && locVariantId) {
           if (wixVariantId !== locVariantId) return false;
+        } else if (!wixVariantId && !locVariantId) {
+          const wixOpt = wixItem.catalogReference?.options?.options || {};
+          const locOpt = loc.catalogReference?.options?.options || {};
+          if (Object.keys(wixOpt).length > 0 || Object.keys(locOpt).length > 0) {
+            if (JSON.stringify(wixOpt) !== JSON.stringify(locOpt)) return false;
+          }
         }
 
         const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
@@ -757,24 +763,37 @@ export const CartProvider = ({ children }) => {
           });
         }
 
-        if (matchedVariant) {
+        const isPlaceholderVariantId = (id) => !id || id === '00000000-0000-0000-0000-000000000000' || id === '00000000-000000-000000-000000000000';
+
+        const validMatchedVariantId = matchedVariant && !isPlaceholderVariantId(matchedVariant._id || matchedVariant.id)
+          ? (matchedVariant._id || matchedVariant.id)
+          : null;
+
+        const validFallbackVariantId = (manageVariants !== false && variants && variants.length > 0 && !isPlaceholderVariantId(variants[0]._id || variants[0].id))
+          ? (variants[0]._id || variants[0].id)
+          : null;
+
+        const targetVariantId = validMatchedVariantId || validFallbackVariantId;
+
+        if (targetVariantId) {
           catalogReference.options = {
-            variantId: matchedVariant._id || matchedVariant.id
-          };
-        } else if (variants && variants.length > 0) {
-          // Never add base product without variantId when variants exist (critical for Gelato/T-shirt.no sync)
-          catalogReference.options = {
-            variantId: variants[0]._id || variants[0].id
+            variantId: targetVariantId
           };
         } else {
-          // Fallback only if product truly has no variants defined in Wix Stores
+          // Unmanaged variants (manageVariants === false eller kun placeholder-variant):
+          // Send options med reelle valg (f.eks. Størrelse: 'M', Color: 'blå melange')
           const apiOptions = { ...selectedOptions };
           if (productOptions) {
             productOptions.forEach(opt => {
               const currentValue = apiOptions[opt.name];
               if (currentValue) {
-                const choice = opt.choices?.find(c => c.value === currentValue);
+                const choice = opt.choices?.find(c => 
+                  c.value === currentValue || 
+                  c.description === currentValue ||
+                  (c.description && currentValue && c.description.toLowerCase() === String(currentValue).toLowerCase())
+                );
                 if (choice && choice.description && choice.value !== choice.description) {
+                  // For farge-alternativer forventer Wix tekstnavnet ("blå melange"), ikke hex-koden ("#1364ac")
                   apiOptions[opt.name] = choice.description;
                 }
               }
