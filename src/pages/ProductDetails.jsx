@@ -1405,7 +1405,6 @@ export default function ProductDetails() {
       _createdDate: new Date().toISOString()
     };
 
-    let wixSuccess = false;
     try {
       await wixClient.reviews.createReview({
         review: {
@@ -1421,26 +1420,27 @@ export default function ProductDetails() {
           }
         }
       });
-      wixSuccess = true;
-    } catch (err) {
-      console.warn('Wix Reviews API submit failed. Saving review locally.', err);
-    }
 
-    try {
-      const saved = localStorage.getItem(`hkd-reviews-${productId}`);
-      const list = saved ? JSON.parse(saved) : [];
-      list.unshift(newReviewItem);
-      localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
-    } catch (err) {
-      console.error('Failed to save review to localStorage:', err);
-    }
+      try {
+        const saved = localStorage.getItem(`hkd-reviews-${productId}`);
+        const list = saved ? JSON.parse(saved) : [];
+        list.unshift(newReviewItem);
+        localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
+      } catch (err) {
+        console.error('Failed to save review to localStorage:', err);
+      }
 
-    setReviewSubmitSuccess(true);
-    setReviewTitle('');
-    setReviewBody('');
-    setShowReviewForm(false);
-    setIsSubmittingReview(false);
-    loadReviews();
+      setReviewSubmitSuccess(true);
+      setReviewTitle('');
+      setReviewBody('');
+      setShowReviewForm(false);
+      loadReviews();
+    } catch (err) {
+      console.error('Wix Reviews API submit failed:', err);
+      setReviewSubmitError(err?.message || 'Kunne ikke sende inn omtalen. Vennligst prøv igjen.');
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   const currentImageIndex = imagesList.indexOf(activeImage || product.image);

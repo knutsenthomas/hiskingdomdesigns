@@ -729,6 +729,7 @@ export default function Profile() {
   const [affiliateMotivation, setAffiliateMotivation] = useState('');
   const [isSubmittingAffiliate, setIsSubmittingAffiliate] = useState(false);
   const [affiliateSuccess, setAffiliateSuccess] = useState(false);
+  const [affiliateError, setAffiliateError] = useState('');
 
   // Sync default values for application form
   useEffect(() => {
@@ -770,6 +771,8 @@ export default function Profile() {
     e.preventDefault();
     if (!member?._id) return;
     setIsSubmittingAffiliate(true);
+    setAffiliateError('');
+    setAffiliateSuccess(false);
     try {
       const docRef = doc(db, 'affiliate_applications', member._id);
       await setDoc(docRef, {
@@ -782,13 +785,15 @@ export default function Profile() {
         status: 'pending',
         appliedAt: new Date().toISOString()
       });
+      setAffiliateStatus('pending');
+      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
+      setAffiliateSuccess(true);
     } catch (err) {
-      console.warn('Kunne ikke lagre søknad i Firestore, bruker lokal fallback:', err);
+      console.error('Kunne ikke lagre søknad i Firestore:', err);
+      setAffiliateError(err?.message || 'Kunne ikke sende inn søknaden. Vennligst sjekk nettforbindelsen og prøv igjen.');
+    } finally {
+      setIsSubmittingAffiliate(false);
     }
-    setAffiliateStatus('pending');
-    localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
-    setAffiliateSuccess(true);
-    setIsSubmittingAffiliate(false);
   };
 
   // Admin Affiliate states & hooks
@@ -1714,6 +1719,12 @@ export default function Profile() {
                     {affiliateSuccess && (
                       <div className="mb-4 bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
                         {t('profile.affiliateSuccess')}
+                      </div>
+                    )}
+
+                    {affiliateError && (
+                      <div className="mb-4 bg-red-50 text-red-700 text-xs p-3 rounded-lg border border-red-200 font-medium">
+                        {affiliateError}
                       </div>
                     )}
 

@@ -858,14 +858,35 @@ export const CartProvider = ({ children }) => {
 
           // Sjekk 1: Aktiv checkout-økt i denne nettleseren
           if (pendingCheckoutId) {
-            shouldClear = true;
-          } else {
-            // Sjekk 2: Verifiser mot Wix Orders API hvis pendingCheckoutId mangler
             try {
               const { wixClient } = await getWixClient();
               const order = await wixClient.orders.getOrder(orderId);
               if (order?._id) {
+                const isFailedOrCanceled = order.status === 'CANCELED' || (order.paymentStatus === 'NOT_PAID' && order.status !== 'APPROVED');
+                if (!isFailedOrCanceled) {
+                  shouldClear = true;
+                } else {
+                  console.warn(`[WixCart] Ordre ${orderId} er ikke betalt eller avbrutt (status: ${order.status}, payment: ${order.paymentStatus}). Handlekurv bevares.`);
+                }
+              } else {
                 shouldClear = true;
+              }
+            } catch (err) {
+              // Gjestebruker har kanskje ikke lesetilgang til full ordre - pending checkout bekrefter fullført flyt
+              shouldClear = true;
+            }
+          } else {
+            // Sjekk 2: Verifiser mot Wix Orders API hvis pendingCheckoutId mangler (f.eks. ved direkte URL-navigasjon)
+            try {
+              const { wixClient } = await getWixClient();
+              const order = await wixClient.orders.getOrder(orderId);
+              if (order?._id) {
+                const isPaidOrApproved = order.paymentStatus === 'PAID' || order.status === 'APPROVED';
+                if (isPaidOrApproved) {
+                  shouldClear = true;
+                } else {
+                  console.warn(`[WixCart] Ordre ${orderId} mangler bekreftet betaling. Handlekurv bevares.`);
+                }
               }
             } catch (orderErr) {
               console.warn('[WixCart] Kunne ikke verifisere orderId mot Wix:', orderErr?.message || orderErr);

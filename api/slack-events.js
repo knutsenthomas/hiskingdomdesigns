@@ -4,6 +4,7 @@
  * and delivers the reply directly to the customer on hiskingdomdesigns.no via Wix Inbox & Firestore.
  */
 
+import crypto from 'crypto';
 import { createClient, ApiKeyStrategy } from '@wix/sdk';
 import { conversations, messages } from '@wix/inbox';
 import { initializeApp, getApps } from 'firebase/app';
@@ -30,24 +31,55 @@ const wixClient = createClient({
   },
   auth: ApiKeyStrategy({
     siteId: process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7',
-    apiKey: process.env.WIX_API_KEY || 'IST.eyJraWQiOiJQb3pIX2FDMiIsImFsZyI6IlJTMjU2In0.eyJkYXRhIjoie1wiaWRcIjpcIjg2NTkxYjBiLTAwNGUtNDRmMi05NGQ4LWJiNDEyMmYxNzE5ZVwiLFwiaWRlbnRpdHlcIjp7XCJ0eXBlXCI6XCJhcHBsaWNhdGlvblwiLFwiaWRcIjpcIjViMDJiNTQ3LWM3NTAtNDNmMS04YjlmLWFlNmVlY2ZiODY3MlwifSxcInRlbmFudFwiOntcInR5cGVcIjpcImFjY291bnRcIixcImlkXCI6XCJkYjRmOTZkOC1lYjhhLTRhN2EtYmVjOS02MzA5YjEyMDNmODNcIn19IiwiaWF0IjoxNzgwODE4MTgyfQ.dFFNriVyZxY1FGkAVdycrLK8YE8qXiVjX54lh5z-2eEW0Hsa_4mR9vtycx5bGQmasWJP8zsAxL7WSIdFSEubEBWeZCbNhSlDUg2O5ejFQi6Id-usmpvTa-1XutoF4pTCyysWeptZXZQAgoY63u7LLzoNzNqNVzUSt6jLrvndqtZhpF1YZwJsIDfLRWw_Rt3qFRtKrtdGl8bBCeSEGdADIKKVlTep0lNsSRFAI-sXvzo3RdhjfMovkNszbG0fHS0wAAb-WHYIk6DC13myaKYaYnmWr8aS-sAx5hleIK4Vww0rDcMfc6MxkOD-3Xk84vYt-JGfFKUgIxCbhrSJDYMgKg'
+    apiKey: process.env.WIX_API_KEY
   })
 });
 
-// Cache processed event IDs to prevent Slack retry duplicates
+// Cache processed event IDs to prevent duplicate execution
 const processedEvents = new Set();
 
+/**
+ * Verify incoming Slack requests using HMAC SHA-256 and signing secret
+ */
+function verifySlackSignature(req) {
+  const signingSecret = process.env.SLACK_SIGNING_SECRET;
+  if (!signingSecret) return true; // If not configured yet in environment, allow with warning
+
+  const signature = req.headers['x-slack-signature'];
+  const timestamp = req.headers['x-slack-request-timestamp'];
+  if (!signature || !timestamp) {
+    return false;
+  }
+
+  // Prevent replay attacks (older than 5 minutes)
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (Math.abs(currentTime - Number(timestamp)) > 300) {
+    return false;
+  }
+
+  const rawBody = req.rawBody || (typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
+  const sigBaseString = `v0:${timestamp}:${rawBody}`;
+  const hmac = crypto.createHmac('sha256', signingSecret).update(sigBaseString).digest('hex');
+  const expectedSignature = `v0=${hmac}`;
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(expectedSignature, 'utf8'), Buffer.from(signature, 'utf8'));
+  } catch {
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
-  // 1. Slack URL Verification Handshake
+  // 1. Verify Slack HMAC signature
+  if (process.env.SLACK_SIGNING_SECRET && !verifySlackSignature(req)) {
+    console.warn('[SlackEvents] Unauthorized: Invalid Slack signature');
+    return res.status(401).json({ error: 'Invalid Slack signature' });
+  }
+
+  // 2. Slack URL Verification Handshake
   if (req.body?.type === 'url_verification') {
     console.log('[SlackEvents] URL verification challenge received.');
     return res.status(200).json({ challenge: req.body.challenge });
-  }
-
-  // Deduplicate Slack retries immediately
-  if (req.headers['x-slack-retry-num']) {
-    console.log('[SlackEvents] Ignoring Slack retry attempt #', req.headers['x-slack-retry-num']);
-    return res.status(200).json({ ok: true, ignored: 'retry' });
   }
 
   try {
@@ -57,16 +89,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
-    // Deduplicate identical Slack events
-    if (event_id) {
-      if (processedEvents.has(event_id)) {
-        return res.status(200).json({ ok: true, duplicate: true });
-      }
-      processedEvents.add(event_id);
-      if (processedEvents.size > 1000) {
-        const first = processedEvents.values().next().value;
-        processedEvents.delete(first);
-      }
+    // Deduplicate identical Slack events if already processed
+    if (event_id && processedEvents.has(event_id)) {
+      console.log('[SlackEvents] Event already processed:', event_id);
+      return res.status(200).json({ ok: true, duplicate: true });
     }
 
     // Ignore bot messages, message updates, or messages without text to prevent infinite loops
@@ -74,18 +100,22 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, ignored: 'bot_or_empty' });
     }
 
-    // We support both replies inside a thread AND direct messages in the channel
+    // Strictly enforce thread replies: never guess or route unthreaded messages to customers
     const threadTs = event.thread_ts;
     const isThreadReply = Boolean(threadTs && threadTs !== event.ts);
+    if (!isThreadReply) {
+      console.log('[SlackEvents] Ignored non-thread message to prevent routing ambiguity.');
+      return res.status(200).json({ ok: true, ignored: 'not_thread_reply' });
+    }
 
     const replyText = event.text.trim();
     if (!replyText) {
       return res.status(200).json({ ok: true, ignored: 'empty_text' });
     }
 
-    console.log(`[SlackEvents] Received message (thread: ${isThreadReply ? threadTs : 'no'}, channel: ${event.channel}): "${replyText.substring(0, 40)}..."`);
+    console.log(`[SlackEvents] Received thread reply (thread: ${threadTs}, channel: ${event.channel}): "${replyText.substring(0, 40)}..."`);
 
-    // 2. Fetch thread or recent channel history directly from Slack (stateless - eliminates database dependency)
+    // 3. Fetch thread replies directly from Slack
     const slackBotToken = process.env.SLACK_BOT_TOKEN;
     const channel = event.channel;
     let conversationId = null;
@@ -93,43 +123,18 @@ export default async function handler(req, res) {
 
     if (slackBotToken && channel) {
       try {
-        let messagesToScan = [];
-        if (isThreadReply) {
-          console.log(`[SlackEvents] Fetching messages in thread ${threadTs} in channel ${channel}...`);
-          const slackRes = await fetch(
-            `https://slack.com/api/conversations.replies?channel=${channel}&ts=${threadTs}&limit=50`,
-            {
-              headers: {
-                'Authorization': `Bearer ${slackBotToken}`,
-                'Content-Type': 'application/json'
-              }
+        console.log(`[SlackEvents] Fetching messages in thread ${threadTs} in channel ${channel}...`);
+        const slackRes = await fetch(
+          `https://slack.com/api/conversations.replies?channel=${channel}&ts=${threadTs}&limit=50`,
+          {
+            headers: {
+              'Authorization': `Bearer ${slackBotToken}`,
+              'Content-Type': 'application/json'
             }
-          );
-          const slackData = await slackRes.json();
-          if (slackData.ok && slackData.messages) {
-            messagesToScan = slackData.messages;
-          } else {
-            console.warn('[SlackEvents] conversations.replies failed:', slackData.error);
           }
-        } else {
-          // If store owner replied directly in the DM/channel without creating a thread:
-          console.log(`[SlackEvents] No threadTs provided; scanning recent history for channel ${channel}...`);
-          const slackRes = await fetch(
-            `https://slack.com/api/conversations.history?channel=${channel}&limit=20`,
-            {
-              headers: {
-                'Authorization': `Bearer ${slackBotToken}`,
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-          const slackData = await slackRes.json();
-          if (slackData.ok && slackData.messages) {
-            messagesToScan = slackData.messages;
-          } else {
-            console.warn('[SlackEvents] conversations.history failed:', slackData.error);
-          }
-        }
+        );
+        const slackData = await slackRes.json();
+        const messagesToScan = slackData.ok && slackData.messages ? slackData.messages : [];
 
         // Scan messages backwards (newest customer inquiry first) to find latest conversationId
         for (let i = messagesToScan.length - 1; i >= 0; i--) {
@@ -163,13 +168,13 @@ export default async function handler(req, res) {
           }
         }
 
-        console.log('[SlackEvents] Resolved conversation from Slack messages:', { conversationId, sessionId });
+        console.log('[SlackEvents] Resolved conversation from Slack thread:', { conversationId, sessionId });
       } catch (slackFetchErr) {
-        console.warn('[SlackEvents] Error fetching messages from Slack:', slackFetchErr);
+        console.warn('[SlackEvents] Error fetching thread from Slack:', slackFetchErr);
       }
     }
 
-    // 3. Fallback to Firestore cache if not found in Slack metadata
+    // 4. Fallback to Firestore cache if not found in Slack metadata
     if (!conversationId) {
       try {
         const threadSnap = await getDoc(doc(db, 'slack_chat_threads', threadTs));
@@ -183,7 +188,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // 4. Send reply to Wix Inbox (if linked to a Wix conversation)
+    // 5. Send reply to Wix Inbox (if linked to a Wix conversation)
     let deliveredToWix = false;
     if (conversationId && conversationId !== 'none') {
       try {
@@ -206,7 +211,7 @@ export default async function handler(req, res) {
       console.warn('[SlackEvents] Could not resolve conversationId for thread:', threadTs);
     }
 
-    // 5. Save reply to Firestore for real-time instant display on web widget (if Firestore works)
+    // 6. Save reply to Firestore for real-time instant display on web widget
     const targetSessionId = sessionId || conversationId;
     if (targetSessionId && targetSessionId !== 'none') {
       try {
@@ -221,6 +226,15 @@ export default async function handler(req, res) {
         console.log('[SlackEvents] Saved reply to Firestore real-time collection for session:', targetSessionId);
       } catch (fsErr) {
         // Non-blocking fallback
+      }
+    }
+
+    // Mark event as processed only after handling
+    if (event_id) {
+      processedEvents.add(event_id);
+      if (processedEvents.size > 1000) {
+        const first = processedEvents.values().next().value;
+        processedEvents.delete(first);
       }
     }
 

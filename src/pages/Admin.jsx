@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { wixClient } from '@/lib/wix';
 
 // Parse stats from Wix orders dynamically based on timeRange
 const getParsedWixStats = (wixStats, timeRange, customStartDate, customEndDate) => {
@@ -753,7 +754,13 @@ export default function Admin() {
       setWixLoading(true);
       setWixError(null);
       try {
-        const response = await fetch('/api/get-wix-stats');
+        const tokens = wixClient.auth?.getTokens?.();
+        const accessToken = tokens?.accessToken?.value;
+        const response = await fetch('/api/get-wix-stats', {
+          headers: {
+            ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+          }
+        });
         if (!response.ok) {
           throw new Error(`Klarte ikke å hente Wix-statistikk (status ${response.status})`);
         }
@@ -791,7 +798,13 @@ export default function Admin() {
         if (timeRange === 'custom') {
           url += `&startDate=${customStartDate}&endDate=${customEndDate}`;
         }
-        const response = await fetch(url);
+        const tokens = wixClient.auth?.getTokens?.();
+        const accessToken = tokens?.accessToken?.value;
+        const response = await fetch(url, {
+          headers: {
+            ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+          }
+        });
         if (!response.ok) {
           throw new Error(`Klarte ikke å hente Google Analytics-data (status ${response.status})`);
         }

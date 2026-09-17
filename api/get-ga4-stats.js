@@ -1,4 +1,5 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import { verifyAdminAuth } from './_admin-auth.js';
 
 export default async function handler(req, res) {
   // CORS Headers
@@ -7,11 +8,17 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, X-Admin-Key'
   );
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
+    return;
+  }
+
+  const auth = await verifyAdminAuth(req);
+  if (!auth.authorized) {
+    res.status(401).json({ success: false, error: 'Unauthorized: Admin access required' });
     return;
   }
 
