@@ -415,14 +415,13 @@ export default function HkmChatWidget() {
         fetchLiveMessages(convId);
       }
     } catch (err) {
-      console.error('Failed to start live chat:', err);
-      // Intercept and handle 403 Forbidden elegantly
-      const errStr = JSON.stringify(err);
-      if (err.message?.includes('403') || errStr.includes('403') || err.message?.includes('Forbidden')) {
-        setChatError('Tillatelse nektet (403): Appen mangler tillatelsen "Manage Inbox Messages" i Wix Developer Center for His Kingdom Designs.');
-      } else {
-        setChatError('Kunne ikke starte live chat: ' + (err.message || 'Tilkoblingsfeil'));
-      }
+      console.warn('Wix Inbox conversation setup unavailable (using direct Slack routing):', err?.message);
+      // Never block the user from chatting! Fallback to local session so user can chat freely
+      const fallbackConvId = `conv_${Date.now()}`;
+      setConversationId(fallbackConvId);
+      safeStorage.setItem('hkd-inbox-conv-id', fallbackConvId);
+      setNeedsContactInfo(false);
+      setChatError('');
     } finally {
       setIsCreatingConv(false);
     }
@@ -646,7 +645,26 @@ export default function HkmChatWidget() {
   const sendLiveChatMessage = async (textToSend) => {
     let activeConvId = conversationId;
 
-    if (!activeConvId) {
+    // 1. Immediately show message in chat (optimistic UI)
+    const optMsg = {
+      id: `msg-user-opt-${Date.now()}`,
+      sender: 'user',
+      text: textToSend,
+      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+    };
+    setLiveMessages(prev => [...prev, optMsg]);
+
+    // 2. ALWAYS dispatch immediately to Slack so store owner gets notified right away!
+    notifySlackChatMessage({
+      userMessage: textToSend,
+      customerEmail: contactEmail || (member ? getMemberEmail(member) : null),
+      customerName: contactName || displayName,
+      mode: 'live',
+      conversationId: activeConvId
+    });
+
+    // 3. Sync with Wix Inbox in background (if enabled and authorized)
+    if (!activeConvId || activeConvId.startsWith('conv_')) {
       setIsCreatingConv(true);
       setChatError('');
       try {
@@ -681,7 +699,7 @@ export default function HkmChatWidget() {
             }
             return r.json();
           }),
-          15000
+          10000
         );
 
         if (apiRes && apiRes.conversation) {
@@ -694,16 +712,12 @@ export default function HkmChatWidget() {
             safeStorage.setItem('hkd-inbox-participant', JSON.stringify(participant));
           }
           setNeedsContactInfo(false);
-        } else {
-          throw new Error('Kunne ikke opprette samtale');
         }
       } catch (err) {
-        console.error('Failed to auto-create conversation on send:', err);
-        setChatError('Kunne ikke starte chat: ' + (err.message || 'Tilkoblingsfeil'));
+        console.warn('Wix Inbox conversation creation skipped/failed:', err?.message);
+      } finally {
         setIsCreatingConv(false);
-        return;
       }
-      setIsCreatingConv(false);
     }
 
     const getSenderPayload = () => {
@@ -717,78 +731,63 @@ export default function HkmChatWidget() {
       return undefined;
     };
 
-    const optMsg = {
-      id: `msg-user-opt-${Date.now()}`,
-      sender: 'user',
-      text: textToSend,
-      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-    };
-    setLiveMessages(prev => [...prev, optMsg]);
-
-    try {
-      const messagePayload = {
-        direction: 'PARTICIPANT_TO_BUSINESS',
-        visibility: 'BUSINESS_AND_PARTICIPANT',
-        sender: getSenderPayload(),
-        content: {
-          basic: {
-            items: [
-              {
-                text: textToSend
-              }
-            ]
+    if (activeConvId && !activeConvId.startsWith('conv_')) {
+      try {
+        const messagePayload = {
+          direction: 'PARTICIPANT_TO_BUSINESS',
+          visibility: 'BUSINESS_AND_PARTICIPANT',
+          sender: getSenderPayload(),
+          content: {
+            basic: {
+              items: [
+                {
+                  text: textToSend
+                }
+              ]
+            }
           }
+        };
+        const host = window.location.origin;
+        await fetchWithTimeout(
+          fetch(`${host}/api/send-message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ conversationId: activeConvId, message: messagePayload })
+          }).then(async (r) => {
+            if (!r.ok) {
+              const errJson = await r.json().catch(() => ({}));
+              const err = new Error(errJson.error || `HTTP error ${r.status}`);
+              err.status = r.status;
+              err.details = errJson.details || errJson.error;
+              throw err;
+            }
+            return r.json();
+          }),
+          10000
+        );
+        
+        // Refresh messages so the user message has its real Wix status
+        fetchLiveMessages(activeConvId);
+      } catch (err) {
+        console.warn('Failed to send message to Wix Inbox:', err);
+        const errStr = (err.message || '').toLowerCase();
+        const errDetails = (JSON.stringify(err.details) || '').toLowerCase();
+        const isStaleConv = 
+          err.status === 404 || 
+          err.status === 400 ||
+          errStr.includes('not found') ||
+          errStr.includes('invalid') ||
+          errStr.includes('conversation') ||
+          errDetails.includes('not_found') ||
+          errDetails.includes('invalid');
+
+        if (isStaleConv) {
+          console.warn('Resetting invalid/stale Wix Inbox conversationId on send failure:', activeConvId);
+          setConversationId(null);
+          setChatParticipant(null);
+          safeStorage.removeItem('hkd-inbox-conv-id');
+          safeStorage.removeItem('hkd-inbox-participant');
         }
-      };
-      const host = window.location.origin;
-      await fetchWithTimeout(
-        fetch(`${host}/api/send-message`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ conversationId: activeConvId, message: messagePayload })
-        }).then(async (r) => {
-          if (!r.ok) {
-            const errJson = await r.json().catch(() => ({}));
-            const err = new Error(errJson.error || `HTTP error ${r.status}`);
-            err.status = r.status;
-            err.details = errJson.details || errJson.error;
-            throw err;
-          }
-          return r.json();
-        }),
-        15000
-      );
-      
-      // Refresh messages so the user message has its real Wix status
-      fetchLiveMessages(activeConvId);
-
-      // Notify Slack channel about the live customer message!
-      notifySlackChatMessage({
-        userMessage: textToSend,
-        customerEmail: contactEmail || (member ? getMemberEmail(member) : null),
-        customerName: contactName || displayName,
-        mode: 'live',
-        conversationId: activeConvId
-      });
-    } catch (err) {
-      console.error('Failed to send message to Wix Inbox:', err);
-      const errStr = (err.message || '').toLowerCase();
-      const errDetails = (JSON.stringify(err.details) || '').toLowerCase();
-      const isStaleConv = 
-        err.status === 404 || 
-        err.status === 400 ||
-        errStr.includes('not found') ||
-        errStr.includes('invalid') ||
-        errStr.includes('conversation') ||
-        errDetails.includes('not_found') ||
-        errDetails.includes('invalid');
-
-      if (isStaleConv) {
-        console.warn('Resetting invalid/stale Wix Inbox conversationId on send failure:', activeConvId);
-        setConversationId(null);
-        setChatParticipant(null);
-        safeStorage.removeItem('hkd-inbox-conv-id');
-        safeStorage.removeItem('hkd-inbox-participant');
       }
     }
   };
