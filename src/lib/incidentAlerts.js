@@ -92,7 +92,8 @@ export async function reportCheckoutIncident({
 }
 
 /**
- * Notifies Slack in real-time when a customer sends a message to the HKM Assistant or Live chat.
+ * Notifies Slack in real-time when a customer sends a message to the HKD Assistant or Live chat.
+ * (Deaktivert etter brukers ønske: Slack er nå reservert utelukkende for feilmeldinger og hendelser).
  */
 export async function notifySlackChatMessage({
   userMessage,
@@ -102,6 +103,9 @@ export async function notifySlackChatMessage({
   mode = 'ai',
   conversationId = null
 } = {}) {
+  // Chatmeldinger holdes i Wix-appen / Wix Inbox med push-varsler,
+  // mens Slack holdes ren for reelle hendelser og feilvarsler.
+  return;
   try {
     if (!userMessage || !userMessage.trim()) return;
 
