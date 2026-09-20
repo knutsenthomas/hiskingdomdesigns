@@ -1112,9 +1112,9 @@ export const AppProvider = ({ children }) => {
       reply = '### ✍️ Personlig hilsen i pakken\n\n' +
         'Hei! Vi legger gjerne ved en liten, håndskrevet hilsen i pakken om du ønsker det. Skriv teksten du vil ha med i kommentarfeltet i kassen (eller send den til oss her sammen med ordrenummeret ditt rett etter bestilling), så fikser vi det! ✍️';
     }
-    else if (lower.includes('betaling') || lower.includes('vipps') || lower.includes('kort') || lower.includes('visa') || lower.includes('betalingsmetoder') || lower.includes('apple pay') || lower.includes('klarna')) {
+    else if (lower.includes('betaling') || lower.includes('vipps') || lower.includes('kort') || lower.includes('visa') || lower.includes('betalingsmetoder') || lower.includes('apple pay') || lower.includes('google pay') || lower.includes('klarna')) {
       reply = '### 💳 Sikker Betaling\n\n' +
-        'Hei! I nettbutikken vår kan du betale trygt og enkelt med **Vipps** eller **betalingskort** (Visa og Mastercard via kryptert betalingsløsning). Du velger ganske enkelt den metoden som passer best for deg når du kommer til kassen. 💳\n\n' +
+        'Hei! I nettbutikken vår kan du betale trygt og enkelt med **Vipps**, **betalingskort** (Visa og Mastercard via kryptert betalingsløsning), samt **Apple Pay** og **Google Pay**. Du velger ganske enkelt den metoden som passer best for deg når du kommer til kassen. 💳\n\n' +
         '💡 Vi er fritatt for MVA da His Kingdom Designs drives av en frivillig organisasjon.';
     }
     else if (lower.includes('kontakt') || lower.includes('kundeservice') || lower.includes('e-post') || lower.includes('adresse') || lower.includes('telefon')) {

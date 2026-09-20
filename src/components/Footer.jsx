@@ -331,6 +331,16 @@ export default function Footer() {
                 alt="Mastercard" 
                 className="h-6 w-auto rounded shadow-sm opacity-80 hover:opacity-100 hover:scale-[1.03] transition-all duration-300 select-none cursor-pointer" 
               />
+              <img 
+                src="/apple-pay.svg" 
+                alt="Apple Pay" 
+                className="h-6 w-auto rounded shadow-sm opacity-80 hover:opacity-100 hover:scale-[1.03] transition-all duration-300 select-none cursor-pointer" 
+              />
+              <img 
+                src="/google-pay.svg" 
+                alt="Google Pay" 
+                className="h-6 w-auto rounded shadow-sm opacity-80 hover:opacity-100 hover:scale-[1.03] transition-all duration-300 select-none cursor-pointer" 
+              />
             </div>
           </div>
         </div>

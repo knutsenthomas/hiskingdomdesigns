@@ -560,8 +560,15 @@ export default function Cart() {
                   className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"
                 />
                 <img
-                  src="/klarna.svg"
-                  alt="Klarna"
+                  src="/apple-pay.svg"
+                  alt="Apple Pay"
+                  width={44}
+                  height={28}
+                  className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"
+                />
+                <img
+                  src="/google-pay.svg"
+                  alt="Google Pay"
                   width={44}
                   height={28}
                   className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"

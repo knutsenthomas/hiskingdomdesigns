@@ -830,8 +830,15 @@ export default function Checkout() {
                     className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
                   />
                   <img
-                    src="/klarna.svg"
-                    alt="Klarna"
+                    src="/apple-pay.svg"
+                    alt="Apple Pay"
+                    width={48}
+                    height={32}
+                    className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
+                  />
+                  <img
+                    src="/google-pay.svg"
+                    alt="Google Pay"
                     width={48}
                     height={32}
                     className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
