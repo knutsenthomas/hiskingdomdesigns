@@ -263,13 +263,13 @@ export default function HkmChatWidget() {
   });
 
   const QUICK_REPLIES = [
-    { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel') },
-    { text: t('chat.quickReply.returns'), label: t('chat.quickReply.returnsLabel') },
-    { text: t('chat.quickReply.freeShipping'), label: t('chat.quickReply.freeShippingLabel') },
-    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') },
-    { text: t('chat.quickReply.wash'), label: t('chat.quickReply.washLabel') },
-    { text: t('chat.quickReply.custom'), label: t('chat.quickReply.customLabel') },
-    { text: t('chat.quickReply.about'), label: t('chat.quickReply.aboutLabel') }
+    { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel'), actionRequired: false },
+    { text: t('chat.quickReply.returns'), label: t('chat.quickReply.returnsLabel'), actionRequired: false },
+    { text: t('chat.quickReply.freeShipping'), label: t('chat.quickReply.freeShippingLabel'), actionRequired: false },
+    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel'), actionRequired: false },
+    { text: t('chat.quickReply.wash'), label: t('chat.quickReply.washLabel'), actionRequired: false },
+    { text: t('chat.quickReply.custom'), label: t('chat.quickReply.customLabel'), actionRequired: true },
+    { text: t('chat.quickReply.about'), label: t('chat.quickReply.aboutLabel'), actionRequired: false }
   ];
 
   const getMemberEmail = (m) => {
@@ -347,9 +347,11 @@ export default function HkmChatWidget() {
   };
 
   // Send message handler (Hybrid: Instant UI + Wix push + Instant AI + Live Sync)
-  const handleSendMessage = async (textToSend) => {
+  const handleSendMessage = async (textToSend, options = {}) => {
     if (!textToSend || !textToSend.trim()) return;
     const cleanText = textToSend.trim();
+
+    const skipWixPush = options.skipWixPush === true;
 
     // 1. Optimistically append user message
     const userMsg = {
@@ -361,36 +363,38 @@ export default function HkmChatWidget() {
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
 
-    // 2. Dispatch to Wix Inbox in background (triggers push alert on phone!)
-    (async () => {
-      try {
-        const activeConvId = await ensureConversation();
-        if (activeConvId) {
-          const host = window.location.origin;
-          const senderPayload = chatParticipant || (isLoggedIn && member ? { contactId: member.contactId || member.contact?._id } : undefined);
-          
-          await fetch(`${host}/api/send-message`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              conversationId: activeConvId,
-              message: {
-                direction: 'PARTICIPANT_TO_BUSINESS',
-                visibility: 'BUSINESS_AND_PARTICIPANT',
-                sender: senderPayload,
-                content: {
-                  basic: {
-                    items: [{ text: cleanText }]
+    // 2. Dispatch to Wix Inbox in background (triggers push alert on phone ONLY IF human action is required or visitor typed custom message)
+    if (!skipWixPush) {
+      (async () => {
+        try {
+          const activeConvId = await ensureConversation();
+          if (activeConvId) {
+            const host = window.location.origin;
+            const senderPayload = chatParticipant || (isLoggedIn && member ? { contactId: member.contactId || member.contact?._id } : undefined);
+            
+            await fetch(`${host}/api/send-message`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                conversationId: activeConvId,
+                message: {
+                  direction: 'PARTICIPANT_TO_BUSINESS',
+                  visibility: 'BUSINESS_AND_PARTICIPANT',
+                  sender: senderPayload,
+                  content: {
+                    basic: {
+                      items: [{ text: cleanText }]
+                    }
                   }
                 }
-              }
-            })
-          });
+              })
+            });
+          }
+        } catch (err) {
+          console.warn('[HKD Chat] Wix push dispatch warning:', err);
         }
-      } catch (err) {
-        console.warn('[HKD Chat] Wix push dispatch warning:', err);
-      }
-    })();
+      })();
+    }
 
     // 3. Show typing indicator
     setIsTyping(true);
@@ -629,7 +633,7 @@ export default function HkmChatWidget() {
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => handleSendMessage(reply.text)}
+                  onClick={() => handleSendMessage(reply.text, { skipWixPush: !reply.actionRequired })}
                   className="flex-shrink-0 bg-white border border-[#d17d39]/30 hover:border-[#bd4f2a] hover:bg-[#fff7ed] text-[#bd4f2a] text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-xs cursor-pointer flex items-center gap-1"
                 >
                   {reply.label}
@@ -641,7 +645,7 @@ export default function HkmChatWidget() {
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSendMessage(inputText);
+                handleSendMessage(inputText, { skipWixPush: false });
               }}
               className="p-3 bg-white border-t border-black/8 shrink-0 relative"
             >
