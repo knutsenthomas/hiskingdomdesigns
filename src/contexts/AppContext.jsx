@@ -847,7 +847,7 @@ export const AppProvider = ({ children }) => {
       lower.includes('bag') ||
       lower.includes('tote');
 
-    // Split input into keywords, removing common small words
+    // Split input into keywords, removing common small and functional words
     const stopWords = new Set([
       'jeg', 'og', 'i', 'på', 'en', 'et', 'er', 'det', 'har', 'dere', 'noen', 
       'vis', 'meg', 'leter', 'etter', 'hva', 'koster', 'anbefale', 'anbefal',
@@ -855,12 +855,21 @@ export const AppProvider = ({ children }) => {
       'produkt', 'de', 'den', 'siste', 'nye', 'viser', 'gi', 'meg',
       'hvordan', 'hvem', 'hvor', 'hvorfor', 'gjør', 'gjøre', 'vil', 'skal', 
       'må', 'bør', 'få', 'får', 'ta', 'tar', 'se', 'ser', 'finne', 'finner', 
-      'mer', 'om', 'enkel', 'mottar', 'varen', 'ubrukt', 'kontakt'
+      'mer', 'om', 'enkel', 'mottar', 'varen', 'ubrukt', 'kontakt',
+      'dette', 'denne', 'disse', 'dag', 'gud', 'selv', 'liten', 'gave',
+      'hadde', 'var', 'noe', 'hjelp', 'spørsmål', 'lurer', 'bare', 'også',
+      'velsignet', 'kristen', 'kristne', 'jesus', 'hei', 'hallo', 'hvilke',
+      'finnes', 'skjer', 'hvordan', 'opp', 'ut', 'inn', 'av'
     ]);
     const words = lower
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "")
       .split(/\s+/)
       .filter(w => w.length > 1 && !stopWords.has(w));
+
+    // STRICT: Never dump product recommendations unless user specifically asked about products/categories/sales/recommendations
+    if (!isAskingAboutProducts && !isAllAgesQuery) {
+      return null;
+    }
 
     if (words.length === 0 && !isAskingAboutProducts) {
       return null;
@@ -1035,8 +1044,47 @@ export const AppProvider = ({ children }) => {
       });
     }
 
+    // 0. Clean greeting check
+    const cleanGreeting = lower.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()!?]/g, ' ').trim();
+    const isPureGreeting = (
+      cleanGreeting === 'hei' ||
+      cleanGreeting === 'hallo' ||
+      cleanGreeting === 'heisann' ||
+      cleanGreeting === 'morn' ||
+      cleanGreeting === 'god dag' ||
+      cleanGreeting === 'god morgen' ||
+      cleanGreeting === 'god kveld' ||
+      cleanGreeting === 'hi' ||
+      cleanGreeting === 'hello' ||
+      cleanGreeting === 'hola'
+    );
+
+    if (isPureGreeting) {
+      if (lang === 'en') {
+        reply = 'Hello! Blessed day and welcome. 🙏 How can we help you today?\n\n' +
+          'Feel free to ask us about:\n' +
+          '• **Delivery time & shipping** (approx. 2 weeks)\n' +
+          '• **Returns & exchanges** (14 days)\n' +
+          '• **Size guide & wash care**\n' +
+          '• **Our products & custom orders**';
+      } else if (lang === 'es') {
+        reply = '¡Hola! Bendecido día y bienvenido. 🙏 ¿Cómo podemos ayudarte hoy?\n\n' +
+          'Pregúntanos sobre:\n' +
+          '• **Envío y tiempos de entrega** (aprox. 2 semanas)\n' +
+          '• **Devoluciones y cambios** (14 días)\n' +
+          '• **Guía de tallas y lavado**\n' +
+          '• **Nuestros productos y pedidos personalizados**';
+      } else {
+        reply = 'Hei! Velsignet dag og velkommen til oss. 🙏 Hva kan vi i His Kingdom Designs hjelpe deg med i dag?\n\n' +
+          'Spør oss gjerne om:\n' +
+          '• **Leveringstid & frakt** (normalt ca. 2 uker)\n' +
+          '• **Retur & bytte** (14 dagers angrerett)\n' +
+          '• **Størrelsesguide & vaskeråd**\n' +
+          '• **Våre produkter & spesialbestillinger**';
+      }
+    }
     // 1. Prioritize specific customer service topics to prevent false matches on helper words
-    if (
+    else if (
       lower.includes('feilmelding') || 
       lower.includes('handlekurv') || 
       lower.includes('handlekurven') || 
@@ -1295,8 +1343,17 @@ export const AppProvider = ({ children }) => {
             : `**${prod.price} kr**`;
           
           const badge = prod.isBestseller ? ' ⭐ *Bestselger!*' : '';
-          
-          return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${prod.description ? prod.description.replace(/<[^>]*>/g, '').substring(0, 110) + '...' : prod.category}*`;
+          const cleanDesc = prod.description 
+            ? prod.description
+                .replace(/<[^>]*>/g, '')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .trim()
+                .substring(0, 110) + '...'
+            : prod.category;
+          return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${cleanDesc}*`;
         }).join('\n\n');
 
         reply = `${titleText}\n\n${itemsText}\n\n💡 Klikk på produktlenkene over for å se produktdetaljene, velge farger/størrelser og legge dem i handlekurven!`;
