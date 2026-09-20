@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
     console.log(`[ChatNotify] New message from ${customerEmail || customerName || 'Anonym'}: "${userMessage.substring(0, 50)}..."`);
 
-    const modeLabel = mode === 'ai' ? '🤖 HKM Assistent (AI)' : '👤 Kundeservice (Live Chat)';
+    const modeLabel = mode === 'ai' ? '🤖 HKD Assistent (AI)' : '👤 Kundeservice (Live Chat)';
     const customerDisplay = customerName && customerEmail 
       ? `${customerName} (\`${customerEmail}\`)`
       : (customerEmail ? `\`${customerEmail}\`` : (customerName || '_Anonym besøkende_'));
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         type: 'header',
         text: {
           type: 'plain_text',
-          text: mode === 'ai' ? '💬 HKM Assistent: Ny melding fra kunde!' : '🛎️ Kundeservice: Ny live-melding!',
+          text: mode === 'ai' ? '💬 HKD Assistent: Ny melding fra kunde!' : '🛎️ Kundeservice: Ny live-melding!',
           emoji: true
         }
       },

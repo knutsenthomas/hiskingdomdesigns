@@ -131,7 +131,7 @@ export const translations = {
     'profile.returnRequested': 'Returforespørsel sendt',
 
     // Chat Widget
-    'chat.title': 'HKM Assistent',
+    'chat.title': 'HKD Assistent',
     'chat.welcome': 'Hei! Hva kan jeg hjelpe deg med i dag?',
     'chat.placeholder': 'Skriv en melding...',
     'chat.typing': 'Assistenten skriver...',
@@ -899,7 +899,7 @@ export const translations = {
     'profile.returnRequested': 'Return requested',
 
     // Chat Widget
-    'chat.title': 'HKM Assistant',
+    'chat.title': 'HKD Assistant',
     'chat.welcome': 'Hi! How can I help you today?',
     'chat.placeholder': 'Type a message...',
     'chat.typing': 'Assistant is typing...',
@@ -1668,7 +1668,7 @@ export const translations = {
     'profile.returnRequested': 'Devolución solicitada',
 
     // Chat Widget
-    'chat.title': 'Asistente HKM',
+    'chat.title': 'Asistente HKD',
     'chat.welcome': '¡Hola! ¿Cómo te puedo ayudar hoy?',
     'chat.placeholder': 'Escribe un mensaje...',
     'chat.typing': 'El asistente está escribiendo...',
