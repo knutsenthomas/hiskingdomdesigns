@@ -807,11 +807,35 @@ export default function Checkout() {
                 <p className="text-[10px] text-secondary tracking-widest uppercase font-semibold">
                   Sikker betaling støttet via Wix Payments
                 </p>
-                <div className="flex justify-center items-center gap-3 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all select-none">
-                  <span className="bg-orange-500 rounded px-2.5 py-1 text-[9px] text-white font-bold">VIPPS</span>
-                  <span className="bg-blue-800 rounded px-2.5 py-1 text-[9px] text-white font-bold">VISA</span>
-                  <span className="bg-red-600 rounded px-2.5 py-1 text-[9px] text-white font-bold">MC</span>
-                  <span className="bg-pink-600 rounded px-2.5 py-1 text-[9px] text-white font-bold">KLARNA</span>
+                <div className="flex justify-center items-center gap-2.5 pt-1 select-none">
+                  <img
+                    src="/vipps.svg"
+                    alt="Vipps"
+                    width={48}
+                    height={32}
+                    className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
+                  />
+                  <img
+                    src="/visa.svg"
+                    alt="Visa"
+                    width={48}
+                    height={32}
+                    className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
+                  />
+                  <img
+                    src="/mastercard.svg"
+                    alt="Mastercard"
+                    width={48}
+                    height={32}
+                    className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
+                  />
+                  <img
+                    src="/klarna.svg"
+                    alt="Klarna"
+                    width={48}
+                    height={32}
+                    className="h-7 w-auto rounded border border-slate-200/70 shadow-xs hover:scale-105 transition-transform"
+                  />
                 </div>
               </div>
 

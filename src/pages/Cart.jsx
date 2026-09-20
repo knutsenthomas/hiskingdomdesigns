@@ -537,10 +537,35 @@ export default function Cart() {
               <p className="text-center text-label-sm font-label-sm text-secondary tracking-widest uppercase">
                 {t('cart.securePaymentMethods')}
               </p>
-              <div className="flex justify-center gap-3 opacity-50 grayscale hover:opacity-75 transition-opacity">
-                <span className="bg-orange-500 rounded px-2 py-1 text-[9px] text-white font-bold select-none">VIPPS</span>
-                <span className="bg-blue-800 rounded px-2 py-1 text-[9px] text-white font-bold select-none">VISA</span>
-                <span className="bg-red-600 rounded px-2 py-1 text-[9px] text-white font-bold select-none">MC</span>
+              <div className="flex justify-center items-center gap-2.5 pt-1 select-none">
+                <img
+                  src="/vipps.svg"
+                  alt="Vipps"
+                  width={44}
+                  height={28}
+                  className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"
+                />
+                <img
+                  src="/visa.svg"
+                  alt="Visa"
+                  width={44}
+                  height={28}
+                  className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"
+                />
+                <img
+                  src="/mastercard.svg"
+                  alt="Mastercard"
+                  width={44}
+                  height={28}
+                  className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"
+                />
+                <img
+                  src="/klarna.svg"
+                  alt="Klarna"
+                  width={44}
+                  height={28}
+                  className="h-6 w-auto rounded border border-slate-200/70 shadow-xs"
+                />
               </div>
             </div>
           </div>
