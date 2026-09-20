@@ -727,7 +727,10 @@ export const CartProvider = ({ children }) => {
    */
   const startCheckoutRedirect = async ({
     returnUrl = window.location.origin + '/cart',
-    thankYouUrl = window.location.origin + '/profile'
+    thankYouUrl = window.location.origin + '/profile',
+    customBuyerEmail = null,
+    customShippingAddress = null,
+    customSelectedShippingRate = null
   } = {}) => {
     // 1. SERIALISERING: Vent på at eventuelle pågående add/update-operasjoner mot Wix er ferdige
     if (activeCartOperationPromise) {
@@ -773,10 +776,14 @@ export const CartProvider = ({ children }) => {
         } catch (e) {}
       }
 
+      const effectiveBuyerEmail = customBuyerEmail || buyerEmail;
+      const effectiveShippingAddress = customShippingAddress || shippingAddress;
+      const effectiveShippingRate = customSelectedShippingRate || selectedShippingRate;
+
       checkoutId = await enrichCheckout(wixClient, checkoutId, {
-        buyerEmail,
-        shippingAddress,
-        selectedShippingRate,
+        buyerEmail: effectiveBuyerEmail,
+        shippingAddress: effectiveShippingAddress,
+        selectedShippingRate: effectiveShippingRate,
         couponCode: appliedCoupon?.code,
         giftCardCode: appliedGiftCard?.code
       });
@@ -1109,6 +1116,7 @@ export const CartProvider = ({ children }) => {
       isEstimating,
       estimateError,
       shippingAddress,
+      setShippingAddress,
       estimateShippingAndTotals,
       clearEstimation,
       isCartDrawerOpen,

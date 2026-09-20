@@ -38,7 +38,6 @@ export default function Cart() {
     removeGiftCard,
     mapCartItemsToWixLineItems,
     forceSyncCartWithWix,
-    startCheckoutRedirect,
     isEstimated,
     isEstimating,
     estimateError,
@@ -50,8 +49,6 @@ export default function Cart() {
     selectShippingRate
   } = useCart();
   const navigate = useNavigate();
-  const [checkoutStep, setCheckoutStep] = useState(null); // 'billing' | 'success'
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [hasReferral, setHasReferral] = useState(false);
 
@@ -62,15 +59,6 @@ export default function Cart() {
         setHasReferral(true);
       }
     } catch (e) {}
-  }, []);
-
-  // Reset redirect state if user navigates back to Cart page
-  useEffect(() => {
-    const handlePageShow = () => {
-      setIsRedirecting(false);
-    };
-    window.addEventListener('pageshow', handlePageShow);
-    return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
 
   // Auto-prefill and calculate shipping from logged-in member's saved address on mount
@@ -106,41 +94,9 @@ export default function Cart() {
     loadMemberAddress();
   }, []);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (cartItems.length === 0) return;
-    setIsRedirecting(true);
-    setErrorMessage('');
-    window.hkd_is_checking_out = true;
-
-    try {
-      const redirectUrl = await startCheckoutRedirect({
-        returnUrl: window.location.origin + '/cart',
-        thankYouUrl: window.location.origin + '/profile'
-      });
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-      } else {
-        throw new Error('Kunne ikke hente betalings-lenke.');
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      try {
-        console.error('Wix Checkout Error Details:', JSON.stringify(err.details || err));
-      } catch (jsonErr) {
-        console.error('Wix Checkout Error Details (raw):', err.details || err);
-      }
-      reportCheckoutIncident({
-        source: 'CartPage',
-        error: err,
-        cartItems: cartItems
-      });
-      const userMessage = (err?.message && !err.message.includes('[object Object]') && !err.message.includes('SDKError'))
-        ? err.message
-        : 'Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.';
-      setErrorMessage(userMessage);
-      window.hkd_is_checking_out = false;
-      setIsRedirecting(false);
-    }
+    navigate(localizedPath('/checkout'));
   };
 
   if (cartItems.length === 0) {
@@ -564,22 +520,10 @@ export default function Cart() {
             )}
             <button 
               onClick={handleCheckout}
-              disabled={isRedirecting}
-              className={`w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-3 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 ${
-                isRedirecting ? 'opacity-75 cursor-not-allowed' : ''
-              }`}
+              className="w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-3 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
             >
-              {isRedirecting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>{t('cart.creatingCheckout')}</span>
-                </>
-              ) : (
-                <>
-                  <span>{t('cart.checkout')}</span>
-                  <ArrowRight size={16} />
-                </>
-              )}
+              <span>{t('cart.checkout')}</span>
+              <ArrowRight size={16} />
             </button>
             <button
               onClick={() => navigate(localizedPath('/products'))}
@@ -611,32 +555,6 @@ export default function Cart() {
         </aside>
       </div>
     </motion.main>
-
-    {/* Loading Overlay */}
-    <AnimatePresence>
-      {isRedirecting && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm"
-        >
-          <div className="flex flex-col items-center space-y-6 max-w-sm px-6 text-center">
-            {/* Animated premium spinner */}
-            <div className="relative w-16 h-16">
-              <div className="w-16 h-16 border-4 border-slate-100 rounded-full"></div>
-              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <div className="space-y-2 select-none">
-              <h3 className="font-headline-md text-lg text-onyx font-bold">{t('cart.securePayment')}</h3>
-              <p className="text-xs text-secondary leading-relaxed">
-                {t('cart.pleaseWaitCheckout')}
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
     </>
   );
 }

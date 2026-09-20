@@ -58,13 +58,24 @@ export const updateCheckoutDetails = async (wixClient, checkoutId, { buyerEmail,
   if (shippingAddress || selectedShippingRate) {
     const shippingInfo = {};
     if (shippingAddress) {
-      shippingInfo.shippingDestination = {
-        address: {
-          country: shippingAddress.country || 'NO',
-          postalCode: shippingAddress.postalCode,
-          city: shippingAddress.city
-        }
+      const address = {
+        country: shippingAddress.country || 'NO',
+        postalCode: shippingAddress.postalCode,
+        city: shippingAddress.city
       };
+      const street = shippingAddress.addressLine || shippingAddress.streetAddress || shippingAddress.address;
+      if (street) {
+        address.addressLine = street;
+      }
+
+      const dest = { address };
+      if (shippingAddress.firstName || shippingAddress.lastName || shippingAddress.phone) {
+        dest.contactDetails = {};
+        if (shippingAddress.firstName) dest.contactDetails.firstName = shippingAddress.firstName;
+        if (shippingAddress.lastName) dest.contactDetails.lastName = shippingAddress.lastName;
+        if (shippingAddress.phone) dest.contactDetails.phone = shippingAddress.phone;
+      }
+      shippingInfo.shippingDestination = dest;
     }
     if (selectedShippingRate?.code) {
       shippingInfo.selectedCarrierServiceOption = {

@@ -35,6 +35,11 @@ export const routeTranslations = {
     en: '/cart',
     es: '/carrito'
   },
+  checkout: {
+    no: '/kasse',
+    en: '/checkout',
+    es: '/pago'
+  },
   products: {
     no: '/produkter',
     en: '/products',

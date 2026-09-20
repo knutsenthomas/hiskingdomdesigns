@@ -117,6 +117,39 @@ test('buyerInfo email and shipping destination are passed to updateCheckout', as
   assert.equal(capturedPayload.shippingInfo?.selectedCarrierServiceOption?.code, 'standard-rate');
 });
 
+test('contact details and street addressLine are passed to updateCheckout', async () => {
+  let capturedPayload = null;
+  const mockClient = {
+    checkout: {
+      updateCheckout: async (id, payload) => {
+        capturedPayload = payload;
+        return { _id: id, ...payload };
+      }
+    }
+  };
+
+  const { enrichCheckout } = await import('../src/lib/wixCheckout.js');
+  await enrichCheckout(mockClient, 'test-checkout-full', {
+    buyerEmail: 'ola@nordmann.no',
+    shippingAddress: {
+      firstName: 'Ola',
+      lastName: 'Nordmann',
+      phone: '+4790000000',
+      addressLine: 'Storgata 1',
+      postalCode: '0150',
+      city: 'Oslo',
+      country: 'NO'
+    }
+  });
+
+  const dest = capturedPayload.shippingInfo?.shippingDestination;
+  assert.equal(dest?.address?.addressLine, 'Storgata 1');
+  assert.equal(dest?.address?.postalCode, '0150');
+  assert.equal(dest?.contactDetails?.firstName, 'Ola');
+  assert.equal(dest?.contactDetails?.lastName, 'Nordmann');
+  assert.equal(dest?.contactDetails?.phone, '+4790000000');
+});
+
 test('coupon is applied via options object, not appliedDiscounts', async () => {
   const calls = [];
   const mockClient = {

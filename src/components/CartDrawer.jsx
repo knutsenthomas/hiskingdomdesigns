@@ -8,7 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { reportCheckoutIncident } from '@/lib/incidentAlerts';
 
 export default function CartDrawer() {
-  const { t, translateProduct, formatPrice, getActiveCurrency } = useLanguage();
+  const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
   const { 
     cartItems, 
     isCartDrawerOpen, 
@@ -68,43 +68,11 @@ export default function CartDrawer() {
     }
   };
 
-  // Direct Wix Checkout logic from drawer
-  const handleDirectCheckout = async () => {
+  // Navigate to internal checkout page on Vercel
+  const handleDirectCheckout = () => {
     if (cartItems.length === 0) return;
-    setIsRedirecting(true);
-    setCheckoutError('');
-    window.hkd_is_checking_out = true;
-
-    try {
-      const redirectUrl = await startCheckoutRedirect({
-        returnUrl: window.location.origin + '/cart',
-        thankYouUrl: window.location.origin + '/profile'
-      });
-      if (redirectUrl) {
-        setIsCartDrawerOpen(false);
-        window.location.href = redirectUrl;
-      } else {
-        throw new Error('Mottok ingen omdirigerings-URL fra Wix.');
-      }
-    } catch (err) {
-      console.error('CartDrawer Checkout error:', err);
-      try {
-        console.error('Wix Checkout Error Details:', JSON.stringify(err.details || err));
-      } catch (jsonErr) {
-        console.error('Wix Checkout Error Details (raw):', err.details || err);
-      }
-      reportCheckoutIncident({
-        source: 'CartDrawer',
-        error: err,
-        cartItems: cartItems
-      });
-      const userMessage = (err?.message && !err.message.includes('[object Object]') && !err.message.includes('SDKError'))
-        ? err.message
-        : 'Kunne ikke opprette betaling. Vennligst gå til handlekurven.';
-      setCheckoutError(userMessage);
-      window.hkd_is_checking_out = false;
-      setIsRedirecting(false);
-    }
+    setIsCartDrawerOpen(false);
+    navigate(localizedPath('/checkout'));
   };
 
 
@@ -314,7 +282,7 @@ export default function CartDrawer() {
                     <button
                       onClick={() => {
                         setIsCartDrawerOpen(false);
-                        navigate('/cart');
+                        navigate(localizedPath('/cart'));
                       }}
                       className="border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
                     >

@@ -18,6 +18,7 @@ const routeTranslations = {
   privacy: { no: '/personvern', en: '/privacy', es: '/privacidad' },
   betingelser: { no: '/betingelser', en: '/terms', es: '/condiciones' },
   cart: { no: '/handlekurv', en: '/cart', es: '/carrito' },
+  checkout: { no: '/kasse', en: '/checkout', es: '/pago' },
   products: { no: '/produkter', en: '/products', es: '/productos' },
   profile: { no: '/profil', en: '/profile', es: '/perfil' },
   cancellation: { no: '/angre-kjop', en: '/cancel-order', es: '/cancelar-pedido' }
@@ -420,6 +421,7 @@ export default async function handler(req, res) {
       cleanPath === '/privacy' ||
       cleanPath === '/terms' ||
       cleanPath === '/cart' ||
+      cleanPath === '/checkout' ||
       cleanPath === '/profile' ||
       cleanPath === '/cancel-order'
     ) {
@@ -434,6 +436,7 @@ export default async function handler(req, res) {
       cleanPath === '/privacidad' ||
       cleanPath === '/condiciones' ||
       cleanPath === '/carrito' ||
+      cleanPath === '/pago' ||
       cleanPath === '/perfil' ||
       cleanPath === '/cancelar-pedido'
     ) {

@@ -44,6 +44,7 @@ const lazyWithRetry = (componentImport) =>
 const Category = lazyWithRetry(() => import('@/pages/Category'));
 const ProductDetails = lazyWithRetry(() => import('@/pages/ProductDetails'));
 const Cart = lazyWithRetry(() => import('@/pages/Cart'));
+const Checkout = lazyWithRetry(() => import('@/pages/Checkout'));
 const About = lazyWithRetry(() => import('@/pages/About'));
 const Team = lazyWithRetry(() => import('@/pages/Team'));
 const Shipping = lazyWithRetry(() => import('@/pages/Shipping'));
@@ -222,6 +223,11 @@ function MainLayout() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/handlekurv" element={<Cart />} />
               <Route path="/carrito" element={<Cart />} />
+
+              {/* Checkout */}
+              <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
+              <Route path="/kasse" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
+              <Route path="/pago" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
               
               {/* About */}
               <Route path="/about" element={<About />} />
