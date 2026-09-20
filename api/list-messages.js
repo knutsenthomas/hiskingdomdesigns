@@ -7,7 +7,7 @@ const wixClient = createClient({
   },
   auth: ApiKeyStrategy({
     siteId: process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7',
-    apiKey: process.env.WIX_API_KEY
+    apiKey: process.env.WIX_CHAT_API_KEY || process.env.WIX_API_KEY
   })
 });
 

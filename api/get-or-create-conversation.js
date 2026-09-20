@@ -1,17 +1,15 @@
 import { createClient, ApiKeyStrategy } from '@wix/sdk';
 import { conversations } from '@wix/inbox';
 import { members } from '@wix/members';
-import { headlessSite } from '@wix/headless-site';
 
 const wixClient = createClient({
-  host: headlessSite.host(),
   modules: {
     inboxConversations: conversations,
     members,
   },
   auth: ApiKeyStrategy({
     siteId: process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7',
-    apiKey: process.env.WIX_API_KEY
+    apiKey: process.env.WIX_CHAT_API_KEY || process.env.WIX_API_KEY
   })
 });
 
@@ -60,7 +58,7 @@ export default async function handler(req, res) {
     } else if (email && name) {
       console.log('Backend querying/creating CRM contact for:', email, name);
       try {
-        const apiKey = process.env.WIX_API_KEY;
+        const apiKey = process.env.WIX_CHAT_API_KEY || process.env.WIX_API_KEY;
         const siteId = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
         
         // 1. Query contact by email
