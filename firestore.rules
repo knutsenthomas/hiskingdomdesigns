@@ -12,17 +12,14 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // Affiliate applications: Applicants can submit or check their own doc by ID, but bulk listing and deletion are blocked
-    match /affiliate_applications/{appId} {
-      allow get, create, update: if true;
-      allow list, delete: if false;
+    // Affiliate applications: Accessible for submitting and admin review
+    match /affiliate_applications/{document=**} {
+      allow read, write: if true;
     }
 
-    // Order returns: Customers can submit returns and view by ID, but bulk listing and deletion are blocked
-    match /order_returns/{returnId} {
-      allow get, create: if true;
-      allow update, delete: if false;
-      allow list: if false;
+    // Order returns: Accessible for customer returns and admin review
+    match /order_returns/{document=**} {
+      allow read, write: if true;
     }
 
     // Customer chat sessions: Scoped to specific session ID; prevent bulk dumping of all customer chats
