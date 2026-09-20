@@ -3,9 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { notifySlackChatMessage } from '@/lib/incidentAlerts';
-import { db } from '@/firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Helper to parse bold (**), italic (*), and markdown links ([text](url)) syntax into React nodes
 const parseInlineStyles = (text, isAssistant) => {
@@ -19,43 +17,27 @@ const parseInlineStyles = (text, isAssistant) => {
         const linkText = match[1];
         const linkUrl = match[2];
         const isExternal = linkUrl.startsWith('http');
-        if (isExternal) {
-          return (
-            <a
-              key={index}
-              href={linkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`underline font-semibold transition-colors ${
-                isAssistant 
-                  ? 'text-terracotta hover:text-terracotta/80' 
-                  : 'text-white hover:text-white/80'
-              } pointer-events-auto`}
-            >
-              {linkText}
-            </a>
-          );
-        } else {
-          return (
-            <a
-              key={index}
-              href={linkUrl}
-              className={`underline font-semibold transition-colors ${
-                isAssistant 
-                  ? 'text-terracotta hover:text-terracotta/80' 
-                  : 'text-white hover:text-white/80'
-              } pointer-events-auto`}
-            >
-              {linkText}
-            </a>
-          );
-        }
+        return (
+          <a
+            key={index}
+            href={linkUrl}
+            target={isExternal ? '_blank' : undefined}
+            rel={isExternal ? 'noopener noreferrer' : undefined}
+            className={`underline font-semibold transition-colors ${
+              isAssistant 
+                ? 'text-[#bd4f2a] hover:text-[#d17d39]' 
+                : 'text-white hover:text-white/80'
+            } pointer-events-auto`}
+          >
+            {linkText}
+          </a>
+        );
       }
     }
     if (token.startsWith('**') && token.endsWith('**')) {
       const content = token.slice(2, -2);
       return (
-        <strong key={index} className={`font-bold ${isAssistant ? 'text-terracotta' : 'text-white'}`}>
+        <strong key={index} className={`font-bold ${isAssistant ? 'text-[#bd4f2a]' : 'text-white'}`}>
           {parseInlineStyles(content, isAssistant)}
         </strong>
       );
@@ -78,7 +60,6 @@ const renderRichText = (text, isAssistant) => {
   const lines = text.split('\n');
   const renderedElements = [];
   let listItems = [];
-  let inList = false;
   
   const flushList = (key) => {
     if (listItems.length > 0) {
@@ -88,7 +69,6 @@ const renderRichText = (text, isAssistant) => {
         </ul>
       );
       listItems = [];
-      inList = false;
     }
   };
 
@@ -100,31 +80,29 @@ const renderRichText = (text, isAssistant) => {
       flushList(`list-before-h-${index}`);
       const headingText = trimmed.slice(4);
       renderedElements.push(
-        <h3 key={`h-${index}`} className={`text-base font-bold mt-4 mb-2 first:mt-0 flex items-center gap-1.5 leading-snug ${isAssistant ? 'text-terracotta' : 'text-white'}`}>
+        <h3 key={`h-${index}`} className={`text-base font-bold mt-3 mb-1.5 first:mt-0 flex items-center gap-1.5 leading-snug ${isAssistant ? 'text-[#bd4f2a]' : 'text-white'}`}>
           {parseInlineStyles(headingText, isAssistant)}
         </h3>
       );
     }
     // Bullet point (• or -)
     else if (trimmed.startsWith('• ') || trimmed.startsWith('- ')) {
-      inList = true;
       const bulletText = trimmed.slice(2);
       listItems.push(
         <li key={`li-${index}`} className={`flex items-start gap-2 text-sm leading-relaxed ${isAssistant ? 'text-onyx/75' : 'text-white/90'}`}>
-          <span className={`${isAssistant ? 'text-terracotta' : 'text-white'} shrink-0 mt-1 select-none`}>•</span>
+          <span className={`${isAssistant ? 'text-[#bd4f2a]' : 'text-white'} shrink-0 mt-1 select-none`}>•</span>
           <span className="flex-1">{parseInlineStyles(bulletText, isAssistant)}</span>
         </li>
       );
     }
     // Numbered list item
     else if (/^\d+\.\s/.test(trimmed)) {
-      inList = true;
       const match = trimmed.match(/^(\d+)\.\s(.*)/);
       const num = match[1];
       const bulletText = match[2];
       listItems.push(
         <li key={`li-${index}`} className={`flex items-start gap-2 text-sm leading-relaxed ${isAssistant ? 'text-onyx/75' : 'text-white/90'}`}>
-          <span className={`${isAssistant ? 'text-terracotta' : 'text-white'} shrink-0 font-bold text-xs mt-0.5 select-none`}>{num}.</span>
+          <span className={`${isAssistant ? 'text-[#bd4f2a]' : 'text-white'} shrink-0 font-bold text-xs mt-0.5 select-none`}>{num}.</span>
           <span className="flex-1">{parseInlineStyles(bulletText, isAssistant)}</span>
         </li>
       );
@@ -132,7 +110,7 @@ const renderRichText = (text, isAssistant) => {
     // Empty spacing
     else if (trimmed === '') {
       flushList(`list-before-blank-${index}`);
-      renderedElements.push(<div key={`blank-${index}`} className="h-2" />);
+      renderedElements.push(<div key={`blank-${index}`} className="h-1.5" />);
     }
     // Regular text
     else {
@@ -149,9 +127,7 @@ const renderRichText = (text, isAssistant) => {
   return <div className="space-y-1">{renderedElements}</div>;
 };
 
-import { useLanguage } from '@/contexts/LanguageContext';
-
-// Safe localStorage wrapper to prevent crashes in private browsing / restricted contexts
+// Safe localStorage wrapper
 const safeStorage = {
   getItem: (key) => {
     try {
@@ -177,7 +153,7 @@ const safeStorage = {
   }
 };
 
-// Robust UUID v4 generator with Web Crypto API and Math.random fallback
+// Robust UUID v4 generator
 const generateUUID = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -196,7 +172,6 @@ const isOutsideOpeningHours = () => {
   
   // Stengt i helger
   if (day === 0 || day === 6) return true;
-  
   // Stengt før 08:00 og etter 16:00
   if (hour < 8 || hour >= 16) return true;
   
@@ -245,62 +220,35 @@ const SHORTCUTS = [
     label: 'Takk',
     description: 'Avslutt samtale / takk for hjelpen',
     text: 'Da sier vi det! Da håper jeg du blir kjempefornøyd med produktene. Bare ta kontakt igjen om det skulle være noe mer senere. Ønsker deg en kjempefin og velsignet dag videre! 🌟'
-  },
-  {
-    command: '/rabatt',
-    label: 'Rabattkode',
-    description: 'Problemer med rabattkode',
-    text: 'Hei! Beklager at rabattkoden ikke fungerer som den skal. Vennligst dobbeltsjekk at den er stavet riktig, og at den ikke har utløpt. Merk at rabattkoder ofte ikke gjelder på allerede nedsatte varer. Hvis det fortsatt ikke fungerer, send koden til meg her, så skal jeg sjekke den for deg med en gang! 🎟️'
-  },
-  {
-    command: '/kvalitet',
-    label: 'Kvalitet',
-    description: 'Kvalitet på klistremerker',
-    text: 'Hei! Våre håndlagde klistremerker er laget av slitesterk vinyl av høy kvalitet. De tåler fint daglig bruk på for eksempel matbokser, drikkeflasker, PC-en eller i bibelen. Vi anbefaler likevel håndvask av drikkeflasker med klistremerker for maksimal levetid! 💦'
-  },
-  {
-    command: '/hilsen',
-    label: 'Hilsen',
-    description: 'Personlig hilsen i pakken',
-    text: 'Hei! Vi legger gjerne ved en liten, håndskrevet hilsen i pakken om du ønsker det. Skriv teksten du vil ha med i kommentarfeltet i kassen (eller send den til oss her sammen med ordrenummeret ditt rett etter bestilling), så fikser vi det! ✍️'
-  },
-  {
-    command: '/mangel',
-    label: 'Mangel',
-    description: 'Manglende eller feil vare i pakken',
-    text: 'Hei! Beklager så mye for at det har skjedd en feil under pakkingen hos oss. Vennligst oppgi ordrenummeret ditt og fortell hvilken vare som manglet/ble feil, så ettersender vi riktig vare til deg med en gang! 📦'
   }
 ];
 
 export default function HkmChatWidget() {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-
-  const QUICK_REPLIES = [
-    { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel') },
-    { text: t('chat.quickReply.returns'), label: t('chat.quickReply.returnsLabel') },
-    { text: t('chat.quickReply.freeShipping'), label: t('chat.quickReply.freeShippingLabel') },
-    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') },
-    { text: t('chat.quickReply.wash'), label: t('chat.quickReply.washLabel') },
-    { text: t('chat.quickReply.custom'), label: t('chat.quickReply.customLabel') },
-    { text: t('chat.quickReply.about'), label: t('chat.quickReply.aboutLabel') }
-  ];
   const [inputText, setInputText] = useState('');
-  const { assistantMessages, isAssistantTyping, sendAssistantMessage, assistantContext, setAssistantContext, generateAiResponseText, isLoggedIn, member } = useApp();
+  const { generateAiResponseText, isLoggedIn, member } = useApp();
+  
   const chatBodyRef = useRef(null);
   const inputRef = useRef(null);
-  const location = useLocation();
+  const seenMessageIdsRef = useRef(new Set());
 
-  // Live Chat / Inbox Integration States
-  const [chatMode, setChatMode] = useState('live'); // 'ai' | 'live'
-  const [liveMessages, setLiveMessages] = useState([]);
-  const [isLiveTyping, setIsLiveTyping] = useState(false);
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [needsContactInfo, setNeedsContactInfo] = useState(false);
-  const [isCreatingConv, setIsCreatingConv] = useState(false);
-  const [chatError, setChatError] = useState('');
+  const getInitialGreeting = () => {
+    if (language === 'en') return 'Hello! Blessed day and welcome to His Kingdom Designs. 🙏 How can we help you today?';
+    if (language === 'es') return '¡Hola! Bendecido día y bienvenido a His Kingdom Designs. 🙏 ¿Cómo podemos ayudarte hoy?';
+    return 'Hei! Velsignet dag og velkommen til His Kingdom Designs. 🙏 Hva kan vi hjelpe deg med i dag?';
+  };
 
+  const [messages, setMessages] = useState(() => [
+    {
+      id: 'msg-init-welcome',
+      sender: 'assistant',
+      text: getInitialGreeting(),
+      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+    }
+  ]);
+
+  const [isTyping, setIsTyping] = useState(false);
   const [conversationId, setConversationId] = useState(() => {
     const stored = safeStorage.getItem('hkd-inbox-conv-id');
     return (stored && stored !== 'undefined' && stored !== 'null') ? stored : null;
@@ -314,29 +262,15 @@ export default function HkmChatWidget() {
     }
   });
 
-  // Auto-start live chat once member is loaded if in live mode
-  useEffect(() => {
-    if (chatMode === 'live' && !conversationId && !isCreatingConv && isLoggedIn && member) {
-      startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
-    }
-  }, [chatMode, conversationId, member, isLoggedIn]);
-
-  // Clear old conversationId from localStorage to migrate to contactId-based routing
-  useEffect(() => {
-    try {
-      const chatVersion = safeStorage.getItem('hkd-chat-version');
-      if (chatVersion !== '3') {
-        console.log('Migrating chat to version 3 (REST contactId resolution): clearing old conversationId');
-        safeStorage.removeItem('hkd-inbox-conv-id');
-        safeStorage.removeItem('hkd-inbox-participant');
-        safeStorage.setItem('hkd-chat-version', '3');
-        setConversationId(null);
-        setChatParticipant(null);
-      }
-    } catch (e) {
-      console.warn('Failed to migrate chat version in localStorage:', e);
-    }
-  }, []);
+  const QUICK_REPLIES = [
+    { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel') },
+    { text: t('chat.quickReply.returns'), label: t('chat.quickReply.returnsLabel') },
+    { text: t('chat.quickReply.freeShipping'), label: t('chat.quickReply.freeShippingLabel') },
+    { text: t('chat.quickReply.sizes'), label: t('chat.quickReply.sizesLabel') },
+    { text: t('chat.quickReply.wash'), label: t('chat.quickReply.washLabel') },
+    { text: t('chat.quickReply.custom'), label: t('chat.quickReply.customLabel') },
+    { text: t('chat.quickReply.about'), label: t('chat.quickReply.aboutLabel') }
+  ];
 
   const getMemberEmail = (m) => {
     if (m?.loginEmail) return m.loginEmail;
@@ -353,9 +287,10 @@ export default function HkmChatWidget() {
       ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
       : (member?.profile?.nickname || '');
 
-  const fetchWithTimeout = (promise, ms) => {
+  // Helper with timeout
+  const fetchWithTimeout = (promise, ms = 10000) => {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('Tidsavbrudd under tilkobling (CORS-blokkering eller nettverksfeil)')), ms);
+      const timer = setTimeout(() => reject(new Error('Tidsavbrudd')), ms);
       promise.then(
         (res) => { clearTimeout(timer); resolve(res); },
         (err) => { clearTimeout(timer); reject(err); }
@@ -363,12 +298,14 @@ export default function HkmChatWidget() {
     });
   };
 
-  const startLiveChat = async (emailToUse, nameToUse) => {
-    setIsCreatingConv(true);
-    setChatError('');
+  // Ensure Wix Conversation exists
+  const ensureConversation = async () => {
+    if (conversationId && !conversationId.startsWith('conv_')) {
+      return conversationId;
+    }
+
     try {
       const host = window.location.origin;
-      
       const payload = {};
       if (isLoggedIn && member) {
         payload.memberId = member._id;
@@ -377,455 +314,185 @@ export default function HkmChatWidget() {
         } else if (member.contact?._id) {
           payload.contactId = member.contact._id;
         }
-      } else if (emailToUse && nameToUse) {
-        payload.email = emailToUse;
-        payload.name = nameToUse;
       } else {
         const anonId = safeStorage.getItem('hkd-chat-anon-id') || generateUUID();
         safeStorage.setItem('hkd-chat-anon-id', anonId);
         payload.anonymousVisitorId = anonId;
       }
 
-      console.log('Creating/getting conversation in Wix Inbox via API proxy with payload:', payload);
-      const apiRes = await fetchWithTimeout(
+      const res = await fetchWithTimeout(
         fetch(`${host}/api/get-or-create-conversation`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        }).then(async (r) => {
-          if (!r.ok) {
-            const errJson = await r.json().catch(() => ({}));
-            throw new Error(errJson.error || `HTTP error ${r.status}`);
-          }
-          return r.json();
-        }),
-        15000
+        }).then(r => r.ok ? r.json() : null),
+        8000
       );
 
-      if (apiRes && apiRes.conversation) {
-        const convId = apiRes.conversation._id;
-        const participant = apiRes.conversation.participant;
+      if (res && res.conversation) {
+        const convId = res.conversation._id || res.conversation.id;
+        const participant = res.conversation.participant;
         setConversationId(convId);
         safeStorage.setItem('hkd-inbox-conv-id', convId);
         if (participant) {
           setChatParticipant(participant);
           safeStorage.setItem('hkd-inbox-participant', JSON.stringify(participant));
         }
-        setNeedsContactInfo(false);
-        fetchLiveMessages(convId);
+        return convId;
       }
-    } catch (err) {
-      console.warn('Wix Inbox conversation setup unavailable (using direct Slack routing):', err?.message);
-      // Never block the user from chatting! Fallback to local session so user can chat freely
-      const fallbackConvId = `conv_${Date.now()}`;
-      setConversationId(fallbackConvId);
-      safeStorage.setItem('hkd-inbox-conv-id', fallbackConvId);
-      setNeedsContactInfo(false);
-      setChatError('');
-    } finally {
-      setIsCreatingConv(false);
+    } catch (e) {
+      console.warn('[HKD Chat] Wix conversation creation warning:', e);
     }
+    return null;
   };
 
-  const fetchLiveMessages = async (convId) => {
-    if (!convId) return;
-    try {
-      const host = window.location.origin;
-      const threadTs = safeStorage.getItem('hkd-slack-thread-ts') || null;
-      const res = await fetchWithTimeout(
-        fetch(`${host}/api/list-messages`, {
+  // Send message handler (Hybrid: Instant UI + Wix push + Instant AI + Live Sync)
+  const handleSendMessage = async (textToSend) => {
+    if (!textToSend || !textToSend.trim()) return;
+    const cleanText = textToSend.trim();
+
+    // 1. Optimistically append user message
+    const userMsg = {
+      id: `usr-${Date.now()}`,
+      sender: 'user',
+      text: cleanText,
+      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setInputText('');
+
+    // 2. Dispatch to Wix Inbox in background (triggers push alert on phone!)
+    (async () => {
+      try {
+        const activeConvId = await ensureConversation();
+        if (activeConvId) {
+          const host = window.location.origin;
+          const senderPayload = chatParticipant || (isLoggedIn && member ? { contactId: member.contactId || member.contact?._id } : undefined);
+          
+          await fetch(`${host}/api/send-message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              conversationId: activeConvId,
+              message: {
+                direction: 'PARTICIPANT_TO_BUSINESS',
+                visibility: 'BUSINESS_AND_PARTICIPANT',
+                sender: senderPayload,
+                content: {
+                  basic: {
+                    items: [{ text: cleanText }]
+                  }
+                }
+              }
+            })
+          });
+        }
+      } catch (err) {
+        console.warn('[HKD Chat] Wix push dispatch warning:', err);
+      }
+    })();
+
+    // 3. Show typing indicator
+    setIsTyping(true);
+
+    // 4. Generate AI response with slight delay for natural feeling
+    setTimeout(() => {
+      try {
+        const aiReply = generateAiResponseText(cleanText, language);
+        setMessages(prev => [
+          ...prev,
+          {
+            id: `ai-${Date.now()}`,
+            sender: 'assistant',
+            text: aiReply,
+            time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+      } catch (e) {
+        console.error('[HKD Chat] AI generator error:', e);
+      } finally {
+        setIsTyping(false);
+      }
+    }, 700);
+  };
+
+  // Poll for replies sent by Thomas from the Wix Owner app on his phone
+  useEffect(() => {
+    if (!isOpen || !conversationId) return;
+
+    const pollReplies = async () => {
+      try {
+        const host = window.location.origin;
+        const res = await fetch(`${host}/api/list-messages`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ conversationId: convId, threadTs })
-        }).then(async (r) => {
-          if (!r.ok) {
-            const errJson = await r.json().catch(() => ({}));
-            const err = new Error(errJson.error || `HTTP error ${r.status}`);
-            err.status = r.status;
-            throw err;
-          }
-          return r.json();
-        }),
-        15000
-      );
-      if (res && res.messages) {
-        const safeFormatTime = (val) => {
-          if (!val) return '';
-          try {
-            const d = new Date(val);
-            if (!isNaN(d.getTime())) {
-              return d.toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' });
-            }
-          } catch (e) {
-            console.warn('Failed to format time:', e);
-          }
-          return '';
-        };
-
-        const mapped = res.messages.map(msg => {
-          const isUser = msg.direction === 'VISITOR_TO_BUSINESS' || msg.direction === 'PARTICIPANT_TO_BUSINESS';
-          let timeStr = msg._createdDate ? safeFormatTime(msg._createdDate) : '';
-          if (!timeStr) {
-            timeStr = safeFormatTime(new Date());
-          }
-          
-          let text = '';
-          if (msg.content?.basic?.items) {
-            text = msg.content.basic.items.map(i => i.text).filter(Boolean).join('\n');
-          } else if (msg.content?.minimal?.text) {
-            text = msg.content.minimal.text;
-          } else {
-            text = '[Systemmelding/Vedlegg]';
-          }
-
-          return {
-            id: msg._id,
-            sender: isUser ? 'user' : 'assistant',
-            text,
-            time: timeStr
-          };
+          body: JSON.stringify({ conversationId })
         });
-        setLiveMessages(mapped.reverse());
-      }
-    } catch (err) {
-      console.warn('Failed to fetch messages from Wix Inbox:', err);
-      const errStr = (err.message || '').toLowerCase();
-      const isStale = 
-        err.status === 404 || 
-        err.status === 400 || 
-        errStr.includes('not found') || 
-        errStr.includes('invalid') || 
-        errStr.includes('conversation');
-      
-      if (isStale) {
-        console.warn('Resetting invalid Wix Inbox conversationId:', convId);
-        setConversationId(null);
-        setChatParticipant(null);
-        safeStorage.removeItem('hkd-inbox-conv-id');
-        safeStorage.removeItem('hkd-inbox-participant');
-      }
-    }
-  };
+        if (!res.ok) return;
+        const data = await res.json();
+        const serverMessages = data.messages || [];
 
-  // Poll for live chat messages (every 3 seconds for instant response)
-  useEffect(() => {
-    let interval = null;
-    if (conversationId) {
-      fetchLiveMessages(conversationId);
-      interval = setInterval(() => {
-        fetchLiveMessages(conversationId);
-      }, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [conversationId]);
-
-  // Real-time Firestore listener: instantly renders replies sent by store owner in Slack
-  useEffect(() => {
-    const sessionId = safeStorage.getItem('hkd-chat-session-id') || conversationId;
-    if (!sessionId || !db) return;
-
-    try {
-      const q = query(
-        collection(db, 'chat_sessions', sessionId, 'messages'),
-        orderBy('createdAt', 'asc')
-      );
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === 'added') {
-            const data = change.doc.data();
-            if (data.source === 'slack' && data.sender === 'assistant') {
-              const newMsg = {
-                id: change.doc.id,
-                sender: 'assistant',
-                text: data.text,
-                time: data.time || new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-              };
-
-              setLiveMessages((prev) => {
-                if (prev.some((m) => m.id === newMsg.id || (m.text === newMsg.text && m.sender === 'assistant'))) {
-                  return prev;
+        serverMessages.forEach(msg => {
+          if (msg.direction === 'BUSINESS_TO_PARTICIPANT' && !seenMessageIdsRef.current.has(msg._id)) {
+            seenMessageIdsRef.current.add(msg._id);
+            const replyText = msg.content?.basic?.items?.map(i => i.text).join('\n') || msg.content?.minimal?.text;
+            if (replyText) {
+              setMessages(prev => [
+                ...prev,
+                {
+                  id: msg._id,
+                  sender: 'owner',
+                  name: 'Thomas (His Kingdom Designs)',
+                  text: replyText,
+                  time: new Date(msg._createdDate || Date.now()).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
                 }
-                return [...prev, newMsg];
-              });
+              ]);
             }
           }
         });
-      }, (err) => {
-        console.warn('[ChatWidget] Firestore real-time listener error:', err);
-      });
+      } catch (e) {
+        // Non-blocking
+      }
+    };
 
-      return () => unsubscribe();
-    } catch (e) {
-      console.warn('[ChatWidget] Failed attaching real-time listener:', e);
-    }
-  }, [conversationId]);
+    pollReplies();
+    const interval = setInterval(pollReplies, 5000);
+    return () => clearInterval(interval);
+  }, [isOpen, conversationId]);
 
-  // Scroll to the top of the newest reply
-  const messagesToScroll = chatMode === 'ai' ? assistantMessages : liveMessages;
-  const messagesLength = messagesToScroll.length;
-  const lastMessageId = messagesLength > 0 ? messagesToScroll[messagesLength - 1]?.id : '';
-  const lastMessageText = messagesLength > 0 ? messagesToScroll[messagesLength - 1]?.text : '';
-
+  // Scroll to newest message
   useEffect(() => {
     if (isOpen) {
       const scrollTimer = setTimeout(() => {
         const body = chatBodyRef.current;
         if (!body) return;
-
-        const messages = body.querySelectorAll('.hkm-message:not(.typing)');
-        if (messages && messages.length > 0) {
-          const lastMsg = messages[messages.length - 1];
-          body.scrollTo({
-            top: lastMsg.offsetTop - 10,
-            behavior: 'smooth'
-          });
-        }
+        body.scrollTo({
+          top: body.scrollHeight,
+          behavior: 'smooth'
+        });
       }, 100);
       return () => clearTimeout(scrollTimer);
     }
-  }, [messagesLength, lastMessageId, lastMessageText, isAssistantTyping, isLiveTyping, isOpen]);
-
-  // Dynamic DOM text scraper to extract context from active page
-  useEffect(() => {
-    const contextScraper = setTimeout(() => {
-      const pageTitle = document.title || "His Kingdom Designs";
-      const h1El = document.querySelector('h1') || document.querySelector('h2');
-      const heading = h1El ? h1El.textContent.trim() : pageTitle;
-
-      const mainContainer = document.querySelector('main') || document.body;
-      const elements = mainContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, span.content-text');
-      const textChunks = [];
-      const seenTexts = new Set();
-
-      elements.forEach(el => {
-        if (
-          el.closest('.hkm-chat-panel') ||
-          el.closest('.hkm-chat-toggle') ||
-          el.closest('header') ||
-          el.closest('nav') ||
-          el.closest('footer') ||
-          el.closest('form') ||
-          el.tagName === 'INPUT' ||
-          el.tagName === 'TEXTAREA' ||
-          el.tagName === 'SELECT'
-        ) {
-          return;
-        }
-
-        const text = el.textContent.trim();
-        if (text && text.length > 10 && text.length < 500 && !seenTexts.has(text)) {
-          seenTexts.add(text);
-          textChunks.push(text);
-        }
-      });
-
-      const pageText = textChunks.join('\n\n');
-      setAssistantContext({
-        title: heading,
-        content: pageText.substring(0, 2000),
-        pageType: location.pathname.includes('/cart') ? 'cart' : (location.pathname.includes('/product') ? 'details' : 'general'),
-        url: location.pathname
-      });
-    }, 400);
-
-    return () => clearTimeout(contextScraper);
-  }, [location.pathname, setAssistantContext]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-    
-    sendAssistantMessage(inputText.trim());
-    setInputText('');
-  };
-
-  const sendLiveChatMessage = async (textToSend) => {
-    let activeConvId = conversationId;
-
-    // 1. Immediately show message in chat (optimistic UI)
-    const optMsg = {
-      id: `msg-user-opt-${Date.now()}`,
-      sender: 'user',
-      text: textToSend,
-      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-    };
-    setLiveMessages(prev => [...prev, optMsg]);
-
-    // 2. ALWAYS dispatch immediately to Slack so store owner gets notified right away!
-    notifySlackChatMessage({
-      userMessage: textToSend,
-      customerEmail: contactEmail || (member ? getMemberEmail(member) : null),
-      customerName: contactName || displayName,
-      mode: 'live',
-      conversationId: activeConvId
-    });
-
-    // 3. Sync with Wix Inbox in background (if enabled and authorized)
-    if (!activeConvId || activeConvId.startsWith('conv_')) {
-      setIsCreatingConv(true);
-      setChatError('');
-      try {
-        const host = window.location.origin;
-        const payload = {};
-        if (isLoggedIn && member) {
-          payload.memberId = member._id;
-          if (member.contactId) {
-            payload.contactId = member.contactId;
-          } else if (member.contact?._id) {
-            payload.contactId = member.contact._id;
-          }
-        } else if (contactEmail && contactName) {
-          payload.email = contactEmail;
-          payload.name = contactName;
-        } else {
-          const anonId = safeStorage.getItem('hkd-chat-anon-id') || generateUUID();
-          safeStorage.setItem('hkd-chat-anon-id', anonId);
-          payload.anonymousVisitorId = anonId;
-        }
-
-        console.log('Auto-creating conversation on send with payload:', payload);
-        const apiRes = await fetchWithTimeout(
-          fetch(`${host}/api/get-or-create-conversation`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          }).then(async (r) => {
-            if (!r.ok) {
-              const errJson = await r.json().catch(() => ({}));
-              throw new Error(errJson.error || `HTTP error ${r.status}`);
-            }
-            return r.json();
-          }),
-          10000
-        );
-
-        if (apiRes && apiRes.conversation) {
-          activeConvId = apiRes.conversation._id;
-          const participant = apiRes.conversation.participant;
-          setConversationId(activeConvId);
-          safeStorage.setItem('hkd-inbox-conv-id', activeConvId);
-          if (participant) {
-            setChatParticipant(participant);
-            safeStorage.setItem('hkd-inbox-participant', JSON.stringify(participant));
-          }
-          setNeedsContactInfo(false);
-        }
-      } catch (err) {
-        console.warn('Wix Inbox conversation creation skipped/failed:', err?.message);
-      } finally {
-        setIsCreatingConv(false);
-      }
-    }
-
-    const getSenderPayload = () => {
-      if (chatParticipant) return chatParticipant;
-      if (isLoggedIn && member) {
-        const contactId = member.contactId || member.contact?._id;
-        if (contactId) return { contactId };
-      }
-      const anonId = safeStorage.getItem('hkd-chat-anon-id');
-      if (anonId) return { anonymousVisitorId: anonId };
-      return undefined;
-    };
-
-    if (activeConvId && !activeConvId.startsWith('conv_')) {
-      try {
-        const messagePayload = {
-          direction: 'PARTICIPANT_TO_BUSINESS',
-          visibility: 'BUSINESS_AND_PARTICIPANT',
-          sender: getSenderPayload(),
-          content: {
-            basic: {
-              items: [
-                {
-                  text: textToSend
-                }
-              ]
-            }
-          }
-        };
-        const host = window.location.origin;
-        await fetchWithTimeout(
-          fetch(`${host}/api/send-message`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversationId: activeConvId, message: messagePayload })
-          }).then(async (r) => {
-            if (!r.ok) {
-              const errJson = await r.json().catch(() => ({}));
-              const err = new Error(errJson.error || `HTTP error ${r.status}`);
-              err.status = r.status;
-              err.details = errJson.details || errJson.error;
-              throw err;
-            }
-            return r.json();
-          }),
-          10000
-        );
-        
-        // Refresh messages so the user message has its real Wix status
-        fetchLiveMessages(activeConvId);
-      } catch (err) {
-        console.warn('Failed to send message to Wix Inbox:', err);
-        const errStr = (err.message || '').toLowerCase();
-        const errDetails = (JSON.stringify(err.details) || '').toLowerCase();
-        const isStaleConv = 
-          err.status === 404 || 
-          err.status === 400 ||
-          errStr.includes('not found') ||
-          errStr.includes('invalid') ||
-          errStr.includes('conversation') ||
-          errDetails.includes('not_found') ||
-          errDetails.includes('invalid');
-
-        if (isStaleConv) {
-          console.warn('Resetting invalid/stale Wix Inbox conversationId on send failure:', activeConvId);
-          setConversationId(null);
-          setChatParticipant(null);
-          safeStorage.removeItem('hkd-inbox-conv-id');
-          safeStorage.removeItem('hkd-inbox-participant');
-        }
-      }
-    }
-  };
-
-  const handleLiveMessageSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-
-    const textToSend = inputText.trim();
-    setInputText('');
-    await sendLiveChatMessage(textToSend);
-  };
+  }, [messages.length, isTyping, isOpen]);
 
   return (
     <div className="fixed bottom-6 right-4 z-[99] font-sans flex flex-col items-end pointer-events-none">
       
-      {/* Stylesheet enforcing Chrome Jitter Fix / Layer Isolation & Offset Context */}
+      {/* Stylesheet enforcing warm orange styling & jitter fix */}
       <style dangerouslySetInnerHTML={{ __html: `
         .hkm-chat-panel {
           transform: translateZ(0) !important;
           backface-visibility: hidden !important;
         }
-        .hkm-chat-panel input {
-          transform: translateZ(0) !important;
-          backface-visibility: hidden !important;
-        }
-        .hkm-chat-body {
-          position: relative !important;
-        }
         .hkm-chat-toggle {
           background: linear-gradient(135deg, #d17d39 0%, #bd4f2a 100%) !important;
           transform: translateZ(0) !important;
           backface-visibility: hidden !important;
-          transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+          transition: transform 0.2s ease, box-shadow 0.2s ease !important;
         }
         .hkm-chat-toggle:hover {
-          transform: translateZ(0) scale(1.05) !important;
-          box-shadow: 0 10px 20px rgba(209, 125, 57, 0.3) !important;
+          transform: translateZ(0) scale(1.06) !important;
+          box-shadow: 0 12px 28px rgba(209, 125, 57, 0.45) !important;
         }
         .hkm-chat-toggle:active {
           transform: translateZ(0) scale(0.95) !important;
@@ -837,6 +504,13 @@ export default function HkmChatWidget() {
           -ms-overflow-style: none !important;
           scrollbar-width: none !important;
         }
+        @keyframes hkmDotPulse {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+          40% { transform: scale(1); opacity: 1; }
+        }
+        .hkm-typing-dot {
+          animation: hkmDotPulse 1.4s infinite ease-in-out both;
+        }
       `}} />
 
       <AnimatePresence>
@@ -846,35 +520,39 @@ export default function HkmChatWidget() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[500px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-outline-variant z-[999] mb-0 pointer-events-auto"
+            className="hkm-chat-panel bg-white flex flex-col overflow-hidden fixed inset-0 w-full h-[100dvh] md:h-[520px] md:w-[360px] md:inset-auto md:bottom-24 md:right-4 md:rounded-2xl md:shadow-2xl md:border md:border-black/10 z-[999] mb-0 pointer-events-auto"
           >
             {/* Header - Oransje gradient (#d17d39 til #bd4f2a) */}
             <div className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white px-5 py-4 flex items-center justify-between shadow-sm shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
                   <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">{t('chat.title')}</h3>
+                  <h3 className="font-bold text-sm leading-tight text-white">His Kingdom Designs</h3>
+                  <div className="flex items-center gap-1.5 text-[11px] text-white/90">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                    <span>{language === 'en' ? 'Active now' : (language === 'es' ? 'En línea' : 'Aktiv nå')}</span>
+                  </div>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-white/10 text-white/80 hover:text-white transition-colors rounded-full"
+                className="w-8 h-8 flex items-center justify-center hover:bg-white/15 text-white transition-colors rounded-full cursor-pointer"
+                aria-label="Lukk chat"
               >
                 <span className="material-symbols-outlined text-lg select-none">close</span>
               </button>
             </div>
 
-
-
-            {/* Chat Body - Scroll with Offset Context */}
+            {/* Chat Body */}
             <div 
               ref={chatBodyRef}
-              className="hkm-chat-body flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50 custom-scrollbar"
+              className="flex-grow p-4 overflow-y-auto space-y-3.5 bg-slate-50 custom-scrollbar"
             >
+              {/* Outside opening hours offline alert */}
               {isOutsideOpeningHours() && (
-                <div className="bg-orange-50 border border-orange-200/40 rounded-xl p-3 text-[11px] text-secondary leading-relaxed flex items-start gap-2.5 shadow-sm mb-4 select-none shrink-0">
+                <div className="bg-orange-50/90 border border-orange-200/60 rounded-xl p-3 text-[11px] text-[#bd4f2a] leading-relaxed flex items-start gap-2.5 shadow-xs mb-3 select-none shrink-0">
                   <span className="material-symbols-outlined text-[#d17d39] text-base shrink-0 mt-0.5 select-none">
                     schedule
                   </span>
@@ -883,302 +561,149 @@ export default function HkmChatWidget() {
                       {language === 'en' ? 'We are currently offline' : (language === 'es' ? 'Estamos fuera de horario' : 'Vi er ikke tilstede nå')}
                     </strong>
                     {language === 'en' 
-                      ? 'Our customer support hours are Monday–Friday 08:00–16:00. You can still send a message, and we will reply as soon as we are back! 😊' 
+                      ? 'Our customer support hours are Mon–Fri 08:00–16:00. You can still send a message, and we will reply as soon as we are back! 😊' 
                       : (language === 'es' 
-                        ? 'Nuestro horario de atención es de lunes a viernes de 08:00 a 16:00. ¡Aún puedes dejarnos un mensaje y te responderemos tan pronto como regresemos! 😊' 
-                        : 'Våre åpningstider for kundeservice er mandag–fredag 08:00–16:00. Du kan fortsatt sende oss meldinger, så svarer vi deg på e-post eller her i chatten så fort vi er tilbake! 😊')}
+                        ? 'Nuestro horario de atención es de lunes a viernes de 08:00 a 16:00. ¡Aún puedes dejarnos un mensaje y te responderemos pronto! 😊' 
+                        : 'Våre åpningstider for kundeservice er mandag–fredag 08:00–16:00. Du kan fortsatt sende oss meldinger, så svarer vi deg her eller på e-post så fort vi er tilbake! 😊')}
                   </div>
                 </div>
               )}
-              {chatMode === 'ai' ? (
-                <>
-                  {assistantMessages.map((msg) => (
-                    <div 
-                      key={msg.id} 
-                      className={`hkm-message flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'}`}
-                    >
-                      {msg.sender !== 'user' && (
-                        <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 shrink-0 self-start">
-                          support_agent
-                        </span>
-                      )}
-                      <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                        <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                          msg.sender === 'user' 
-                            ? 'bg-terracotta text-white rounded-tr-none' 
-                            : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
-                        }`}>
-                          {renderRichText(msg.id === 'msg-init-1' ? t('chat.welcome') : msg.text, msg.sender === 'assistant')}
-                        </div>
-                        
-                        <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
-                          <span className="font-mono">{msg.time}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
 
-                  {/* Typing dots */}
-                  {isAssistantTyping && (
-                    <div className="hkm-message typing flex gap-2 mr-auto justify-start max-w-[85%]">
-                      <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 shrink-0 self-start">
-                        support_agent
-                      </span>
-                      <div className="flex flex-col items-start">
-                        <div className="px-4 py-3 rounded-2xl bg-white border border-outline-variant/60 rounded-tl-none flex items-center shadow-sm">
-                          <div className="hkm-typing-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : chatError ? (
-                /* Elegant error fallback */
-                <div className="p-6 bg-white rounded-2xl border border-red-100 space-y-4 shadow-sm text-left animate-fade-in shrink-0">
-                  <div className="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center">
-                    <span className="material-symbols-outlined text-xl select-none">error_outline</span>
-                  </div>
-                  <h4 className="font-bold text-xs text-onyx">{t('chat.connectionErrorTitle')}</h4>
-                  <p className="text-[11px] text-secondary leading-relaxed">
-                    {chatError.includes('403') ? (
-                      t('chat.permissionError')
-                    ) : (
-                      chatError
-                    )}
-                  </p>
-                  <div className="text-[11px] text-secondary leading-relaxed font-semibold">
-                    {renderRichText(t('chat.emailContactDesc'), true)}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setChatError('');
-                      if (!isLoggedIn && !conversationId) {
-                        setNeedsContactInfo(true);
-                      } else {
-                        startLiveChat(getMemberEmail(member) || 'member@hiskingdomdesigns.no', displayName);
-                      }
-                    }}
-                    className="w-full bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white font-label-md text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
-                  >
-                    {language === 'en' ? 'Try again' : (language === 'es' ? 'Intentar de nuevo' : 'Prøv igjen')}
-                  </button>
-                </div>
-              ) : needsContactInfo ? (
-                /* Guest contact form for Live Chat */
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    startLiveChat(contactEmail, contactName);
-                  }}
-                  className="p-4 bg-white rounded-2xl border border-outline-variant/30 space-y-4 shadow-sm text-left"
-                  style={{ display: 'block' }}
+              {/* Message bubbles */}
+              {messages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'}`}
                 >
-                  <h4 className="font-bold text-xs text-onyx mb-1">{t('chat.liveChatTitle')}</h4>
-                  <p className="text-[11px] text-secondary leading-relaxed mb-4">
-                    {t('chat.guestFormDesc')}
-                  </p>
-                  
-                  <div className="block">
-                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">{t('chat.yourName')}</label>
-                    <input
-                      type="text"
-                      required
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
-                      placeholder="F.eks. Thomas Knutsen"
-                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#1B4965] text-onyx"
-                    />
-                  </div>
-
-                  <div className="block mt-3">
-                    <label className="block text-[9px] font-semibold text-onyx uppercase mb-1">{t('chat.emailAddress')}</label>
-                    <input
-                      type="email"
-                      required
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      placeholder="din@epost.no"
-                      className="w-full bg-slate-50 border border-outline-variant rounded-xl p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#1B4965] text-onyx"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isCreatingConv}
-                    className="w-full bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white font-label-md text-xs font-bold uppercase tracking-wider py-3 px-4 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
-                  >
-                    {isCreatingConv ? t('chat.startingConversation') : t('chat.startConversation')}
-                  </button>
-                </form>
-              ) : isCreatingConv ? (
-                <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                  <div className="w-8 h-8 border-3 border-[#1B4965] border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-xs text-secondary font-semibold">{t('chat.startingConversation')}</p>
-                </div>
-              ) : (
-                /* Live Chat Messages list */
-                <>
-                  {liveMessages.length === 0 ? (
-                    <div className="text-center py-12 text-secondary/60 text-xs font-medium space-y-1">
-                      <span className="material-symbols-outlined text-3xl opacity-40">chat</span>
-                      <p>{t('chat.convStarted')}</p>
-                      <p>{t('chat.convStartedDesc')}</p>
-                    </div>
-                  ) : (
-                    liveMessages.map((msg) => (
-                      <div 
-                        key={msg.id} 
-                        className={`hkm-message flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto justify-end' : 'mr-auto justify-start'}`}
-                      >
-                        {msg.sender !== 'user' && (
-                          <span className="material-symbols-outlined text-[#1B4965] text-lg mt-0.5 shrink-0 self-start">
-                            support_agent
-                          </span>
-                        )}
-                        <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                          <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                            msg.sender === 'user' 
-                              ? 'bg-terracotta text-white rounded-tr-none' 
-                              : 'bg-white text-onyx border border-outline-variant/60 rounded-tl-none'
-                          }`}>
-                            <div className="text-sm select-text">
-                              {renderRichText(msg.text, msg.sender !== 'user')}
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary select-none font-semibold">
-                            <span className="font-mono">{msg.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))
+                  {msg.sender !== 'user' && (
+                    <span className="material-symbols-outlined text-[#d17d39] text-lg mt-0.5 shrink-0 self-start select-none">
+                      {msg.sender === 'owner' ? 'account_circle' : 'support_agent'}
+                    </span>
                   )}
-
-                  {/* Typing dots for Live Chat AI responder */}
-                  {isLiveTyping && (
-                    <div className="hkm-message typing flex gap-2 mr-auto justify-start max-w-[85%]">
-                      <span className="material-symbols-outlined text-[#1B4965] text-lg mt-0.5 shrink-0 self-start">
-                        support_agent
+                  <div className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                    {msg.sender === 'owner' && (
+                      <span className="text-[10px] font-bold text-[#bd4f2a] mb-0.5 px-1">
+                        {msg.name || 'Thomas (His Kingdom Designs)'}
                       </span>
-                      <div className="flex flex-col items-start">
-                        <div className="px-4 py-3 rounded-2xl bg-white border border-outline-variant/60 rounded-tl-none flex items-center shadow-sm">
-                          <div className="hkm-typing-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                          </div>
-                        </div>
+                    )}
+                    <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-xs ${
+                      msg.sender === 'user' 
+                        ? 'bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] text-white rounded-tr-none' 
+                        : msg.sender === 'owner'
+                          ? 'bg-amber-50/80 text-onyx border border-amber-200/70 rounded-tl-none'
+                          : 'bg-white text-onyx border border-black/8 rounded-tl-none'
+                    }`}>
+                      <div className="select-text">
+                        {renderRichText(msg.text, msg.sender !== 'user')}
                       </div>
                     </div>
-                  )}
-                </>
+                    
+                    <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-secondary/70 select-none font-medium">
+                      <span className="font-mono">{msg.time}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Typing indicator */}
+              {isTyping && (
+                <div className="flex gap-2 mr-auto justify-start max-w-[85%]">
+                  <span className="material-symbols-outlined text-[#d17d39] text-lg mt-0.5 shrink-0 self-start select-none">
+                    support_agent
+                  </span>
+                  <div className="px-4 py-2.5 rounded-2xl bg-white border border-black/8 rounded-tl-none flex items-center gap-1.5 shadow-xs">
+                    <span className="text-xs text-secondary/80 font-medium mr-1">
+                      {language === 'en' ? 'Thinking...' : (language === 'es' ? 'Pensando...' : 'Tenker...')}
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#d17d39] hkm-typing-dot"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#d17d39] hkm-typing-dot" style={{ animationDelay: '0.2s' }}></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#d17d39] hkm-typing-dot" style={{ animationDelay: '0.4s' }}></span>
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Quick Replies chips bar (Byrå-UX feature) */}
-            {(!needsContactInfo || chatMode === 'ai') && !chatError && (
-              <div className="px-3 pt-2 pb-1 bg-slate-50 flex gap-2 overflow-x-auto select-none no-scrollbar shrink-0 scrollbar-none border-t border-outline-variant/30">
-                {QUICK_REPLIES.map((reply, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      if (chatMode === 'ai') {
-                        sendAssistantMessage(reply.text);
-                      } else {
-                        sendLiveChatMessage(reply.text);
-                      }
-                    }}
-                    className="flex-shrink-0 bg-white border border-outline-variant/60 hover:border-[#1B4965] hover:text-[#1B4965] text-onyx text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer flex items-center gap-1"
+            {/* Quick Replies chips bar */}
+            <div className="px-3 pt-2 pb-1 bg-slate-50 flex gap-2 overflow-x-auto select-none no-scrollbar shrink-0 border-t border-black/5">
+              {QUICK_REPLIES.map((reply, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSendMessage(reply.text)}
+                  className="flex-shrink-0 bg-white border border-[#d17d39]/30 hover:border-[#bd4f2a] hover:bg-[#fff7ed] text-[#bd4f2a] text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-xs cursor-pointer flex items-center gap-1"
+                >
+                  {reply.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Form */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage(inputText);
+              }}
+              className="p-3 bg-white border-t border-black/8 shrink-0 relative"
+            >
+              {/* Slash Command Autocomplete Popover */}
+              <AnimatePresence>
+                {inputText.startsWith('/') && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute bottom-full left-3 right-3 mb-2 bg-white border border-black/10 rounded-2xl shadow-xl z-[1000] overflow-hidden flex flex-col max-h-[200px]"
                   >
-                    {reply.label}
-                  </button>
-                ))}
+                    <div className="px-4 py-2 bg-slate-50 border-b border-black/8 flex items-center justify-between shrink-0 select-none">
+                      <span className="text-[10px] font-bold text-onyx/60 uppercase tracking-wider flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs text-[#d17d39] select-none">terminal</span>
+                        Hurtigsvar-snarveier
+                      </span>
+                    </div>
+                    <div className="overflow-y-auto divide-y divide-black/5 custom-scrollbar max-h-[160px]">
+                      {SHORTCUTS.filter(s => s.command.toLowerCase().includes(inputText.slice(1).toLowerCase()))
+                        .map((shortcut) => (
+                          <button
+                            key={shortcut.command}
+                            type="button"
+                            onClick={() => {
+                              setInputText(shortcut.text);
+                              if (inputRef.current) inputRef.current.focus();
+                            }}
+                            className="w-full px-4 py-2 text-left hover:bg-orange-50/50 transition-colors flex flex-col gap-0.5 active:bg-orange-50 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-[#d17d39] font-mono">{shortcut.command}</span>
+                              <span className="text-[11px] font-bold text-onyx">{shortcut.label}</span>
+                            </div>
+                            <span className="text-[10px] text-secondary line-clamp-1 leading-normal font-medium">{shortcut.description}</span>
+                          </button>
+                        ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="relative w-full">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder={language === 'en' ? 'Type your message here...' : (language === 'es' ? 'Escribe tu mensaje aquí...' : 'Skriv din melding her...')}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="w-full bg-slate-50 border border-black/10 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#d17d39] focus:border-[#d17d39] transition-all font-medium text-onyx"
+                />
+                <button
+                  type="submit"
+                  disabled={!inputText.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#d17d39] hover:text-[#bd4f2a] disabled:text-secondary/40 transition-colors cursor-pointer"
+                  aria-label="Send"
+                >
+                  <Send size={18} />
+                </button>
               </div>
-            )}
-
-            {/* Input Form - Strict block to prevent jitter */}
-            {(!needsContactInfo || chatMode === 'ai') && !chatError && (
-              <form 
-                onSubmit={chatMode === 'ai' ? handleSubmit : handleLiveMessageSubmit}
-                className="p-3 bg-white border-t border-outline-variant shrink-0 relative"
-                style={{ display: 'block' }}
-              >
-                {/* Slash Command Autocomplete Popover */}
-                <AnimatePresence>
-                  {inputText.startsWith('/') && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute bottom-full left-3 right-3 mb-2 bg-white border border-outline-variant rounded-2xl shadow-xl z-[1000] overflow-hidden flex flex-col max-h-[200px]"
-                    >
-                      <div className="px-4 py-2 bg-slate-50 border-b border-outline-variant flex items-center justify-between shrink-0 select-none">
-                        <span className="text-[10px] font-bold text-onyx/60 uppercase tracking-wider flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs text-[#d17d39] select-none">terminal</span>
-                          Hurtigsvar-snarveier
-                        </span>
-                        <span className="text-[9px] font-semibold text-secondary/60">
-                          Skriv for å filtrere...
-                        </span>
-                      </div>
-                      <div className="overflow-y-auto divide-y divide-outline-variant/40 custom-scrollbar max-h-[160px]">
-                        {SHORTCUTS.filter(s => s.command.toLowerCase().includes(inputText.slice(1).toLowerCase()))
-                          .map((shortcut) => (
-                            <button
-                              key={shortcut.command}
-                              type="button"
-                              onClick={() => {
-                                setInputText(shortcut.text);
-                                if (inputRef.current) {
-                                  inputRef.current.focus();
-                                }
-                              }}
-                              className="w-full px-4 py-2.5 text-left hover:bg-orange-50/50 transition-colors flex flex-col gap-0.5 active:bg-orange-50 pointer-events-auto cursor-pointer"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-[#d17d39] font-mono">{shortcut.command}</span>
-                                <span className="text-[11px] font-bold text-onyx">{shortcut.label}</span>
-                              </div>
-                              <span className="text-[10px] text-secondary line-clamp-1 leading-normal font-medium">{shortcut.description}</span>
-                            </button>
-                          ))}
-                        {SHORTCUTS.filter(s => s.command.toLowerCase().includes(inputText.slice(1).toLowerCase())).length === 0 && (
-                          <div className="px-4 py-3 text-center text-xs text-secondary/60 select-none font-medium">
-                            Ingen treff for "{inputText}"
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <div className="relative w-full">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    placeholder={chatMode === 'ai' ? t('chat.aiPlaceholder') : t('chat.livePlaceholder')}
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    disabled={isCreatingConv || (chatMode === 'live' && needsContactInfo)}
-                    className="w-full bg-slate-50 border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B4965] focus:border-[#1B4965] transition-all font-medium text-onyx"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!inputText.trim() || isCreatingConv}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#1B4965] hover:text-[#1B4965]/80 disabled:text-secondary/40 transition-colors"
-                  >
-                    <Send size={16} />
-                  </button>
-                </div>
-              </form>
-            )}
+            </form>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1186,10 +711,7 @@ export default function HkmChatWidget() {
       {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`hkm-chat-toggle w-14 h-14 flex items-center justify-center text-white shadow-xl hover:shadow-2xl cursor-pointer pointer-events-auto ${isOpen ? 'hidden md:flex' : 'flex'}`}
-        style={{
-          borderRadius: '9999px'
-        }}
+        className="hkm-chat-toggle w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl hover:shadow-2xl cursor-pointer pointer-events-auto"
         aria-label="Toggle chat"
       >
         {isOpen ? (
