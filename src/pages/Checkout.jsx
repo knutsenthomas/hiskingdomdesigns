@@ -325,19 +325,13 @@ export default function Checkout() {
         </div>
 
         {/* Page Title */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-outline-variant/30 pb-6">
-          <div>
-            <h1 className="font-headline-lg text-2xl sm:text-3xl font-bold text-onyx tracking-tight">
-              {t('cart.checkoutAndPayment') || 'Kasse & Betaling'}
-            </h1>
-            <p className="text-xs sm:text-sm text-secondary mt-1">
-              {t('cart.shippingNotice') || 'Fyll ut leveringsadresse for rask og trygg levering fra Norge.'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-terracotta bg-terracotta/10 px-4 py-2 rounded-xl border border-terracotta/20 self-start md:self-auto">
-            <Lock size={14} />
-            <span>256-bit SSL Kryptert og Sikker Utsjekk</span>
-          </div>
+        <div className="mb-8 border-b border-outline-variant/30 pb-6">
+          <h1 className="font-headline-lg text-2xl sm:text-3xl font-bold text-onyx tracking-tight">
+            {t('cart.checkoutAndPayment') || 'Kasse & Betaling'}
+          </h1>
+          <p className="text-xs sm:text-sm text-secondary mt-1">
+            {t('cart.shippingNotice') || 'Fyll ut leveringsadresse for rask og trygg levering fra Norge.'}
+          </p>
         </div>
 
         {/* Global Error Banner */}
