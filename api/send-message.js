@@ -78,10 +78,17 @@ export default async function handler(req, res) {
       ...message,
       direction,
       visibility: message.visibility || 'BUSINESS_AND_PARTICIPANT',
+      sourceChannel: 'CHAT',
       ...(sender ? { sender } : {})
     };
 
-    const result = await wixClient.inboxMessages.sendMessage(conversationId, formattedMessage);
+    const options = {
+      sendNotifications: true,
+      sendAs: direction === 'PARTICIPANT_TO_BUSINESS' ? 'PARTICIPANT' : 'CALLER'
+    };
+
+    console.log('Backend calling sendMessage with options:', JSON.stringify(options));
+    const result = await wixClient.inboxMessages.sendMessage(conversationId, formattedMessage, options);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in send-message serverless function:', error);
