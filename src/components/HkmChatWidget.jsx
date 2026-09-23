@@ -183,7 +183,7 @@ const SHORTCUTS = [
     command: '/hei',
     label: 'Velkomst',
     description: 'Standard velkomsthilsen',
-    text: 'Hei! Takk for at du tar kontakt med oss i His Kingdom Designs. 🙏 Hva kan vi hjelpe deg med i dag?'
+    text: 'Velkommen til His Kingdom Designs. Hvordan kan vi hjelpe deg i dag?'
   },
   {
     command: '/frakt',
@@ -234,9 +234,9 @@ export default function HkmChatWidget() {
   const seenMessageIdsRef = useRef(new Set());
 
   const getInitialGreeting = () => {
-    if (language === 'en') return 'Hello! Blessed day and welcome to His Kingdom Designs. 🙏 How can we help you today?';
-    if (language === 'es') return '¡Hola! Bendecido día y bienvenido a His Kingdom Designs. 🙏 ¿Cómo podemos ayudarte hoy?';
-    return 'Hei! Velsignet dag og velkommen til His Kingdom Designs. 🙏 Hva kan vi hjelpe deg med i dag?';
+    if (language === 'en') return 'Welcome to His Kingdom Designs. How can we help you today?';
+    if (language === 'es') return '¡Bienvenido a His Kingdom Designs! ¿Cómo podemos ayudarte hoy?';
+    return 'Velkommen til His Kingdom Designs. Hvordan kan vi hjelpe deg i dag?';
   };
 
   const [messages, setMessages] = useState(() => [

@@ -1061,21 +1061,21 @@ export const AppProvider = ({ children }) => {
 
     if (isPureGreeting) {
       if (lang === 'en') {
-        reply = 'Hello! Blessed day and welcome. 🙏 How can we help you today?\n\n' +
+        reply = 'Welcome to His Kingdom Designs. How can we help you today?\n\n' +
           'Feel free to ask us about:\n' +
           '• **Delivery time & shipping** (approx. 2 weeks)\n' +
           '• **Returns & exchanges** (14 days)\n' +
           '• **Size guide & wash care**\n' +
           '• **Our products & custom orders**';
       } else if (lang === 'es') {
-        reply = '¡Hola! Bendecido día y bienvenido. 🙏 ¿Cómo podemos ayudarte hoy?\n\n' +
+        reply = '¡Bienvenido a His Kingdom Designs! ¿Cómo podemos ayudarte hoy?\n\n' +
           'Pregúntanos sobre:\n' +
           '• **Envío y tiempos de entrega** (aprox. 2 semanas)\n' +
           '• **Devoluciones y cambios** (14 días)\n' +
           '• **Guía de tallas y lavado**\n' +
           '• **Nuestros productos y pedidos personalizados**';
       } else {
-        reply = 'Hei! Velsignet dag og velkommen til oss. 🙏 Hva kan vi i His Kingdom Designs hjelpe deg med i dag?\n\n' +
+        reply = 'Velkommen til His Kingdom Designs. Hvordan kan vi hjelpe deg i dag?\n\n' +
           'Spør oss gjerne om:\n' +
           '• **Leveringstid & frakt** (normalt ca. 2 uker)\n' +
           '• **Retur & bytte** (14 dagers angrerett)\n' +
