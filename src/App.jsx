@@ -1,6 +1,7 @@
 import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AppProvider } from '@/contexts/AppContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -315,6 +316,7 @@ export default function App() {
               <ScrollToTop />
               <MainLayout />
               <Analytics />
+              <SpeedInsights />
             </Router>
           </CartProvider>
         </AppProvider>
