@@ -141,7 +141,6 @@ export default function useMeta(title, description, ogProperties = null) {
       if (translation.no !== translation.en) {
         addAlternateLink('no', translation.no);
         addAlternateLink('en', translation.en);
-        addAlternateLink('es', translation.es);
         addAlternateLink('x-default', translation.no);
       } else {
         addAlternateLink('no', translation.no);
@@ -150,7 +149,6 @@ export default function useMeta(title, description, ogProperties = null) {
     } else if (isProduct && productId) {
       addAlternateLink('no', `/produkt/${productId}`);
       addAlternateLink('en', `/product/${productId}`);
-      addAlternateLink('es', `/producto/${productId}`);
       addAlternateLink('x-default', `/produkt/${productId}`);
     } else {
       // For single URL routes (e.g. /, /category/...) declare primary language + x-default without duplicate multi-language claims

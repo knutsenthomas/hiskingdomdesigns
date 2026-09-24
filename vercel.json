@@ -14,6 +14,90 @@
       }
     },
     {
+      "src": "/producto/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$1"
+      }
+    },
+    {
+      "src": "/productos",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkter"
+      }
+    },
+    {
+      "src": "/sobre-nosotros",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/om-oss"
+      }
+    },
+    {
+      "src": "/equipo",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/vart-team"
+      }
+    },
+    {
+      "src": "/envios",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/frakt-og-retur"
+      }
+    },
+    {
+      "src": "/preguntas-frecuentes",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/faq"
+      }
+    },
+    {
+      "src": "/privacidad",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/personvern"
+      }
+    },
+    {
+      "src": "/condiciones",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/betingelser"
+      }
+    },
+    {
+      "src": "/carrito",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/handlekurv"
+      }
+    },
+    {
+      "src": "/pago",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/kasse"
+      }
+    },
+    {
+      "src": "/perfil",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/profil"
+      }
+    },
+    {
+      "src": "/cancelar-pedido",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/angre-kjop"
+      }
+    },
+    {
       "src": "/assets/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
@@ -49,6 +133,13 @@
     },
     {
       "handle": "filesystem"
+    },
+    {
+      "src": "/assets/(.*)",
+      "status": 404,
+      "headers": {
+        "content-type": "text/plain"
+      }
     },
     {
       "src": "/(.*)",

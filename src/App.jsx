@@ -1,5 +1,5 @@
 import React, { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AppProvider } from '@/contexts/AppContext';
@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import HkmChatWidget from '@/components/HkmChatWidget';
 import CookieConsent from '@/components/CookieConsent';
 import Home from '@/pages/Home'; // Static import for Home page to load instantly without fallback
+import ProductDetails from '@/pages/ProductDetails'; // Static import for ProductDetails to eliminate dynamic chunk import failures and load immediately
 import { AnimatePresence } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import CmsVisualToggle from '@/components/CmsVisualToggle';
@@ -42,9 +43,8 @@ const lazyWithRetry = (componentImport) =>
     })
   );
 
-// Lazy load other routes to significantly decrease initial JS bundle size (FCP)
+// Lazy load non-critical routes to decrease bundle size (FCP) while keeping core pages instant
 const Category = lazyWithRetry(() => import('@/pages/Category'));
-const ProductDetails = lazyWithRetry(() => import('@/pages/ProductDetails'));
 const Cart = lazyWithRetry(() => import('@/pages/Cart'));
 const Checkout = lazyWithRetry(() => import('@/pages/Checkout'));
 const About = lazyWithRetry(() => import('@/pages/About'));
@@ -56,6 +56,8 @@ const Betingelser = lazyWithRetry(() => import('@/pages/Betingelser'));
 const Profile = lazyWithRetry(() => import('@/pages/Profile'));
 const Admin = lazyWithRetry(() => import('@/pages/Admin'));
 const Cancellation = lazyWithRetry(() => import('@/pages/Cancellation'));
+const KristneGaver = lazyWithRetry(() => import('@/pages/KristneGaver'));
+const NotFound = lazyWithRetry(() => import('@/pages/NotFound'));
 
 // Premium Error Boundary to capture runtime rendering crashes and present a helpful report instead of a blank screen
 class ErrorBoundary extends React.Component {
@@ -92,40 +94,48 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="max-w-xl mx-auto my-20 p-8 bg-red-50 border border-red-200 rounded-2xl text-red-900 shadow-xl font-sans">
-          <div className="flex items-center gap-3 text-red-700 mb-4 select-none">
-            <span className="material-symbols-outlined text-3xl font-bold">error</span>
-            <h2 className="text-base font-bold uppercase tracking-wider">Systemfeil på siden</h2>
+        <div data-nosnippet className="max-w-xl mx-auto my-16 p-8 bg-surface border border-outline-variant/30 rounded-2xl text-onyx shadow-xl font-sans text-center">
+          <div className="w-12 h-12 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-2xl">refresh</span>
           </div>
-          <p className="text-xs mb-4 font-medium text-slate-700 leading-relaxed">
-            Vi beklager ulempen. En uventet programvarefeil har oppstått. Vennligst ta et skjermbilde av denne feilen og send den til oss på <strong className="text-terracotta">post@hiskingdomministry.no</strong>, så retter vi den med en gang!
+          <p className="text-base font-bold text-onyx mb-2">Kunne ikke laste siden</p>
+          <p className="text-xs text-secondary mb-6 max-w-md mx-auto leading-relaxed">
+            Det oppstod en kortvarig feil under innlasting. Prøv å laste siden på nytt eller gå til produktkatalogen.
           </p>
-          <div className="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-[10px] overflow-auto max-h-[250px] border border-slate-800 leading-normal">
-            <p className="font-bold text-red-400 mb-2">{this.state.error?.toString()}</p>
-            {this.state.errorInfo?.componentStack && (
-              <pre className="whitespace-pre-wrap opacity-80">{this.state.errorInfo.componentStack}</pre>
-            )}
-          </div>
-          <div className="mt-6 flex gap-3">
+          <div className="flex justify-center gap-3">
             <button
               onClick={() => window.location.reload()}
-              className="bg-terracotta text-white px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:brightness-105 active:scale-95 transition-all shadow-md cursor-pointer"
+              className="bg-terracotta text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:brightness-105 active:scale-95 transition-all shadow-md cursor-pointer"
             >
-              Prøv på nytt
+              Last inn på nytt
             </button>
             <a
-              href="/products"
-              className="bg-white border border-outline text-secondary px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-50 hover:text-onyx active:scale-95 transition-all shadow-sm flex items-center justify-center"
+              href="/produkter"
+              className="bg-white border border-outline text-secondary px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-50 hover:text-onyx active:scale-95 transition-all shadow-sm flex items-center justify-center"
             >
-              Se andre produkter
+              Se alle produkter
             </a>
           </div>
+          {this.state.error && (
+            <details className="mt-6 text-left text-[10px] text-slate-500 font-mono bg-slate-50 p-3 rounded-lg border border-slate-200">
+              <summary className="cursor-pointer font-bold text-red-500">Tekniske detaljer</summary>
+              <pre className="mt-2 whitespace-pre-wrap">{this.state.error.toString()}</pre>
+              {this.state.errorInfo?.componentStack && (
+                <pre className="mt-1 whitespace-pre-wrap opacity-75">{this.state.errorInfo.componentStack}</pre>
+              )}
+            </details>
+          )}
         </div>
       );
     }
 
     return this.props.children;
   }
+}
+
+function ProductRedirect() {
+  const { productId } = useParams();
+  return <Navigate to={`/produkt/${productId || ''}`} replace />;
 }
 
 // ScrollToTop component to reset page scroll position on routing navigation
@@ -213,67 +223,69 @@ function MainLayout() {
               {/* Products & Categories */}
               <Route path="/products" element={<Category />} />
               <Route path="/produkter" element={<Category />} />
-              <Route path="/productos" element={<Category />} />
+              <Route path="/productos" element={<Navigate to="/produkter" replace />} />
               <Route path="/category/:categoryName" element={<Category />} />
+              <Route path="/kristne-gaver" element={<KristneGaver />} />
+              <Route path="/gaver" element={<Navigate to="/kristne-gaver" replace />} />
               
               {/* Product Details */}
               <Route path="/product/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
               <Route path="/produkt/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
-              <Route path="/producto/:productId" element={<ErrorBoundary><ProductDetails /></ErrorBoundary>} />
+              <Route path="/producto/:productId" element={<ProductRedirect />} />
               
               {/* Cart */}
               <Route path="/cart" element={<Cart />} />
               <Route path="/handlekurv" element={<Cart />} />
-              <Route path="/carrito" element={<Cart />} />
+              <Route path="/carrito" element={<Navigate to="/handlekurv" replace />} />
 
               {/* Checkout */}
               <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
               <Route path="/kasse" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
-              <Route path="/pago" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
+              <Route path="/pago" element={<Navigate to="/kasse" replace />} />
               
               {/* About */}
               <Route path="/about" element={<About />} />
               <Route path="/om-oss" element={<About />} />
-              <Route path="/sobre-nosotros" element={<About />} />
+              <Route path="/sobre-nosotros" element={<Navigate to="/om-oss" replace />} />
               
               {/* Team */}
               <Route path="/team" element={<Team />} />
               <Route path="/vart-team" element={<Team />} />
-              <Route path="/equipo" element={<Team />} />
+              <Route path="/equipo" element={<Navigate to="/vart-team" replace />} />
               
               {/* Shipping & Returns */}
               <Route path="/shipping" element={<Shipping />} />
               <Route path="/frakt-og-retur" element={<Shipping />} />
-              <Route path="/envios" element={<Shipping />} />
+              <Route path="/envios" element={<Navigate to="/frakt-og-retur" replace />} />
               
               {/* FAQ */}
               <Route path="/faq" element={<Faq />} />
-              <Route path="/preguntas-frecuentes" element={<Faq />} />
+              <Route path="/preguntas-frecuentes" element={<Navigate to="/faq" replace />} />
               
               {/* Privacy Policy */}
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/personvern" element={<Privacy />} />
-              <Route path="/privacidad" element={<Privacy />} />
+              <Route path="/privacidad" element={<Navigate to="/personvern" replace />} />
               
                {/* Terms of Service */}
               <Route path="/betingelser" element={<Betingelser />} />
               <Route path="/terms" element={<Betingelser />} />
-              <Route path="/condiciones" element={<Betingelser />} />
+              <Route path="/condiciones" element={<Navigate to="/betingelser" replace />} />
               
               {/* Cancellation / Angre kjøp */}
               <Route path="/cancel-order" element={<ErrorBoundary><Cancellation /></ErrorBoundary>} />
               <Route path="/angre-kjop" element={<ErrorBoundary><Cancellation /></ErrorBoundary>} />
-              <Route path="/cancelar-pedido" element={<ErrorBoundary><Cancellation /></ErrorBoundary>} />
+              <Route path="/cancelar-pedido" element={<Navigate to="/angre-kjop" replace />} />
               
               {/* Profile */}
               <Route path="/profile" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
               <Route path="/profil" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
-              <Route path="/perfil" element={<ErrorBoundary><Profile /></ErrorBoundary>} />
+              <Route path="/perfil" element={<Navigate to="/profil" replace />} />
               
               {/* Admin */}
               <Route path="/admin" element={<ErrorBoundary><Admin /></ErrorBoundary>} />
-              {/* Fallback to home */}
-              <Route path="*" element={<Home />} />
+              {/* 404 Not Found Fallback */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
         </Suspense>

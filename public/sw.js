@@ -1,9 +1,9 @@
-const CACHE_NAME = 'hk-designs-cache-v6';
+const CACHE_NAME = 'hk-designs-cache-v7';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
   '/favicon.ico',
-  '/favicon.svg',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
+  '/apple-touch-icon.png',
   '/logo-hkm.png',
   '/manifest.json'
 ];
@@ -39,42 +39,30 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Use Network-First strategy for HTML navigation requests (page reloads)
-  // to avoid loading a stale cached index.html referencing obsolete JS/CSS assets.
+  // Network-First for HTML navigation requests to preserve server-side SEO & avoid stale chunks
   if (e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request)
-        .then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(e.request, responseToCache).catch(() => {});
-            });
-          }
-          return networkResponse;
-        })
         .catch(() => {
-          return caches.match(e.request).then((cachedResponse) => {
-            return cachedResponse || caches.match('/index.html');
-          });
+          return caches.match(e.request);
         })
     );
     return;
   }
 
-  // Stale-While-Revalidate caching strategy for other assets
+  // Stale-While-Revalidate caching strategy for other assets (images, fonts, static assets)
   e.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(e.request).then((cachedResponse) => {
         const fetchedResponse = fetch(e.request).then((networkResponse) => {
-          // Cache the new response if it's successful
-          if (networkResponse.status === 200) {
+          // Never cache HTML responses into asset cache (prevents chunk 404 HTML poisoning)
+          const contentType = networkResponse.headers.get('content-type') || '';
+          if (networkResponse.status === 200 && !contentType.includes('text/html')) {
             const responseToCache = networkResponse.clone();
             cache.put(e.request, responseToCache).catch(() => {});
           }
           return networkResponse;
         }).catch(() => {
-          // If offline and network request fails, we fall back to cachedResponse
           return cachedResponse;
         });
 

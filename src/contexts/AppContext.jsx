@@ -1459,6 +1459,12 @@ export const AppProvider = ({ children }) => {
       'armbånd og smykker': 'smykker',
       'Kopper og flasker': 'cups-bottles',
       'Bilder og plakater': 'bilder-og-plakater',
+      'Kristne plakater': 'kristne-plakater',
+      'Kristne kopper': 'kristne-kopper',
+      'Kristne klistremerker': 'kristne-klistermerker',
+      'Klistermerker': 'kristne-klistermerker',
+      'Plakater': 'kristne-plakater',
+      'Kopper': 'kristne-kopper',
       'Klær': 'kristne-klaer',
       'Dameklær': 'dameklær',
       'Genser': 'kristne-gensere',
@@ -1491,6 +1497,9 @@ export const AppProvider = ({ children }) => {
     if (slug === 'kristne-gensere' || slug === 'gensere' || slug === 'genser' || slug === 'hettegensere') return 'Kristne gensere';
     if (slug === 'kristen-streetwear' || slug === 'streetwear') return 'Kristen streetwear';
     if (slug === 'klaer-med-bibelvers' || slug === 'bibelvers-klaer' || slug === 'bibelvers') return 'Klær med bibelvers';
+    if (slug === 'kristne-plakater' || slug === 'plakater') return 'Kristne plakater';
+    if (slug === 'kristne-kopper' || slug === 'kopper') return 'Kristne kopper';
+    if (slug === 'kristne-klistermerker' || slug === 'klistermerker' || slug === 'klistremerker') return 'Kristne klistremerker';
 
     const found = wixCollections.find(c => c.slug === slug);
     if (found && found.name) return found.name;
@@ -1502,6 +1511,9 @@ export const AppProvider = ({ children }) => {
       'smykker': 'armbånd og smykker',
       'cups-bottles': 'Kopper og flasker',
       'bilder-og-plakater': 'Bilder og plakater',
+      'kristne-plakater': 'Kristne plakater',
+      'kristne-kopper': 'Kristne kopper',
+      'kristne-klistermerker': 'Kristne klistremerker',
       'kristne-klaer': 'Kristne klær',
       'klær': 'Kristne klær',
       'dameklær': 'Dameklær',

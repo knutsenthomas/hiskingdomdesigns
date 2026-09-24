@@ -21,15 +21,16 @@ const routeTranslations = {
   checkout: { no: '/kasse', en: '/checkout', es: '/pago' },
   products: { no: '/produkter', en: '/products', es: '/productos' },
   profile: { no: '/profil', en: '/profile', es: '/perfil' },
-  cancellation: { no: '/angre-kjop', en: '/cancel-order', es: '/cancelar-pedido' }
+  cancellation: { no: '/angre-kjop', en: '/cancel-order', es: '/cancelar-pedido' },
+  gifts: { no: '/kristne-gaver', en: '/kristne-gaver', es: '/kristne-gaver' }
 };
 
 const staticContent = {
   home: {
     no: {
-      title: 'His Kingdom Designs | Bær troen med stolthet',
-      description: 'Oppdag eksklusive kristne klær, hettegensere, t-skjorter og tilbehør med meningsfulle budskap. Høy kvalitet og rask levering fra Norge.',
-      h1: 'Bær troen med stolthet'
+      title: 'Kristen nettbutikk | Klær, gaver & produkter | His Kingdom Designs',
+      description: 'Oppdag kristne klær, T-skjorter, gensere, plakater, kopper og gaver med bibelske budskap. Moderne kristent design fra His Kingdom Designs.',
+      h1: 'Kristen nettbutikk – Bær troen med stolthet'
     },
     en: {
       title: 'His Kingdom Designs | Wear Your Faith with Pride',
@@ -40,6 +41,23 @@ const staticContent = {
       title: 'His Kingdom Designs | Lleva tu fe con orgullo',
       description: 'Descubre ropa cristiana exclusiva, sudaderas con capucha, camisetas y accesorios con mensajes significativos. Calidad premium y envío rápido.',
       h1: 'Lleva tu fe con orgullo'
+    }
+  },
+  gifts: {
+    no: {
+      title: 'Kristne gaver med mening | His Kingdom Designs',
+      description: 'Finn kristne gaver med mening. Oppdag klær, kopper, plakater og produkter med bibelvers og kristne budskap hos His Kingdom Designs.',
+      h1: 'Kristne gaver med mening'
+    },
+    en: {
+      title: 'Christian Gifts with Meaning | His Kingdom Designs',
+      description: 'Discover meaningful Christian gifts. Shop apparel, mugs, posters, and products with Scripture and faith messages at His Kingdom Designs.',
+      h1: 'Christian Gifts with Meaning'
+    },
+    es: {
+      title: 'Regalos Cristianos con Significado | His Kingdom Designs',
+      description: 'Encuentra regalos cristianos con significado. Ropa, tazas, láminas y productos con versículos bíblicos en His Kingdom Designs.',
+      h1: 'Regalos Cristianos con Significado'
     }
   },
   products: {
@@ -386,6 +404,66 @@ const categorySeoData = {
       h1: 'Ropa con Versículos Bíblicos',
       intro: 'Lleva la palabra de Dios cada día con nuestras prendas diseñadas con versículos bíblicos.'
     }
+  },
+  'kristne-plakater': {
+    no: {
+      title: 'Kristne plakater & bilder med bibelvers | His Kingdom Designs',
+      description: 'Pynt hjemmet med kristne plakater, kunsttrykk og bilder med bibelvers. Høy papirkvalitet, stilrent design og rask levering fra Norge.',
+      h1: 'Kristne plakater & bilder med bibelvers',
+      intro: 'Dekorer hjemmet med oppmuntrende bibelord og stilrene kristne kunstplakater. Perfekt til stue, soverom eller barnerom.'
+    },
+    en: {
+      title: 'Christian Posters & Scripture Wall Art | His Kingdom Designs',
+      description: 'Decorate your home with Christian posters, art prints, and scripture wall art. Premium paper quality and fast delivery from Norway.',
+      h1: 'Christian Posters & Wall Art',
+      intro: 'Inspire your home with scripture art and modern Christian poster prints.'
+    },
+    es: {
+      title: 'Láminas y Posters Cristianos con Versículos | His Kingdom Designs',
+      description: 'Decora tu hogar con láminas cristianas y arte de pared con versículos bíblicos. Calidad premium.',
+      h1: 'Láminas y Posters Cristianos',
+      intro: 'Decora tu hogar con versículos bíblicos inspiradores y diseño moderno.'
+    }
+  },
+  'kristne-kopper': {
+    no: {
+      title: 'Kristne kopper & drikkeflasker med bibelord | His Kingdom Designs',
+      description: 'Start dagen med en kristen kopp eller termoflaske med oppmuntrende bibelvers. Slitesterk keramikk som tåler oppvaskmaskin. Rask levering.',
+      h1: 'Kristne kopper & drikkeflasker',
+      intro: 'Nyt kaffen eller teen med et oppmuntrende bibelord. Perfekt personlig gave til deg selv eller noen du er glad i.'
+    },
+    en: {
+      title: 'Christian Mugs & Water Bottles | His Kingdom Designs',
+      description: 'Start your morning with a Christian mug or bottle featuring uplifting Bible verses. Dishwasher safe ceramic with fast shipping.',
+      h1: 'Christian Mugs & Water Bottles',
+      intro: 'Enjoy coffee or tea with inspiring scripture and faith messages every day.'
+    },
+    es: {
+      title: 'Tazas Cristianas con Versículos Bíblicos | His Kingdom Designs',
+      description: 'Tazas de cerámica y botellas con versículos bíblicos y mensajes de fe. Aptas para lavavajillas.',
+      h1: 'Tazas Cristianas',
+      intro: 'Disfruta tu café con versículos bíblicos inspiradores.'
+    }
+  },
+  'kristne-klistermerker': {
+    no: {
+      title: 'Kristne klistremerker & stickers | His Kingdom Designs',
+      description: 'Slitesterke, vanntette kristne klistremerker til PC, mobil, bibel og drikkeflasker. Små påminnelser om tro og håp i hverdagen.',
+      h1: 'Kristne klistremerker & stickers',
+      intro: 'Små fargerike og stilrene klistremerker med bibelvers og trosbudskap. Perfekt til bærbar PC, vannflaske, notatbok eller bibel.'
+    },
+    en: {
+      title: 'Christian Stickers & Faith Decals | His Kingdom Designs',
+      description: 'Durable, waterproof Christian stickers for laptops, water bottles, and Bibles. Everyday reminders of faith and grace.',
+      h1: 'Christian Stickers & Decals',
+      intro: 'Share faith everywhere with premium waterproof vinyl stickers.'
+    },
+    es: {
+      title: 'Pegatinas Cristianas y Stickers de Fe | His Kingdom Designs',
+      description: 'Stickers cristianos resistentes al agua para portátiles, botellas y biblias con citas bíblicas.',
+      h1: 'Pegatinas Cristianas',
+      intro: 'Comparte tu fe con pegatinas y stickers cristianos de alta calidad.'
+    }
   }
 };
 
@@ -410,6 +488,38 @@ export default async function handler(req, res) {
     }
     const cleanPath = '/' + pathName.replace(/^\/+|\/+$/g, '');
 
+    // 1b. 301 Redirect Spanish routes to Norwegian canonicals (Preserve SEO & transfer link equity)
+    const spanishToNorwegianMap = {
+      '/productos': '/produkter',
+      '/sobre-nosotros': '/om-oss',
+      '/equipo': '/vart-team',
+      '/envios': '/frakt-og-retur',
+      '/preguntas-frecuentes': '/faq',
+      '/privacidad': '/personvern',
+      '/condiciones': '/betingelser',
+      '/carrito': '/handlekurv',
+      '/pago': '/kasse',
+      '/perfil': '/profil',
+      '/cancelar-pedido': '/angre-kjop'
+    };
+
+    if (cleanPath.startsWith('/producto/')) {
+      const prodId = cleanPath.replace('/producto/', '');
+      res.writeHead(301, {
+        Location: `https://hiskingdomdesigns.no/produkt/${prodId}`
+      });
+      res.end();
+      return;
+    }
+
+    if (spanishToNorwegianMap[cleanPath]) {
+      res.writeHead(301, {
+        Location: `https://hiskingdomdesigns.no${spanishToNorwegianMap[cleanPath]}`
+      });
+      res.end();
+      return;
+    }
+
     // 2. Detect language
     let lang = 'no';
     if (
@@ -426,21 +536,6 @@ export default async function handler(req, res) {
       cleanPath === '/cancel-order'
     ) {
       lang = 'en';
-    } else if (
-      cleanPath.startsWith('/producto/') ||
-      cleanPath.startsWith('/productos') ||
-      cleanPath === '/sobre-nosotros' ||
-      cleanPath === '/equipo' ||
-      cleanPath === '/envios' ||
-      cleanPath === '/preguntas-frecuentes' ||
-      cleanPath === '/privacidad' ||
-      cleanPath === '/condiciones' ||
-      cleanPath === '/carrito' ||
-      cleanPath === '/pago' ||
-      cleanPath === '/perfil' ||
-      cleanPath === '/cancelar-pedido'
-    ) {
-      lang = 'es';
     }
 
     // 3. Determine Route Type
@@ -471,6 +566,7 @@ export default async function handler(req, res) {
     const categoryName = isCategory ? cleanPath.replace('/category/', '').replace(/-/g, ' ') : '';
 
     // 4. Default Meta Data
+    let isNotFound = false;
     let title = 'His Kingdom Designs | Bær troen med stolthet';
     let description = 'Eksklusive kristne klær, hettegensere, t-skjorter og tilbehør med meningsfulle budskap. Høy kvalitet og rask levering fra Norge.';
     let ogImage = `${DOMAIN}/hero_fashion.webp`;
@@ -498,11 +594,10 @@ export default async function handler(req, res) {
       description = data.description;
       h1Text = data.h1;
       const trans = routeTranslations[routeKey];
-      if (trans.no !== trans.en || trans.no !== trans.es) {
+      if (trans.no !== trans.en) {
         hreflangs = [
           { lang: 'no', href: `${DOMAIN}${trans.no}` },
           { lang: 'en', href: `${DOMAIN}${trans.en}` },
-          { lang: 'es', href: `${DOMAIN}${trans.es}` },
           { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
         ];
       } else {
@@ -510,6 +605,92 @@ export default async function handler(req, res) {
           { lang: 'no', href: `${DOMAIN}${trans.no}` },
           { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
         ];
+      }
+
+      if (routeKey === 'gifts') {
+        const products = await fetchProducts();
+        const giftProducts = products.filter(p => lang === 'en' || !isProductOceaniaExclusive(p)).slice(0, 16);
+        bodySnippet = `
+          <div class="gifts-summary" style="margin-top: 1rem;">
+            <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
+              ${description}
+            </p>
+            <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
+              ${giftProducts.map(p => `
+                <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
+                  <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
+                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl)}" alt="${p.name}" width="200" height="200" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                    <h3 style="font-size: 1rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
+                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                  </a>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+        extraJsonLd = `
+          <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "CollectionPage",
+                "name": ${JSON.stringify(h1Text)},
+                "description": ${JSON.stringify(description)},
+                "url": "${canonicalUrl}",
+                "mainEntity": {
+                  "@type": "ItemList",
+                  "numberOfItems": ${giftProducts.length},
+                  "itemListElement": ${JSON.stringify(giftProducts.map((p, idx) => ({
+                    "@type": "ListItem",
+                    "position": idx + 1,
+                    "url": `${DOMAIN}/produkt/${p.id}`,
+                    "name": p.name
+                  })))}
+                }
+              },
+              {
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "Hva er den beste kristne gaven til en konfirmant?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Til konfirmasjon er våre hettegensere med bibelvers, t-skjorter med kors eller innrammede plakater med bibelord blant de mest verdsatte gavene."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Hvilke gaver passer til dåp eller navnefest?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Våre barneplakater og kunsttrykk med velsignelser og bibelvers gir en varig påminnelse om Guds omsorg og kjærlighet."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Hva kan jeg gi i gave til under 300 kr?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Våre keramikk-kopper med bibelord og pakker med klistremerker koster under 300 kr og sprer stor glede i hverdagen."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Hvor lang er leveringstiden, og hva med retur?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Normal leveringstid er ca. 2 uker i hele Norge med 14 dagers full angrerett fra levering."
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          </script>
+        `;
       }
     } else if (isCategory) {
       const catSlug = cleanPath.replace('/category/', '').toLowerCase();
@@ -554,6 +735,24 @@ export default async function handler(req, res) {
         matchedProducts = products.filter(p => {
           const catLower = (p.category || '').toLowerCase();
           return catLower.includes('klær') || catLower.includes('kler') || catLower.includes('clothing');
+        });
+      } else if (catSlug === 'kristne-plakater' || catSlug === 'plakater' || catSlug === 'bilder-og-plakater') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          const pCat = (p.category || '').toLowerCase();
+          return pCat.includes('plakat') || pCat.includes('bilde') || pCat.includes('poster') || nameLower.includes('plakat') || nameLower.includes('poster');
+        });
+      } else if (catSlug === 'kristne-kopper' || catSlug === 'kopper' || catSlug === 'cups-bottles') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          const pCat = (p.category || '').toLowerCase();
+          return pCat.includes('kopp') || pCat.includes('cup') || pCat.includes('bottle') || nameLower.includes('kopp') || nameLower.includes('krus');
+        });
+      } else if (catSlug === 'kristne-klistermerker' || catSlug === 'klistermerker' || catSlug === 'stickers') {
+        matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
+          const pCat = (p.category || '').toLowerCase();
+          return pCat.includes('klister') || pCat.includes('sticker') || nameLower.includes('sticker') || nameLower.includes('klistermerke');
         });
       }
 
@@ -701,16 +900,42 @@ export default async function handler(req, res) {
           </script>
         `;
       } else {
-        title = 'Produkt | His Kingdom Designs';
-        h1Text = 'Vårt Produkt';
+        isNotFound = true;
+        title = 'Produkt ikke funnet (404) | His Kingdom Designs';
+        description = 'Beklager, produktet du leter etter er utgått eller finnes ikke lenger hos His Kingdom Designs.';
+        h1Text = 'Produkt ikke funnet';
+        bodySnippet = `
+          <div style="text-align: center; padding: 3rem 1rem;">
+            <p style="font-size: 1.25rem; color: #4b5563; margin-bottom: 2rem;">
+              Dette produktet er dessverre ikke lenger tilgjengelig.
+            </p>
+            <a href="/produkter" style="display: inline-block; background-color: #a34e36; color: #ffffff; padding: 0.75rem 1.5rem; border-radius: 12px; text-decoration: none; font-weight: 600;">
+              Se alle våre produkter
+            </a>
+          </div>
+        `;
       }
 
       hreflangs = [
         { lang: 'no', href: `${DOMAIN}/produkt/${productId}` },
         { lang: 'en', href: `${DOMAIN}/product/${productId}` },
-        { lang: 'es', href: `${DOMAIN}/producto/${productId}` },
         { lang: 'x-default', href: `${DOMAIN}/produkt/${productId}` }
       ];
+    } else {
+      isNotFound = true;
+      title = 'Side ikke funnet (404) | His Kingdom Designs';
+      description = 'Beklager, vi fant ikke siden du leter etter. Utforsk våre kristne klær, gaver og produkter hos His Kingdom Designs.';
+      h1Text = '404 - Siden ble ikke funnet';
+      bodySnippet = `
+        <div style="text-align: center; padding: 3rem 1rem;">
+          <p style="font-size: 1.25rem; color: #4b5563; margin-bottom: 2rem;">
+            Beklager, siden du leter etter finnes ikke eller har blitt flyttet.
+          </p>
+          <a href="/" style="display: inline-block; background-color: #a34e36; color: #ffffff; padding: 0.75rem 1.5rem; border-radius: 12px; text-decoration: none; font-weight: 600;">
+            Gå til forsiden
+          </a>
+        </div>
+      `;
     }
 
     // 5. Navigation Links for Crawler Link Graph
@@ -720,13 +945,15 @@ export default async function handler(req, res) {
         <ul style="display: flex; flex-wrap: wrap; gap: 1rem; list-style: none; padding: 0; margin: 0;">
           <li><a href="/" style="color: #151a21; text-decoration: underline;">Hjem</a></li>
           <li><a href="/produkter" style="color: #151a21; text-decoration: underline;">Alle Produkter</a></li>
+          <li><a href="/kristne-gaver" style="color: #151a21; text-decoration: underline;">Kristne gaver</a></li>
           <li><a href="/category/kristne-klaer" style="color: #151a21; text-decoration: underline;">Kristne klær</a></li>
           <li><a href="/category/kristne-t-skjorter" style="color: #151a21; text-decoration: underline;">Kristne T-skjorter</a></li>
           <li><a href="/category/kristne-gensere" style="color: #151a21; text-decoration: underline;">Kristne gensere</a></li>
           <li><a href="/category/kristen-streetwear" style="color: #151a21; text-decoration: underline;">Kristen streetwear</a></li>
           <li><a href="/category/klaer-med-bibelvers" style="color: #151a21; text-decoration: underline;">Klær med bibelvers</a></li>
-          <li><a href="/category/bilder-og-plakater" style="color: #151a21; text-decoration: underline;">Plakater</a></li>
-          <li><a href="/category/cups-bottles" style="color: #151a21; text-decoration: underline;">Kopper & Flasker</a></li>
+          <li><a href="/category/kristne-plakater" style="color: #151a21; text-decoration: underline;">Kristne plakater</a></li>
+          <li><a href="/category/kristne-kopper" style="color: #151a21; text-decoration: underline;">Kristne kopper</a></li>
+          <li><a href="/category/kristne-klistermerker" style="color: #151a21; text-decoration: underline;">Kristne klistremerker</a></li>
           <li><a href="/om-oss" style="color: #151a21; text-decoration: underline;">Om Oss</a></li>
           <li><a href="/vart-team" style="color: #151a21; text-decoration: underline;">Vårt Team</a></li>
         </ul>
@@ -739,6 +966,9 @@ export default async function handler(req, res) {
     <meta name="description" content="${description}" />
     <link rel="canonical" href="${canonicalUrl}" />
 `;
+    if (isNotFound) {
+      headInject += `    <meta name="robots" content="noindex, follow" />\n`;
+    }
 
     hreflangs.forEach(hl => {
       headInject += `    <link rel="alternate" hreflang="${hl.lang}" href="${hl.href}" />\n`;
@@ -780,7 +1010,7 @@ export default async function handler(req, res) {
     // 8. Send Response
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
-    res.status(200).send(html);
+    res.status(isNotFound ? 404 : 200).send(html);
   } catch (error) {
     console.error('SSR Render Handler Error:', error);
     // Fallback to base HTML

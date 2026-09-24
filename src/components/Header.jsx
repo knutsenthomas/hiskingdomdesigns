@@ -258,6 +258,21 @@ export default function Header() {
               </button>
             </div>
 
+            {/* Kristne gaver Link */}
+            <Link
+              to="/kristne-gaver"
+              className={`font-label-md text-label-md xl:text-[15px] 2xl:text-base py-6 transition-all relative group flex items-center ${
+                location.pathname === '/kristne-gaver' ? 'text-terracotta font-bold' : 'text-onyx/80 hover:text-terracotta'
+              }`}
+            >
+              <span className="relative py-1">
+                {t('nav.gifts') || 'Kristne gaver'}
+                <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
+                  location.pathname === '/kristne-gaver' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                }`} />
+              </span>
+            </Link>
+
             {/* Salg Link */}
             <Link
               to="/category/Salg"
@@ -801,6 +816,24 @@ export default function Header() {
                             <ChevronRight size={16} className="text-onyx/40 group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         ))}
+
+                        {/* Kristne gaver */}
+                        <Link 
+                          to="/kristne-gaver"
+                          onClick={closeMobileMenu}
+                          className="flex items-center justify-between p-3.5 bg-amber-50/50 border border-amber-100 hover:border-amber-200 rounded-xl transition-all shadow-xs group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                              <span className="material-symbols-outlined text-base">redeem</span>
+                            </div>
+                            <div>
+                              <p className="text-xs font-extrabold text-amber-900">{t('nav.gifts') || 'Kristne gaver'}</p>
+                              <p className="text-[10px] text-amber-700/70 font-semibold uppercase tracking-wider">Finn gaver med mening</p>
+                            </div>
+                          </div>
+                          <ChevronRight size={16} className="text-amber-500/50 group-hover:translate-x-0.5 transition-transform" />
+                        </Link>
 
                         {/* Salgskampanje */}
                         <Link 

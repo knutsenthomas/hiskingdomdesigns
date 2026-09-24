@@ -8,91 +8,102 @@ const staticRoutes = [
   {
     no: '/',
     en: '/',
-    es: '/',
     priority: '1.0',
+    changefreq: 'daily'
+  },
+  {
+    no: '/kristne-gaver',
+    en: '/kristne-gaver',
+    priority: '0.9',
     changefreq: 'daily'
   },
   {
     no: '/category/kristne-klaer',
     en: '/category/kristne-klaer',
-    es: '/category/kristne-klaer',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
     no: '/category/kristne-t-skjorter',
     en: '/category/kristne-t-skjorter',
-    es: '/category/kristne-t-skjorter',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
     no: '/category/kristne-gensere',
     en: '/category/kristne-gensere',
-    es: '/category/kristne-gensere',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
     no: '/category/kristen-streetwear',
     en: '/category/kristen-streetwear',
-    es: '/category/kristen-streetwear',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
     no: '/category/klaer-med-bibelvers',
     en: '/category/klaer-med-bibelvers',
-    es: '/category/klaer-med-bibelvers',
     priority: '0.9',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristne-plakater',
+    en: '/category/kristne-plakater',
+    priority: '0.8',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristne-kopper',
+    en: '/category/kristne-kopper',
+    priority: '0.8',
+    changefreq: 'daily'
+  },
+  {
+    no: '/category/kristne-klistermerker',
+    en: '/category/kristne-klistermerker',
+    priority: '0.8',
     changefreq: 'daily'
   },
   {
     no: '/produkter',
     en: '/products',
-    es: '/productos',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
     no: '/om-oss',
     en: '/about',
-    es: '/sobre-nosotros',
     priority: '0.7',
     changefreq: 'weekly'
   },
   {
     no: '/vart-team',
     en: '/team',
-    es: '/equipo',
     priority: '0.6',
     changefreq: 'weekly'
   },
   {
     no: '/frakt-og-retur',
     en: '/shipping',
-    es: '/envios',
     priority: '0.6',
     changefreq: 'weekly'
   },
   {
     no: '/faq',
     en: '/faq',
-    es: '/preguntas-frecuentes',
     priority: '0.6',
     changefreq: 'weekly'
   },
   {
     no: '/personvern',
     en: '/privacy',
-    es: '/privacidad',
     priority: '0.5',
     changefreq: 'monthly'
   },
   {
     no: '/betingelser',
     en: '/terms',
-    es: '/condiciones',
     priority: '0.5',
     changefreq: 'monthly'
   }
@@ -155,12 +166,12 @@ export default async function handler(req, res) {
     xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
     // Helper function to append URL nodes with alternates
-    const appendUrl = (noPath, enPath, esPath, changefreq, priority) => {
-      const paths = { no: noPath, en: enPath, es: esPath };
-      const langs = ['no', 'en', 'es'];
+    const appendUrl = (noPath, enPath, changefreq, priority) => {
+      const paths = { no: noPath, en: enPath };
+      const langs = ['no', 'en'];
 
       // Ensure each unique URL path gets only one <loc> node with full hreflang cluster
-      const uniquePaths = Array.from(new Set([noPath, enPath, esPath]));
+      const uniquePaths = Array.from(new Set([noPath, enPath].filter(Boolean)));
 
       uniquePaths.forEach(path => {
         const formattedPath = path === '/' ? '' : path;
@@ -169,8 +180,8 @@ export default async function handler(req, res) {
         xml += `  <url>\n`;
         xml += `    <loc>${loc}</loc>\n`;
         
-        // Add alternate links for all languages only if separate language routes exist
-        if (noPath !== enPath || noPath !== esPath) {
+        // Add alternate links for languages only if separate language routes exist
+        if (noPath !== enPath && enPath) {
           langs.forEach(altLang => {
             const altPath = paths[altLang] === '/' ? '' : paths[altLang];
             xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${DOMAIN}${altPath}" />\n`;
@@ -191,7 +202,7 @@ export default async function handler(req, res) {
 
     // 3. Add static pages to sitemap
     staticRoutes.forEach(route => {
-      appendUrl(route.no, route.en, route.es, route.changefreq, route.priority);
+      appendUrl(route.no, route.en, route.changefreq, route.priority);
     });
 
     // 4. Add dynamic product pages
@@ -200,8 +211,7 @@ export default async function handler(req, res) {
       const id = p.id;
       const noPath = `/produkt/${id}`;
       const enPath = `/product/${id}`;
-      const esPath = `/producto/${id}`;
-      appendUrl(noPath, enPath, esPath, 'weekly', '0.8');
+      appendUrl(noPath, enPath, 'weekly', '0.8');
     });
 
     xml += `</urlset>\n`;

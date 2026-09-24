@@ -47,6 +47,30 @@ const SEO_CATEGORY_CONFIG = {
     h1: 'Klær med bibelvers',
     exploreDesc: 'Bær Guds ord i hverdagen. Våre klær med bibelvers formidler håp, tro og kjærlighet gjennom estetisk og moderne typografi.',
     seoText: 'Guds ord har kraft til å forandre og oppmuntre. Vår kolleksjon av klær med bibelvers inneholder nøye utvalgte skriftsteder fra både Det gamle og Det nye testamente, vakkert integrert på t-skjorter, gensere og tilbehør.'
+  },
+  'kristne-plakater': {
+    name: 'Kristne plakater',
+    title: 'Kristne plakater & bilder med bibelvers | His Kingdom Designs',
+    desc: 'Pynt hjemmet med kristne plakater, kunsttrykk og bilder med bibelvers. Høy papirkvalitet, stilrent design og rask levering fra Norge.',
+    h1: 'Kristne plakater & bilder med bibelvers',
+    exploreDesc: 'Dekorer hjemmet med oppmuntrende bibelord og stilrene kristne kunstplakater. Perfekt til stue, soverom eller barnerom.',
+    seoText: 'Våre kristne plakater og kunsttrykk trykkes på kraftig kvalitetspapir med skarp gjengivelse. Velg blant tidløse bibelvers, minimalistisk typografi og moderne motiver som minner om Guds løfter i hverdagen.'
+  },
+  'kristne-kopper': {
+    name: 'Kristne kopper',
+    title: 'Kristne kopper & drikkeflasker med bibelord | His Kingdom Designs',
+    desc: 'Start dagen med en kristen kopp eller termoflaske med oppmuntrende bibelvers. Slitesterk keramikk som tåler oppvaskmaskin. Rask levering.',
+    h1: 'Kristne kopper & drikkeflasker',
+    exploreDesc: 'Nyt kaffen eller teen med et oppmuntrende bibelord. Perfekt personlig gave til deg selv eller noen du er glad i.',
+    seoText: 'Våre kristne kopper og krus er laget av førsteklasses keramikk med høykvalitets trykk som tåler daglig bruk og oppvaskmaskin. Perfekt som en oppmuntrende gave eller til morgenkaffen.'
+  },
+  'kristne-klistermerker': {
+    name: 'Kristne klistremerker',
+    title: 'Kristne klistremerker & stickers | His Kingdom Designs',
+    desc: 'Slitesterke, vanntette kristne klistremerker til PC, mobil, bibel og drikkeflasker. Små påminnelser om tro og håp i hverdagen.',
+    h1: 'Kristne klistremerker & stickers',
+    exploreDesc: 'Små fargerike og stilrene klistremerker med bibelvers og trosbudskap. Perfekt til bærbar PC, vannflaske, notatbok eller bibel.',
+    seoText: 'Våre kristne stickers og klistremerker er trykket på værbestandig vinyl som tåler både vann og slitasje. Del troen på en enkel og personlig måte i hverdagen.'
   }
 };
 
@@ -241,6 +265,27 @@ export default function Category() {
         const isPoster = pCat.includes('plakat') || pCat.includes('bilde') || /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper)\b/i.test(p.name);
         const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær')) && !isPoster;
         return isClothing;
+      });
+    } else if (categorySlug === 'kristne-plakater' || categorySlug === 'plakater' || categorySlug === 'bilder-og-plakater') {
+      result = result.filter(p => {
+        const pCat = (p.category || '').toLowerCase();
+        const nameLower = p.name.toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        return pCat.includes('plakat') || pCat.includes('bilde') || pCat.includes('poster') || subs.includes('plakater') || /\b(plakat|plakater|poster|postere|kunsttrykk|lerret|canvas)\b/i.test(nameLower);
+      });
+    } else if (categorySlug === 'kristne-kopper' || categorySlug === 'kopper' || categorySlug === 'cups-bottles') {
+      result = result.filter(p => {
+        const pCat = (p.category || '').toLowerCase();
+        const nameLower = p.name.toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        return pCat.includes('kopp') || pCat.includes('cup') || pCat.includes('bottle') || pCat.includes('flaske') || subs.includes('kopper') || /\b(kopp|kopper|krus|mug|flaske|termoflaske|bottle)\b/i.test(nameLower);
+      });
+    } else if (categorySlug === 'kristne-klistermerker' || categorySlug === 'klistermerker' || categorySlug === 'klistremerker' || categorySlug === 'stickers') {
+      result = result.filter(p => {
+        const pCat = (p.category || '').toLowerCase();
+        const nameLower = p.name.toLowerCase();
+        const subs = (p.subcategories || []).map(s => s.toLowerCase());
+        return pCat.includes('klister') || pCat.includes('klistre') || pCat.includes('sticker') || subs.includes('klistermerker') || /\b(klistermerke|klistermerker|sticker|stickers)\b/i.test(nameLower);
       });
     } else if (categoryName === 'Salg') {
       result = result.filter(p => p.isSale);
@@ -523,9 +568,40 @@ export default function Category() {
           <span className="text-onyx font-bold">{displayTitle}</span>
         </nav>
         <h1 className="font-headline-xl text-3xl md:text-[48px] font-bold text-onyx mb-2 capitalize">{displayTitle}</h1>
-        <p className="text-body-lg font-body-lg text-secondary w-full">
+        <p className="text-body-lg font-body-lg text-secondary w-full mb-4">
           {exploreDesc}
         </p>
+
+        {/* Related Category Navigation Pills */}
+        <div className="flex flex-wrap gap-2 pt-2 select-none">
+          {[
+            { label: 'Kristne klær', slug: 'kristne-klaer' },
+            { label: 'T-skjorter', slug: 'kristne-t-skjorter' },
+            { label: 'Gensere', slug: 'kristne-gensere' },
+            { label: 'Streetwear', slug: 'kristen-streetwear' },
+            { label: 'Bibelvers', slug: 'klaer-med-bibelvers' },
+            { label: 'Plakater', slug: 'kristne-plakater' },
+            { label: 'Kopper', slug: 'kristne-kopper' },
+            { label: 'Klistremerker', slug: 'kristne-klistermerker' },
+            { label: 'Kristne gaver', path: '/kristne-gaver' }
+          ].map(item => {
+            const targetUrl = item.path || `/category/${item.slug}`;
+            const isActive = categorySlug === item.slug;
+            return (
+              <Link
+                key={item.label}
+                to={targetUrl}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                  isActive
+                    ? 'bg-terracotta text-white border-terracotta shadow-xs'
+                    : 'bg-white/90 text-onyx border-outline-variant/60 hover:border-terracotta hover:text-terracotta hover:bg-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-gutter items-start w-full">

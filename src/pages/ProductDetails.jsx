@@ -1052,15 +1052,17 @@ export default function ProductDetails() {
     }
   }, [selectedSize, selectedColor, product]);
 
+  const productMetaTitle = product ? `${product.name} | His Kingdom Designs` : t('nav.products');
+
   useMeta(
-    product ? product.name : t('nav.products'),
+    productMetaTitle,
     product && typeof product.description === 'string' 
       ? product.description.replace(/<[^>]*>/g, '').substring(0, 155) 
       : t('home.metaDesc'),
     product ? { type: 'product', image: product.image, price: `${activePrice} NOK` } : null
   );
 
-  // Dynamic Product JSON-LD Schema (World-Class SEO)
+  // Dynamic Product & Breadcrumbs JSON-LD Schema (World-Class SEO)
   useEffect(() => {
     if (product) {
       const score = averageRating || 5;
@@ -1080,8 +1082,7 @@ export default function ProductDetails() {
         });
       }
 
-      const schema = {
-        "@context": "https://schema.org/",
+      const productSchema = {
         "@type": "Product",
         "name": product.name,
         "image": imageUrls.length > 0 ? (imageUrls.length === 1 ? imageUrls[0] : imageUrls) : '',
@@ -1137,12 +1138,12 @@ export default function ProductDetails() {
       };
 
       if (count > 0) {
-        schema.aggregateRating = {
+        productSchema.aggregateRating = {
           "@type": "AggregateRating",
           "ratingValue": score,
           "reviewCount": count
         };
-        schema.review = reviewsList.map(r => ({
+        productSchema.review = reviewsList.map(r => ({
           "@type": "Review",
           "author": {
             "@type": "Person",
@@ -1157,6 +1158,35 @@ export default function ProductDetails() {
         }));
       }
 
+      const breadcrumbSchema = {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Hjem",
+            "item": "https://hiskingdomdesigns.no/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": product.category || "Produkter",
+            "item": `https://hiskingdomdesigns.no/category/${getSlugByCategoryName ? getSlugByCategoryName(product.category) : 'kristne-klaer'}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": product.name,
+            "item": window.location.href
+          }
+        ]
+      };
+
+      const graphSchema = {
+        "@context": "https://schema.org",
+        "@graph": [productSchema, breadcrumbSchema]
+      };
+
       const scriptId = 'jsonld-product-schema';
       let script = document.getElementById(scriptId);
       if (!script) {
@@ -1165,7 +1195,7 @@ export default function ProductDetails() {
         script.type = 'application/ld+json';
         document.head.appendChild(script);
       }
-      script.innerHTML = JSON.stringify(schema);
+      script.innerHTML = JSON.stringify(graphSchema);
 
       return () => {
         const existingScript = document.getElementById(scriptId);
@@ -1174,7 +1204,7 @@ export default function ProductDetails() {
         }
       };
     }
-  }, [product, reviewsList, averageRating, activePrice]);
+  }, [product, reviewsList, averageRating, activePrice, getSlugByCategoryName]);
 
   // Auto-fill email if member is logged in
   useEffect(() => {
@@ -1490,6 +1520,9 @@ export default function ProductDetails() {
               alt={product.name} 
               className="max-w-full max-h-full object-contain rounded-lg hover:scale-[1.02] transition-transform duration-500" 
               src={getOptimizedWixImageUrl(activeImage || product.image, 600, 750)}
+              width="600"
+              height="750"
+              fetchPriority="high"
             />
             
             {/* Image navigation arrows */}

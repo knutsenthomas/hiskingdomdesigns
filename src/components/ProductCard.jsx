@@ -103,6 +103,8 @@ export default function ProductCard({ product }) {
           alt={translatedProduct.name} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
           src={getOptimizedWixImageUrl(translatedProduct.image, 400, 400)}
+          width="400"
+          height="400"
           loading="lazy"
         />
 
@@ -111,6 +113,8 @@ export default function ProductCard({ product }) {
             alt={`${translatedProduct.name} - sekundærbilde`} 
             className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
             src={getOptimizedWixImageUrl(translatedProduct.images[1], 400, 400)}
+            width="400"
+            height="400"
             loading="lazy"
           />
         )}

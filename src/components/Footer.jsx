@@ -231,6 +231,9 @@ export default function Footer() {
               <Link to={localizedPath('/products')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
             </li>
             <li>
+              <Link to="/kristne-gaver" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne gaver</Link>
+            </li>
+            <li>
               <Link to="/category/kristne-klaer" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne klær</Link>
             </li>
             <li>
@@ -246,7 +249,13 @@ export default function Footer() {
               <Link to="/category/klaer-med-bibelvers" className="text-parchment/80 hover:text-terracotta transition-colors">Klær med bibelvers</Link>
             </li>
             <li>
-              <Link to="/category/bilder-og-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.posters')}</Link>
+              <Link to="/category/kristne-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne plakater</Link>
+            </li>
+            <li>
+              <Link to="/category/kristne-kopper" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne kopper</Link>
+            </li>
+            <li>
+              <Link to="/category/kristne-klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne klistremerker</Link>
             </li>
           </ul>
         </div>

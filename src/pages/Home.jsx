@@ -628,14 +628,21 @@ export default function Home() {
               <span>{t('home.newMonthlyPacks')}</span>
             </button>
             {currentSlide.isProduct ? (
-              <h1 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+              <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
                 {currentSlide.title}
-              </h1>
+              </h2>
+            ) : heroSlide === 0 ? (
+              <CmsText 
+                slug="home-hero-title" 
+                fallback={currentSlide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
+                as="h1" 
+                className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+              />
             ) : (
               <CmsText 
-                slug={heroSlide === 0 ? "home-hero-title" : "home-hero-title-2"} 
-                fallback={currentSlide.title || "Bær troen med stolthet"} 
-                as="h1" 
+                slug="home-hero-title-2" 
+                fallback={currentSlide.title || "Skapt med formål"} 
+                as="h2" 
                 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
               />
             )}
@@ -722,9 +729,9 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
           {/* Large Card */}
-          <div 
-            onClick={() => navigate(`/category/${currentSet.large.path}`)}
-            className="md:col-span-8 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer aspect-[16/10] md:aspect-auto md:h-[500px]"
+          <Link 
+            to={`/category/${currentSet.large.path}`}
+            className="md:col-span-8 group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer aspect-[16/10] md:aspect-auto md:h-[500px] block"
           >
             <img 
               alt={`${getCategoryTranslation(currentSet.large).title} collection`} 
@@ -739,13 +746,13 @@ export default function Home() {
                 {t('home.categories.shopNow')}
               </span>
             </div>
-          </div>
+          </Link>
           
           <div className="md:col-span-4 flex flex-col gap-gutter">
             {/* Small Card 1 */}
-            <div 
-              onClick={() => navigate(`/category/${currentSet.small1.path}`)}
-              className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer"
+            <Link 
+              to={`/category/${currentSet.small1.path}`}
+              className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer block"
             >
               <img 
                 alt={`${getCategoryTranslation(currentSet.small1).title} category`} 
@@ -757,12 +764,12 @@ export default function Home() {
                 <CmsText slug={currentSet.small1.titleSlug} fallback={getCategoryTranslation(currentSet.small1).title} as="h3" className="text-white font-headline-md text-headline-md" />
                 <CmsText slug={currentSet.small1.descSlug} fallback={getCategoryTranslation(currentSet.small1).desc} as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
-            </div>
+            </Link>
             
             {/* Small Card 2 */}
-            <div 
-              onClick={() => navigate(`/category/${currentSet.small2.path}`)}
-              className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer"
+            <Link 
+              to={`/category/${currentSet.small2.path}`}
+              className="h-60 md:h-[238px] group relative overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md cursor-pointer block"
             >
               <img 
                 alt={`${getCategoryTranslation(currentSet.small2).title} category`} 
@@ -774,7 +781,7 @@ export default function Home() {
                 <CmsText slug={currentSet.small2.titleSlug} fallback={getCategoryTranslation(currentSet.small2).title} as="h3" className="text-white font-headline-md text-headline-md" />
                 <CmsText slug={currentSet.small2.descSlug} fallback={getCategoryTranslation(currentSet.small2).desc} as="p" className="text-white/70 text-label-sm mt-1" />
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -792,6 +799,58 @@ export default function Home() {
             {bestsellers.slice(0, 4).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Kristne Gaver Promo Section */}
+      <section className="bg-parchment/60 py-12 border-y border-outline-variant/30">
+        <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
+          <div className="bg-white border border-outline-variant/40 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xs">
+            <div className="max-w-xl">
+              <span className="text-terracotta font-label-md text-xs uppercase tracking-widest font-semibold mb-2 block">
+                {t('gifts.badge') || 'Gaveidéer & Inspirasjon'}
+              </span>
+              <h2 className="font-headline-lg text-2xl md:text-3xl font-bold text-onyx mb-3">
+                {t('gifts.h1') || 'Kristne gaver med mening'}
+              </h2>
+              <p className="text-secondary text-sm md:text-base leading-relaxed mb-6">
+                {t('gifts.intro') || 'Leter du etter en omtenksom gave til konfirmasjon, dåp, bursdag eller en oppmuntring i hverdagen? Utforsk vårt utvalg av meningsfylte kristne gaver med bibelvers og oppmuntrende budskap.'}
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link 
+                  to="/kristne-gaver"
+                  className="inline-flex items-center gap-2 bg-terracotta hover:bg-[#bd4f2a] text-white px-6 py-3.5 rounded-xl font-label-md text-sm font-semibold transition-all shadow-sm active:scale-[0.98] hover:scale-[1.02] hover:shadow-md"
+                >
+                  <span>Finn kristne gaver med mening</span>
+                  <ArrowRight size={16} />
+                </Link>
+                <Link 
+                  to="/category/kristne-t-skjorter"
+                  className="inline-flex items-center gap-2 bg-transparent hover:bg-slate-50 text-onyx border border-outline-variant px-5 py-3.5 rounded-xl font-label-md text-sm font-semibold transition-all active:scale-[0.98]"
+                >
+                  <span>Se populære T-skjorter</span>
+                </Link>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full md:w-auto shrink-0">
+              <div className="w-36 h-40 md:w-44 md:h-48 rounded-xl overflow-hidden shadow-sm border border-outline-variant/30 bg-parchment">
+                <img 
+                  src={getOptimizedWixImageUrl("https://static.wixstatic.com/media/db4f96_7ed719f8e0954fd78693f7b0b29a127b~mv2.png", 300, 300)} 
+                  alt="Kristne kopper som gave" 
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                  loading="lazy"
+                />
+              </div>
+              <div className="w-36 h-40 md:w-44 md:h-48 rounded-xl overflow-hidden shadow-sm border border-outline-variant/30 bg-parchment mt-4 md:mt-6">
+                <img 
+                  src={getOptimizedWixImageUrl("https://static.wixstatic.com/media/db4f96_57d27b5e08a14d3997613b8347488719~mv2.png", 300, 300)} 
+                  alt="Kristne plakater og bilder" 
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                  loading="lazy"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -988,7 +1047,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
                 <Award size={24} />
               </div>
-              <CmsText slug="home-value-title-1" fallback={t('home.values.quality.title')} as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-title-1" fallback={t('home.values.quality.title')} as="h3" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
               <CmsText slug="home-value-desc-1" fallback={t('home.values.quality.desc')} as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
             
@@ -996,7 +1055,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
                 <BookOpen size={24} />
               </div>
-              <CmsText slug="home-value-title-2" fallback={t('home.values.message.title')} as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-title-2" fallback={t('home.values.message.title')} as="h3" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
               <CmsText slug="home-value-desc-2" fallback={t('home.values.message.desc')} as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
 
@@ -1004,7 +1063,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta mb-4">
                 <Users size={24} />
               </div>
-              <CmsText slug="home-value-title-3" fallback={t('home.values.community.title')} as="h4" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
+              <CmsText slug="home-value-title-3" fallback={t('home.values.community.title')} as="h3" className="font-headline-md text-onyx mb-2 font-bold text-lg" />
               <CmsText slug="home-value-desc-3" fallback={t('home.values.community.desc')} as="p" className="text-label-sm text-secondary leading-relaxed opacity-80" />
             </div>
           </div>
