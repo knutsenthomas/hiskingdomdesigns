@@ -243,14 +243,15 @@ export default function Home() {
   // Loading state for plan checkout redirect
   const [subscribingId, setSubscribingId] = useState(null);
 
-  const [heroSlide, setHeroSlide] = useState(0);
-  const [prevSlide, setPrevSlide] = useState(null);
+  const [{ current: heroSlide, prev: prevSlide }, setSlideState] = useState({
+    current: 0,
+    prev: null
+  });
 
   const goToSlide = useCallback((nextIdx) => {
-    setHeroSlide((current) => {
-      if (current === nextIdx) return current;
-      setPrevSlide(current);
-      return nextIdx;
+    setSlideState((state) => {
+      if (state.current === nextIdx) return state;
+      return { current: nextIdx, prev: state.current };
     });
   }, []);
 
@@ -423,8 +424,7 @@ export default function Home() {
 
   useEffect(() => {
     if (heroSlide >= slides.length) {
-      setHeroSlide(0);
-      setPrevSlide(null);
+      setSlideState({ current: 0, prev: null });
     }
   }, [slides.length, heroSlide]);
 
@@ -613,23 +613,14 @@ export default function Home() {
           {slides.map((slide, idx) => {
             const isActive = heroSlide === idx;
             const isPrev = prevSlide === idx;
-            const zIndex = isActive ? 20 : isPrev ? 10 : 0;
 
             return (
-              <motion.div
+              <div
                 key={slide.image || idx}
-                initial={false}
-                animate={{
-                  opacity: isActive ? 1 : isPrev ? 1 : 0
-                }}
-                transition={{
-                  duration: isActive ? 0.8 : 0,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 transform-gpu overflow-hidden"
+                className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ease-in-out ${
+                  isActive ? 'opacity-100 z-20 pointer-events-auto' : isPrev ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                }`}
                 style={{
-                  zIndex,
-                  pointerEvents: isActive ? 'auto' : 'none',
                   WebkitBackfaceVisibility: 'hidden',
                   backfaceVisibility: 'hidden',
                   transform: 'translate3d(0, 0, 0)'
@@ -637,7 +628,7 @@ export default function Home() {
               >
                 <img 
                   alt={`Hero faith slide ${idx + 1}`} 
-                  className="w-full h-full object-cover select-none pointer-events-none transform-gpu" 
+                  className="w-full h-full object-cover select-none pointer-events-none" 
                   src={slide.image}
                   loading="eager"
                   fetchPriority={idx === 0 ? "high" : "auto"}
@@ -648,20 +639,14 @@ export default function Home() {
                     transform: 'translate3d(0, 0, 0)'
                   }}
                 />
-              </motion.div>
+              </div>
             );
           })}
           {/* Cinema gradient overlay for extreme readability and visual depth */}
           <div className="absolute inset-0 z-[25] pointer-events-none bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent"></div>
         </div>
         <div className="relative z-30 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-          <motion.div
-            key={heroSlide}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="max-w-2xl text-white"
-          >
+          <div className="max-w-2xl text-white">
             <button 
               onClick={() => scrollToSection('manedspakker')}
               className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
@@ -669,37 +654,49 @@ export default function Home() {
               <span>✨</span>
               <span>{t('home.newMonthlyPacks')}</span>
             </button>
-            {currentSlide.isProduct ? (
-              <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
-                {currentSlide.title}
-              </h2>
-            ) : heroSlide === 0 ? (
-              <CmsText 
-                slug="home-hero-title" 
-                fallback={currentSlide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
-                as="h1" 
-                className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-              />
-            ) : (
-              <CmsText 
-                slug="home-hero-title-2" 
-                fallback={currentSlide.title || "Skapt med formål"} 
-                as="h2" 
-                className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-              />
-            )}
-            {currentSlide.isProduct ? (
-              <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
-                {currentSlide.desc}
-              </p>
-            ) : (
-              <CmsText 
-                slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
-                fallback={currentSlide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
-                as="p" 
-                className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
-              />
-            )}
+            <div className="min-h-[140px] md:min-h-[160px] flex flex-col justify-center">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={heroSlide}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                >
+                  {currentSlide.isProduct ? (
+                    <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+                      {currentSlide.title}
+                    </h2>
+                  ) : heroSlide === 0 ? (
+                    <CmsText 
+                      slug="home-hero-title" 
+                      fallback={currentSlide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
+                      as="h1" 
+                      className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                    />
+                  ) : (
+                    <CmsText 
+                      slug="home-hero-title-2" 
+                      fallback={currentSlide.title || "Skapt med formål"} 
+                      as="h2" 
+                      className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                    />
+                  )}
+                  {currentSlide.isProduct ? (
+                    <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
+                      {currentSlide.desc}
+                    </p>
+                  ) : (
+                    <CmsText 
+                      slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
+                      fallback={currentSlide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
+                      as="p" 
+                      className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
             <div className="flex flex-wrap gap-4">
               <button 
                 onClick={currentSlide.ctaAction}
@@ -709,7 +706,7 @@ export default function Home() {
                 <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Slide Indicators */}
