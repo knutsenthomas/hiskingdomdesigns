@@ -597,8 +597,6 @@ export default function Home() {
     .filter(p => p.isBestseller && (language === 'en' || !p.isOceaniaExclusive))
     .map(p => translateProduct(p));
 
-  const currentSlide = slides[heroSlide] || slides[0] || {};
-
   return (
     <motion.div
       initial={false}
@@ -654,57 +652,64 @@ export default function Home() {
               <span>✨</span>
               <span>{t('home.newMonthlyPacks')}</span>
             </button>
-            <div className="min-h-[140px] md:min-h-[160px] flex flex-col justify-center">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={heroSlide}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25, ease: "easeInOut" }}
-                >
-                  {currentSlide.isProduct ? (
-                    <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
-                      {currentSlide.title}
-                    </h2>
-                  ) : heroSlide === 0 ? (
-                    <CmsText 
-                      slug="home-hero-title" 
-                      fallback={currentSlide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
-                      as="h1" 
-                      className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-                    />
-                  ) : (
-                    <CmsText 
-                      slug="home-hero-title-2" 
-                      fallback={currentSlide.title || "Skapt med formål"} 
-                      as="h2" 
-                      className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-                    />
-                  )}
-                  {currentSlide.isProduct ? (
-                    <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
-                      {currentSlide.desc}
-                    </p>
-                  ) : (
-                    <CmsText 
-                      slug={heroSlide === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
-                      fallback={currentSlide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
-                      as="p" 
-                      className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
-                    />
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <button 
-                onClick={currentSlide.ctaAction}
-                className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>{currentSlide.ctaText}</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-              </button>
+            <div className="grid grid-cols-1 grid-rows-1">
+              {slides.map((slide, idx) => {
+                const isActive = heroSlide === idx;
+
+                return (
+                  <div
+                    key={slide.image || idx}
+                    className={`col-start-1 row-start-1 transition-opacity duration-700 ease-in-out ${
+                      isActive 
+                        ? 'opacity-100 z-10 pointer-events-auto' 
+                        : 'opacity-0 z-0 pointer-events-none'
+                    }`}
+                  >
+                    {slide.isProduct ? (
+                      <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+                        {slide.title}
+                      </h2>
+                    ) : idx === 0 ? (
+                      <CmsText 
+                        slug="home-hero-title" 
+                        fallback={slide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
+                        as="h1" 
+                        className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                      />
+                    ) : (
+                      <CmsText 
+                        slug="home-hero-title-2" 
+                        fallback={slide.title || "Skapt med formål"} 
+                        as="h2" 
+                        className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                      />
+                    )}
+
+                    {slide.isProduct ? (
+                      <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
+                        {slide.desc}
+                      </p>
+                    ) : (
+                      <CmsText 
+                        slug={idx === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
+                        fallback={slide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
+                        as="p" 
+                        className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
+                      />
+                    )}
+
+                    <div className="flex flex-wrap gap-4">
+                      <button 
+                        onClick={slide.ctaAction}
+                        className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <span>{slide.ctaText}</span>
+                        <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
