@@ -685,6 +685,7 @@ export const AppProvider = ({ children }) => {
 
           return {
             id: item._id,
+            slug: item.slug || '',
             name: item.name,
             price: price,
             originalPrice: isSale ? originalPrice : undefined,
@@ -717,6 +718,7 @@ export const AppProvider = ({ children }) => {
             // Prune heavy fields for localStorage to stay well under the 5MB quota
             const lightweight = mapped.map(p => ({
               id: p.id,
+              slug: p.slug,
               name: p.name,
               price: p.price,
               originalPrice: p.originalPrice,

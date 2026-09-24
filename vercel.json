@@ -21,7 +21,63 @@
       }
     },
     {
+      "src": "/product/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$1"
+      }
+    },
+    {
+      "src": "/(en|es)/product-page/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$2"
+      }
+    },
+    {
+      "src": "/product-page/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$1"
+      }
+    },
+    {
+      "src": "/(en|es)/category/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/category/$2"
+      }
+    },
+    {
+      "src": "/(en|es)/product/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$2"
+      }
+    },
+    {
+      "src": "/(en|es)/producto/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$2"
+      }
+    },
+    {
+      "src": "/(en|es)/produkt/(.*)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkt/$2"
+      }
+    },
+    {
       "src": "/productos",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/produkter"
+      }
+    },
+    {
+      "src": "/products",
       "status": 301,
       "headers": {
         "Location": "https://hiskingdomdesigns.no/produkter"
@@ -35,6 +91,13 @@
       }
     },
     {
+      "src": "/about",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/om-oss"
+      }
+    },
+    {
       "src": "/equipo",
       "status": 301,
       "headers": {
@@ -42,7 +105,21 @@
       }
     },
     {
+      "src": "/team",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/vart-team"
+      }
+    },
+    {
       "src": "/envios",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/frakt-og-retur"
+      }
+    },
+    {
+      "src": "/shipping",
       "status": 301,
       "headers": {
         "Location": "https://hiskingdomdesigns.no/frakt-og-retur"
@@ -63,7 +140,21 @@
       }
     },
     {
+      "src": "/privacy",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/personvern"
+      }
+    },
+    {
       "src": "/condiciones",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/betingelser"
+      }
+    },
+    {
+      "src": "/terms",
       "status": 301,
       "headers": {
         "Location": "https://hiskingdomdesigns.no/betingelser"
@@ -77,7 +168,21 @@
       }
     },
     {
+      "src": "/cart",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/handlekurv"
+      }
+    },
+    {
       "src": "/pago",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/kasse"
+      }
+    },
+    {
+      "src": "/checkout",
       "status": 301,
       "headers": {
         "Location": "https://hiskingdomdesigns.no/kasse"
@@ -91,10 +196,31 @@
       }
     },
     {
+      "src": "/profile",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/profil"
+      }
+    },
+    {
       "src": "/cancelar-pedido",
       "status": 301,
       "headers": {
         "Location": "https://hiskingdomdesigns.no/angre-kjop"
+      }
+    },
+    {
+      "src": "/cancel-order",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/angre-kjop"
+      }
+    },
+    {
+      "src": "/gaver",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/kristne-gaver"
       }
     },
     {

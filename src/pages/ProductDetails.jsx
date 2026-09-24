@@ -390,9 +390,9 @@ export default function ProductDetails() {
 
   // --- 2. Memoized Derivations ---
   
-  // Find product by id from app context
+  // Find product by id or slug from app context
   const contextProduct = useMemo(() => {
-    return products.find(p => p.id === productId);
+    return products.find(p => p.id === productId || p.slug === productId);
   }, [products, productId]);
 
   // Use fetchedProduct if available (contains full options/variants), otherwise fallback to contextProduct
@@ -800,12 +800,13 @@ export default function ProductDetails() {
   // Fetch product directly from Wix if not found or if it is a lightweight cached version
   useEffect(() => {
     async function fetchSingleProduct() {
-      if ((!contextProduct || !contextProduct.description || !contextProduct.variants || contextProduct.variants.length === 0) && productId) {
+      const targetId = contextProduct?.id || productId;
+      if ((!contextProduct || !contextProduct.description || !contextProduct.variants || contextProduct.variants.length === 0) && targetId) {
         setIsFetchingProduct(true);
         setFetchError(false);
         try {
-          console.log(`Fetching full details for product ${productId} from Wix...`);
-          const res = await wixClient.products.getProduct(productId);
+          console.log(`Fetching full details for product ${targetId} from Wix...`);
+          const res = await wixClient.products.getProduct(targetId);
           if (res && res.product) {
             const item = res.product;
             const nameLower = item.name?.toLowerCase() || '';

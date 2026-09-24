@@ -488,23 +488,34 @@ export default async function handler(req, res) {
     }
     const cleanPath = '/' + pathName.replace(/^\/+|\/+$/g, '');
 
-    // 1b. 301 Redirect Spanish routes to Norwegian canonicals (Preserve SEO & transfer link equity)
-    const spanishToNorwegianMap = {
+    // 1b. 301 Redirect Legacy & Alternate routes to Norwegian canonicals (Preserve SEO & transfer link equity)
+    const legacyToNorwegianMap = {
       '/productos': '/produkter',
+      '/products': '/produkter',
       '/sobre-nosotros': '/om-oss',
+      '/about': '/om-oss',
       '/equipo': '/vart-team',
+      '/team': '/vart-team',
       '/envios': '/frakt-og-retur',
+      '/shipping': '/frakt-og-retur',
       '/preguntas-frecuentes': '/faq',
       '/privacidad': '/personvern',
+      '/privacy': '/personvern',
       '/condiciones': '/betingelser',
+      '/terms': '/betingelser',
       '/carrito': '/handlekurv',
+      '/cart': '/handlekurv',
       '/pago': '/kasse',
+      '/checkout': '/kasse',
       '/perfil': '/profil',
-      '/cancelar-pedido': '/angre-kjop'
+      '/profile': '/profil',
+      '/cancelar-pedido': '/angre-kjop',
+      '/cancel-order': '/angre-kjop',
+      '/gaver': '/kristne-gaver'
     };
 
-    if (cleanPath.startsWith('/producto/')) {
-      const prodId = cleanPath.replace('/producto/', '');
+    if (cleanPath.startsWith('/producto/') || cleanPath.startsWith('/product/')) {
+      const prodId = cleanPath.replace(/^\/(producto|product)\//, '');
       res.writeHead(301, {
         Location: `https://hiskingdomdesigns.no/produkt/${prodId}`
       });
@@ -512,9 +523,36 @@ export default async function handler(req, res) {
       return;
     }
 
-    if (spanishToNorwegianMap[cleanPath]) {
+    const oldWixProductMatch = cleanPath.match(/^\/(en\/|es\/)?product-page\/(.*)/);
+    if (oldWixProductMatch) {
       res.writeHead(301, {
-        Location: `https://hiskingdomdesigns.no${spanishToNorwegianMap[cleanPath]}`
+        Location: `https://hiskingdomdesigns.no/produkt/${oldWixProductMatch[2]}`
+      });
+      res.end();
+      return;
+    }
+
+    const oldPrefixCategoryMatch = cleanPath.match(/^\/(en|es)\/category\/(.*)/);
+    if (oldPrefixCategoryMatch) {
+      res.writeHead(301, {
+        Location: `https://hiskingdomdesigns.no/category/${oldPrefixCategoryMatch[2]}`
+      });
+      res.end();
+      return;
+    }
+
+    const oldPrefixProductMatch = cleanPath.match(/^\/(en|es)\/(produkt|product|producto)\/(.*)/);
+    if (oldPrefixProductMatch) {
+      res.writeHead(301, {
+        Location: `https://hiskingdomdesigns.no/produkt/${oldPrefixProductMatch[3]}`
+      });
+      res.end();
+      return;
+    }
+
+    if (legacyToNorwegianMap[cleanPath]) {
+      res.writeHead(301, {
+        Location: `https://hiskingdomdesigns.no${legacyToNorwegianMap[cleanPath]}`
       });
       res.end();
       return;
