@@ -751,28 +751,38 @@ export default async function handler(req, res) {
       if (catSlug === 'kristne-t-skjorter' || catSlug === 't-skjorter' || catSlug === 't-shirts') {
         matchedProducts = products.filter(p => {
           const nameLower = (p.name || '').toLowerCase();
-          return nameLower.includes('t-skjorte') || nameLower.includes('tskjorte') || nameLower.includes('t-shirt') || nameLower.includes('tee') || nameLower.includes('trøye');
+          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+          const isTee = /\b(t-skjorte|t-skjorter|tskjorte|tskjorter|t-shirt|t-shirts|tee|tees|trøye|trøyer|dametrøye|dametrøyer|treningstrøye|treningstrøyer)\b/i.test(nameLower);
+          return isTee && !isNonClothing;
         });
       } else if (catSlug === 'kristne-gensere' || catSlug === 'gensere' || catSlug === 'genser' || catSlug === 'hettegensere') {
         matchedProducts = products.filter(p => {
           const nameLower = (p.name || '').toLowerCase();
-          return nameLower.includes('genser') || nameLower.includes('hoodie') || nameLower.includes('sweatshirt') || nameLower.includes('hettejakke') || nameLower.includes('hettegenser');
+          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+          const isSweater = /\b(genser|gensere|hoodie|hoodies|sweatshirt|sweatshirts|hettejakke|hettejakker|hettegenser|hettegensere|crewneck)\b/i.test(nameLower);
+          return isSweater && !isNonClothing;
         });
       } else if (catSlug === 'kristen-streetwear' || catSlug === 'streetwear') {
         matchedProducts = products.filter(p => {
           const nameLower = (p.name || '').toLowerCase();
-          return nameLower.includes('hoodie') || nameLower.includes('genser') || nameLower.includes('oversized') || nameLower.includes('street') || nameLower.includes('caps') || nameLower.includes('hat') || nameLower.includes('joggebukse');
+          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+          const isStreet = /\b(hoodie|hoodies|genser|gensere|oversized|street|caps|cap|hat|hatt|hatter|joggebukse|joggebukser)\b/i.test(nameLower);
+          return isStreet && !isNonClothing;
         });
       } else if (catSlug === 'klaer-med-bibelvers' || catSlug === 'bibelvers') {
         matchedProducts = products.filter(p => {
           const nameLower = (p.name || '').toLowerCase();
           const descLower = (p.description || '').toLowerCase();
-          return nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || descLower.includes('bibel') || descLower.includes('vers');
+          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+          const hasVerse = nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || descLower.includes('bibel') || descLower.includes('vers');
+          return hasVerse && !isNonClothing;
         });
       } else if (catSlug === 'kristne-klaer' || catSlug === 'klær' || catSlug === 'kler' || catSlug === 'klaer') {
         matchedProducts = products.filter(p => {
+          const nameLower = (p.name || '').toLowerCase();
           const catLower = (p.category || '').toLowerCase();
-          return catLower.includes('klær') || catLower.includes('kler') || catLower.includes('clothing');
+          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster|bilde|lerret|canvas)\b/i.test(nameLower);
+          return (catLower.includes('klær') || catLower.includes('kler') || catLower.includes('clothing')) && !isNonClothing;
         });
       } else if (catSlug === 'kristne-plakater' || catSlug === 'plakater' || catSlug === 'bilder-og-plakater') {
         matchedProducts = products.filter(p => {

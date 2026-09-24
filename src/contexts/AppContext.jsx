@@ -35,11 +35,11 @@ const INITIAL_MESSAGES = [
 ];
 
 const FALLBACK_TAXONOMY = {
-  'Klær & Bekledning': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor', 'RUSS'],
+  'Klær & Bekledning': ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'Sport / Performance /Outdoor'],
   'Bilder & Kunst': ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'],
   'Tilbehør & Hjem': ['Tilbehør', 'armbånd og smykker', 'Handlenett / Totebag', 'Kopper og flasker', 'Mobildeksel', 'Klistermerker', 'Barnerom'],
   'Barn & Familie': ['BABY', 'BARN & UNGDOM', 'Mirakel familie'],
-  'Temaer & Språk': ['Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
+  'Temaer & Språk': ['RUSS', 'Jesus', 'Israel', 'Spiritual Battle', 'Humor', 'Undervisning', 'Varna - Evangeliesenteret Bibelskole', 'Høytider', 'CHRISTMAS', 'PÅSKE', 'Abonnement', 'Digitale filer', 'Kreative bøker', 'NORSKE produkter', 'ENGLISH products', 'ESPAÑOL']
 };
 
 
@@ -559,19 +559,25 @@ export const AppProvider = ({ children }) => {
         console.log(`Hentet totalt ${allItems.length} produkter fra Wix.`);
 
         // Define lists of collection names belonging to each primary category
-        const pureClothingCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps', 'RUSS'];
+        const pureClothingCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps'];
         const plakaterCollections = ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'];
         const klistermerkerCollections = ['Klistermerker'];
+        const cupsCollections = ['Cups and bottles', 'Kopper og flasker'];
 
         // Precise regexes with word boundaries for name keyword matching
-        const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib)\b/i;
+        const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib|dametrøye|dametrøyer|treningstrøye|treningstrøyer)\b/i;
         const stickerRegex = /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
         const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|semi-glossy|wall art|veggkunst|digital plakat|digital poster)\b/i;
+        const cupOrBottleRegex = /\b(kopp|kopper|krus|mug|mugs|flaske|flasker|bottle|bottles|tumbler|travel mug|water bottle)\b/i;
+        const bagRegex = /\b(tote|totebag|handlenett|bag|shopping bag)\b/i;
 
         const mapped = allItems.map(item => {
           const nameLower = item.name.toLowerCase();
           const resolvedCollections = item.collectionIds?.map(id => collectionsMap[id]).filter(Boolean) || [];
           
+          const hasCupCollection = resolvedCollections.some(c => cupsCollections.includes(c));
+          const hasCupName = cupOrBottleRegex.test(nameLower);
+          const hasBagName = bagRegex.test(nameLower);
           const hasPosterCollection = resolvedCollections.some(c => plakaterCollections.includes(c));
           const hasPosterName = posterRegex.test(nameLower);
           const hasClothingCollection = resolvedCollections.some(c => pureClothingCollections.includes(c));
@@ -584,6 +590,8 @@ export const AppProvider = ({ children }) => {
             category = 'Klistermerker';
           } else if (hasPosterName || (hasPosterCollection && !hasClothingName && !hasClothingCollection)) {
             category = 'Plakater';
+          } else if ((hasCupName || hasCupCollection || hasBagName) && !hasClothingName) {
+            category = 'Tilbehør';
           } else if (hasClothingName || hasClothingCollection) {
             category = 'Klær';
           } else if (hasPosterCollection) {

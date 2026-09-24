@@ -229,8 +229,9 @@ export default function Category() {
         const nameLower = p.name.toLowerCase();
         const pCat = (p.category || '').toLowerCase();
         const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isClothing = pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('t-skjorter');
-        const isTee = nameLower.includes('t-skjorte') || nameLower.includes('tskjorte') || nameLower.includes('t-shirt') || nameLower.includes('tee') || nameLower.includes('trøye') || subs.includes('t-shirts') || subs.includes('t-skjorter');
+        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('t-skjorter')) && !isNonClothing;
+        const isTee = /\b(t-skjorte|t-skjorter|tskjorte|tskjorter|t-shirt|t-shirts|tee|tees|trøye|trøyer|dametrøye|dametrøyer|treningstrøye|treningstrøyer)\b/i.test(nameLower) || subs.includes('t-shirts') || subs.includes('t-skjorter');
         return isClothing && isTee;
       });
     } else if (categorySlug === 'kristne-gensere' || categorySlug === 'gensere' || categorySlug === 'genser' || categorySlug === 'hettegensere') {
@@ -238,23 +239,26 @@ export default function Category() {
         const nameLower = p.name.toLowerCase();
         const pCat = (p.category || '').toLowerCase();
         const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isClothing = pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('genser');
-        const isSweater = nameLower.includes('genser') || nameLower.includes('hoodie') || nameLower.includes('sweatshirt') || nameLower.includes('hettejakke') || nameLower.includes('hettegenser') || subs.includes('genser');
+        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('genser')) && !isNonClothing;
+        const isSweater = /\b(genser|gensere|hoodie|hoodies|sweatshirt|sweatshirts|hettejakke|hettejakker|hettegenser|hettegensere|crewneck)\b/i.test(nameLower) || subs.includes('genser');
         return isClothing && isSweater;
       });
     } else if (categorySlug === 'kristen-streetwear' || categorySlug === 'streetwear') {
       result = result.filter(p => {
         const nameLower = p.name.toLowerCase();
         const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isStreet = nameLower.includes('hoodie') || nameLower.includes('genser') || nameLower.includes('oversized') || nameLower.includes('street') || nameLower.includes('caps') || nameLower.includes('hat') || nameLower.includes('joggebukse') || subs.includes('genser') || subs.includes('hatter /caps') || subs.includes('joggebukser');
-        return isStreet;
+        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+        const isStreet = /\b(hoodie|hoodies|genser|gensere|oversized|street|caps|cap|hat|hatt|hatter|joggebukse|joggebukser)\b/i.test(nameLower) || subs.includes('genser') || subs.includes('hatter /caps') || subs.includes('joggebukser');
+        return isStreet && !isNonClothing;
       });
     } else if (categorySlug === 'klaer-med-bibelvers' || categorySlug === 'bibelvers') {
       result = result.filter(p => {
         const nameLower = p.name.toLowerCase();
         const descLower = (p.description || '').toLowerCase();
         const pCat = (p.category || '').toLowerCase();
-        const isClothing = pCat.includes('klær') || pCat.includes('kler') || (p.subcategories || []).some(s => s.toLowerCase().includes('klær') || s.toLowerCase().includes('t-shirts') || s.toLowerCase().includes('genser'));
+        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
+        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || (p.subcategories || []).some(s => s.toLowerCase().includes('klær') || s.toLowerCase().includes('t-shirts') || s.toLowerCase().includes('genser'))) && !isNonClothing;
         const hasVerse = nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || nameLower.includes('lord') || nameLower.includes('faith') || nameLower.includes('love god') || descLower.includes('bibel') || descLower.includes('vers') || descLower.includes('salme');
         return isClothing && hasVerse;
       });
@@ -262,8 +266,8 @@ export default function Category() {
       result = result.filter(p => {
         const pCat = (p.category || '').toLowerCase();
         const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isPoster = pCat.includes('plakat') || pCat.includes('bilde') || /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper)\b/i.test(p.name);
-        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær')) && !isPoster;
+        const isNonClothing = pCat.includes('plakat') || pCat.includes('bilde') || /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|kopp|kopper|krus|mug|mugs|flaske|flasker|bottle|bottles|tumbler|totebag|tote|handlenett|sticker|klistremerke)\b/i.test(p.name);
+        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær')) && !isNonClothing;
         return isClothing;
       });
     } else if (categorySlug === 'kristne-plakater' || categorySlug === 'plakater' || categorySlug === 'bilder-og-plakater') {
