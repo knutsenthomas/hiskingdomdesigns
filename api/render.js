@@ -1050,10 +1050,15 @@ export default async function handler(req, res) {
 
     html = html.replace('</head>', `${headInject}\n</head>`);
 
-    // Inject semantic crawler markup inside <div id="root">
-    const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${h1Text}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
+    // Detect if client is a search engine crawler or social bot
+    const userAgent = req.headers['user-agent'] || '';
+    const isBot = /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse/i.test(userAgent);
 
-    html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
+    // Only inject semantic crawler markup inside <div id="root"> for search engines and social bots to eliminate initial flash for real users
+    if (isBot) {
+      const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${h1Text}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
+      html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
+    }
 
     // 8. Send Response
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

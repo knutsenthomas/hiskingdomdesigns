@@ -591,22 +591,20 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           {slides.map((slide, idx) => (
             <motion.div
-              key={slide.image + idx}
+              key={slide.image || idx}
               initial={false}
               animate={{ opacity: heroSlide === idx ? 1 : 0 }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
               className="absolute inset-0"
               style={{ pointerEvents: heroSlide === idx ? 'auto' : 'none' }}
             >
-              {(idx === heroSlide || idx === 0 || idx === (heroSlide + 1) % slides.length || idx === (heroSlide - 1 + slides.length) % slides.length) && (
-                <img 
-                  alt={`Hero faith slide ${idx + 1}`} 
-                  className="w-full h-full object-cover" 
-                  src={slide.image}
-                  loading={idx === 0 ? "eager" : "lazy"}
-                  fetchPriority={idx === 0 ? "high" : "low"}
-                />
-              )}
+              <img 
+                alt={`Hero faith slide ${idx + 1}`} 
+                className="w-full h-full object-cover" 
+                src={slide.image}
+                loading={idx === 0 ? "eager" : "lazy"}
+                fetchPriority={idx === 0 ? "high" : "low"}
+              />
             </motion.div>
           ))}
           {/* Cinema gradient overlay for extreme readability and visual depth */}
@@ -615,9 +613,9 @@ export default function Home() {
         <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <motion.div
             key={heroSlide}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
             className="max-w-2xl text-white"
           >
             <button 

@@ -721,7 +721,18 @@ export const AppProvider = ({ children }) => {
         });
 
         if (mapped.length > 0) {
-          setProducts(mapped);
+          setProducts(prev => {
+            if (prev && prev.length === mapped.length && prev.length > 0) {
+              const hasDiff = mapped.some((item, i) => {
+                const old = prev[i];
+                return !old || old.id !== item.id || old.price !== item.price || old.name !== item.name || old.category !== item.category;
+              });
+              if (!hasDiff) {
+                return prev; // Same reference -> React skips rendering completely!
+              }
+            }
+            return mapped;
+          });
           try {
             // Prune heavy fields for localStorage to stay well under the 5MB quota
             const lightweight = mapped.map(p => ({
@@ -755,7 +766,7 @@ export const AppProvider = ({ children }) => {
     };
 
     fetchWixData();
-    const interval = setInterval(fetchWixData, 30000); // Check for backend changes every 30 seconds
+    const interval = setInterval(fetchWixData, 300000); // Check for backend changes every 5 minutes
     return () => clearInterval(interval);
   }, []);
   

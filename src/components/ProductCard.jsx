@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 
 import { resolveColor } from '@/lib/colors';
 
-export default function ProductCard({ product }) {
+function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useApp();
   const { t, translateProduct, formatPrice, localizedPath } = useLanguage();
@@ -162,3 +162,5 @@ export default function ProductCard({ product }) {
     </article>
   );
 }
+
+export default React.memo(ProductCard);
