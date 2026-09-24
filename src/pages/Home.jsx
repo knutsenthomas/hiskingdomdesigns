@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
@@ -244,6 +244,15 @@ export default function Home() {
   const [subscribingId, setSubscribingId] = useState(null);
 
   const [heroSlide, setHeroSlide] = useState(0);
+  const [prevSlide, setPrevSlide] = useState(null);
+
+  const goToSlide = useCallback((nextIdx) => {
+    setHeroSlide((current) => {
+      if (current === nextIdx) return current;
+      setPrevSlide(current);
+      return nextIdx;
+    });
+  }, []);
 
   // Category translation helper
   const getCategoryTranslation = (category) => {
@@ -415,15 +424,27 @@ export default function Home() {
   useEffect(() => {
     if (heroSlide >= slides.length) {
       setHeroSlide(0);
+      setPrevSlide(null);
     }
   }, [slides.length, heroSlide]);
 
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % slides.length);
+      goToSlide((heroSlide + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [slides.length, heroSlide, goToSlide]);
+
+  // Preload all hero slide images eagerly to ensure instantaneous transitions with zero flash
+  useEffect(() => {
+    slides.forEach(slide => {
+      if (slide.image) {
+        const img = new Image();
+        img.src = slide.image;
+      }
+    });
+  }, [slides]);
 
   useEffect(() => {
     async function fetchPlans() {
@@ -589,33 +610,56 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[85vh] min-h-[550px] bg-onyx flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {slides.map((slide, idx) => (
-            <motion.div
-              key={slide.image || idx}
-              initial={false}
-              animate={{ opacity: heroSlide === idx ? 1 : 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              className="absolute inset-0"
-              style={{ pointerEvents: heroSlide === idx ? 'auto' : 'none' }}
-            >
-              <img 
-                alt={`Hero faith slide ${idx + 1}`} 
-                className="w-full h-full object-cover" 
-                src={slide.image}
-                loading={idx === 0 ? "eager" : "lazy"}
-                fetchPriority={idx === 0 ? "high" : "low"}
-              />
-            </motion.div>
-          ))}
+          {slides.map((slide, idx) => {
+            const isActive = heroSlide === idx;
+            const isPrev = prevSlide === idx;
+            const zIndex = isActive ? 20 : isPrev ? 10 : 0;
+
+            return (
+              <motion.div
+                key={slide.image || idx}
+                initial={false}
+                animate={{
+                  opacity: isActive ? 1 : isPrev ? 1 : 0
+                }}
+                transition={{
+                  duration: isActive ? 0.8 : 0,
+                  ease: "easeInOut"
+                }}
+                className="absolute inset-0 transform-gpu overflow-hidden"
+                style={{
+                  zIndex,
+                  pointerEvents: isActive ? 'auto' : 'none',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden',
+                  transform: 'translate3d(0, 0, 0)'
+                }}
+              >
+                <img 
+                  alt={`Hero faith slide ${idx + 1}`} 
+                  className="w-full h-full object-cover select-none pointer-events-none transform-gpu" 
+                  src={slide.image}
+                  loading="eager"
+                  fetchPriority={idx === 0 ? "high" : "auto"}
+                  decoding="async"
+                  style={{
+                    WebkitBackfaceVisibility: 'hidden',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translate3d(0, 0, 0)'
+                  }}
+                />
+              </motion.div>
+            );
+          })}
           {/* Cinema gradient overlay for extreme readability and visual depth */}
-          <div className="absolute inset-0 bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent"></div>
+          <div className="absolute inset-0 z-[25] pointer-events-none bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent"></div>
         </div>
-        <div className="relative z-10 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+        <div className="relative z-30 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <motion.div
             key={heroSlide}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="max-w-2xl text-white"
           >
             <button 
@@ -669,11 +713,11 @@ export default function Home() {
         </div>
 
         {/* Slide Indicators */}
-        <div className="absolute bottom-8 left-8 sm:left-12 md:left-margin-desktop z-20 flex gap-2">
+        <div className="absolute bottom-8 left-8 sm:left-12 md:left-margin-desktop z-30 flex gap-2">
           {slides.map((_, idx) => (
             <button
               key={idx}
-              onClick={() => setHeroSlide(idx)}
+              onClick={() => goToSlide(idx)}
               className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                 heroSlide === idx ? 'w-8 bg-terracotta' : 'w-2 bg-white/50 hover:bg-white'
               }`}

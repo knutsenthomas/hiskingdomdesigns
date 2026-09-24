@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { translations } from '@/lib/translations';
 import { getTranslatedProduct } from '@/lib/productTranslations';
 import { detectLanguageFromPath, getLocalizedPath, routeTranslations } from '@/lib/localizedRoutes';
@@ -170,7 +170,7 @@ export const LanguageProvider = ({ children }) => {
   }, []);
 
   // Determine active display currency
-  const getActiveCurrency = () => {
+  const getActiveCurrency = useCallback(() => {
     if (language === 'no') return 'NOK';
     if (language === 'es') return 'EUR';
     if (language === 'en') {
@@ -184,10 +184,10 @@ export const LanguageProvider = ({ children }) => {
       return 'USD';
     }
     return 'NOK';
-  };
+  }, [language, detectedCountry]);
 
   // Convert and format NOK price to active currency
-  const formatPrice = (priceInNok) => {
+  const formatPrice = useCallback((priceInNok) => {
     const amount = parseFloat(priceInNok);
     if (isNaN(amount)) return '';
 
@@ -216,10 +216,10 @@ export const LanguageProvider = ({ children }) => {
     } catch (e) {
       return `${config.symbol}${Math.round(converted)}`;
     }
-  };
+  }, [getActiveCurrency, rates]);
 
   // Simple static text translation function
-  const t = (key, params = {}) => {
+  const t = useCallback((key, params = {}) => {
     const dict = translations[language] || translations['no'];
     let val = dict[key] || translations['no'][key] || key;
 
@@ -229,27 +229,29 @@ export const LanguageProvider = ({ children }) => {
     });
 
     return val;
-  };
+  }, [language]);
 
   // Wrapper function to translate products
-  const translateProduct = (product) => {
+  const translateProduct = useCallback((product) => {
     return getTranslatedProduct(product, language);
-  };
+  }, [language]);
 
-  const localizedPath = (key) => {
+  const localizedPath = useCallback((key) => {
     return getLocalizedPath(key, language);
-  };
+  }, [language]);
+
+  const contextValue = useMemo(() => ({
+    language,
+    setLanguage,
+    t,
+    translateProduct,
+    formatPrice,
+    getActiveCurrency,
+    localizedPath
+  }), [language, t, translateProduct, formatPrice, getActiveCurrency, localizedPath]);
 
   return (
-    <LanguageContext.Provider value={{
-      language,
-      setLanguage,
-      t,
-      translateProduct,
-      formatPrice,
-      getActiveCurrency,
-      localizedPath
-    }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
