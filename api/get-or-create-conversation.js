@@ -37,6 +37,7 @@ export default async function handler(req, res) {
     const { memberId, contactId, email, name, anonymousVisitorId } = req.body;
     
     let participantId = {};
+    let crmDebug = null;
     
     if (contactId) {
       participantId = { contactId };
@@ -136,6 +137,7 @@ export default async function handler(req, res) {
         }
       } catch (crmErr) {
         console.error('Failed in CRM REST flow on backend, falling back:', crmErr);
+        crmDebug = { message: crmErr.message, details: crmErr.details || null };
         participantId = { anonymousVisitorId: anonymousVisitorId || '00000000-0000-0000-0000-000000000001' };
       }
     } else if (anonymousVisitorId) {
@@ -147,7 +149,7 @@ export default async function handler(req, res) {
 
     console.log('Backend calling getOrCreateConversation with participantId:', participantId);
     const result = await wixClient.inboxConversations.getOrCreateConversation(participantId);
-    res.status(200).json(result);
+    res.status(200).json({ ...result, crmDebug });
   } catch (error) {
     console.error('Error in get-or-create-conversation serverless function:', error);
     res.status(500).json({
