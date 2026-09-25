@@ -389,12 +389,13 @@ export default function HkmChatWidget() {
     }
   };
 
-  // Send message handler (Hybrid: Instant UI + Wix push + Instant AI + Live Sync)
+  // Send message handler (Hybrid: Instant UI + Wix push + Live Sync)
   const handleSendMessage = async (textToSend, options = {}) => {
     if (!textToSend || !textToSend.trim()) return;
     const cleanText = textToSend.trim();
 
     const skipWixPush = options.skipWixPush === true;
+    const isQuickReply = options.isQuickReply === true;
 
     // 1. Optimistically append user message
     const userMsg = {
@@ -449,28 +450,29 @@ export default function HkmChatWidget() {
       })();
     }
 
-    // 3. Show typing indicator
-    setIsTyping(true);
-
-    // 4. Generate AI response with slight delay for natural feeling
-    setTimeout(() => {
-      try {
-        const aiReply = generateAiResponseText(cleanText, language);
-        setMessages(prev => [
-          ...prev,
-          {
-            id: `ai-${Date.now()}`,
-            sender: 'assistant',
-            text: aiReply,
-            time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-          }
-        ]);
-      } catch (e) {
-        console.error('[HKD Chat] AI generator error:', e);
-      } finally {
-        setIsTyping(false);
-      }
-    }, 700);
+    // 3. ONLY generate automated response if user clicked a quick-reply FAQ chip!
+    // Free-text messages from visitors go directly to the store owner without robotic fallback interruption.
+    if (isQuickReply) {
+      setIsTyping(true);
+      setTimeout(() => {
+        try {
+          const aiReply = generateAiResponseText(cleanText, language);
+          setMessages(prev => [
+            ...prev,
+            {
+              id: `ai-${Date.now()}`,
+              sender: 'assistant',
+              text: aiReply,
+              time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+            }
+          ]);
+        } catch (e) {
+          console.error('[HKD Chat] AI generator error:', e);
+        } finally {
+          setIsTyping(false);
+        }
+      }, 500);
+    }
   };
 
   // Poll for replies sent by Thomas from the Wix Owner app on his phone
@@ -733,7 +735,7 @@ export default function HkmChatWidget() {
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => handleSendMessage(reply.text, { skipWixPush: !reply.actionRequired })}
+                  onClick={() => handleSendMessage(reply.text, { skipWixPush: !reply.actionRequired, isQuickReply: true })}
                   className="flex-shrink-0 bg-white border border-[#d17d39]/30 hover:border-[#bd4f2a] hover:bg-[#fff7ed] text-[#bd4f2a] text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-xs cursor-pointer flex items-center gap-1"
                 >
                   {reply.label}
