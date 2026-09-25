@@ -475,6 +475,24 @@ export default function HkmChatWidget() {
     }
   };
 
+  const handleResetConversation = () => {
+    safeStorage.removeItem('hkd-inbox-conv-id');
+    safeStorage.removeItem('hkd-inbox-participant');
+    setConversationId(null);
+    setChatParticipant(null);
+    seenMessageIdsRef.current.clear();
+    setHasUserSentMessage(false);
+    setEmailSubmittedSuccess(false);
+    setMessages([
+      {
+        id: 'msg-init-welcome',
+        sender: 'assistant',
+        text: getInitialGreeting(),
+        time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+  };
+
   // Poll for replies sent by Thomas from the Wix Owner app on his phone
   useEffect(() => {
     if (!isOpen || !conversationId) return;
@@ -496,16 +514,24 @@ export default function HkmChatWidget() {
             seenMessageIdsRef.current.add(msg._id);
             const replyText = msg.content?.basic?.items?.map(i => i.text).join('\n') || msg.content?.minimal?.text;
             if (replyText) {
-              setMessages(prev => [
-                ...prev,
-                {
-                  id: msg._id,
-                  sender: 'owner',
-                  name: 'Thomas (His Kingdom Designs)',
-                  text: replyText,
-                  time: new Date(msg._createdDate || Date.now()).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-                }
-              ]);
+              // Strictly filter out any historical or bot-generated text stored in Wix Inbox
+              const isBotArtifact = 
+                replyText.includes('Her er produkter jeg fant basert på ditt søk') ||
+                replyText.includes('Vi ønsker å spre Guds ord gjennom vakker') ||
+                replyText.includes('Hva kan jeg hjelpe deg med?');
+
+              if (!isBotArtifact) {
+                setMessages(prev => [
+                  ...prev,
+                  {
+                    id: msg._id,
+                    sender: 'owner',
+                    name: 'Thomas (His Kingdom Designs)',
+                    text: replyText,
+                    time: new Date(msg._createdDate || Date.now()).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+                  }
+                ]);
+              }
             }
           }
         });
@@ -595,13 +621,23 @@ export default function HkmChatWidget() {
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center hover:bg-white/15 text-white transition-colors rounded-full cursor-pointer"
-                aria-label="Lukk chat"
-              >
-                <span className="material-symbols-outlined text-lg select-none">close</span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={handleResetConversation}
+                  className="w-8 h-8 flex items-center justify-center hover:bg-white/15 text-white transition-colors rounded-full cursor-pointer"
+                  title={language === 'en' ? 'Start new conversation' : (language === 'es' ? 'Nueva conversación' : 'Start ny samtale')}
+                  aria-label="Start ny samtale"
+                >
+                  <span className="material-symbols-outlined text-lg select-none">refresh</span>
+                </button>
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center hover:bg-white/15 text-white transition-colors rounded-full cursor-pointer"
+                  aria-label="Lukk chat"
+                >
+                  <span className="material-symbols-outlined text-lg select-none">close</span>
+                </button>
+              </div>
             </div>
 
             {/* Chat Body */}
