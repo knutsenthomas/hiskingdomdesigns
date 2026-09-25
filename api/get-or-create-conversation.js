@@ -92,8 +92,14 @@ export default async function handler(req, res) {
         } else {
           // 2. Create contact if not found
           console.log('Backend contact not found, creating new CRM contact...');
-          const firstName = resolvedName.split(' ')[0] || 'Kunde';
-          const lastName = resolvedName.split(' ').slice(1).join(' ') || 'Gjest';
+          const parts = resolvedName.trim().split(/\s+/);
+          const firstName = parts[0] || 'Kunde';
+          const lastName = parts.slice(1).join(' ');
+
+          const nameObj = { first: firstName };
+          if (lastName) {
+            nameObj.last = lastName;
+          }
 
           const createRes = await fetch('https://www.wixapis.com/contacts/v4/contacts', {
             method: 'POST',
@@ -104,10 +110,7 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
               info: {
-                name: {
-                  first: firstName,
-                  last: lastName
-                },
+                name: nameObj,
                 emails: {
                   items: [
                     {

@@ -232,6 +232,7 @@ export default function HkmChatWidget() {
   
   const chatBodyRef = useRef(null);
   const inputRef = useRef(null);
+  const emailInputRef = useRef(null);
   const seenMessageIdsRef = useRef(new Set());
 
   const getInitialGreeting = () => {
@@ -266,10 +267,26 @@ export default function HkmChatWidget() {
   const [userEmail, setUserEmail] = useState(() => {
     return safeStorage.getItem('hkd-chat-user-email') || '';
   });
+  const [userName, setUserName] = useState(() => {
+    return safeStorage.getItem('hkd-chat-user-name') || '';
+  });
   const [emailInput, setEmailInput] = useState('');
+  const [nameInput, setNameInput] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [isSavingEmail, setIsSavingEmail] = useState(false);
   const [emailSubmittedSuccess, setEmailSubmittedSuccess] = useState(false);
   const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
+
+  // Purge any old anonymous conversations that lock the Wix Owner App
+  useEffect(() => {
+    const isContactConv = safeStorage.getItem('hkd-chat-is-contact-conv') === 'true';
+    if (!isContactConv && !isLoggedIn && !userEmail) {
+      safeStorage.removeItem('hkd-inbox-conv-id');
+      safeStorage.removeItem('hkd-inbox-participant');
+      setConversationId(null);
+      setChatParticipant(null);
+    }
+  }, [isLoggedIn, userEmail]);
 
   const QUICK_REPLIES = [
     { text: t('chat.quickReply.deliveryTime'), label: t('chat.quickReply.deliveryLabel'), actionRequired: false },
@@ -307,11 +324,13 @@ export default function HkmChatWidget() {
     });
   };
 
-  // Ensure Wix Conversation exists
-  const ensureConversation = async (explicitEmail = null) => {
+  // Ensure Wix Conversation exists with CRM contact so Wix Owner App unlocks replies
+  const ensureConversation = async (explicitEmail = null, explicitName = null) => {
     const emailToUse = explicitEmail || userEmail || (isLoggedIn && member ? getMemberEmail(member) : null);
+    const nameToUse = explicitName || userName || displayName || (emailToUse ? emailToUse.split('@')[0] : null);
 
-    if (conversationId && !conversationId.startsWith('conv_') && !explicitEmail) {
+    const isContactConv = safeStorage.getItem('hkd-chat-is-contact-conv') === 'true';
+    if (conversationId && !conversationId.startsWith('conv_') && isContactConv && !explicitEmail) {
       return conversationId;
     }
 
@@ -326,15 +345,14 @@ export default function HkmChatWidget() {
           payload.contactId = member.contact._id;
         }
         if (emailToUse) payload.email = emailToUse;
-        if (displayName) payload.name = displayName;
+        if (nameToUse) payload.name = nameToUse;
+      } else if (emailToUse) {
+        payload.email = emailToUse;
+        if (nameToUse) payload.name = nameToUse;
       } else {
         const anonId = safeStorage.getItem('hkd-chat-anon-id') || generateUUID();
         safeStorage.setItem('hkd-chat-anon-id', anonId);
         payload.anonymousVisitorId = anonId;
-        if (emailToUse) {
-          payload.email = emailToUse;
-          payload.name = emailToUse.split('@')[0];
-        }
       }
 
       const res = await fetchWithTimeout(
@@ -351,6 +369,9 @@ export default function HkmChatWidget() {
         const participant = res.conversation.participant;
         setConversationId(convId);
         safeStorage.setItem('hkd-inbox-conv-id', convId);
+        if (emailToUse || isLoggedIn) {
+          safeStorage.setItem('hkd-chat-is-contact-conv', 'true');
+        }
         if (participant) {
           setChatParticipant(participant);
           safeStorage.setItem('hkd-inbox-participant', JSON.stringify(participant));
@@ -418,6 +439,34 @@ export default function HkmChatWidget() {
     const skipWixPush = options.skipWixPush === true;
     const isQuickReply = options.isQuickReply === true;
 
+    // Check pre-chat email requirement when message is pushed to Wix
+    let senderEmail = userEmail || (isLoggedIn && member ? getMemberEmail(member) : '');
+    let senderName = userName || displayName || '';
+
+    if (!skipWixPush && !isLoggedIn && !senderEmail) {
+      const inputMail = emailInput.trim().toLowerCase();
+      if (!inputMail || !inputMail.includes('@') || !inputMail.includes('.')) {
+        setEmailError(
+          language === 'en'
+            ? 'Please enter your email above so we can reply.'
+            : (language === 'es'
+              ? 'Por favor ingresa tu email arriba para recibir respuesta.'
+              : 'Vennligst oppgi din e-postadresse ovenfor så vi kan svare deg.')
+        );
+        if (emailInputRef.current) {
+          emailInputRef.current.focus();
+        }
+        return;
+      }
+      senderEmail = inputMail;
+      senderName = nameInput.trim() || senderEmail.split('@')[0];
+      safeStorage.setItem('hkd-chat-user-email', senderEmail);
+      if (nameInput.trim()) safeStorage.setItem('hkd-chat-user-name', nameInput.trim());
+      setUserEmail(senderEmail);
+      setUserName(senderName);
+      setEmailError('');
+    }
+
     // 1. Optimistically append user message
     const userMsg = {
       id: `usr-${Date.now()}`,
@@ -433,12 +482,12 @@ export default function HkmChatWidget() {
     if (!skipWixPush) {
       (async () => {
         try {
-          const activeConvId = await ensureConversation();
+          const activeConvId = await ensureConversation(senderEmail, senderName);
           if (activeConvId) {
             const host = window.location.origin;
             const senderPayload = chatParticipant || (isLoggedIn && member ? { contactId: member.contactId || member.contact?._id } : undefined);
             
-            const emailForOwner = userEmail || (isLoggedIn && member ? getMemberEmail(member) : null);
+            const emailForOwner = senderEmail || (isLoggedIn && member ? getMemberEmail(member) : null);
             const wixMessageText = emailForOwner 
               ? `${cleanText}\n\n[Svar til kunden på e-post: ${emailForOwner}]`
               : cleanText;
@@ -464,8 +513,8 @@ export default function HkmChatWidget() {
             // Notify Slack channel about the customer inquiry in real-time
             notifySlackChatMessage({
               userMessage: cleanText,
-              customerEmail: userEmail || (isLoggedIn && member ? getMemberEmail(member) : null),
-              customerName: displayName || (userEmail ? userEmail.split('@')[0] : null),
+              customerEmail: senderEmail || (isLoggedIn && member ? getMemberEmail(member) : null),
+              customerName: senderName || displayName || (senderEmail ? senderEmail.split('@')[0] : null),
               mode: 'live',
               conversationId: activeConvId
             });
@@ -516,11 +565,13 @@ export default function HkmChatWidget() {
   const handleResetConversation = () => {
     safeStorage.removeItem('hkd-inbox-conv-id');
     safeStorage.removeItem('hkd-inbox-participant');
+    safeStorage.removeItem('hkd-chat-is-contact-conv');
     setConversationId(null);
     setChatParticipant(null);
     seenMessageIdsRef.current.clear();
     setHasUserSentMessage(false);
     setEmailSubmittedSuccess(false);
+    setEmailError('');
     setMessages([
       {
         id: 'msg-init-welcome',
@@ -741,54 +792,6 @@ export default function HkmChatWidget() {
                   </div>
                 </div>
               ))}
-
-              {/* Wix-style Lead Capture card */}
-              {!isLoggedIn && !userEmail && (hasUserSentMessage || messages.some(m => m.sender === 'user')) && (
-                <div className="bg-amber-50/95 border border-amber-200/90 rounded-2xl p-3.5 my-2 shadow-xs text-left">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#bd4f2a] mb-1">
-                    <span className="material-symbols-outlined text-sm select-none">mail</span>
-                    <span>{language === 'en' ? 'Get replies by email' : (language === 'es' ? 'Recibe respuestas por email' : 'Få svar på e-post')}</span>
-                  </div>
-                  <p className="text-[11px] text-onyx/85 mb-2.5 leading-relaxed">
-                    {language === 'en'
-                      ? 'Leave your email address so we can reply even if you leave the site:'
-                      : (language === 'es'
-                        ? 'Deja tu email para que podamos responderte si sales de la página:'
-                        : 'Legg igjen e-postadressen din, så får du svar selv om du forlater nettsiden:')}
-                  </p>
-                  <form onSubmit={handleSaveEmail} className="flex gap-1.5">
-                    <input
-                      type="email"
-                      required
-                      value={emailInput}
-                      onChange={(e) => setEmailInput(e.target.value)}
-                      placeholder="din@epost.no"
-                      className="flex-1 bg-white border border-black/10 rounded-xl px-3 py-1.5 text-xs text-onyx placeholder:text-secondary/50 focus:outline-none focus:ring-1 focus:ring-[#d17d39]"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isSavingEmail || !emailInput.trim()}
-                      className="bg-gradient-to-r from-[#d17d39] to-[#bd4f2a] hover:opacity-90 active:scale-95 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-50"
-                    >
-                      {isSavingEmail ? '...' : (language === 'en' ? 'Save' : (language === 'es' ? 'Guardar' : 'Send'))}
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {emailSubmittedSuccess && (
-                <div className="bg-emerald-50 border border-emerald-200/90 rounded-xl p-2.5 my-2 text-[11px] text-emerald-800 flex items-center gap-2 shadow-xs">
-                  <span className="material-symbols-outlined text-emerald-600 text-base select-none">check_circle</span>
-                  <span>
-                    {language === 'en'
-                      ? `Replies will also be sent to ${userEmail}`
-                      : (language === 'es'
-                        ? `Las respuestas se enviarán a ${userEmail}`
-                        : `Svar sendes også til ${userEmail}`)}
-                  </span>
-                </div>
-              )}
-
               {/* Typing indicator */}
               {isTyping && (
                 <div className="flex gap-2 mr-auto justify-start max-w-[85%]">
@@ -829,6 +832,84 @@ export default function HkmChatWidget() {
               }}
               className="p-3 bg-white border-t border-black/8 shrink-0 relative"
             >
+              {/* Pre-chat Form: Required when visitor is not logged in so Wix Owner App unlocks the reply box */}
+              {!isLoggedIn && !userEmail && (
+                <div className="mb-2.5 p-3 bg-gradient-to-r from-orange-50/90 to-amber-50/90 border border-[#d17d39]/25 rounded-2xl text-left shadow-xs transition-all">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#bd4f2a] mb-1">
+                    <span className="material-symbols-outlined text-base select-none">mail</span>
+                    <span>{language === 'en' ? 'Where should we reply?' : (language === 'es' ? '¿Dónde te respondemos?' : 'Hvor skal vi svare deg?')}</span>
+                  </div>
+                  <p className="text-[11px] text-onyx/75 mb-2 leading-relaxed">
+                    {language === 'en'
+                      ? 'Enter your email so Thomas can reply to you directly from the Wix Owner app:'
+                      : (language === 'es'
+                        ? 'Ingresa tu email para que Thomas pueda responderte desde la app de Wix:'
+                        : 'Oppgi din e-post slik at Thomas kan svare deg direkte i Wix-appen:')}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      placeholder={language === 'en' ? 'Your name (optional)' : (language === 'es' ? 'Tu nombre (opcional)' : 'Ditt navn (valgfritt)')}
+                      className="w-full sm:w-1/3 bg-white border border-black/10 rounded-xl px-3 py-2 text-xs text-onyx placeholder:text-secondary/50 focus:outline-none focus:ring-1 focus:ring-[#d17d39] transition-all"
+                    />
+                    <input
+                      ref={emailInputRef}
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => {
+                        setEmailInput(e.target.value);
+                        if (emailError) setEmailError('');
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (inputText.trim()) {
+                            handleSendMessage(inputText, { skipWixPush: false });
+                          } else if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }
+                      }}
+                      placeholder={language === 'en' ? 'your@email.com (required) *' : (language === 'es' ? 'tu@email.com (requerido) *' : 'din@epost.no (påkrevd for svar) *')}
+                      className={`flex-1 bg-white border ${emailError ? 'border-red-500 ring-1 ring-red-400' : 'border-black/10'} rounded-xl px-3 py-2 text-xs text-onyx placeholder:text-secondary/50 focus:outline-none focus:ring-1 focus:ring-[#d17d39] transition-all`}
+                    />
+                  </div>
+                  {emailError && (
+                    <div className="flex items-center gap-1 mt-1.5 text-[11px] font-semibold text-red-600">
+                      <span className="material-symbols-outlined text-xs select-none">error</span>
+                      <span>{emailError}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Verified Contact Banner */}
+              {(userEmail || (isLoggedIn && member)) && (
+                <div className="flex items-center justify-between px-1 mb-2 text-[11px] text-secondary font-medium select-none">
+                  <div className="flex items-center gap-1.5 text-onyx/75 truncate">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span className="truncate">
+                      {language === 'en' ? 'Replying to' : (language === 'es' ? 'Respondiendo a' : 'Svar sendes til')}:{' '}
+                      <strong className="text-onyx font-semibold">{userEmail || getMemberEmail(member)}</strong>
+                    </span>
+                  </div>
+                  {!isLoggedIn && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserEmail('');
+                        safeStorage.removeItem('hkd-chat-user-email');
+                        safeStorage.removeItem('hkd-chat-is-contact-conv');
+                      }}
+                      className="text-[#d17d39] hover:text-[#bd4f2a] underline text-[10px] ml-2 shrink-0 cursor-pointer font-medium"
+                    >
+                      {language === 'en' ? 'Change' : (language === 'es' ? 'Cambiar' : 'Endre')}
+                    </button>
+                  )}
+                </div>
+              )}
               {/* Slash Command Autocomplete Popover */}
               <AnimatePresence>
                 {inputText.startsWith('/') && (
