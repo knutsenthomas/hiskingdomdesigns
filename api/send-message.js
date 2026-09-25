@@ -79,6 +79,7 @@ export default async function handler(req, res) {
       direction,
       visibility: message.visibility || 'BUSINESS_AND_PARTICIPANT',
       sourceChannel: 'CHAT',
+      sourceChannelId: 'wix-chat',
       ...(sender ? { sender } : {})
     };
 

@@ -55,8 +55,10 @@ export default async function handler(req, res) {
         console.warn('Failed to fetch member details on backend, falling back to memberId:', mErr);
         participantId = { memberId };
       }
-    } else if (email && name) {
-      console.log('Backend querying/creating CRM contact for:', email, name);
+    } else if (email) {
+      const cleanEmail = email.trim();
+      const resolvedName = (name || cleanEmail.split('@')[0] || 'Kunde').trim();
+      console.log('Backend querying/creating CRM contact for:', cleanEmail, resolvedName);
       try {
         const apiKey = process.env.WIX_CHAT_API_KEY || process.env.WIX_API_KEY;
         const siteId = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
@@ -73,7 +75,7 @@ export default async function handler(req, res) {
             query: {
               filter: {
                 'primaryInfo.email': {
-                  '$eq': email
+                  '$eq': cleanEmail
                 }
               }
             }
@@ -89,8 +91,8 @@ export default async function handler(req, res) {
         } else {
           // 2. Create contact if not found
           console.log('Backend contact not found, creating new CRM contact...');
-          const firstName = name.split(' ')[0];
-          const lastName = name.split(' ').slice(1).join(' ') || 'Gjest';
+          const firstName = resolvedName.split(' ')[0] || 'Kunde';
+          const lastName = resolvedName.split(' ').slice(1).join(' ') || 'Gjest';
 
           const createRes = await fetch('https://www.wixapis.com/contacts/v4/contacts', {
             method: 'POST',
@@ -108,7 +110,7 @@ export default async function handler(req, res) {
                   },
                   emails: [
                     {
-                      email: email,
+                      email: cleanEmail,
                       tag: 'MAIN'
                     }
                   ]
