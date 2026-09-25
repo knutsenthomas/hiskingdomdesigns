@@ -102,20 +102,21 @@ export default async function handler(req, res) {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              contact: {
-                info: {
-                  name: {
-                    first: firstName,
-                    last: lastName
-                  },
-                  emails: [
+              info: {
+                name: {
+                  first: firstName,
+                  last: lastName
+                },
+                emails: {
+                  items: [
                     {
                       email: cleanEmail,
                       tag: 'MAIN'
                     }
                   ]
                 }
-              }
+              },
+              allowDuplicates: true
             })
           });
 
