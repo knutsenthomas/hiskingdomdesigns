@@ -231,31 +231,31 @@ export default function Footer() {
               <Link to={localizedPath('/products')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
             </li>
             <li>
-              <Link to="/kristne-gaver" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne gaver</Link>
+              <Link to="/kristne-gaver" className="text-parchment/80 hover:text-terracotta transition-colors">Gaver</Link>
             </li>
             <li>
-              <Link to="/category/kristne-klaer" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne klær</Link>
+              <Link to="/category/kristne-klaer" className="text-parchment/80 hover:text-terracotta transition-colors">Klær</Link>
             </li>
             <li>
-              <Link to="/category/kristne-t-skjorter" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne T-skjorter</Link>
+              <Link to="/category/kristne-t-skjorter" className="text-parchment/80 hover:text-terracotta transition-colors">T-skjorter</Link>
             </li>
             <li>
-              <Link to="/category/kristne-gensere" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne gensere</Link>
+              <Link to="/category/kristne-gensere" className="text-parchment/80 hover:text-terracotta transition-colors">Gensere</Link>
             </li>
             <li>
-              <Link to="/category/kristen-streetwear" className="text-parchment/80 hover:text-terracotta transition-colors">Kristen streetwear</Link>
+              <Link to="/category/kristen-streetwear" className="text-parchment/80 hover:text-terracotta transition-colors">Streetwear</Link>
             </li>
             <li>
               <Link to="/category/klaer-med-bibelvers" className="text-parchment/80 hover:text-terracotta transition-colors">Klær med bibelvers</Link>
             </li>
             <li>
-              <Link to="/category/kristne-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne plakater</Link>
+              <Link to="/category/kristne-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">Plakater</Link>
             </li>
             <li>
-              <Link to="/category/kristne-kopper" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne kopper</Link>
+              <Link to="/category/kristne-kopper" className="text-parchment/80 hover:text-terracotta transition-colors">Kopper</Link>
             </li>
             <li>
-              <Link to="/category/kristne-klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">Kristne klistremerker</Link>
+              <Link to="/category/kristne-klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">Klistremerker</Link>
             </li>
           </ul>
         </div>

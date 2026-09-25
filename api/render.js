@@ -993,15 +993,15 @@ export default async function handler(req, res) {
         <ul style="display: flex; flex-wrap: wrap; gap: 1rem; list-style: none; padding: 0; margin: 0;">
           <li><a href="/" style="color: #151a21; text-decoration: underline;">Hjem</a></li>
           <li><a href="/produkter" style="color: #151a21; text-decoration: underline;">Alle Produkter</a></li>
-          <li><a href="/kristne-gaver" style="color: #151a21; text-decoration: underline;">Kristne gaver</a></li>
-          <li><a href="/category/kristne-klaer" style="color: #151a21; text-decoration: underline;">Kristne klær</a></li>
-          <li><a href="/category/kristne-t-skjorter" style="color: #151a21; text-decoration: underline;">Kristne T-skjorter</a></li>
-          <li><a href="/category/kristne-gensere" style="color: #151a21; text-decoration: underline;">Kristne gensere</a></li>
-          <li><a href="/category/kristen-streetwear" style="color: #151a21; text-decoration: underline;">Kristen streetwear</a></li>
+          <li><a href="/kristne-gaver" style="color: #151a21; text-decoration: underline;">Gaver</a></li>
+          <li><a href="/category/kristne-klaer" style="color: #151a21; text-decoration: underline;">Klær</a></li>
+          <li><a href="/category/kristne-t-skjorter" style="color: #151a21; text-decoration: underline;">T-skjorter</a></li>
+          <li><a href="/category/kristne-gensere" style="color: #151a21; text-decoration: underline;">Gensere</a></li>
+          <li><a href="/category/kristen-streetwear" style="color: #151a21; text-decoration: underline;">Streetwear</a></li>
           <li><a href="/category/klaer-med-bibelvers" style="color: #151a21; text-decoration: underline;">Klær med bibelvers</a></li>
-          <li><a href="/category/kristne-plakater" style="color: #151a21; text-decoration: underline;">Kristne plakater</a></li>
-          <li><a href="/category/kristne-kopper" style="color: #151a21; text-decoration: underline;">Kristne kopper</a></li>
-          <li><a href="/category/kristne-klistermerker" style="color: #151a21; text-decoration: underline;">Kristne klistremerker</a></li>
+          <li><a href="/category/kristne-plakater" style="color: #151a21; text-decoration: underline;">Plakater</a></li>
+          <li><a href="/category/kristne-kopper" style="color: #151a21; text-decoration: underline;">Kopper</a></li>
+          <li><a href="/category/kristne-klistermerker" style="color: #151a21; text-decoration: underline;">Klistremerker</a></li>
           <li><a href="/om-oss" style="color: #151a21; text-decoration: underline;">Om Oss</a></li>
           <li><a href="/vart-team" style="color: #151a21; text-decoration: underline;">Vårt Team</a></li>
         </ul>
