@@ -1062,7 +1062,7 @@ export default async function handler(req, res) {
 
     // 8. Send Response
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     res.status(isNotFound ? 404 : 200).send(html);
   } catch (error) {
     console.error('SSR Render Handler Error:', error);

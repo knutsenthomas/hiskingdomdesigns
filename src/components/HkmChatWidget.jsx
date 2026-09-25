@@ -228,7 +228,7 @@ export default function HkmChatWidget() {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
-  const { generateAiResponseText, isLoggedIn, member } = useApp();
+  const { isLoggedIn, member } = useApp();
   
   const chatBodyRef = useRef(null);
   const inputRef = useRef(null);
@@ -375,6 +375,27 @@ export default function HkmChatWidget() {
 
       const activeConvId = await ensureConversation(cleanEmail);
 
+      // Dispatch a notification message into Wix Inbox so Thomas gets a push notification with the customer's email!
+      if (activeConvId) {
+        const host = window.location.origin;
+        await fetch(`${host}/api/send-message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversationId: activeConvId,
+            message: {
+              direction: 'PARTICIPANT_TO_BUSINESS',
+              visibility: 'BUSINESS_AND_PARTICIPANT',
+              content: {
+                basic: {
+                  items: [{ text: `📬 Kunden oppga e-postadresse for svar: ${cleanEmail}` }]
+                }
+              }
+            }
+          })
+        });
+      }
+
       notifySlackChatMessage({
         userMessage: `[Kunden la igjen e-post for svar]: ${cleanEmail}`,
         customerEmail: cleanEmail,
@@ -408,7 +429,7 @@ export default function HkmChatWidget() {
     setInputText('');
     setHasUserSentMessage(true);
 
-    // 2. Dispatch to Wix Inbox & Slack in background (triggers push alert on phone ONLY IF human action is required or visitor typed custom message)
+    // 2. Dispatch to Wix Inbox & Slack in background
     if (!skipWixPush) {
       (async () => {
         try {
@@ -417,6 +438,11 @@ export default function HkmChatWidget() {
             const host = window.location.origin;
             const senderPayload = chatParticipant || (isLoggedIn && member ? { contactId: member.contactId || member.contact?._id } : undefined);
             
+            const emailForOwner = userEmail || (isLoggedIn && member ? getMemberEmail(member) : null);
+            const wixMessageText = emailForOwner 
+              ? `${cleanText}\n\n[Svar til kunden på e-post: ${emailForOwner}]`
+              : cleanText;
+
             await fetch(`${host}/api/send-message`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -428,7 +454,7 @@ export default function HkmChatWidget() {
                   sender: senderPayload,
                   content: {
                     basic: {
-                      items: [{ text: cleanText }]
+                      items: [{ text: wixMessageText }]
                     }
                   }
                 }
@@ -450,28 +476,40 @@ export default function HkmChatWidget() {
       })();
     }
 
-    // 3. ONLY generate automated response if user clicked a quick-reply FAQ chip!
-    // Free-text messages from visitors go directly to the store owner without robotic fallback interruption.
+    // 3. ONLY provide answer if user clicked a quick-reply FAQ chip!
+    // Free-text messages typed by visitors go directly to Thomas without ANY automated bot reply.
     if (isQuickReply) {
       setIsTyping(true);
       setTimeout(() => {
-        try {
-          const aiReply = generateAiResponseText(cleanText, language);
-          setMessages(prev => [
-            ...prev,
-            {
-              id: `ai-${Date.now()}`,
-              sender: 'assistant',
-              text: aiReply,
-              time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
-            }
-          ]);
-        } catch (e) {
-          console.error('[HKD Chat] AI generator error:', e);
-        } finally {
-          setIsTyping(false);
+        let answer = '';
+        const lower = cleanText.toLowerCase();
+        if (lower.includes('levering') || lower.includes('frakt') || lower.includes('porto')) {
+          answer = 'Hei! Normal leveringstid er ca. 2 uker (produksjon 1-2 uker + frakt). Du mottar sporingslenke på e-post så snart pakken din er sendt! 📦';
+        } else if (lower.includes('retur') || lower.includes('bytte')) {
+          answer = 'Hei! Vi har 14 dagers åpent kjøp og enkel retur/bytte. Varen må være ubrukt og i original stand. Ta kontakt her eller på e-post, så ordner vi det! 🔄';
+        } else if (lower.includes('gratis')) {
+          answer = 'Hei! Frakten beregnes automatisk i kassen basert på vekt og volum (fra 39 kr). 🚚';
+        } else if (lower.includes('størrelse') || lower.includes('storrelse')) {
+          answer = 'Hei! Våre klær er normale i størrelsen (regular fit). Hvis du ønsker en mer romslig eller oversized look, anbefaler vi å gå opp én størrelse. 👕';
+        } else if (lower.includes('vask')) {
+          answer = 'Hei! For at trykket skal holde seg penest mulig over tid, anbefaler vi vask på 30 grader med innsiden ut. Unngå tørketrommel og stryking rett på trykket. ✨';
+        } else if (lower.includes('om oss') || lower.includes('om his kingdom')) {
+          answer = 'His Kingdom Designs lager kristne klær, plakater og gaver med budskap som peker på Jesus og sprer håp. 🕊️';
+        } else {
+          answer = 'Takk for spørsmålet! Thomas svarer deg personlig så snart han er tilgjengelig. Legg gjerne igjen e-postadressen din, så får du svar direkte.';
         }
-      }, 500);
+
+        setMessages(prev => [
+          ...prev,
+          {
+            id: `faq-${Date.now()}`,
+            sender: 'assistant',
+            text: answer,
+            time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+        setIsTyping(false);
+      }, 400);
     }
   };
 
@@ -516,9 +554,13 @@ export default function HkmChatWidget() {
             if (replyText) {
               // Strictly filter out any historical or bot-generated text stored in Wix Inbox
               const isBotArtifact = 
-                replyText.includes('Her er produkter jeg fant basert på ditt søk') ||
-                replyText.includes('Vi ønsker å spre Guds ord gjennom vakker') ||
-                replyText.includes('Hva kan jeg hjelpe deg med?');
+                replyText.includes('Her er produkter jeg fant') ||
+                replyText.includes('Vi ønsker å spre Guds ord') ||
+                replyText.includes('Hva kan jeg hjelpe deg med?') ||
+                replyText.includes('His Kingdom Designs\n\nVi ønsker') ||
+                replyText.includes('Spesialbestilling?') ||
+                replyText.includes('Du kan spørre meg om:') ||
+                replyText.startsWith('### 🛡️');
 
               if (!isBotArtifact) {
                 setMessages(prev => [
