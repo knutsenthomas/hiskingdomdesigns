@@ -841,10 +841,10 @@ export default function HkmChatWidget() {
                   </div>
                   <p className="text-[11px] text-onyx/75 mb-2 leading-relaxed">
                     {language === 'en'
-                      ? 'Enter your email so Thomas can reply to you directly from the Wix Owner app:'
+                      ? 'Enter your email so we can reply as soon as we can.'
                       : (language === 'es'
-                        ? 'Ingresa tu email para que Thomas pueda responderte desde la app de Wix:'
-                        : 'Oppgi din e-post slik at Thomas kan svare deg direkte i Wix-appen:')}
+                        ? 'Indica tu correo electrónico para que podamos responderte lo antes posible.'
+                        : 'Oppgi din e-post slik at vi kan svare deg så snart vi kan.')}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <input
