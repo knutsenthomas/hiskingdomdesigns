@@ -712,22 +712,22 @@ export default function Home() {
           }`}></div>
         </div>
         <div className="relative z-30 px-6 sm:px-10 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-          <div className="grid grid-cols-1 grid-rows-1 w-full">
+          <div className="grid grid-cols-1 grid-rows-1 w-full items-center">
             {slides.map((slide, idx) => {
               const isActive = heroSlide === idx;
 
               return (
                 <div
                   key={slide.image || idx}
-                  className={`col-start-1 row-start-1 w-full transition-all duration-700 ease-in-out ${
+                  className={`col-start-1 row-start-1 w-full h-full flex flex-col justify-center transition-all duration-700 ease-in-out ${
                     isActive 
                       ? 'opacity-100 z-10 pointer-events-auto visible' 
                       : 'opacity-0 z-0 pointer-events-none invisible'
                   }`}
                 >
                   {slide.isChristmas ? (
-                    /* Christmas Hero Slide Layout - Centered matching user mockup */
-                    <div className="w-full text-white flex flex-col items-center justify-between text-center min-h-[520px] sm:min-h-[580px] lg:min-h-[660px] xl:min-h-[720px] py-4 sm:py-6 lg:py-8">
+                    /* Christmas Hero Slide Layout - Centered horizontally and balanced vertically */
+                    <div className="w-full text-white flex flex-col items-center justify-between text-center min-h-[500px] sm:min-h-[560px] lg:min-h-[640px] xl:min-h-[700px] py-2 sm:py-4">
                       {/* Top centered text block */}
                       <div className="max-w-4xl mx-auto flex flex-col items-center pt-2 sm:pt-4">
                         {/* Title */}
@@ -748,7 +748,7 @@ export default function Home() {
                       </div>
 
                       {/* Spacious middle letting the real products on the table shine without overlap */}
-                      <div className="flex-1 w-full min-h-[180px] sm:min-h-[240px] lg:min-h-[300px]" aria-hidden="true" />
+                      <div className="flex-1 w-full min-h-[160px] sm:min-h-[220px] lg:min-h-[260px]" aria-hidden="true" />
 
                       {/* Bottom action block - terracotta CTA matching user mockup */}
                       <div className="flex flex-col items-center gap-3 w-full pb-8 sm:pb-10">
@@ -762,8 +762,8 @@ export default function Home() {
                       </div>
                     </div>
                   ) : (
-                    /* Standard Slides Layout */
-                    <div className="max-w-2xl text-white">
+                    /* Standard Slides Layout - Venstrejustert og midtstilt */
+                    <div className="max-w-2xl text-white flex flex-col justify-center items-start text-left my-auto">
                       <button 
                         onClick={() => scrollToSection('manedspakker')}
                         className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
@@ -822,8 +822,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Slide Indicators */}
-        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+        {/* Slide Indicators: Centered on Christmas hero, left-aligned on standard slides */}
+        <div className={`absolute z-30 flex items-center gap-2 transition-all duration-300 ${
+          heroSlide === 0 
+            ? 'bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2' 
+            : 'bottom-8 left-6 sm:left-10 md:left-margin-desktop'
+        }`}>
           {slides.map((_, idx) => (
             <button
               key={idx}
