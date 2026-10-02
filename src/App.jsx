@@ -225,6 +225,8 @@ function MainLayout() {
               <Route path="/produkter" element={<Category />} />
               <Route path="/productos" element={<Navigate to="/produkter" replace />} />
               <Route path="/category/:categoryName" element={<Category />} />
+              <Route path="/jul" element={<Navigate to="/category/christmas" replace />} />
+              <Route path="/julekolleksjon" element={<Navigate to="/category/christmas" replace />} />
               <Route path="/kristne-gaver" element={<KristneGaver />} />
               <Route path="/gaver" element={<Navigate to="/kristne-gaver" replace />} />
               

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users } from 'lucide-react';
+import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users, Sparkles, Gift } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import ProductSkeleton from '@/components/ProductSkeleton';
@@ -243,16 +243,10 @@ export default function Home() {
   // Loading state for plan checkout redirect
   const [subscribingId, setSubscribingId] = useState(null);
 
-  const [{ current: heroSlide, prev: prevSlide }, setSlideState] = useState({
-    current: 0,
-    prev: null
-  });
+  const [heroSlide, setHeroSlide] = useState(0);
 
   const goToSlide = useCallback((nextIdx) => {
-    setSlideState((state) => {
-      if (state.current === nextIdx) return state;
-      return { current: nextIdx, prev: state.current };
-    });
+    setHeroSlide(nextIdx);
   }, []);
 
   // Category translation helper
@@ -321,8 +315,72 @@ export default function Home() {
     return plan;
   };
 
-  // Dynamic Hero Slides combining brand content and the newest products
+  // Curated and live Christmas products showcase for the Christmas hero
+  const christmasFeaturedProducts = useMemo(() => {
+    const fallbackList = [
+      {
+        id: '6c48f10a-c70a-623d-fe36-4df834f14eaa',
+        name: 'Merry Christmas Sweatshirt',
+        price: 599,
+        image: 'https://static.wixstatic.com/media/3a1544_95f6f468bc764c3ebb160b0c52947e9e~mv2.jpg',
+        badge: t('home.christmasHero.badgeSweatshirt') || 'Julegenser'
+      },
+      {
+        id: '15c0b5cc-41c7-42b0-b138-fd36f09072fa',
+        name: 'Merry Christmas - 11oz Ceramic Mug',
+        price: 199,
+        image: 'https://static.wixstatic.com/media/db4f96_443bdb9f4fa346aea9212d0d5c5cd1bf~mv2.png',
+        badge: t('home.christmasHero.badgeMug') || 'Julekopp'
+      },
+      {
+        id: '6686ed04-1f1d-c1ed-2dfd-754d38b4b537',
+        name: 'Isaiah 9:6 Christmas Tshirt',
+        price: 349,
+        image: 'https://static.wixstatic.com/media/3a1544_6fc8288ead5a4b528656a83df4767ded~mv2.png',
+        badge: t('home.christmasHero.badgeTshirt') || 'Jule-tee'
+      },
+      {
+        id: 'c05c16f7-55ba-cac7-63a2-6653d815d1ee',
+        name: 'PDF Christmas Coloring Book',
+        price: 49,
+        image: 'https://static.wixstatic.com/media/3a1544_38904ca2199d48938f1cdbb64a82a482~mv2.png',
+        badge: t('home.christmasHero.badgeBook') || 'For barn'
+      }
+    ];
+
+    if (!products || products.length === 0) return fallbackList;
+
+    return fallbackList.map(fallbackItem => {
+      const live = products.find(p => p.id === fallbackItem.id);
+      if (!live) return fallbackItem;
+      const translated = translateProduct(live);
+      return {
+        ...fallbackItem,
+        name: translated.name ? translated.name.split('|')[0].trim() : fallbackItem.name,
+        price: live.price || fallbackItem.price,
+        originalPrice: live.originalPrice,
+        image: live.image || fallbackItem.image,
+        slug: live.slug
+      };
+    });
+  }, [products, translateProduct, t]);
+
+  // Dynamic Hero Slides combining brand content, Christmas collection, and newest products
   const slides = useMemo(() => {
+    const christmasSlide = {
+      image: '/christmas_hero_real.jpg',
+      badge: t('home.christmasHero.badge'),
+      badgeTag: t('home.christmasHero.badgeTag'),
+      title: t('home.christmasHero.title'),
+      desc: t('home.christmasHero.desc'),
+      ctaText: t('home.christmasHero.cta'),
+      ctaAction: () => navigate('/category/christmas'),
+      secondaryCtaText: t('home.christmasHero.secondaryCta'),
+      secondaryCtaAction: () => navigate('/kristne-gaver'),
+      isProduct: false,
+      isChristmas: true
+    };
+
     const defaultSlides = [
       {
         image: '/hero_fashion.webp',
@@ -416,25 +474,28 @@ export default function Home() {
         };
       });
 
-      return [defaultSlides[0], ...productSlides, defaultSlides[1]];
+      return [christmasSlide, defaultSlides[0], ...productSlides, defaultSlides[1]];
     }
 
-    return defaultSlides;
+    return [christmasSlide, ...defaultSlides];
   }, [products, navigate, t, translateProduct, language]);
+
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
 
   useEffect(() => {
     if (heroSlide >= slides.length) {
-      setSlideState({ current: 0, prev: null });
+      setHeroSlide(0);
     }
   }, [slides.length, heroSlide]);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (slides.length <= 1 || isHeroHovered) return;
+    const intervalTime = heroSlide === 0 ? 12000 : 8000;
     const timer = setInterval(() => {
-      goToSlide((heroSlide + 1) % slides.length);
-    }, 6000);
+      setHeroSlide((curr) => (curr + 1) % slides.length);
+    }, intervalTime);
     return () => clearInterval(timer);
-  }, [slides.length, heroSlide, goToSlide]);
+  }, [slides.length, heroSlide, isHeroHovered]);
 
   // Preload all hero slide images eagerly to ensure instantaneous transitions with zero flash
   useEffect(() => {
@@ -606,17 +667,20 @@ export default function Home() {
       className="pt-20"
     >
       {/* Hero Section */}
-      <section className="relative h-[85vh] min-h-[550px] bg-onyx flex items-center overflow-hidden">
+      <section 
+        onMouseEnter={() => setIsHeroHovered(true)}
+        onMouseLeave={() => setIsHeroHovered(false)}
+        className="relative min-h-[640px] lg:min-h-[600px] xl:min-h-[660px] lg:h-[88vh] bg-onyx flex items-center overflow-hidden py-14 lg:py-0"
+      >
         <div className="absolute inset-0 z-0">
           {slides.map((slide, idx) => {
             const isActive = heroSlide === idx;
-            const isPrev = prevSlide === idx;
 
             return (
               <div
                 key={slide.image || idx}
                 className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ease-in-out ${
-                  isActive ? 'opacity-100 z-20 pointer-events-auto' : isPrev ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0'
                 }`}
                 style={{
                   WebkitBackfaceVisibility: 'hidden',
@@ -625,7 +689,7 @@ export default function Home() {
                 }}
               >
                 <img 
-                  alt={`Hero faith slide ${idx + 1}`} 
+                  alt={slide.isChristmas ? "Julegaver og julekolleksjon hos His Kingdom Designs" : `Hero faith slide ${idx + 1}`} 
                   className="w-full h-full object-cover select-none pointer-events-none" 
                   src={slide.image}
                   loading="eager"
@@ -640,88 +704,132 @@ export default function Home() {
               </div>
             );
           })}
-          {/* Cinema gradient overlay for extreme readability and visual depth */}
-          <div className="absolute inset-0 z-[25] pointer-events-none bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent"></div>
+          {/* Cinema gradient overlay tailored for each slide */}
+          <div className={`absolute inset-0 z-[25] pointer-events-none transition-all duration-700 ${
+            heroSlide === 0 
+              ? 'bg-gradient-to-b from-black/75 via-transparent to-black/60' 
+              : 'bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent'
+          }`}></div>
         </div>
-        <div className="relative z-30 px-8 sm:px-12 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
-          <div className="max-w-2xl text-white">
-            <button 
-              onClick={() => scrollToSection('manedspakker')}
-              className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
-            >
-              <span>✨</span>
-              <span>{t('home.newMonthlyPacks')}</span>
-            </button>
-            <div className="grid grid-cols-1 grid-rows-1">
-              {slides.map((slide, idx) => {
-                const isActive = heroSlide === idx;
+        <div className="relative z-30 px-6 sm:px-10 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
+          <div className="grid grid-cols-1 grid-rows-1 w-full">
+            {slides.map((slide, idx) => {
+              const isActive = heroSlide === idx;
 
-                return (
-                  <div
-                    key={slide.image || idx}
-                    className={`col-start-1 row-start-1 transition-opacity duration-700 ease-in-out ${
-                      isActive 
-                        ? 'opacity-100 z-10 pointer-events-auto' 
-                        : 'opacity-0 z-0 pointer-events-none'
-                    }`}
-                  >
-                    {slide.isProduct ? (
-                      <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
-                        {slide.title}
-                      </h2>
-                    ) : idx === 0 ? (
-                      <CmsText 
-                        slug="home-hero-title" 
-                        fallback={slide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
-                        as="h1" 
-                        className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-                      />
-                    ) : (
-                      <CmsText 
-                        slug="home-hero-title-2" 
-                        fallback={slide.title || "Skapt med formål"} 
-                        as="h2" 
-                        className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
-                      />
-                    )}
+              return (
+                <div
+                  key={slide.image || idx}
+                  className={`col-start-1 row-start-1 w-full transition-all duration-700 ease-in-out ${
+                    isActive 
+                      ? 'opacity-100 z-10 pointer-events-auto visible' 
+                      : 'opacity-0 z-0 pointer-events-none invisible'
+                  }`}
+                >
+                  {slide.isChristmas ? (
+                    /* Christmas Hero Slide Layout - Centered matching user mockup */
+                    <div className="w-full text-white flex flex-col items-center justify-between text-center min-h-[520px] sm:min-h-[580px] lg:min-h-[660px] xl:min-h-[720px] py-4 sm:py-6 lg:py-8">
+                      {/* Top centered text block */}
+                      <div className="max-w-4xl mx-auto flex flex-col items-center pt-2 sm:pt-4">
+                        {/* Title */}
+                        <CmsText
+                          slug="home-christmas-hero-title"
+                          fallback={slide.title || "Velkommen til Julens Vidundre"}
+                          as="h1"
+                          className="font-headline-xl font-extrabold text-[32px] sm:text-4xl md:text-5xl lg:text-[56px] mb-3 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] leading-[1.15] tracking-tight text-center"
+                        />
 
-                    {slide.isProduct ? (
-                      <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
-                        {slide.desc}
-                      </p>
-                    ) : (
-                      <CmsText 
-                        slug={idx === 0 ? "home-hero-desc" : "home-hero-desc-2"} 
-                        fallback={slide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
-                        as="p" 
-                        className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
-                      />
-                    )}
+                        {/* Subtitle */}
+                        <CmsText
+                          slug="home-christmas-hero-desc"
+                          fallback={slide.desc || "Oppdag unike kristne julegaver som beriker troen."}
+                          as="p"
+                          className="font-body-lg text-base sm:text-lg md:text-xl text-white/95 max-w-2xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] leading-relaxed font-medium text-center"
+                        />
+                      </div>
 
-                    <div className="flex flex-wrap gap-4">
-                      <button 
-                        onClick={slide.ctaAction}
-                        className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
-                      >
-                        <span>{slide.ctaText}</span>
-                        <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-                      </button>
+                      {/* Spacious middle letting the real products on the table shine without overlap */}
+                      <div className="flex-1 w-full min-h-[180px] sm:min-h-[240px] lg:min-h-[300px]" aria-hidden="true" />
+
+                      {/* Bottom action block - terracotta CTA matching user mockup */}
+                      <div className="flex flex-col items-center gap-3 w-full pb-8 sm:pb-10">
+                        <Link
+                          to="/category/christmas"
+                          className="group bg-[#C2613B] hover:bg-[#a84f2d] text-white px-8 py-3.5 rounded-[12px] font-label-md text-sm sm:text-base font-semibold transition-all active:scale-[0.98] hover:scale-[1.03] shadow-[0_10px_30px_rgba(0,0,0,0.45)] cursor-pointer flex items-center justify-center gap-2 border border-white/20"
+                        >
+                          <span>{slide.ctaText || "Se hele julekolleksjonen"}</span>
+                          <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  ) : (
+                    /* Standard Slides Layout */
+                    <div className="max-w-2xl text-white">
+                      <button 
+                        onClick={() => scrollToSection('manedspakker')}
+                        className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
+                      >
+                        <span>✨</span>
+                        <span>{t('home.newMonthlyPacks')}</span>
+                      </button>
+
+                      {slide.isProduct ? (
+                        <h2 className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight">
+                          {slide.title}
+                        </h2>
+                      ) : idx === 1 ? (
+                        <CmsText 
+                          slug="home-hero-title" 
+                          fallback={slide.title || "Kristen nettbutikk – Bær troen med stolthet"} 
+                          as="h1" 
+                          className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                        />
+                      ) : (
+                        <CmsText 
+                          slug="home-hero-title-2" 
+                          fallback={slide.title || "Skapt med formål"} 
+                          as="h2" 
+                          className="font-headline-xl font-extrabold text-[26px] sm:text-4xl md:text-5xl lg:text-[48px] mb-6 drop-shadow-md leading-tight"
+                        />
+                      )}
+
+                      {slide.isProduct ? (
+                        <p className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed line-clamp-5 md:line-clamp-none">
+                          {slide.desc}
+                        </p>
+                      ) : (
+                        <CmsText 
+                          slug={idx === 1 ? "home-hero-desc" : "home-hero-desc-2"} 
+                          fallback={slide.desc || "Inspirerende design skapt for å dele Guds ord gjennom moderne mote."} 
+                          as="p" 
+                          className="font-body-lg text-sm sm:text-base md:text-body-lg mb-6 md:mb-10 text-white/90 leading-relaxed"
+                        />
+                      )}
+
+                      <div className="flex flex-wrap gap-4">
+                        <button 
+                          onClick={slide.ctaAction}
+                          className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded-[12px] font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <span>{slide.ctaText}</span>
+                          <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Slide Indicators */}
-        <div className="absolute bottom-8 left-8 sm:left-12 md:left-margin-desktop z-30 flex gap-2">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
           {slides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => goToSlide(idx)}
               className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                heroSlide === idx ? 'w-8 bg-terracotta' : 'w-2 bg-white/50 hover:bg-white'
+                heroSlide === idx ? 'w-8 bg-[#C2613B]' : 'w-2 bg-white/50 hover:bg-white'
               }`}
               title={`Gå til lysbilde ${idx + 1}`}
             />

@@ -71,6 +71,22 @@ const SEO_CATEGORY_CONFIG = {
     h1: 'Kristne klistremerker & stickers',
     exploreDesc: 'Små fargerike og stilrene klistremerker med bibelvers og trosbudskap. Perfekt til bærbar PC, vannflaske, notatbok eller bibel.',
     seoText: 'Våre kristne stickers og klistremerker er trykket på værbestandig vinyl som tåler både vann og slitasje. Del troen på en enkel og personlig måte i hverdagen.'
+  },
+  'christmas': {
+    name: 'Julekolleksjon',
+    title: 'Kristne julegaver & julekolleksjon | His Kingdom Designs',
+    desc: 'Finn meningsfulle kristne julegaver: varme julegensere, kopper, t-skjorter og fargeleggingsbøker med bibelvers. Feir julens sanne budskap.',
+    h1: 'Kristne julegaver & Julekolleksjon',
+    exploreDesc: 'Oppdag vårt utvalg av koselige julegensere, kopper, t-skjorter og julegaver med kristne budskap til hele familien.',
+    seoText: 'Hos His Kingdom Designs finner du kristne julegaver med varme og mening. Fra myke og behagelige julegensere til kopper til julekaffen og fargeleggingsbøker for de minste. Våre juleprodukter minner om det største håpet av alle – Jesu fødsel.'
+  },
+  'jul': {
+    name: 'Julekolleksjon',
+    title: 'Kristne julegaver & julekolleksjon | His Kingdom Designs',
+    desc: 'Finn meningsfulle kristne julegaver: varme julegensere, kopper, t-skjorter og fargeleggingsbøker med bibelvers. Feir julens sanne budskap.',
+    h1: 'Kristne julegaver & Julekolleksjon',
+    exploreDesc: 'Oppdag vårt utvalg av koselige julegensere, kopper, t-skjorter og julegaver med kristne budskap til hele familien.',
+    seoText: 'Hos His Kingdom Designs finner du kristne julegaver med varme og mening. Fra myke og behagelige julegensere til kopper til julekaffen og fargeleggingsbøker for de minste. Våre juleprodukter minner om det største håpet av alle – Jesu fødsel.'
   }
 };
 
@@ -81,6 +97,9 @@ const getSeoCategoryKey = (slug, name) => {
 
   if (SEO_CATEGORY_CONFIG[cleanSlug]) return cleanSlug;
 
+  if (cleanSlug.includes('christmas') || cleanSlug.includes('jul') || cleanName.includes('christmas') || cleanName.includes('jul')) {
+    return 'christmas';
+  }
   if (cleanSlug.includes('kler') || cleanSlug.includes('klær') || cleanName.includes('klær') || cleanName.includes('kler') || cleanName.includes('t-shirt') || cleanName.includes('genser')) {
     return 'kler';
   }

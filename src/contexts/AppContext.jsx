@@ -1462,6 +1462,9 @@ export const AppProvider = ({ children }) => {
     
     // Fallback mapping for standard categories and SEO landing pages
     const staticMap = {
+      'CHRISTMAS': 'christmas',
+      'Jul': 'christmas',
+      'Julekolleksjon': 'christmas',
       'Kristne klær': 'kristne-klaer',
       'Kristne T-skjorter': 'kristne-t-skjorter',
       'Kristne gensere': 'kristne-gensere',
@@ -1521,12 +1524,17 @@ export const AppProvider = ({ children }) => {
     if (slug === 'kristne-plakater' || slug === 'plakater') return 'Kristne plakater';
     if (slug === 'kristne-kopper' || slug === 'kopper') return 'Kristne kopper';
     if (slug === 'kristne-klistermerker' || slug === 'klistermerker' || slug === 'klistremerker') return 'Kristne klistremerker';
+    if (slug === 'christmas' || slug === 'jul' || slug === 'julekolleksjon' || slug === 'julegaver') return 'CHRISTMAS';
 
     const found = wixCollections.find(c => c.slug === slug);
     if (found && found.name) return found.name;
     
     // Fallback mapping for standard categories
     const staticMap = {
+      'christmas': 'CHRISTMAS',
+      'jul': 'CHRISTMAS',
+      'julekolleksjon': 'CHRISTMAS',
+      'julegaver': 'CHRISTMAS',
       'caps': 'Hatter /caps',
       'totebag': 'Handlenett / Totebag',
       'smykker': 'armbånd og smykker',

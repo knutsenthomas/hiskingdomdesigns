@@ -42,6 +42,13 @@
       }
     },
     {
+      "src": "/(jul|julekolleksjon)",
+      "status": 301,
+      "headers": {
+        "Location": "https://hiskingdomdesigns.no/category/christmas"
+      }
+    },
+    {
       "src": "/(en|es)/category/(.*)",
       "status": 301,
       "headers": {
