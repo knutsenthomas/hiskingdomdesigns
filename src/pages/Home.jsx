@@ -726,16 +726,16 @@ export default function Home() {
                   }`}
                 >
                   {slide.isChristmas ? (
-                    /* Christmas Hero Slide Layout - Centered horizontally and balanced vertically */
-                    <div className="w-full text-white flex flex-col items-center justify-between text-center min-h-[500px] sm:min-h-[560px] lg:min-h-[640px] xl:min-h-[700px] py-2 sm:py-4">
-                      {/* Top centered text block */}
-                      <div className="max-w-4xl mx-auto flex flex-col items-center pt-2 sm:pt-4">
+                    /* Christmas Hero Slide Layout - Midtstilt tekst i øvre felt og CTA i bunn */
+                    <div className="w-full text-white flex flex-col items-center justify-between text-center min-h-[520px] sm:min-h-[580px] lg:min-h-[640px] xl:min-h-[700px] h-full">
+                      {/* Upper half: Vertically and horizontally centered text */}
+                      <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col items-center justify-center text-center px-4 pt-6 sm:pt-10">
                         {/* Title */}
                         <CmsText
                           slug="home-christmas-hero-title"
                           fallback={slide.title || "Velkommen til Julens Vidundre"}
                           as="h1"
-                          className="font-headline-xl font-extrabold text-[32px] sm:text-4xl md:text-5xl lg:text-[56px] mb-3 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] leading-[1.15] tracking-tight text-center"
+                          className="font-headline-xl font-extrabold text-[32px] sm:text-4xl md:text-5xl lg:text-[56px] mb-3 sm:mb-4 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] leading-[1.15] tracking-tight text-center"
                         />
 
                         {/* Subtitle */}
@@ -747,11 +747,11 @@ export default function Home() {
                         />
                       </div>
 
-                      {/* Spacious middle letting the real products on the table shine without overlap */}
-                      <div className="flex-1 w-full min-h-[160px] sm:min-h-[220px] lg:min-h-[260px]" aria-hidden="true" />
+                      {/* Middle clearance letting the real products on the table shine without overlap */}
+                      <div className="w-full h-[140px] sm:h-[180px] lg:h-[220px] shrink-0" aria-hidden="true" />
 
                       {/* Bottom action block - terracotta CTA matching user mockup */}
-                      <div className="flex flex-col items-center gap-3 w-full pb-8 sm:pb-10">
+                      <div className="flex flex-col items-center gap-3 w-full pb-8 sm:pb-10 shrink-0">
                         <Link
                           to="/category/christmas"
                           className="group bg-[#C2613B] hover:bg-[#a84f2d] text-white px-8 py-3.5 rounded-[12px] font-label-md text-sm sm:text-base font-semibold transition-all active:scale-[0.98] hover:scale-[1.03] shadow-[0_10px_30px_rgba(0,0,0,0.45)] cursor-pointer flex items-center justify-center gap-2 border border-white/20"
