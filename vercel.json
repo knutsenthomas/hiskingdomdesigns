@@ -265,6 +265,10 @@
       "dest": "https://thomas7558.wixstudio.com/his-kingdom-minist-1/$1/__ecom/$2"
     },
     {
+      "src": "/$",
+      "dest": "/api/render"
+    },
+    {
       "handle": "filesystem"
     },
     {
