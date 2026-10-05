@@ -111,7 +111,7 @@ export default function useMeta(title, description, ogProperties = null) {
     const isCategory = cleanPath.startsWith('/category/');
 
     // Update canonical link (Self-referencing canonical per language URL)
-    const canonicalUrl = `https://hiskingdomdesigns.no${cleanPath === '/' ? '' : cleanPath}`;
+    const canonicalUrl = `https://hiskingdomdesigns.no${cleanPath === '/' ? '/' : cleanPath}`;
 
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
@@ -129,7 +129,7 @@ export default function useMeta(title, description, ogProperties = null) {
       const link = document.createElement('link');
       link.setAttribute('rel', 'alternate');
       link.setAttribute('hreflang', hreflang);
-      const formattedPath = path === '/' ? '' : path;
+      const formattedPath = path === '/' ? '/' : path;
       link.setAttribute('href', `https://hiskingdomdesigns.no${formattedPath}`);
       document.head.appendChild(link);
     };

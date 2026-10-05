@@ -140,7 +140,7 @@ export default async function handler(req, res) {
 
     // Helper function to append canonical URL nodes with compliant self-referencing alternates
     const appendUrl = (path, changefreq, priority) => {
-      const formattedPath = path === '/' ? '' : path;
+      const formattedPath = path === '/' ? '/' : path;
       const loc = `${DOMAIN}${formattedPath}`;
 
       xml += `  <url>\n`;

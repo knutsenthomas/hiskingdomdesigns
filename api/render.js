@@ -611,7 +611,7 @@ export default async function handler(req, res) {
 
     // Hreflang alternates
     let hreflangs = [];
-    const canonicalUrl = `${DOMAIN}${cleanPath === '/' ? '' : cleanPath}`;
+    const canonicalUrl = `${DOMAIN}${cleanPath === '/' ? '/' : cleanPath}`;
 
     if (routeKey === 'home') {
       const data = staticContent.home[lang] || staticContent.home.no;
@@ -1058,8 +1058,13 @@ export default async function handler(req, res) {
     res.status(isNotFound ? 404 : 200).send(html);
   } catch (error) {
     console.error('SSR Render Handler Error:', error);
-    // Fallback to base HTML
+    // Fallback to base HTML with dynamic self-referencing canonical to protect SEO indexing
+    const fallbackPath = req.url ? req.url.split('?')[0] : '/';
+    const fallbackCanonical = `${DOMAIN}${fallbackPath === '/' ? '/' : fallbackPath}`;
+    let fallbackHtml = getBaseHtml();
+    fallbackHtml = fallbackHtml.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, `<link rel="canonical" href="${fallbackCanonical}" />`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.status(200).send(getBaseHtml());
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.status(200).send(fallbackHtml);
   }
 }
