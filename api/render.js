@@ -663,7 +663,7 @@ export default async function handler(req, res) {
 
       if (routeKey === 'products') {
         const products = await fetchProducts();
-        const catalogProducts = products.filter(p => p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
+        const catalogProducts = products.filter(p => p.visible !== false);
         bodySnippet = `
           <div class="products-summary" style="margin-top: 1rem;">
             <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
@@ -1081,6 +1081,10 @@ export default async function handler(req, res) {
           <li><a href="/category/kristne-klistermerker" style="color: #151a21; text-decoration: underline;">Klistremerker</a></li>
           <li><a href="/om-oss" style="color: #151a21; text-decoration: underline;">Om Oss</a></li>
           <li><a href="/vart-team" style="color: #151a21; text-decoration: underline;">Vårt Team</a></li>
+          <li><a href="/frakt-og-retur" style="color: #151a21; text-decoration: underline;">Frakt og Retur</a></li>
+          <li><a href="/faq" style="color: #151a21; text-decoration: underline;">FAQ</a></li>
+          <li><a href="/personvern" style="color: #151a21; text-decoration: underline;">Personvern</a></li>
+          <li><a href="/betingelser" style="color: #151a21; text-decoration: underline;">Kjøpsbetingelser</a></li>
         </ul>
       </nav>
     `;
