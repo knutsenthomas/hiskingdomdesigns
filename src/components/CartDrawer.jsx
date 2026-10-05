@@ -133,7 +133,7 @@ export default function CartDrawer() {
                   <button
                     onClick={() => {
                       setIsCartDrawerOpen(false);
-                      navigate('/products');
+                      navigate('/produkter');
                     }}
                     className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-opacity-95 active:scale-95 transition-all shadow-md"
                   >
@@ -164,7 +164,7 @@ export default function CartDrawer() {
                           <div className="flex justify-between items-start gap-2">
                             <h4 className="font-bold text-sm text-onyx line-clamp-1 hover:text-terracotta transition-colors">
                               <Link 
-                                to={`/product/${item.id}`}
+                                to={`/produkt/${item.id}`}
                                 onClick={() => setIsCartDrawerOpen(false)}
                               >
                                 {translatedItem.name}

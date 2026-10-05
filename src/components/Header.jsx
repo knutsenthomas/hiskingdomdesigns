@@ -644,7 +644,7 @@ export default function Header() {
                         return (
                           <Link 
                             key={p.id}
-                            to={localizedPath('/product/' + p.id)}
+                            to={localizedPath('/produkt/' + p.id)}
                             onClick={() => {
                               setSearchOpen(false);
                               setSearchQuery('');

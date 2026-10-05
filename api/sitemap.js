@@ -1,109 +1,93 @@
-const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
-const API_KEY = process.env.WIX_API_KEY;
+import { createClient, OAuthStrategy } from '@wix/sdk';
+import { products } from '@wix/stores';
 
 const DOMAIN = 'https://hiskingdomdesigns.no';
+const WIX_CLIENT_ID = '82b2b70d-fb70-4b76-abfd-a2a70f38ac06';
 
-// Define static routes and priority SEO topic clusters with their translations
+// Define static routes and priority SEO topic clusters with their canonical URLs
 const staticRoutes = [
   {
-    no: '/',
-    en: '/',
+    path: '/',
     priority: '1.0',
     changefreq: 'daily'
   },
   {
-    no: '/kristne-gaver',
-    en: '/kristne-gaver',
+    path: '/kristne-gaver',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristne-klaer',
-    en: '/category/kristne-klaer',
+    path: '/category/kristne-klaer',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristne-t-skjorter',
-    en: '/category/kristne-t-skjorter',
+    path: '/category/kristne-t-skjorter',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristne-gensere',
-    en: '/category/kristne-gensere',
+    path: '/category/kristne-gensere',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristen-streetwear',
-    en: '/category/kristen-streetwear',
+    path: '/category/kristen-streetwear',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/category/klaer-med-bibelvers',
-    en: '/category/klaer-med-bibelvers',
+    path: '/category/klaer-med-bibelvers',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristne-plakater',
-    en: '/category/kristne-plakater',
+    path: '/category/kristne-plakater',
     priority: '0.8',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristne-kopper',
-    en: '/category/kristne-kopper',
+    path: '/category/kristne-kopper',
     priority: '0.8',
     changefreq: 'daily'
   },
   {
-    no: '/category/kristne-klistermerker',
-    en: '/category/kristne-klistermerker',
+    path: '/category/kristne-klistermerker',
     priority: '0.8',
     changefreq: 'daily'
   },
   {
-    no: '/produkter',
-    en: '/products',
+    path: '/produkter',
     priority: '0.9',
     changefreq: 'daily'
   },
   {
-    no: '/om-oss',
-    en: '/about',
+    path: '/om-oss',
     priority: '0.7',
     changefreq: 'weekly'
   },
   {
-    no: '/vart-team',
-    en: '/team',
+    path: '/vart-team',
     priority: '0.6',
     changefreq: 'weekly'
   },
   {
-    no: '/frakt-og-retur',
-    en: '/shipping',
+    path: '/frakt-og-retur',
     priority: '0.6',
     changefreq: 'weekly'
   },
   {
-    no: '/faq',
-    en: '/faq',
+    path: '/faq',
     priority: '0.6',
     changefreq: 'weekly'
   },
   {
-    no: '/personvern',
-    en: '/privacy',
+    path: '/personvern',
     priority: '0.5',
     changefreq: 'monthly'
   },
   {
-    no: '/betingelser',
-    en: '/terms',
+    path: '/betingelser',
     priority: '0.5',
     changefreq: 'monthly'
   }
@@ -122,96 +106,63 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Fetch products from Wix
+    // 1. Fetch products using Wix Stores SDK
     let allProducts = [];
-    let skip = 0;
-    let hasMore = true;
 
-    while (hasMore) {
-      const queryRes = await fetch('https://www.wixapis.com/stores/v1/products/query', {
-        method: 'POST',
-        headers: {
-          'Authorization': API_KEY,
-          'wix-site-id': SITE_ID,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: {
-            paging: {
-              limit: 100,
-              offset: skip
-            }
-          }
-        })
+    try {
+      const wixClient = createClient({
+        modules: { products },
+        auth: OAuthStrategy({ clientId: WIX_CLIENT_ID })
       });
 
-      if (!queryRes.ok) {
-        throw new Error(`Failed to fetch from Wix API: ${queryRes.status} ${queryRes.statusText}`);
-      }
+      let skip = 0;
+      let hasMore = true;
 
-      const queryData = await queryRes.json();
-      const products = queryData.products || [];
-      allProducts = allProducts.concat(products);
+      while (hasMore) {
+        const queryRes = await wixClient.products.queryProducts().skip(skip).limit(100).find();
+        const items = queryRes.items || [];
+        allProducts = allProducts.concat(items);
 
-      if (products.length < 100) {
-        hasMore = false;
-      } else {
-        skip += 100;
+        if (items.length < 100) {
+          hasMore = false;
+        } else {
+          skip += 100;
+        }
       }
+    } catch (fetchErr) {
+      console.error('Error fetching dynamic products for sitemap:', fetchErr);
     }
 
-    // 2. Generate XML Sitemap
+    // 2. Generate XML Sitemap with 100% 200-OK Canonical URLs & Valid Self-Referencing Hreflang
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
     xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
-    // Helper function to append URL nodes with alternates
-    const appendUrl = (noPath, enPath, changefreq, priority) => {
-      const paths = { no: noPath, en: enPath };
-      const langs = ['no', 'en'];
+    // Helper function to append canonical URL nodes with compliant self-referencing alternates
+    const appendUrl = (path, changefreq, priority) => {
+      const formattedPath = path === '/' ? '' : path;
+      const loc = `${DOMAIN}${formattedPath}`;
 
-      // Ensure each unique URL path gets only one <loc> node with full hreflang cluster
-      const uniquePaths = Array.from(new Set([noPath, enPath].filter(Boolean)));
-
-      uniquePaths.forEach(path => {
-        const formattedPath = path === '/' ? '' : path;
-        const loc = `${DOMAIN}${formattedPath}`;
-
-        xml += `  <url>\n`;
-        xml += `    <loc>${loc}</loc>\n`;
-        
-        // Add alternate links for languages only if separate language routes exist
-        if (noPath !== enPath && enPath) {
-          langs.forEach(altLang => {
-            const altPath = paths[altLang] === '/' ? '' : paths[altLang];
-            xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${DOMAIN}${altPath}" />\n`;
-          });
-          const defaultPath = paths['no'] === '/' ? '' : paths['no'];
-          xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${defaultPath}" />\n`;
-        } else {
-          const defaultPath = noPath === '/' ? '' : noPath;
-          xml += `    <xhtml:link rel="alternate" hreflang="no" href="${DOMAIN}${defaultPath}" />\n`;
-          xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${defaultPath}" />\n`;
-        }
-
-        xml += `    <changefreq>${changefreq}</changefreq>\n`;
-        xml += `    <priority>${priority}</priority>\n`;
-        xml += `  </url>\n`;
-      });
+      xml += `  <url>\n`;
+      xml += `    <loc>${loc}</loc>\n`;
+      xml += `    <xhtml:link rel="alternate" hreflang="no" href="${loc}" />\n`;
+      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />\n`;
+      xml += `    <changefreq>${changefreq}</changefreq>\n`;
+      xml += `    <priority>${priority}</priority>\n`;
+      xml += `  </url>\n`;
     };
 
     // 3. Add static pages to sitemap
     staticRoutes.forEach(route => {
-      appendUrl(route.no, route.en, route.changefreq, route.priority);
+      appendUrl(route.path, route.changefreq, route.priority);
     });
 
-    // 4. Add dynamic product pages
+    // 4. Add dynamic product pages (only canonical /produkt/:id)
     allProducts.forEach(p => {
       if (p.visible === false) return;
-      const id = p.id;
-      const noPath = `/produkt/${id}`;
-      const enPath = `/product/${id}`;
-      appendUrl(noPath, enPath, 'weekly', '0.8');
+      const id = p._id || p.id;
+      if (!id) return;
+      appendUrl(`/produkt/${id}`, 'weekly', '0.8');
     });
 
     xml += `</urlset>\n`;

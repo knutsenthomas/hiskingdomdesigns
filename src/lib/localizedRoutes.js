@@ -1,59 +1,64 @@
-// Dictionary of route translations for Norwegian (no), English (en), and Spanish (es)
+// Dictionary of canonical routes for His Kingdom Designs
 export const routeTranslations = {
   about: {
     no: '/om-oss',
-    en: '/about',
-    es: '/sobre-nosotros'
+    en: '/om-oss',
+    es: '/om-oss'
   },
   team: {
     no: '/vart-team',
-    en: '/team',
-    es: '/equipo'
+    en: '/vart-team',
+    es: '/vart-team'
   },
   shipping: {
     no: '/frakt-og-retur',
-    en: '/shipping',
-    es: '/envios'
+    en: '/frakt-og-retur',
+    es: '/frakt-og-retur'
   },
   faq: {
     no: '/faq',
     en: '/faq',
-    es: '/preguntas-frecuentes'
+    es: '/faq'
   },
   privacy: {
     no: '/personvern',
-    en: '/privacy',
-    es: '/privacidad'
+    en: '/personvern',
+    es: '/personvern'
   },
   betingelser: {
     no: '/betingelser',
-    en: '/terms',
-    es: '/condiciones'
+    en: '/betingelser',
+    es: '/betingelser'
   },
   cart: {
     no: '/handlekurv',
-    en: '/cart',
-    es: '/carrito'
+    en: '/handlekurv',
+    es: '/handlekurv'
   },
   checkout: {
     no: '/kasse',
-    en: '/checkout',
-    es: '/pago'
+    en: '/kasse',
+    es: '/kasse'
   },
   products: {
     no: '/produkter',
-    en: '/products',
-    es: '/productos'
+    en: '/produkter',
+    es: '/produkter'
+  },
+  produkter: {
+    no: '/produkter',
+    en: '/produkter',
+    es: '/produkter'
   },
   profile: {
     no: '/profil',
-    en: '/profile',
-    es: '/perfil'
+    en: '/profil',
+    es: '/profil'
   },
   cancellation: {
     no: '/angre-kjop',
-    en: '/cancel-order',
-    es: '/cancelar-pedido'
+    en: '/angre-kjop',
+    es: '/angre-kjop'
   },
   admin: {
     no: '/admin',
@@ -64,25 +69,23 @@ export const routeTranslations = {
 
 /**
  * Get the localized path for a given route key and language.
- * Falls back to the key name prefixed with '/' if not found.
+ * Always resolves to canonical 200-OK paths (avoiding internal 301 redirects).
  */
 export const getLocalizedPath = (key, lang) => {
+  if (!key) return '/';
   // Strip leading slash if key is provided as '/about'
   const cleanKey = key.startsWith('/') ? key.substring(1) : key;
   
-  // Extract productId from product/ prefix
-  if (cleanKey.startsWith('product/')) {
-    const productId = cleanKey.substring(8); // Length of 'product/' is 8
-    let prefix = '/product';
-    if (lang === 'no') prefix = '/produkt';
-    if (lang === 'es') prefix = '/producto';
-    return `${prefix}/${productId}`;
+  // Extract productId from product/ or produkt/ prefix -> ALWAYS canonical /produkt/:id
+  if (cleanKey.startsWith('product/') || cleanKey.startsWith('produkt/') || cleanKey.startsWith('producto/')) {
+    const productId = cleanKey.replace(/^(product|produkt|producto)\//, '');
+    return `/produkt/${productId}`;
   }
 
   const translation = routeTranslations[cleanKey];
   
   if (translation) {
-    return translation[lang] || translation['no'] || `/${cleanKey}`;
+    return translation.no || `/${cleanKey}`;
   }
   return key.startsWith('/') ? key : `/${key}`;
 };

@@ -1298,7 +1298,7 @@ export default function Profile() {
                       <div className="flex-grow flex flex-col justify-between">
                         <div>
                           <h4 className="font-headline-md text-onyx font-bold text-sm line-clamp-1">
-                            <Link to={`/product/${item.id}`} className="hover:text-terracotta transition-colors">{item.name}</Link>
+                            <Link to={`/produkt/${item.id}`} className="hover:text-terracotta transition-colors">{item.name}</Link>
                           </h4>
                           <span className="font-label-md text-terracotta font-semibold text-xs mt-1 block">{formatPrice(item.price)}</span>
                         </div>

@@ -80,18 +80,15 @@ export const LanguageProvider = ({ children }) => {
           window.dispatchEvent(new PopStateEvent('popstate'));
         }
       } else if (cleanPath.startsWith('/product/') || cleanPath.startsWith('/produkt/') || cleanPath.startsWith('/producto/')) {
-        // Also update product details path prefix!
-        // /product/:id -> /produkt/:id (no) or /producto/:id (es)
+        // Always maintain canonical Norwegian path /produkt/:id
         const parts = cleanPath.split('/');
         if (parts.length >= 3) {
           const productId = parts[2];
-          let prefix = '/product';
-          if (newLang === 'no') prefix = '/produkt';
-          if (newLang === 'es') prefix = '/producto';
-          
-          const newPath = `${prefix}/${productId}`;
-          window.history.pushState(null, '', newPath);
-          window.dispatchEvent(new PopStateEvent('popstate'));
+          const newPath = `/produkt/${productId}`;
+          if (newPath !== currentPath) {
+            window.history.pushState(null, '', newPath);
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }
         }
       }
       

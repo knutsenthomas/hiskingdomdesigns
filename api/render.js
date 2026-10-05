@@ -1,9 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import { createClient, OAuthStrategy } from '@wix/sdk';
+import { products } from '@wix/stores';
 
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
 const DOMAIN = 'https://hiskingdomdesigns.no';
+const WIX_CLIENT_ID = '82b2b70d-fb70-4b76-abfd-a2a70f38ac06';
 
 // In-memory cache for products and base HTML
 let cachedHtml = null;
@@ -11,17 +14,17 @@ let productsCache = { data: null, timestamp: 0 };
 const CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes
 
 const routeTranslations = {
-  about: { no: '/om-oss', en: '/about', es: '/sobre-nosotros' },
-  team: { no: '/vart-team', en: '/team', es: '/equipo' },
-  shipping: { no: '/frakt-og-retur', en: '/shipping', es: '/envios' },
-  faq: { no: '/faq', en: '/faq', es: '/preguntas-frecuentes' },
-  privacy: { no: '/personvern', en: '/privacy', es: '/privacidad' },
-  betingelser: { no: '/betingelser', en: '/terms', es: '/condiciones' },
-  cart: { no: '/handlekurv', en: '/cart', es: '/carrito' },
-  checkout: { no: '/kasse', en: '/checkout', es: '/pago' },
-  products: { no: '/produkter', en: '/products', es: '/productos' },
-  profile: { no: '/profil', en: '/profile', es: '/perfil' },
-  cancellation: { no: '/angre-kjop', en: '/cancel-order', es: '/cancelar-pedido' },
+  about: { no: '/om-oss', en: '/om-oss', es: '/om-oss' },
+  team: { no: '/vart-team', en: '/vart-team', es: '/vart-team' },
+  shipping: { no: '/frakt-og-retur', en: '/frakt-og-retur', es: '/frakt-og-retur' },
+  faq: { no: '/faq', en: '/faq', es: '/faq' },
+  privacy: { no: '/personvern', en: '/personvern', es: '/personvern' },
+  betingelser: { no: '/betingelser', en: '/betingelser', es: '/betingelser' },
+  cart: { no: '/handlekurv', en: '/handlekurv', es: '/handlekurv' },
+  checkout: { no: '/kasse', en: '/kasse', es: '/kasse' },
+  products: { no: '/produkter', en: '/produkter', es: '/produkter' },
+  profile: { no: '/profil', en: '/profil', es: '/profil' },
+  cancellation: { no: '/angre-kjop', en: '/angre-kjop', es: '/angre-kjop' },
   gifts: { no: '/kristne-gaver', en: '/kristne-gaver', es: '/kristne-gaver' }
 };
 
@@ -267,30 +270,23 @@ const fetchProducts = async () => {
   }
 
   try {
+    const wixClient = createClient({
+      modules: { products },
+      auth: OAuthStrategy({ clientId: WIX_CLIENT_ID })
+    });
+
     let all = [];
     let skip = 0;
     let hasMore = true;
 
     while (hasMore) {
-      const queryRes = await fetch('https://www.wixapis.com/stores/v1/products/query', {
-        method: 'POST',
-        headers: {
-          'Authorization': API_KEY,
-          'wix-site-id': SITE_ID,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: {
-            paging: { limit: 100, offset: skip }
-          }
-        })
-      });
-
-      if (!queryRes.ok) break;
-
-      const data = await queryRes.json();
-      const items = data.products || [];
-      all = all.concat(items);
+      const queryRes = await wixClient.products.queryProducts().skip(skip).limit(100).find();
+      const items = queryRes.items || [];
+      const normalized = items.map(p => ({
+        ...p,
+        id: p._id || p.id
+      }));
+      all = all.concat(normalized);
 
       if (items.length < 100) hasMore = false;
       else skip += 100;
@@ -632,18 +628,11 @@ export default async function handler(req, res) {
       description = data.description;
       h1Text = data.h1;
       const trans = routeTranslations[routeKey];
-      if (trans.no !== trans.en) {
-        hreflangs = [
-          { lang: 'no', href: `${DOMAIN}${trans.no}` },
-          { lang: 'en', href: `${DOMAIN}${trans.en}` },
-          { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
-        ];
-      } else {
-        hreflangs = [
-          { lang: 'no', href: `${DOMAIN}${trans.no}` },
-          { lang: 'x-default', href: `${DOMAIN}${trans.no}` }
-        ];
-      }
+      const targetPath = trans?.no || cleanPath;
+      hreflangs = [
+        { lang: 'no', href: `${DOMAIN}${targetPath}` },
+        { lang: 'x-default', href: `${DOMAIN}${targetPath}` }
+      ];
 
       if (routeKey === 'gifts') {
         const products = await fetchProducts();
@@ -966,7 +955,6 @@ export default async function handler(req, res) {
 
       hreflangs = [
         { lang: 'no', href: `${DOMAIN}/produkt/${productId}` },
-        { lang: 'en', href: `${DOMAIN}/product/${productId}` },
         { lang: 'x-default', href: `${DOMAIN}/produkt/${productId}` }
       ];
     } else {
@@ -1050,9 +1038,9 @@ export default async function handler(req, res) {
 
     html = html.replace('</head>', `${headInject}\n</head>`);
 
-    // Detect if client is a search engine crawler or social bot
+    // Detect if client is a search engine crawler, AI crawler, or social bot
     const userAgent = req.headers['user-agent'] || '';
-    const isBot = /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse/i.test(userAgent);
+    const isBot = /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse|ahrefsbot|semrushbot|dotbot|bytespider|applebot|gptbot|claudebot|perplexitybot|google-extended/i.test(userAgent);
 
     // Only inject semantic crawler markup inside <div id="root"> for search engines and social bots to eliminate initial flash for real users
     if (isBot) {
@@ -1060,9 +1048,13 @@ export default async function handler(req, res) {
       html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
     }
 
-    // 8. Send Response
+    // 8. Send Response with Edge CDN caching (Instant response for AI crawlers, fresh client app for users)
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    if (isNotFound) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400');
+    }
     res.status(isNotFound ? 404 : 200).send(html);
   } catch (error) {
     console.error('SSR Render Handler Error:', error);

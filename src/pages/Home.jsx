@@ -387,7 +387,7 @@ export default function Home() {
         title: t('home.slide1.title'),
         desc: t('home.slide1.desc'),
         ctaText: t('home.slide1.cta'),
-        ctaAction: () => navigate('/products'),
+        ctaAction: () => navigate('/produkter'),
         isProduct: false
       },
       {
@@ -395,7 +395,7 @@ export default function Home() {
         title: t('home.slide2.title'),
         desc: t('home.slide2.desc'),
         ctaText: t('home.slide2.cta'),
-        ctaAction: () => navigate('/products'),
+        ctaAction: () => navigate('/produkter'),
         isProduct: false
       }
     ];
@@ -468,7 +468,7 @@ export default function Home() {
           title: `${t('home.newArrival')}${displayName}`,
           desc: descResult,
           ctaText: t('home.slideProduct.cta'),
-          ctaAction: () => navigate(`/product/${translatedP.id}`),
+          ctaAction: () => navigate(`/produkt/${translatedP.id}`),
           isProduct: true,
           productId: translatedP.id
         };
@@ -876,7 +876,7 @@ export default function Home() {
             <CmsText slug="home-categories-title" fallback={t('nav.promo_title')} as="h2" className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx" />
           </div>
           <button 
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/produkter')}
             className="text-terracotta font-label-md text-label-md flex items-center gap-2 hover:underline underline-offset-4 font-bold group cursor-pointer"
           >
             {t('home.categories.allBtn')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />

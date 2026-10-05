@@ -158,7 +158,7 @@ export default function Cart() {
                       
                       <div className="flex-grow text-center md:text-left">
                         <h3 className="font-headline-md text-headline-md text-onyx text-[18px]">
-                          <Link to={localizedPath('/product/' + item.id)} className="hover:text-terracotta transition-colors">
+                          <Link to={localizedPath('/produkt/' + item.id)} className="hover:text-terracotta transition-colors">
                             {translatedItem.name}
                           </Link>
                         </h3>

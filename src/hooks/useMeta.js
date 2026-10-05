@@ -134,24 +134,17 @@ export default function useMeta(title, description, ogProperties = null) {
       document.head.appendChild(link);
     };
 
-    // Add valid, non-conflicting alternate hreflang tags
+    // Add valid, non-conflicting alternate hreflang tags (canonical 200 OK only)
     if (routeKey && routeTranslations[routeKey]) {
       const translation = routeTranslations[routeKey];
-      // Only emit distinct localized URLs
-      if (translation.no !== translation.en) {
-        addAlternateLink('no', translation.no);
-        addAlternateLink('en', translation.en);
-        addAlternateLink('x-default', translation.no);
-      } else {
-        addAlternateLink('no', translation.no);
-        addAlternateLink('x-default', translation.no);
-      }
+      const target = translation.no || cleanPath;
+      addAlternateLink('no', target);
+      addAlternateLink('x-default', target);
     } else if (isProduct && productId) {
       addAlternateLink('no', `/produkt/${productId}`);
-      addAlternateLink('en', `/product/${productId}`);
       addAlternateLink('x-default', `/produkt/${productId}`);
     } else {
-      // For single URL routes (e.g. /, /category/...) declare primary language + x-default without duplicate multi-language claims
+      // For single URL routes (e.g. /, /category/...) declare primary language + x-default
       addAlternateLink('no', cleanPath === '/' ? '' : cleanPath);
       addAlternateLink('x-default', cleanPath === '/' ? '' : cleanPath);
     }

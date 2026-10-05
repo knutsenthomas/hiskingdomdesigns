@@ -1271,7 +1271,7 @@ export const AppProvider = ({ children }) => {
           let altText = '';
           if (kidProducts.length > 0) {
             altText = `However, we have other great products for children that you can check out here:\n\n` +
-              kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+              kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/produkt/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
           }
           reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} for kids\n\n` +
             `Unfortunately, we do not have **${typeLabel}** for children in our standard collection at the moment.\n\n` +
@@ -1281,7 +1281,7 @@ export const AppProvider = ({ children }) => {
           let altText = '';
           if (kidProducts.length > 0) {
             altText = `Sin embargo, tenemos otros excelentes productos para niños que puedes ver aquí:\n\n` +
-              kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+              kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/produkt/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
           }
           reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} para niños\n\n` +
             `Lamentablemente, no tenemos **${typeLabel}** para niños en nuestra colección estándar en este momento.\n\n` +
@@ -1291,7 +1291,7 @@ export const AppProvider = ({ children }) => {
           let altText = '';
           if (kidProducts.length > 0) {
             altText = `Men vi har andre flotte og populære produkter til barn som du kan sjekke ut her:\n\n` +
-              kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} kr**`).join('\n') + '\n\n';
+              kidProducts.map((p, i) => `${i + 1}. **[${p.name}](/produkt/${p.id})** – **${p.price} kr**`).join('\n') + '\n\n';
           }
           reply = `### 🧢 ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} til barn\n\n` +
             `Vi har dessverre ikke **${typeLabel}** for barn i vårt faste sortiment akkurat nå.\n\n` +
@@ -1306,7 +1306,7 @@ export const AppProvider = ({ children }) => {
           let altText = '';
           if (bestsellers.length > 0) {
             altText = `However, we have other great bestseller products that you can check out here:\n\n` +
-              bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+              bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/produkt/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
           }
           reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
             `Unfortunately, we do not have **${typeLabel}** in our standard collection at the moment.\n\n` +
@@ -1316,7 +1316,7 @@ export const AppProvider = ({ children }) => {
           let altText = '';
           if (bestsellers.length > 0) {
             altText = `Sin embargo, tenemos otros excelentes productos más vendidos que puedes ver aquí:\n\n` +
-              bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
+              bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/produkt/${p.id})** – **${p.price} NOK**`).join('\n') + '\n\n';
           }
           reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
             `Lamentablemente, no tenemos **${typeLabel}** en nuestra colección estándar en este momento.\n\n` +
@@ -1326,7 +1326,7 @@ export const AppProvider = ({ children }) => {
           let altText = '';
           if (bestsellers.length > 0) {
             altText = `Men vi har mange andre flotte bestselgere som du kan sjekke ut her:\n\n` +
-              bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/product/${p.id})** – **${p.price} kr**`).join('\n') + '\n\n';
+              bestsellers.map((p, i) => `${i + 1}. **[${p.name}](/produkt/${p.id})** – **${p.price} kr**`).join('\n') + '\n\n';
           }
           reply = `### 🛍️ ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}\n\n` +
             `Vi har dessverre ikke **${typeLabel}** i vårt faste sortiment akkurat nå.\n\n` +
@@ -1374,7 +1374,7 @@ export const AppProvider = ({ children }) => {
                 .trim()
                 .substring(0, 110) + '...'
             : prod.category;
-          return `${idx + 1}. **[${prod.name}](/product/${prod.id})** – ${priceStr}${badge}\n   *${cleanDesc}*`;
+          return `${idx + 1}. **[${prod.name}](/produkt/${prod.id})** – ${priceStr}${badge}\n   *${cleanDesc}*`;
         }).join('\n\n');
 
         reply = `${titleText}\n\n${itemsText}\n\n💡 Klikk på produktlenkene over for å se produktdetaljene, velge farger/størrelser og legge dem i handlekurven!`;
