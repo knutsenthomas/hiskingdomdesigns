@@ -822,12 +822,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Slide Indicators: Centered on Christmas hero, left-aligned on standard slides */}
-        <div className={`absolute z-30 flex items-center gap-2 transition-all duration-300 ${
-          heroSlide === 0 
-            ? 'bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2' 
-            : 'bottom-8 left-6 sm:left-10 md:left-margin-desktop'
-        }`}>
+        {/* Slide Indicators: Alltid midtstilt på alle lysbilder */}
+        <div className="absolute z-30 flex items-center gap-2 bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2">
           {slides.map((_, idx) => (
             <button
               key={idx}
