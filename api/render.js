@@ -877,7 +877,7 @@ export default async function handler(req, res) {
         `;
 
         extraJsonLd = `
-          <script type="application/ld+json">
+          <script id="jsonld-product-schema" type="application/ld+json">
           {
             "@context": "https://schema.org/",
             "@type": "Product",
