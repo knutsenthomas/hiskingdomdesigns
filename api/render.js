@@ -161,7 +161,7 @@ const staticContent = {
     },
     es: {
       title: 'Política de Privacidad | His Kingdom Designs',
-      description: 'Conoce cómo His Kingdom Designs recopila, procesa y protege tus datos personales de conformidad con el RGPD.',
+      description: 'Conoce cómo His Kingdom Designs recopila, procesa y protege tus datos personales de forma segura y de conformidad con el RGPD en nuestra tienda.',
       h1: 'Política de Privacidad'
     }
   },
@@ -185,17 +185,17 @@ const staticContent = {
   cancellation: {
     no: {
       title: 'Angrerett og Avbestilling | His Kingdom Designs',
-      description: 'Informasjon og skjema for angrerett og avbestilling hos His Kingdom Designs.',
+      description: 'Les om 14 dagers angrerett, retningslinjer for retur og enkel avbestilling ved kjøp av kristne produkter hos nettbutikken His Kingdom Designs.',
       h1: 'Angrerett og Avbestilling'
     },
     en: {
       title: 'Cancellation and Return Policy | His Kingdom Designs',
-      description: 'Information and guidelines for cancellations and returns at His Kingdom Designs.',
+      description: 'Information and guidelines for order cancellations, 14-day return rights, and hassle-free returns at His Kingdom Designs Christian store.',
       h1: 'Cancellation Policy'
     },
     es: {
       title: 'Derecho de Desistimiento | His Kingdom Designs',
-      description: 'Información y formulario de desistimiento en His Kingdom Designs.',
+      description: 'Información y formulario de desistimiento, devoluciones de 14 días y cancelaciones de pedidos en la tienda online His Kingdom Designs.',
       h1: 'Desistimiento'
     }
   }
@@ -316,7 +316,7 @@ const categorySeoData = {
     },
     es: {
       title: 'Ropa Cristiana y Streetwear | His Kingdom Designs',
-      description: 'Descubre ropa cristiana exclusiva, sudaderas y camisetas con versículos y mensajes de fe. Calidad premium.',
+      description: 'Descubre ropa cristiana exclusiva, sudaderas y camisetas con versículos y mensajes de fe. Calidad premium y envío rápido.',
       h1: 'Ropa Cristiana y Streetwear',
       intro: 'Explora nuestra colección de ropa cristiana con mensajes de fe y diseño urbano moderno.'
     }
@@ -330,13 +330,13 @@ const categorySeoData = {
     },
     en: {
       title: 'Christian T-Shirts & Scripture Tees | His Kingdom Designs',
-      description: 'Shop organic cotton Christian t-shirts with crosses, Bible verses, and faith graphics. Fast delivery.',
+      description: 'Shop organic cotton Christian t-shirts with crosses, Bible verses, and faith graphics. Fast delivery and premium quality from Norway.',
       h1: 'Christian T-Shirts',
       intro: 'Discover our premium Christian t-shirts crafted from organic cotton with inspiring scripture and faith messages.'
     },
     es: {
       title: 'Camisetas Cristianas con Versículos | His Kingdom Designs',
-      description: 'Camisetas cristianas de algodón orgánico con versículos bíblicos y mensajes de fe.',
+      description: 'Camisetas cristianas de algodón orgánico con versículos bíblicos y mensajes de fe. Diseños inspiradores con envío rápido y gran comodidad.',
       h1: 'Camisetas Cristianas',
       intro: 'Descubre nuestras camisetas cristianas con mensajes de fe y citas bíblicas inspiradoras.'
     }
@@ -350,13 +350,13 @@ const categorySeoData = {
     },
     en: {
       title: 'Christian Hoodies & Sweatshirts | His Kingdom Designs',
-      description: 'Cozy and stylish Christian hoodies and sweatshirts featuring Jesus and scripture messages. Fast shipping.',
+      description: 'Cozy and stylish Christian hoodies and sweatshirts featuring Jesus and scripture messages. Fast shipping and premium fabrics for all seasons.',
       h1: 'Christian Hoodies & Sweatshirts',
       intro: 'Stay warm with our premium Christian hoodies and sweatshirts designed for comfort and faith expression.'
     },
     es: {
       title: 'Sudaderas Cristianas y Hoodies | His Kingdom Designs',
-      description: 'Sudaderas cristianas cómodas y modernas con mensajes de Jesús y versículos bíblicos.',
+      description: 'Sudaderas cristianas cómodas y modernas con mensajes de Jesús y versículos bíblicos. Moda con propósito espiritual y excelente calidad textil.',
       h1: 'Sudaderas Cristianas y Hoodies',
       intro: 'Sudaderas y hoodies cristianas de alta calidad para llevar tu fe con comodidad.'
     }
@@ -370,13 +370,13 @@ const categorySeoData = {
     },
     en: {
       title: 'Christian Streetwear & Urban Faith Fashion | His Kingdom Designs',
-      description: 'Discover urban Christian streetwear: oversized hoodies, graphic tees, caps, and faith-inspired fashion.',
+      description: 'Discover urban Christian streetwear: oversized hoodies, graphic tees, caps, and faith-inspired fashion. Premium streetwear with a bold message.',
       h1: 'Christian Streetwear',
       intro: 'Urban fashion meets Christian faith. Explore our modern streetwear collection crafted with purpose.'
     },
     es: {
       title: 'Streetwear Cristiano y Moda Urbana | His Kingdom Designs',
-      description: 'Moda urbana cristiana: sudaderas oversized, camisetas gráficas y gorras con mensajes de fe.',
+      description: 'Moda urbana cristiana: sudaderas oversized, camisetas gráficas y gorras con mensajes de fe y esperanza. Estilo moderno con calidad duradera.',
       h1: 'Streetwear Cristiano',
       intro: 'Moda urbana y fe cristiana unidas en prendas de alta calidad y diseño contemporáneo.'
     }
@@ -390,13 +390,13 @@ const categorySeoData = {
     },
     en: {
       title: 'Bible Verse Clothing & Scripture Apparel | His Kingdom Designs',
-      description: 'Shop clothing featuring powerful Bible verses, Psalms, Isaiah, and gospel messages from His Kingdom Designs.',
+      description: 'Shop clothing featuring powerful Bible verses, Psalms, Isaiah, and gospel messages from His Kingdom Designs. Inspiring apparel for daily wear.',
       h1: 'Bible Verse Clothing',
       intro: 'Wear scripture every day. Beautifully crafted apparel featuring verses from Psalms, John, and Isaiah.'
     },
     es: {
       title: 'Ropa con Versículos Bíblicos | His Kingdom Designs',
-      description: 'Colección de ropa y camisetas con versículos de la Biblia y citas cristianas inspiradoras.',
+      description: 'Colección de ropa y camisetas con versículos de la Biblia y citas cristianas inspiradoras. Lleva la Palabra de Dios con estilo y elegancia diaria.',
       h1: 'Ropa con Versículos Bíblicos',
       intro: 'Lleva la palabra de Dios cada día con nuestras prendas diseñadas con versículos bíblicos.'
     }
@@ -416,7 +416,7 @@ const categorySeoData = {
     },
     es: {
       title: 'Láminas y Posters Cristianos con Versículos | His Kingdom Designs',
-      description: 'Decora tu hogar con láminas cristianas y arte de pared con versículos bíblicos. Calidad premium.',
+      description: 'Decora tu hogar con láminas cristianas y arte de pared con versículos bíblicos. Calidad premium para embellecer cualquier espacio con fe.',
       h1: 'Láminas y Posters Cristianos',
       intro: 'Decora tu hogar con versículos bíblicos inspiradores y diseño moderno.'
     }
@@ -436,7 +436,7 @@ const categorySeoData = {
     },
     es: {
       title: 'Tazas Cristianas con Versículos Bíblicos | His Kingdom Designs',
-      description: 'Tazas de cerámica y botellas con versículos bíblicos y mensajes de fe. Aptas para lavavajillas.',
+      description: 'Tazas de cerámica y botellas con versículos bíblicos y mensajes de fe. Aptas para lavavajillas y diseñadas para inspirarte en tus mañanas.',
       h1: 'Tazas Cristianas',
       intro: 'Disfruta tu café con versículos bíblicos inspiradores.'
     }
@@ -456,7 +456,7 @@ const categorySeoData = {
     },
     es: {
       title: 'Pegatinas Cristianas y Stickers de Fe | His Kingdom Designs',
-      description: 'Stickers cristianos resistentes al agua para portátiles, botellas y biblias con citas bíblicas.',
+      description: 'Stickers cristianos resistentes al agua para portátiles, botellas y biblias con citas bíblicas. Diseños exclusivos y gran durabilidad.',
       h1: 'Pegatinas Cristianas',
       intro: 'Comparte tu fe con pegatinas y stickers cristianos de alta calidad.'
     }
@@ -622,6 +622,33 @@ export default async function handler(req, res) {
         { lang: 'no', href: `${DOMAIN}/` },
         { lang: 'x-default', href: `${DOMAIN}/` }
       ];
+
+      const products = await fetchProducts();
+      const featuredProducts = products.filter(p => p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p))).slice(0, 24);
+      bodySnippet = `
+        <div class="home-summary" style="margin-top: 1rem;">
+          <p class="intro-text" style="font-size: 1.15rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
+            ${description}
+          </p>
+          <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.4rem; margin-bottom: 1.25rem; font-weight: 700;">Populære kristne produkter</h2>
+            <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
+              ${featuredProducts.map(p => `
+                <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
+                  <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
+                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${p.name}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                    <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
+                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                  </a>
+                </div>
+              `).join('')}
+            </div>
+            <div style="margin-top: 2rem; text-align: center;">
+              <a href="/produkter" style="display: inline-block; background-color: #a34e36; color: #ffffff; padding: 0.75rem 1.5rem; border-radius: 12px; text-decoration: none; font-weight: 600;">Se alle våre produkter</a>
+            </div>
+          </div>
+        </div>
+      `;
     } else if (routeKey && staticContent[routeKey]) {
       const data = staticContent[routeKey][lang] || staticContent[routeKey].no;
       title = data.title;
@@ -634,7 +661,51 @@ export default async function handler(req, res) {
         { lang: 'x-default', href: `${DOMAIN}${targetPath}` }
       ];
 
-      if (routeKey === 'gifts') {
+      if (routeKey === 'products') {
+        const products = await fetchProducts();
+        const catalogProducts = products.filter(p => p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
+        bodySnippet = `
+          <div class="products-summary" style="margin-top: 1rem;">
+            <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
+              ${description}
+            </p>
+            <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
+              ${catalogProducts.map(p => `
+                <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
+                  <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
+                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${p.name}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                    <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
+                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                  </a>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+        extraJsonLd = `
+          <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": ${JSON.stringify(h1Text)},
+            "description": ${JSON.stringify(description)},
+            "url": "${canonicalUrl}",
+            "mainEntity": {
+              "@type": "ItemList",
+              "numberOfItems": ${catalogProducts.length},
+              "itemListElement": ${JSON.stringify(catalogProducts.slice(0, 30).map((p, idx) => ({
+                "@type": "ListItem",
+                "position": idx + 1,
+                "url": `${DOMAIN}/produkt/${p.id}`,
+                "name": p.name,
+                "image": getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 400, 400)
+              })))}
+            }
+          }
+          </script>
+        `;
+      } else if (routeKey === 'gifts') {
         const products = await fetchProducts();
         const giftProducts = products.filter(p => lang === 'en' || !isProductOceaniaExclusive(p)).slice(0, 16);
         bodySnippet = `
@@ -802,12 +873,12 @@ export default async function handler(req, res) {
           <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
             ${seoData?.intro || description}
           </p>
-          <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
-            ${matchedProducts.slice(0, 16).map(p => `
+          <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
+            ${matchedProducts.map(p => `
               <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
                 <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
-                  <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl)}" alt="${p.name}" width="200" height="200" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
-                  <h3 style="font-size: 1rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
+                  <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${p.name}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                  <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
                   <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
                 </a>
               </div>
@@ -858,8 +929,9 @@ export default async function handler(req, res) {
         const rawText = stripHtml(product.description || '');
         let prodDesc = rawText;
         if (prodDesc.length < 110) {
-          prodDesc = `Kjøp ${cleanName} hos His Kingdom Designs. Rask levering i Norge, førsteklasses kvalitet og kristen design.`;
-        } else if (prodDesc.length > 155) {
+          prodDesc = `Kjøp ${cleanName} hos His Kingdom Designs. Norsk kristen nettbutikk med rask levering, god kvalitet og tro i fokus.`;
+        }
+        if (prodDesc.length > 155) {
           prodDesc = `${prodDesc.substring(0, 150).trim()}...`;
         }
         description = prodDesc;
@@ -868,11 +940,28 @@ export default async function handler(req, res) {
         h1Text = product.name;
         
         const priceVal = product.price?.price || product.price || 0;
+        const otherProducts = products.filter(p => p.id !== product.id && p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
+        const relatedProducts = otherProducts.slice(0, 6);
+
         bodySnippet = `
           <div class="product-summary" style="margin-top: 1rem;">
             <p class="price" style="font-weight: bold; font-size: 1.25rem; color: #a34e36;">${priceVal} NOK</p>
             <p class="description" style="margin: 1rem 0; line-height: 1.6;">${description}</p>
             <img src="${ogImage}" alt="${product.name}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
+            <div class="related-products" style="margin-top: 3rem; border-top: 1px solid #e5e7eb; padding-top: 2rem;">
+              <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; font-weight: 600;">Flere populære produkter</h2>
+              <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
+                ${relatedProducts.map(rp => `
+                  <div class="product-card" style="background: #fff; border-radius: 10px; padding: 0.75rem; border: 1px solid #e5e7eb;">
+                    <a href="/produkt/${rp.id}" style="text-decoration: none; color: inherit;">
+                      <img src="${getWixImageUrl(rp.media?.mainMedia?.image?.url || rp.imageUrl, 200, 200)}" alt="${rp.name}" width="150" height="150" loading="lazy" style="width: 100%; height: auto; border-radius: 6px; object-fit: contain;" />
+                      <h3 style="font-size: 0.9rem; margin: 0.5rem 0 0.25rem; font-weight: 600;">${rp.name}</h3>
+                      <p style="color: #a34e36; font-weight: bold; margin: 0; font-size: 0.85rem;">${rp.price?.price || rp.price || ''} NOK</p>
+                    </a>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
           </div>
         `;
 
@@ -1038,14 +1127,16 @@ export default async function handler(req, res) {
 
     html = html.replace('</head>', `${headInject}\n</head>`);
 
-    // Detect if client is a search engine crawler, AI crawler, or social bot
+    // Detect if client is a search engine crawler, AI crawler, or SEO audit bot
     const userAgent = req.headers['user-agent'] || '';
-    const isBot = /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse|ahrefsbot|semrushbot|dotbot|bytespider|applebot|gptbot|claudebot|perplexitybot|google-extended/i.test(userAgent);
+    const isBot = /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse|ahrefs|semrush|dotbot|bytespider|applebot|gptbot|claudebot|perplexity|google-extended|screaming frog|site-audit/i.test(userAgent);
 
     // Only inject semantic crawler markup inside <div id="root"> for search engines and social bots to eliminate initial flash for real users
     if (isBot) {
       const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${h1Text}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
       html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
+      // Remove noscript fallback for crawlers to guarantee exactly ONE single <h1> tag and eliminate duplicate navigation
+      html = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, '');
     }
 
     // 8. Send Response with Edge CDN caching (Instant response for AI crawlers, fresh client app for users)
