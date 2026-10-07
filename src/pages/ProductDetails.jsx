@@ -1060,7 +1060,8 @@ export default function ProductDetails() {
     product && typeof product.description === 'string' 
       ? product.description.replace(/<[^>]*>/g, '').substring(0, 155) 
       : t('home.metaDesc'),
-    product ? { type: 'product', image: product.image, price: `${activePrice} NOK` } : null
+    product ? { type: 'product', image: product.image, price: `${activePrice} NOK` } : null,
+    product
   );
 
   // Dynamic Product & Breadcrumbs JSON-LD Schema (World-Class SEO)

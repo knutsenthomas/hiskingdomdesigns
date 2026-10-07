@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { canonicalCategoryPath, canonicalProductPath } from '../src/lib/seoCanonical.js';
 import path from 'path';
 import { createClient, OAuthStrategy } from '@wix/sdk';
 import { products } from '@wix/stores';
@@ -554,6 +555,14 @@ export default async function handler(req, res) {
       return;
     }
 
+    // Consolidate known category aliases without touching checkout or API paths.
+    const categoryTarget = canonicalCategoryPath(cleanPath);
+    if (categoryTarget !== cleanPath) {
+      res.writeHead(301, { Location: `${DOMAIN}${categoryTarget}${parsedUrl.search}` });
+      res.end();
+      return;
+    }
+
     // 2. Detect language
     let lang = 'no';
     if (
@@ -590,10 +599,10 @@ export default async function handler(req, res) {
 
     let isProduct = false;
     let productId = null;
-    const productMatch = cleanPath.match(/^\/(produkt|product|producto)\/([^/]+)/);
+    const productMatch = cleanPath.match(/^\/(produkt|product|producto)\/([^/]+)$/);
     if (productMatch) {
       isProduct = true;
-      productId = productMatch[2];
+      try { productId = decodeURIComponent(productMatch[2]); } catch { productId = productMatch[2]; }
     }
 
     const isCategory = cleanPath.startsWith('/category/');
@@ -919,6 +928,13 @@ export default async function handler(req, res) {
       const product = products.find(p => p.id === productId || p.slug === productId);
 
       if (product) {
+        // Slugs and IDs must resolve to one sitemap URL, never competing canonicals.
+        const productTarget = canonicalProductPath(product);
+        if (cleanPath !== productTarget) {
+          res.writeHead(301, { Location: `${DOMAIN}${productTarget}${parsedUrl.search}` });
+          res.end();
+          return;
+        }
         const cleanName = (product.name || '').trim();
         if (cleanName.length > 35) {
           title = `${cleanName.substring(0, 32)}... | His Kingdom Designs`;

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { canonicalCategoryPath, canonicalProductPath } from '@/lib/seoCanonical';
 import { routeTranslations } from '@/lib/localizedRoutes';
 
 /**
@@ -9,7 +10,7 @@ import { routeTranslations } from '@/lib/localizedRoutes';
  * @param {string} description Page meta description
  * @param {object} ogProperties Optional Open Graph metadata (e.g. { type: 'product', image: '...' })
  */
-export default function useMeta(title, description, ogProperties = null) {
+export default function useMeta(title, description, ogProperties = null, product = null) {
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -81,7 +82,8 @@ export default function useMeta(title, description, ogProperties = null) {
 
     // 5. Update Canonical and Hreflang Alternates (SEO & GEO)
     const currentPath = window.location.pathname;
-    const cleanPath = '/' + currentPath.replace(/^\/+|\/+$/g, '');
+    const requestedPath = '/' + currentPath.replace(/^\/+|\/+$/g, '');
+    const cleanPath = product ? canonicalProductPath(product) : canonicalCategoryPath(requestedPath);
 
     // Check if the current path is a product details page
     let isProduct = false;
@@ -120,6 +122,7 @@ export default function useMeta(title, description, ogProperties = null) {
       document.head.appendChild(canonicalLink);
     }
     canonicalLink.setAttribute('href', canonicalUrl);
+    ogUrl.setAttribute('content', canonicalUrl);
 
     // Remove existing alternate hreflang tags to prevent duplication
     const existingAlternates = document.querySelectorAll('link[rel="alternate"][hreflang]');
@@ -152,5 +155,5 @@ export default function useMeta(title, description, ogProperties = null) {
     // Update HTML lang attribute dynamically for accessibility and localized search
     document.documentElement.setAttribute('lang', language);
 
-  }, [title, description, ogProperties, language]);
+  }, [title, description, ogProperties, language, product]);
 }
