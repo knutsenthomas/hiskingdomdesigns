@@ -129,7 +129,7 @@ export default function Category() {
   const categoryName = getCategoryNameBySlug(categorySlug);
 
   const seoCatKey = getSeoCategoryKey(categorySlug, categoryName);
-  const customSeoConfig = SEO_CATEGORY_CONFIG[categorySlug];
+  const customSeoConfig = language === 'no' ? SEO_CATEGORY_CONFIG[categorySlug] : null;
 
   const exploreDesc = customSeoConfig?.exploreDesc || (() => {
     const exploreDescKey = `category.exploreDesc.${seoCatKey}`;

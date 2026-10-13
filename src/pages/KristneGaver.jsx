@@ -23,8 +23,8 @@ export default function KristneGaver() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [openFaq, setOpenFaq] = useState(null);
 
-  const metaTitle = 'Kristne gaver med mening | His Kingdom Designs';
-  const metaDesc = 'Finn kristne gaver med mening. Oppdag klær, kopper, plakater og produkter med bibelvers og kristne budskap hos His Kingdom Designs.';
+  const metaTitle = t('gifts.metaTitle');
+  const metaDesc = t('gifts.metaDesc');
 
   useMeta(metaTitle, metaDesc);
 

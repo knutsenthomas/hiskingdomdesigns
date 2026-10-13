@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { translations, SLUG_ALIASES } from '@/lib/translations';
 
 export default function CmsText({ 
   slug, 
@@ -11,30 +12,66 @@ export default function CmsText({
   style = {}
 }) {
   const { cmsContent, updateCmsContent, isAdminEditing, showToast } = useApp();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
 
   const getCmsText = () => {
-    let text = "";
-    if (language === 'en') {
-      text = cmsContent?.[slug + '-en'] || cmsContent?.[slug];
-    } else if (language === 'es') {
-      text = cmsContent?.[slug + '-es'] || cmsContent?.[slug];
+    // 1. Language-specific CMS edit saved by admin in Firestore
+    const activeCmsKey = language === 'en' ? `${slug}-en` : (language === 'es' ? `${slug}-es` : slug);
+    const customText = cmsContent?.[activeCmsKey];
+    if (customText !== undefined && customText !== null && customText !== '') {
+      return customText;
+    }
+
+    // 2. Active language translation dictionary lookup
+    const currentDict = translations[language] || translations['no'] || {};
+
+    // a) Direct slug match
+    if (currentDict[slug] !== undefined && currentDict[slug] !== null && currentDict[slug] !== '') {
+      return currentDict[slug];
+    }
+
+    // b) Slug alias match
+    const aliasKey = SLUG_ALIASES[slug];
+    if (aliasKey && currentDict[aliasKey] !== undefined && currentDict[aliasKey] !== null && currentDict[aliasKey] !== '') {
+      return currentDict[aliasKey];
+    }
+
+    // c) Dot / Dash normalization match
+    const dotSlug = slug.replace(/-/g, '.');
+    if (currentDict[dotSlug] !== undefined && currentDict[dotSlug] !== null && currentDict[dotSlug] !== '') {
+      return currentDict[dotSlug];
+    }
+    const dashSlug = slug.replace(/\./g, '-');
+    if (currentDict[dashSlug] !== undefined && currentDict[dashSlug] !== null && currentDict[dashSlug] !== '') {
+      return currentDict[dashSlug];
+    }
+
+    // 3. Fallback resolution
+    if (language === 'no') {
+      if (fallback !== undefined && fallback !== null && fallback !== '') {
+        return fallback;
+      }
+      if (cmsContent?.[slug] !== undefined && cmsContent?.[slug] !== null && cmsContent?.[slug] !== '') {
+        return cmsContent[slug];
+      }
     } else {
-      text = cmsContent?.[slug];
-    }
+      // For EN/ES:
+      // If a fallback was provided, check if it was dynamically translated by the caller
+      // (i.e. does not match the static Norwegian reference string)
+      const noDict = translations['no'] || {};
+      const norwegianRef = noDict[slug] || (aliasKey && noDict[aliasKey]) || noDict[dotSlug] || noDict[dashSlug];
 
-    if (text !== undefined && text !== null && text !== '') {
-      return text;
-    }
+      if (fallback !== undefined && fallback !== null && fallback !== '' && (!norwegianRef || fallback !== norwegianRef)) {
+        return fallback;
+      }
 
-    // Fallback order: Explicit fallback -> Translation dictionary -> Slug itself
-    if (fallback !== undefined && fallback !== null && fallback !== '') {
-      return fallback;
-    }
-
-    const dictText = t(slug);
-    if (dictText && dictText !== slug) {
-      return dictText;
+      // Ultimate fallback if neither translated dict nor custom CMS edit exists
+      if (fallback !== undefined && fallback !== null && fallback !== '') {
+        return fallback;
+      }
+      if (cmsContent?.[slug] !== undefined && cmsContent?.[slug] !== null && cmsContent?.[slug] !== '') {
+        return cmsContent[slug];
+      }
     }
 
     return '';
