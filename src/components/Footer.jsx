@@ -85,9 +85,12 @@ export default function Footer() {
             <div className="w-10 h-10 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
               <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-headline-md font-headline-md font-extrabold tracking-tight text-white group-hover:text-terracotta transition-colors whitespace-nowrap">
-              His Kingdom Designs
-            </span>
+            <CmsText
+              slug="footer-brand-title"
+              fallback="His Kingdom Designs"
+              as="span"
+              className="text-headline-md font-headline-md font-extrabold tracking-tight text-white group-hover:text-terracotta transition-colors whitespace-nowrap"
+            />
           </Link>
           <CmsText
             slug="footer-brand-desc"
@@ -225,72 +228,112 @@ export default function Footer() {
 
         {/* Explore Column */}
         <div className="lg:col-span-2">
-          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.explore')}</h4>
+          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider font-bold">
+            <CmsText slug="footer-explore-heading" fallback={t('footer.explore')} />
+          </h4>
           <ul className="space-y-3 font-body-md text-body-md">
             <li>
-              <Link to={localizedPath('/products')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('category.all')}</Link>
+              <Link to={localizedPath('/products')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-all" fallback={t('category.all')} />
+              </Link>
             </li>
             <li>
-              <Link to="/kristne-gaver" className="text-parchment/80 hover:text-terracotta transition-colors">Gaver</Link>
+              <Link to="/kristne-gaver" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-gifts" fallback="Gaver" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristne-klaer" className="text-parchment/80 hover:text-terracotta transition-colors">Klær</Link>
+              <Link to="/category/kristne-klaer" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-clothing" fallback="Klær" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristne-t-skjorter" className="text-parchment/80 hover:text-terracotta transition-colors">T-skjorter</Link>
+              <Link to="/category/kristne-t-skjorter" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-tshirts" fallback="T-skjorter" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristne-gensere" className="text-parchment/80 hover:text-terracotta transition-colors">Gensere</Link>
+              <Link to="/category/kristne-gensere" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-sweaters" fallback="Gensere" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristen-streetwear" className="text-parchment/80 hover:text-terracotta transition-colors">Streetwear</Link>
+              <Link to="/category/kristen-streetwear" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-streetwear" fallback="Streetwear" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/klaer-med-bibelvers" className="text-parchment/80 hover:text-terracotta transition-colors">Klær med bibelvers</Link>
+              <Link to="/category/klaer-med-bibelvers" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-verses" fallback="Klær med bibelvers" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristne-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">Plakater</Link>
+              <Link to="/category/kristne-plakater" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-posters" fallback="Plakater" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristne-kopper" className="text-parchment/80 hover:text-terracotta transition-colors">Kopper</Link>
+              <Link to="/category/kristne-kopper" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-mugs" fallback="Kopper" />
+              </Link>
             </li>
             <li>
-              <Link to="/category/kristne-klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">Klistremerker</Link>
+              <Link to="/category/kristne-klistermerker" className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-stickers" fallback="Klistremerker" />
+              </Link>
             </li>
           </ul>
         </div>
 
         {/* Customer Info Column */}
         <div className="lg:col-span-3">
-          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.customerService')}</h4>
+          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider font-bold">
+            <CmsText slug="footer-cs-heading" fallback={t('footer.customerService')} />
+          </h4>
           <ul className="space-y-4 font-body-md text-body-md">
             <li>
-              <Link to={localizedPath('/team')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.meetTeam')}</Link>
+              <Link to={localizedPath('/team')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-team" fallback={t('footer.meetTeam')} />
+              </Link>
             </li>
             <li>
-              <Link to={localizedPath('/about')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.whoAreWe')}</Link>
+              <Link to={localizedPath('/about')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-about" fallback={t('footer.whoAreWe')} />
+              </Link>
             </li>
             <li>
-              <Link to={localizedPath('/shipping')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.shippingReturns')}</Link>
+              <Link to={localizedPath('/shipping')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-shipping" fallback={t('footer.shippingReturns')} />
+              </Link>
             </li>
             <li>
-              <Link to={localizedPath('/faq')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.faq')}</Link>
+              <Link to={localizedPath('/faq')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-faq" fallback={t('footer.faq')} />
+              </Link>
             </li>
             <li>
-              <Link to={localizedPath('/privacy')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.privacyPolicy')}</Link>
+              <Link to={localizedPath('/privacy')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-privacy" fallback={t('footer.privacyPolicy')} />
+              </Link>
             </li>
             <li>
-              <Link to={localizedPath('/betingelser')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.terms')}</Link>
+              <Link to={localizedPath('/betingelser')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-terms" fallback={t('footer.terms')} />
+              </Link>
             </li>
             <li>
-              <Link to={localizedPath('/cancellation')} className="text-parchment/80 hover:text-terracotta transition-colors">{t('footer.cancellation')}</Link>
+              <Link to={localizedPath('/cancellation')} className="text-parchment/80 hover:text-terracotta transition-colors">
+                <CmsText slug="footer-link-cancellation" fallback={t('footer.cancellation')} />
+              </Link>
             </li>
           </ul>
         </div>
 
         {/* Newsletter Column */}
         <div className="lg:col-span-3">
-          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider">{t('footer.newsletter')}</h4>
+          <h4 className="font-label-md text-label-md text-white mb-6 uppercase tracking-wider font-bold">
+            <CmsText slug="footer-newsletter-heading" fallback={t('footer.newsletter')} />
+          </h4>
           <CmsText
             slug="footer-newsletter-desc"
             fallback={t('footer.newsletterDesc')}
@@ -312,7 +355,7 @@ export default function Footer() {
               disabled={loading}
               className="bg-terracotta text-white px-4 py-2 rounded font-label-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider font-bold shrink-0 whitespace-nowrap disabled:opacity-50"
             >
-              {loading ? t('footer.sending') : t('footer.subscribeBtn')}
+              {loading ? t('footer.sending') : <CmsText slug="footer-subscribe-btn" fallback={t('footer.subscribeBtn')} />}
             </button>
           </form>
           {subscribed && (
@@ -323,7 +366,9 @@ export default function Footer() {
           )}
           
           <div className="mt-8">
-            <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-3">{t('footer.payment')}</p>
+            <p className="text-center md:text-left text-label-sm font-label-sm text-parchment/40 tracking-widest uppercase mb-3">
+              <CmsText slug="footer-payment-heading" fallback={t('footer.payment')} />
+            </p>
             <div className="flex gap-3 justify-center md:justify-start items-center">
               <img 
                 src="/vipps.svg" 
@@ -356,7 +401,10 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10 pt-8 text-center text-label-sm text-parchment/40 px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
-        <p>&copy; {new Date().getFullYear()} His Kingdom Designs. {t('footer.allRightsReserved')}</p>
+        <p>
+          &copy; {new Date().getFullYear()} His Kingdom Designs.{' '}
+          <CmsText slug="footer-copyright-text" fallback={t('footer.allRightsReserved')} />
+        </p>
       </div>
     </footer>
   );

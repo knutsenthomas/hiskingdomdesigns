@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { motion, AnimatePresence } from 'framer-motion';
 import CartDrawer from '@/components/CartDrawer';
+import CmsText from '@/components/CmsText';
 
 // Helper to safely extract and build profile image URL from Wix member object
 
@@ -209,9 +210,12 @@ export default function Header() {
               <div className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
                 <img src="/logo-hkm.png" alt="His Kingdom Designs Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-[12px] min-[360px]:text-[13px] min-[400px]:text-[14px] sm:text-[15px] md:text-base xl:text-lg 2xl:text-xl font-bold tracking-tight whitespace-nowrap">
-                His Kingdom Designs
-              </span>
+              <CmsText
+                slug="nav-brand-title"
+                fallback="His Kingdom Designs"
+                as="span"
+                className="text-[12px] min-[360px]:text-[13px] min-[400px]:text-[14px] sm:text-[15px] md:text-base xl:text-lg 2xl:text-xl font-bold tracking-tight whitespace-nowrap"
+              />
             </Link>
           </div>
           
@@ -225,7 +229,7 @@ export default function Header() {
               }`}
             >
               <span className="relative py-1">
-                {t('nav.products')}
+                <CmsText slug="nav-products" fallback={t('nav.products')} />
                 <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
                   location.pathname === localizedPath('/products') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 }`} />
@@ -249,7 +253,7 @@ export default function Header() {
                 }`}
               >
                 <span className="relative py-1">
-                  {t('nav.categories')}
+                  <CmsText slug="nav-categories" fallback={t('nav.categories')} />
                   <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
                     megamenuOpen || location.pathname.startsWith('/category/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                   }`} />
@@ -266,7 +270,7 @@ export default function Header() {
               }`}
             >
               <span className="relative py-1">
-                {t('nav.gifts') || 'Kristne gaver'}
+                <CmsText slug="nav-gifts" fallback={t('nav.gifts') || 'Kristne gaver'} />
                 <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
                   location.pathname === '/kristne-gaver' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 }`} />
@@ -284,7 +288,7 @@ export default function Header() {
             >
               <span className="relative py-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-terracotta rounded-full animate-pulse" />
-                {t('nav.sale')}
+                <CmsText slug="nav-sale" fallback={t('nav.sale')} />
                 <span className={`absolute -bottom-1 left-0 right-0 h-[2px] bg-terracotta transition-transform duration-300 origin-left ${
                   location.pathname === '/category/Salg' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 }`} />
@@ -457,7 +461,9 @@ export default function Header() {
               <div className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto grid grid-cols-5 xl:grid-cols-7 gap-y-6 gap-x-4 lg:gap-x-6 xl:gap-8 2xl:gap-10">
                 {/* Column 1: Klær & Bekledning */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Klær & Bekledning')}</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">
+                    <CmsText slug="megamenu-heading-clothing" fallback={t('Klær & Bekledning')} />
+                  </h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Klær & Bekledning']?.map(sub => (
                       <li key={sub}>
@@ -465,7 +471,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:scale-105 transition-all duration-300 inline-block"
                         >
-                          {t(sub)}
+                          <CmsText slug={`category-name-${getSlugByCategoryName(sub)}`} fallback={t(sub)} />
                         </Link>
                       </li>
                     ))}
@@ -474,7 +480,9 @@ export default function Header() {
  
                 {/* Column 2: Bilder & Kunst */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Bilder & Kunst')}</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">
+                    <CmsText slug="megamenu-heading-art" fallback={t('Bilder & Kunst')} />
+                  </h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Bilder & Kunst']?.map(sub => (
                       <li key={sub}>
@@ -482,7 +490,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:scale-105 transition-all duration-300 inline-block"
                         >
-                          {t(sub)}
+                          <CmsText slug={`category-name-${getSlugByCategoryName(sub)}`} fallback={t(sub)} />
                         </Link>
                       </li>
                     ))}
@@ -491,7 +499,9 @@ export default function Header() {
  
                 {/* Column 3: Tilbehør & Hjem */}
                 <div>
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Tilbehør & Hjem')}</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">
+                    <CmsText slug="megamenu-heading-accessories" fallback={t('Tilbehør & Hjem')} />
+                  </h4>
                   <ul className="space-y-2 2xl:space-y-3">
                     {categoryTaxonomy['Tilbehør & Hjem']?.map(sub => (
                       <li key={sub}>
@@ -499,7 +509,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:scale-105 transition-all duration-300 inline-block"
                         >
-                          {t(sub)}
+                          <CmsText slug={`category-name-${getSlugByCategoryName(sub)}`} fallback={t(sub)} />
                         </Link>
                       </li>
                     ))}
@@ -509,7 +519,9 @@ export default function Header() {
                 {/* Column 4: Barn & Familie */}
                 <div className="flex flex-col justify-between">
                   <div>
-                    <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Barn & Familie')}</h4>
+                    <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">
+                      <CmsText slug="megamenu-heading-family" fallback={t('Barn & Familie')} />
+                    </h4>
                     <ul className="space-y-2 2xl:space-y-3 mb-6">
                       {categoryTaxonomy['Barn & Familie']?.map(sub => (
                         <li key={sub}>
@@ -517,7 +529,7 @@ export default function Header() {
                             to={`/category/${getSlugByCategoryName(sub)}`} 
                             className="text-sm text-onyx/70 hover:text-terracotta hover:scale-105 transition-all duration-300 inline-block"
                           >
-                            {t(sub)}
+                            <CmsText slug={`category-name-${getSlugByCategoryName(sub)}`} fallback={t(sub)} />
                           </Link>
                         </li>
                       ))}
@@ -529,12 +541,10 @@ export default function Header() {
                     <div className="bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                       <div>
                         <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-2">
-                          {t('nav.featured')}
+                          <CmsText slug="megamenu-featured-badge" fallback={t('nav.featured')} />
                         </span>
-                        <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">{t('nav.promo_gift_title')}</h5>
-                        <p className="text-[11px] text-secondary leading-relaxed mb-2">
-                          {t('nav.promo_gift_desc')}
-                        </p>
+                        <CmsText slug="megamenu-promo-title" fallback={t('nav.promo_gift_title')} as="h5" className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md block" />
+                        <CmsText slug="megamenu-promo-desc" fallback={t('nav.promo_gift_desc')} as="p" className="text-[11px] text-secondary leading-relaxed mb-2" />
                         
                         {/* Visual Product Image Placeholder */}
                         <div className="my-2 h-24 rounded-xl overflow-hidden relative group/promo">
@@ -552,7 +562,7 @@ export default function Header() {
                         onClick={() => setMegamenuOpen(false)}
                         className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white text-xs py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                       >
-                        {t('nav.explore_shop')}
+                        <CmsText slug="megamenu-promo-btn" fallback={t('nav.explore_shop')} />
                       </Link>
                     </div>
                   </div>
@@ -560,7 +570,9 @@ export default function Header() {
  
                 {/* Column 5 & 6: Temaer & Språk */}
                 <div className="col-span-1 xl:col-span-2">
-                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">{t('Temaer & Språk')}</h4>
+                  <h4 className="font-label-md text-label-md text-terracotta mb-4 uppercase tracking-wider font-bold">
+                    <CmsText slug="megamenu-heading-themes" fallback={t('Temaer & Språk')} />
+                  </h4>
                   <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-2 w-full">
                     {categoryTaxonomy['Temaer & Språk']?.map(sub => (
                       <li key={sub}>
@@ -568,7 +580,7 @@ export default function Header() {
                           to={`/category/${getSlugByCategoryName(sub)}`} 
                           className="text-sm text-onyx/70 hover:text-terracotta hover:scale-105 transition-all duration-300 inline-block"
                         >
-                          {t(sub)}
+                          <CmsText slug={`category-name-${getSlugByCategoryName(sub)}`} fallback={t(sub)} />
                         </Link>
                       </li>
                     ))}
@@ -579,12 +591,10 @@ export default function Header() {
                 <div className="hidden xl:flex col-span-1 bg-gradient-to-br from-terracotta/5 to-parchment/30 border border-outline-variant/50 rounded-2xl p-4 xl:p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div>
                     <span className="bg-terracotta text-white font-label-sm text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full inline-block mb-2 xl:mb-3">
-                      {t('nav.featured')}
+                      <CmsText slug="megamenu-featured-badge" fallback={t('nav.featured')} />
                     </span>
-                    <h5 className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md">{t('nav.promo_gift_title')}</h5>
-                    <p className="text-[11px] text-secondary leading-relaxed mb-2 xl:mb-3">
-                      {t('nav.promo_gift_desc')}
-                    </p>
+                    <CmsText slug="megamenu-promo-title" fallback={t('nav.promo_gift_title')} as="h5" className="text-body-lg font-bold text-onyx mb-1.5 font-headline-md block" />
+                    <CmsText slug="megamenu-promo-desc" fallback={t('nav.promo_gift_desc')} as="p" className="text-[11px] text-secondary leading-relaxed mb-2 xl:mb-3" />
                     
                     {/* Visual Product Image Placeholder */}
                     <div className="my-2 xl:my-3 h-24 xl:h-28 rounded-xl overflow-hidden relative group/promo">
@@ -602,7 +612,7 @@ export default function Header() {
                     onClick={() => setMegamenuOpen(false)}
                     className="bg-gradient-to-r from-terracotta to-terracotta/90 text-white text-xs py-2.5 rounded-lg text-center font-semibold hover:brightness-105 active:scale-[0.98] transition-all block shadow-sm shadow-terracotta/20"
                   >
-                    {t('nav.explore_shop')}
+                    <CmsText slug="megamenu-promo-btn" fallback={t('nav.explore_shop')} />
                   </Link>
                 </div>
               </div>
@@ -858,12 +868,10 @@ export default function Header() {
                       <div className="bg-gradient-to-br from-terracotta/10 to-[#1B4965]/5 border border-outline-variant/30 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
                         <div className="mb-3">
                           <span className="bg-terracotta text-white font-label-sm text-[8px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full inline-block mb-2">
-                            {t('profile.loyalty')}
+                            <CmsText slug="nav-mobile-loyalty-badge" fallback={t('profile.loyalty')} />
                           </span>
-                          <h5 className="text-xs font-extrabold text-onyx mb-1 leading-normal">{t('nav.promo_title')}</h5>
-                          <p className="text-[10px] text-secondary leading-normal">
-                            {t('nav.promo_desc')}
-                          </p>
+                          <CmsText slug="nav-mobile-promo-title" fallback={t('nav.promo_title')} as="h5" className="text-xs font-extrabold text-onyx mb-1 leading-normal block" />
+                          <CmsText slug="nav-mobile-promo-desc" fallback={t('nav.promo_desc')} as="p" className="text-[10px] text-secondary leading-normal" />
                         </div>
                         <button 
                           onClick={() => {
@@ -872,7 +880,7 @@ export default function Header() {
                           }}
                           className="bg-terracotta hover:bg-[#bd4f2a] text-white font-label-md text-[10px] font-bold py-2 rounded-lg text-center active:scale-[0.98] transition-all cursor-pointer"
                         >
-                          {t('nav.promo_btn')}
+                          <CmsText slug="nav-mobile-promo-btn" fallback={t('nav.promo_btn')} />
                         </button>
                       </div>
                     </motion.div>

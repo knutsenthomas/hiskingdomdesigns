@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ProductCard from '@/components/ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
+import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 
 const GIFT_FILTERS = [
@@ -163,21 +164,27 @@ export default function KristneGaver() {
       <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-6">
         <Link to="/" className="hover:text-terracotta transition-colors">{t('nav.home')}</Link>
         <ChevronRight size={14} className="text-secondary/60" />
-        <span className="text-onyx font-bold">Kristne gaver</span>
+        <CmsText slug="nav-gifts-title" fallback="Kristne gaver" as="span" className="text-onyx font-bold" />
       </nav>
 
       {/* Hero Header */}
       <header className="mb-12 max-w-3xl">
         <div className="inline-flex items-center gap-2 bg-terracotta/10 text-terracotta px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
           <Gift size={14} />
-          <span>Gaveguide & Inspirasjon</span>
+          <CmsText slug="gifts-page-badge" fallback="Gaveguide & Inspirasjon" as="span" />
         </div>
-        <h1 className="font-headline-xl text-3xl md:text-5xl font-bold text-onyx mb-4 tracking-tight leading-tight">
-          Kristne gaver med mening
-        </h1>
-        <p className="text-body-lg font-body-lg text-secondary leading-relaxed">
-          Leter du etter en omtenksom gave til konfirmasjon, dåp, bursdag eller en oppmuntring i hverdagen? Hos His Kingdom Designs finner du et nøye utvalgt sortiment av kristne klær, kopper, klistremerker og kunstplakater med styrkende bibelvers og trosbudskap.
-        </p>
+        <CmsText
+          slug="gifts-page-title"
+          fallback="Kristne gaver med mening"
+          as="h1"
+          className="font-headline-xl text-3xl md:text-5xl font-bold text-onyx mb-4 tracking-tight leading-tight"
+        />
+        <CmsText
+          slug="gifts-page-intro"
+          fallback="Leter du etter en omtenksom gave til konfirmasjon, dåp, bursdag eller en oppmuntring i hverdagen? Hos His Kingdom Designs finner du et nøye utvalgt sortiment av kristne klær, kopper, klistremerker og kunstplakater med styrkende bibelvers og trosbudskap."
+          as="p"
+          className="text-body-lg font-body-lg text-secondary leading-relaxed"
+        />
       </header>
 
       {/* Filter Tabs */}
@@ -195,7 +202,7 @@ export default function KristneGaver() {
                     : 'bg-white text-onyx border-outline-variant/60 hover:border-terracotta hover:text-terracotta hover:scale-[1.01]'
                 }`}
               >
-                {filter.label}
+                <CmsText slug={`gifts-filter-${filter.id}`} fallback={filter.label} as="span" />
               </button>
             );
           })}
@@ -213,13 +220,13 @@ export default function KristneGaver() {
           <div>
             <div className="flex justify-between items-center mb-6 pb-2 border-b border-outline-variant/30">
               <span className="font-label-sm text-label-sm text-secondary">
-                Viser {giftProducts.length} gaveforslag
+                <CmsText slug="gifts-showing-prefix" fallback="Viser" as="span" /> {giftProducts.length} <CmsText slug="gifts-showing-suffix" fallback="gaveforslag" as="span" />
               </span>
               <Link 
                 to="/produkter" 
                 className="text-xs text-terracotta font-semibold hover:underline flex items-center gap-1"
               >
-                <span>Se hele sortimentet</span>
+                <CmsText slug="gifts-sortiment-link" fallback="Se hele sortimentet" as="span" />
                 <ArrowRight size={14} />
               </Link>
             </div>
@@ -232,13 +239,13 @@ export default function KristneGaver() {
         ) : (
           <div className="bg-white rounded-2xl border border-outline-variant/50 p-16 text-center max-w-xl mx-auto">
             <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">redeem</span>
-            <h3 className="font-headline-md text-headline-md text-onyx mb-2">Ingen gaver funnet i denne kategorien</h3>
-            <p className="text-secondary font-body-md mb-6">Prøv et annet filter eller utforsk hele katalogen vår.</p>
+            <CmsText slug="gifts-empty-title" fallback="Ingen gaver funnet i denne kategorien" as="h3" className="font-headline-md text-headline-md text-onyx mb-2" />
+            <CmsText slug="gifts-empty-desc" fallback="Prøv et annet filter eller utforsk hele katalogen vår." as="p" className="text-secondary font-body-md mb-6" />
             <button
               onClick={() => setActiveFilter('all')}
               className="bg-terracotta text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all cursor-pointer"
             >
-              Vis alle gaver
+              <CmsText slug="gifts-empty-reset-btn" fallback="Vis alle gaver" as="span" />
             </button>
           </div>
         )}
@@ -251,30 +258,24 @@ export default function KristneGaver() {
             <div className="w-12 h-12 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center mb-4 mx-auto md:mx-0">
               <Sparkles size={24} />
             </div>
-            <h3 className="font-headline-sm text-lg font-bold text-onyx mb-2">Gaver som betyr noe</h3>
-            <p className="text-secondary text-sm leading-relaxed">
-              Hvert produkt er laget med hensikt å minne mottakeren om tro, håp og Guds urokkelige kjærlighet i hverdagen.
-            </p>
+            <CmsText slug="gifts-feature-title-1" fallback="Gaver som betyr noe" as="h3" className="font-headline-sm text-lg font-bold text-onyx mb-2" />
+            <CmsText slug="gifts-feature-desc-1" fallback="Hvert produkt er laget med hensikt å minne mottakeren om tro, håp og Guds urokkelige kjærlighet i hverdagen." as="p" className="text-secondary text-sm leading-relaxed" />
           </div>
 
           <div className="text-center md:text-left">
             <div className="w-12 h-12 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center mb-4 mx-auto md:mx-0">
               <Heart size={24} />
             </div>
-            <h3 className="font-headline-sm text-lg font-bold text-onyx mb-2">Kvalitet og omtanke</h3>
-            <p className="text-secondary text-sm leading-relaxed">
-              Vi benytter miljøvennlige materialer som organisk bomull og slitesterk keramikk som holder seg vakkert år etter år.
-            </p>
+            <CmsText slug="gifts-feature-title-2" fallback="Kvalitet og omtanke" as="h3" className="font-headline-sm text-lg font-bold text-onyx mb-2" />
+            <CmsText slug="gifts-feature-desc-2" fallback="Vi benytter miljøvennlige materialer som organisk bomull og slitesterk keramikk som holder seg vakkert år etter år." as="p" className="text-secondary text-sm leading-relaxed" />
           </div>
 
           <div className="text-center md:text-left">
             <div className="w-12 h-12 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center mb-4 mx-auto md:mx-0">
               <Gift size={24} />
             </div>
-            <h3 className="font-headline-sm text-lg font-bold text-onyx mb-2">Trygg handel fra Norge</h3>
-            <p className="text-secondary text-sm leading-relaxed">
-              14 dagers angrerett, sikker betaling med kort og Vipps, samt rask kundeservice på norsk.
-            </p>
+            <CmsText slug="gifts-feature-title-3" fallback="Trygg handel fra Norge" as="h3" className="font-headline-sm text-lg font-bold text-onyx mb-2" />
+            <CmsText slug="gifts-feature-desc-3" fallback="14 dagers angrerett, sikker betaling med kort og Vipps, samt rask kundeservice på norsk." as="p" className="text-secondary text-sm leading-relaxed" />
           </div>
         </div>
       </section>
@@ -282,23 +283,17 @@ export default function KristneGaver() {
       {/* SEO On-Page Guide & FAQ Section */}
       <section className="bg-gradient-to-br from-parchment/80 to-white/60 border border-outline-variant/30 rounded-3xl p-8 md:p-12 shadow-xs">
         <div className="max-w-3xl mb-10">
-          <h2 className="font-headline-lg text-2xl md:text-3xl text-onyx font-bold mb-4">
-            Tips for å velge den perfekte kristne gaven
-          </h2>
+          <CmsText slug="gifts-guide-title" fallback="Tips for å velge den perfekte kristne gaven" as="h2" className="font-headline-lg text-2xl md:text-3xl text-onyx font-bold mb-4" />
           <div className="w-12 h-1 bg-terracotta rounded-full mb-6" />
-          <p className="text-secondary font-body-md leading-relaxed mb-4">
-            En kristen gave er mer enn bare en gjenstand – det er en oppmuntring til tro og fellesskap. Når du velger en gave fra His Kingdom Designs, gir du et budskap som kan gi styrke i motgang og glede i hverdagen.
-          </p>
-          <p className="text-secondary font-body-md leading-relaxed">
-            Enten du skal i konfirmasjon, dåp, bryllup eller ønsker å overraske en venn med en «tenker på deg»-gave, har vi noe som passer anledningen.
-          </p>
+          <CmsText slug="gifts-guide-desc-1" fallback="En kristen gave er mer enn bare en gjenstand – det er en oppmuntring til tro og fellesskap. Når du velger en gave fra His Kingdom Designs, gir du et budskap som kan gi styrke i motgang og glede i hverdagen." as="p" className="text-secondary font-body-md leading-relaxed mb-4" />
+          <CmsText slug="gifts-guide-desc-2" fallback="Enten du skal i konfirmasjon, dåp, bryllup eller ønsker å overraske en venn med en «tenker på deg»-gave, har vi noe som passer anledningen." as="p" className="text-secondary font-body-md leading-relaxed" />
         </div>
 
         {/* FAQ Accordion */}
         <div className="space-y-4 max-w-3xl">
           <h3 className="font-headline-md text-xl font-bold text-onyx mb-4 flex items-center gap-2">
             <HelpCircle size={20} className="text-terracotta" />
-            <span>Vanlige spørsmål om kristne gaver</span>
+            <CmsText slug="gifts-faq-heading" fallback="Vanlige spørsmål om kristne gaver" as="span" />
           </h3>
           {faqItems.map((item, index) => {
             const isOpen = openFaq === index;
@@ -312,7 +307,7 @@ export default function KristneGaver() {
                   className="w-full text-left p-5 flex justify-between items-center gap-4 hover:bg-slate-50/50 transition-colors cursor-pointer"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-bold text-sm text-onyx">{item.q}</span>
+                  <CmsText slug={`gifts-faq-q-${index}`} fallback={item.q} as="span" className="font-bold text-sm text-onyx" />
                   <ChevronDown 
                     size={18} 
                     className={`text-terracotta transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
@@ -327,7 +322,7 @@ export default function KristneGaver() {
                       transition={{ duration: 0.2 }}
                       className="px-5 pb-5 text-sm text-secondary leading-relaxed border-t border-slate-100"
                     >
-                      <p className="pt-3">{item.a}</p>
+                      <CmsText slug={`gifts-faq-a-${index}`} fallback={item.a} as="p" className="pt-3" />
                     </motion.div>
                   )}
                 </AnimatePresence>

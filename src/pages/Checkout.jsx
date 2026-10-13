@@ -19,6 +19,7 @@ import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { reportCheckoutIncident } from '@/lib/incidentAlerts';
+import CmsText from '@/components/CmsText';
 
 export default function Checkout() {
   const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
@@ -283,19 +284,25 @@ export default function Checkout() {
           <div className="w-16 h-16 mx-auto bg-parchment rounded-full flex items-center justify-center text-secondary">
             <PackageCheck size={32} />
           </div>
-          <h1 className="font-headline-md text-2xl font-bold text-onyx">
-            {t('cart.empty') || 'Handlekurven din er tom'}
-          </h1>
-          <p className="text-secondary text-sm max-w-md mx-auto">
-            {t('cart.emptyDesc') || 'Du har ingen varer i handlekurven. Utforsk kolleksjonene våre for å finne noe du liker!'}
-          </p>
+          <CmsText
+            slug="checkout.emptyTitle"
+            fallback="Handlekurven din er tom"
+            as="h1"
+            className="font-headline-md text-2xl font-bold text-onyx"
+          />
+          <CmsText
+            slug="checkout.emptyDesc"
+            fallback="Du har ingen varer i handlekurven. Utforsk kolleksjonene våre for å finne noe du liker!"
+            as="p"
+            className="text-secondary text-sm max-w-md mx-auto"
+          />
           <div className="pt-4">
             <Link
               to={localizedPath('/products')}
               className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs hover:brightness-105 active:scale-95 transition-all shadow-md"
             >
               <ArrowLeft size={16} />
-              <span>{t('cart.continueShopping') || 'Se produkter'}</span>
+              <CmsText slug="checkout.continueShopping" fallback="Se produkter" as="span" />
             </Link>
           </div>
         </div>
@@ -318,20 +325,26 @@ export default function Checkout() {
             className="hover:text-onyx flex items-center gap-1 transition-colors"
           >
             <ArrowLeft size={14} />
-            <span>{t('cart.backToCart') || 'Handlekurv'}</span>
+            <CmsText slug="cart.backToCart" fallback="Handlekurv" as="span" />
           </Link>
           <ChevronRight size={14} className="opacity-40" />
-          <span className="text-onyx font-bold">{t('cart.checkoutAndPayment') || 'Kasse & Betaling'}</span>
+          <CmsText slug="checkout.breadcrumb" fallback="Kasse & Betaling" as="span" className="text-onyx font-bold" />
         </div>
 
         {/* Page Title */}
         <div className="mb-8 border-b border-outline-variant/30 pb-6">
-          <h1 className="font-headline-lg text-2xl sm:text-3xl font-bold text-onyx tracking-tight">
-            {t('cart.checkoutAndPayment') || 'Kasse & Betaling'}
-          </h1>
-          <p className="text-xs sm:text-sm text-secondary mt-1">
-            {t('cart.shippingNotice') || 'Fyll ut leveringsadresse for rask og trygg levering fra Norge.'}
-          </p>
+          <CmsText
+            slug="checkout.title"
+            fallback="Kasse & Betaling"
+            as="h1"
+            className="font-headline-lg text-2xl sm:text-3xl font-bold text-onyx tracking-tight"
+          />
+          <CmsText
+            slug="checkout.subtitle"
+            fallback="Fyll ut leveringsadresse for rask og trygg levering fra Norge."
+            as="p"
+            className="text-xs sm:text-sm text-secondary mt-1"
+          />
         </div>
 
         {/* Global Error Banner */}
@@ -355,15 +368,13 @@ export default function Checkout() {
                 <span className="w-7 h-7 rounded-full bg-terracotta/10 text-terracotta font-bold text-xs flex items-center justify-center">
                   1
                 </span>
-                <h2 className="font-headline-sm text-base sm:text-lg font-bold text-onyx">
-                  Kontaktinformasjon
-                </h2>
+                <CmsText slug="checkout.contactHeader" fallback="Kontaktinformasjon" as="h2" className="font-headline-sm text-base sm:text-lg font-bold text-onyx" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1 sm:col-span-1">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.email') || 'E-postadresse *'}
+                    <CmsText slug="checkout.emailLabel" fallback="E-postadresse *" as="span" />
                   </label>
                   <input
                     type="email"
@@ -383,7 +394,7 @@ export default function Checkout() {
 
                 <div className="space-y-1 sm:col-span-1">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.phone') || 'Mobilnummer *'}
+                    <CmsText slug="checkout.phoneLabel" fallback="Mobilnummer *" as="span" />
                   </label>
                   <input
                     type="tel"
@@ -409,15 +420,13 @@ export default function Checkout() {
                 <span className="w-7 h-7 rounded-full bg-terracotta/10 text-terracotta font-bold text-xs flex items-center justify-center">
                   2
                 </span>
-                <h2 className="font-headline-sm text-base sm:text-lg font-bold text-onyx">
-                  {t('cart.deliveryInfo') || 'Leveringsadresse'}
-                </h2>
+                <CmsText slug="checkout.shippingHeader" fallback="Leveringsadresse" as="h2" className="font-headline-sm text-base sm:text-lg font-bold text-onyx" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.firstName') || 'Fornavn *'}
+                    <CmsText slug="checkout.firstNameLabel" fallback="Fornavn *" as="span" />
                   </label>
                   <input
                     type="text"
@@ -437,7 +446,7 @@ export default function Checkout() {
 
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.lastName') || 'Etternavn *'}
+                    <CmsText slug="checkout.lastNameLabel" fallback="Etternavn *" as="span" />
                   </label>
                   <input
                     type="text"
@@ -457,7 +466,7 @@ export default function Checkout() {
 
                 <div className="space-y-1 sm:col-span-2">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.address') || 'Gateadresse *'}
+                    <CmsText slug="checkout.addressLabel" fallback="Gateadresse *" as="span" />
                   </label>
                   <input
                     type="text"
@@ -477,7 +486,7 @@ export default function Checkout() {
 
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.postalCode') || 'Postnummer *'}
+                    <CmsText slug="checkout.postalCodeLabel" fallback="Postnummer *" as="span" />
                   </label>
                   <input
                     type="text"
@@ -498,7 +507,7 @@ export default function Checkout() {
 
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    {t('cart.city') || 'Poststed *'}
+                    <CmsText slug="checkout.cityLabel" fallback="Poststed *" as="span" />
                   </label>
                   <input
                     type="text"
@@ -518,7 +527,7 @@ export default function Checkout() {
 
                 <div className="space-y-1 sm:col-span-2">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
-                    Land
+                    <CmsText slug="checkout.countryLabel" fallback="Land" as="span" />
                   </label>
                   <select
                     name="country"
@@ -538,9 +547,7 @@ export default function Checkout() {
                 <span className="w-7 h-7 rounded-full bg-terracotta/10 text-terracotta font-bold text-xs flex items-center justify-center">
                   3
                 </span>
-                <h2 className="font-headline-sm text-base sm:text-lg font-bold text-onyx">
-                  {t('cart.shippingOptions') || 'Fraktmetode'}
-                </h2>
+                <CmsText slug="checkout.shippingMethodHeader" fallback="Fraktmetode" as="h2" className="font-headline-sm text-base sm:text-lg font-bold text-onyx" />
               </div>
 
               {isEstimating ? (
@@ -599,9 +606,12 @@ export default function Checkout() {
           {/* RIGHT COLUMN: Order Summary & Pay Button (5 Cols) */}
           <aside className="lg:col-span-5 space-y-6">
             <div className="bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/40 p-6 sm:p-8 shadow-sm space-y-6 sticky top-24">
-              <h2 className="font-headline-sm text-lg font-bold text-onyx border-b border-outline-variant/20 pb-4">
-                {t('cart.summary') || 'Ordresammendrag'}
-              </h2>
+              <CmsText
+                slug="checkout.summaryHeader"
+                fallback="Ordresammendrag"
+                as="h2"
+                className="font-headline-sm text-lg font-bold text-onyx border-b border-outline-variant/20 pb-4"
+              />
 
               {/* Items List */}
               <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
@@ -683,7 +693,7 @@ export default function Checkout() {
                       }}
                       className="bg-onyx hover:bg-onyx/90 active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                     >
-                      {isApplyingCoupon ? '...' : (t('cart.apply') || 'Bruk')}
+                      {isApplyingCoupon ? '...' : <CmsText slug="cart.apply" fallback="Bruk" as="span" />}
                     </button>
                   </div>
                 )}
@@ -726,7 +736,7 @@ export default function Checkout() {
                       }}
                       className="bg-onyx hover:bg-onyx/90 active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                     >
-                      {isApplyingGiftCard ? '...' : (t('cart.applyGiftCard') || 'Bruk')}
+                      {isApplyingGiftCard ? '...' : <CmsText slug="cart.applyGiftCard" fallback="Bruk" as="span" />}
                     </button>
                   </div>
                 )}
@@ -738,38 +748,38 @@ export default function Checkout() {
               {/* Price Calculation Lines */}
               <div className="space-y-2.5 pt-4 border-t border-outline-variant/20 text-xs">
                 <div className="flex justify-between text-secondary">
-                  <span>{t('cart.subtotal') || 'Subtotal'}</span>
+                  <CmsText slug="cart.subtotal" fallback="Subtotal" as="span" />
                   <span className="font-semibold text-onyx">{formatPrice(subtotal)}</span>
                 </div>
 
                 {appliedCoupon && (
                   <div className="flex justify-between text-emerald-700 font-medium">
-                    <span>{t('cart.discount') || 'Rabatt'}</span>
+                    <CmsText slug="cart.discount" fallback="Rabatt" as="span" />
                     <span>-{formatPrice(appliedCoupon.discount)}</span>
                   </div>
                 )}
 
                 {appliedGiftCard && (
                   <div className="flex justify-between text-emerald-700 font-medium">
-                    <span>{t('cart.giftCard') || 'Gavekort'}</span>
+                    <CmsText slug="cart.giftCard" fallback="Gavekort" as="span" />
                     <span>-{formatPrice(appliedGiftCard.amount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-secondary">
-                  <span>{t('cart.shipping') || 'Frakt'}</span>
+                  <CmsText slug="cart.shipping" fallback="Frakt" as="span" />
                   <span className="font-semibold text-onyx">
                     {shipping === 0 ? (t('cart.free') || 'Gratis') : formatPrice(shipping)}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-[11px] text-secondary/80 pt-1">
-                  <span>{t('cart.mva') || 'Herav 25% MVA'}</span>
+                  <CmsText slug="cart.mva" fallback="Herav 25% MVA" as="span" />
                   <span>{formatPrice(total * 0.2)}</span>
                 </div>
 
                 <div className="flex justify-between items-baseline pt-4 border-t border-outline-variant/30 text-base font-bold text-onyx">
-                  <span>{t('cart.total') || 'Totalt å betale'}</span>
+                  <CmsText slug="cart.total" fallback="Totalt å betale" as="span" />
                   <span className="text-xl text-terracotta">{formatPrice(total)}</span>
                 </div>
               </div>
@@ -786,21 +796,24 @@ export default function Checkout() {
                 {isSubmitting ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Forbereder sikker betaling...</span>
+                    <CmsText slug="checkout.preparingPayment" fallback="Forbereder sikker betaling..." as="span" />
                   </>
                 ) : (
                   <>
                     <Lock size={16} />
-                    <span>Fullfør og gå til betaling ({formatPrice(total)})</span>
+                    <span><CmsText slug="checkout.proceedButton" fallback="Fullfør og gå til betaling" as="span" /> ({formatPrice(total)})</span>
                   </>
                 )}
               </button>
 
               {/* Supported Payment Logos */}
               <div className="space-y-3 pt-2 text-center">
-                <p className="text-[10px] text-secondary tracking-widest uppercase font-semibold">
-                  Sikker betaling støttet via Wix Payments
-                </p>
+                <CmsText
+                  slug="checkout.wixPaymentsNotice"
+                  fallback="Sikker betaling støttet via Wix Payments"
+                  as="p"
+                  className="text-[10px] text-secondary tracking-widest uppercase font-semibold"
+                />
                 <div className="flex justify-center items-center gap-2.5 pt-1 select-none">
                   <img
                     src="/vipps.svg"
@@ -844,11 +857,11 @@ export default function Checkout() {
               <div className="space-y-2.5 pt-4 border-t border-slate-100 text-[11px] text-secondary">
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck size={16} className="text-terracotta shrink-0" />
-                  <span>14 dagers åpent kjøp og enkel retur</span>
+                  <CmsText slug="checkout.guarantee1" fallback="14 dagers åpent kjøp og enkel retur" as="span" />
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Truck size={16} className="text-terracotta shrink-0" />
-                  <span>Rask levering direkte til postkasse eller hentested</span>
+                  <CmsText slug="checkout.guarantee2" fallback="Rask levering direkte til postkasse eller hentested" as="span" />
                 </div>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 import { db } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import CmsText from '@/components/CmsText';
 
 export default function Cancellation() {
   const { t, localizedPath } = useLanguage();
@@ -81,16 +82,25 @@ export default function Cancellation() {
     >
       {/* Title Header */}
       <div className="text-center max-w-3xl mx-auto mb-16">
-        <span className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold">
-          {t('footer.customerService') || 'Kundeservice'}
-        </span>
-        <h1 className="font-headline-xl text-3xl md:text-headline-xl font-bold text-onyx mb-6">
-          {t('cancellation.title') || 'Angre kjøp & Avbestilling'}
-        </h1>
-        <p className="font-body-lg text-body-lg text-secondary leading-relaxed">
-          {t('cancellation.desc') ||
+        <CmsText
+          slug="cancellation-badge"
+          fallback={t('footer.customerService') || 'Kundeservice'}
+          as="span"
+          className="text-terracotta font-label-md text-label-md uppercase tracking-widest mb-3 block font-semibold"
+        />
+        <CmsText
+          slug="cancellation-title"
+          fallback={t('cancellation.title') || 'Angre kjøp & Avbestilling'}
+          as="h1"
+          className="font-headline-xl text-3xl md:text-headline-xl font-bold text-onyx mb-6"
+        />
+        <CmsText
+          slug="cancellation-desc"
+          fallback={t('cancellation.desc') ||
             'Fyll ut dette skjemaet for å benytte deg av din angrerett eller avbestille en ordre. Forespørselen vil bli registrert og behandlet så raskt som mulig.'}
-        </p>
+          as="p"
+          className="font-body-lg text-body-lg text-secondary leading-relaxed"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start max-w-5xl mx-auto">
@@ -99,28 +109,28 @@ export default function Cancellation() {
           <div className="bg-white rounded-2xl border border-outline-variant/30 p-8 shadow-sm space-y-6">
             <h3 className="font-headline-sm text-lg font-bold text-onyx flex items-center gap-3">
               <ShieldCheck className="text-terracotta" size={24} />
-              <span>Dine rettigheter</span>
+              <CmsText slug="cancellation-rights-title" fallback="Dine rettigheter" as="span" />
             </h3>
 
             <div className="space-y-4 font-body-md text-body-md text-secondary leading-relaxed">
               <div className="flex gap-3">
                 <div className="mt-1 text-terracotta font-bold">•</div>
                 <p>
-                  <strong>14 dagers angrerett:</strong> Som forbruker har du lovfestet angrerett i 14 dager fra du mottar varen, i henhold til angrerettloven.
+                  <strong>14 dagers angrerett:</strong> <CmsText slug="cancellation-right-1" fallback="Som forbruker har du lovfestet angrerett i 14 dager fra du mottar varen, i henhold til angrerettloven." as="span" />
                 </p>
               </div>
 
               <div className="flex gap-3">
                 <div className="mt-1 text-terracotta font-bold">•</div>
                 <p>
-                  <strong>Avbestilling før produksjon:</strong> Hvis ordren din ikke har gått to trykk ennå, kan vi kansellere den kostnadsfritt og refundere hele beløpet med en gang.
+                  <strong>Avbestilling før produksjon:</strong> <CmsText slug="cancellation-right-2" fallback="Hvis ordren din ikke har gått to trykk ennå, kan vi kansellere den kostnadsfritt og refundere hele beløpet med en gang." as="span" />
                 </p>
               </div>
 
               <div className="flex gap-3">
                 <div className="mt-1 text-terracotta font-bold">•</div>
                 <p>
-                  <strong>Rask refusjon:</strong> Når forespørselen er godkjent, utbetales pengene direkte tilbake til samme betalingsmiddel som du brukte ved kjøpet (f.eks. Vipps eller kort).
+                  <strong>Rask refusjon:</strong> <CmsText slug="cancellation-right-3" fallback="Når forespørselen er godkjent, utbetales pengene direkte tilbake til samme betalingsmiddel som du brukte ved kjøpet (f.eks. Vipps eller kort)." as="span" />
                 </p>
               </div>
             </div>
@@ -129,11 +139,14 @@ export default function Cancellation() {
           <div className="bg-white rounded-2xl border border-outline-variant/30 p-8 shadow-sm space-y-4">
             <h4 className="font-headline-xs text-md font-semibold text-onyx flex items-center gap-2">
               <HelpCircle className="text-terracotta" size={20} />
-              <span>Trenger du hjelp?</span>
+              <CmsText slug="cancellation-help-title" fallback="Trenger du hjelp?" as="span" />
             </h4>
-            <p className="font-body-md text-body-md text-secondary leading-relaxed">
-              Dersom du har spørsmål angående en pågående retur eller ønsker å snakke med oss, ta gjerne kontakt på <strong>post@hiskingdomministry.no</strong> eller bruk chat-widgeten nederst til høyre.
-            </p>
+            <CmsText
+              slug="cancellation-help-desc"
+              fallback="Dersom du har spørsmål angående en pågående retur eller ønsker å snakke med oss, ta gjerne kontakt på post@hiskingdomministry.no eller bruk chat-widgeten nederst til høyre."
+              as="p"
+              className="font-body-md text-body-md text-secondary leading-relaxed"
+            />
           </div>
         </div>
 
@@ -151,7 +164,7 @@ export default function Cancellation() {
               >
                 <div className="flex items-center gap-3 mb-2 pb-4 border-b border-outline-variant/30">
                   <FileText className="text-terracotta" size={22} />
-                  <h3 className="font-headline-sm text-lg font-bold text-onyx">Opprett forespørsel</h3>
+                  <CmsText slug="cancellation-form-title" fallback="Opprett forespørsel" as="h3" className="font-headline-sm text-lg font-bold text-onyx" />
                 </div>
 
                 {validationError && (
@@ -171,7 +184,7 @@ export default function Cancellation() {
                 {/* Name */}
                 <div className="space-y-2">
                   <label htmlFor="name" className="block font-label-md text-label-md text-onyx font-bold">
-                    {t('cancellation.name') || 'Fullt navn'} <span className="text-terracotta">*</span>
+                    <CmsText slug="cancellation.name" fallback="Fullt navn" as="span" /> <span className="text-terracotta">*</span>
                   </label>
                   <input
                     type="text"
@@ -188,7 +201,7 @@ export default function Cancellation() {
                 {/* Email */}
                 <div className="space-y-2">
                   <label htmlFor="email" className="block font-label-md text-label-md text-onyx font-bold">
-                    {t('cancellation.email') || 'E-postadresse'} <span className="text-terracotta">*</span>
+                    <CmsText slug="cancellation.email" fallback="E-postadresse" as="span" /> <span className="text-terracotta">*</span>
                   </label>
                   <input
                     type="email"
@@ -205,7 +218,7 @@ export default function Cancellation() {
                 {/* Order Number */}
                 <div className="space-y-2">
                   <label htmlFor="orderNumber" className="block font-label-md text-label-md text-onyx font-bold">
-                    {t('cancellation.orderNumber') || 'Ordrenummer'} <span className="text-terracotta">*</span>
+                    <CmsText slug="cancellation.orderNumber" fallback="Ordrenummer" as="span" /> <span className="text-terracotta">*</span>
                   </label>
                   <input
                     type="text"
@@ -222,7 +235,7 @@ export default function Cancellation() {
                 {/* Phone */}
                 <div className="space-y-2">
                   <label htmlFor="phone" className="block font-label-md text-label-md text-onyx font-bold">
-                    {t('cancellation.phone') || 'Telefonnummer (valgfritt)'}
+                    <CmsText slug="cancellation.phone" fallback="Telefonnummer (valgfritt)" as="span" />
                   </label>
                   <input
                     type="tel"
@@ -238,7 +251,7 @@ export default function Cancellation() {
                 {/* Comments */}
                 <div className="space-y-2">
                   <label htmlFor="comments" className="block font-label-md text-label-md text-onyx font-bold">
-                    {t('cancellation.comments') || 'Utfyllende kommentar eller årsak (valgfritt)'}
+                    <CmsText slug="cancellation.comments" fallback="Utfyllende kommentar eller årsak (valgfritt)" as="span" />
                   </label>
                   <textarea
                     id="comments"
@@ -260,12 +273,12 @@ export default function Cancellation() {
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />
-                      <span>{t('cancellation.submitting') || 'Sender...'}</span>
+                      <CmsText slug="cancellation.submitting" fallback="Sender..." as="span" />
                     </>
                   ) : (
                     <>
                       <Send size={18} />
-                      <span>{t('cancellation.submit') || 'Send avbestilling / angrerett-forespørsel'}</span>
+                      <CmsText slug="cancellation.submit" fallback="Send avbestilling / angrerett-forespørsel" as="span" />
                     </>
                   )}
                 </button>
@@ -282,13 +295,18 @@ export default function Cancellation() {
                   <CheckCircle2 size={36} />
                 </div>
                 <div className="space-y-3">
-                  <h3 className="font-headline-md text-xl md:text-headline-md font-bold text-onyx">
-                    {t('cancellation.successTitle') || 'Kanselleringsforespørsel mottatt!'}
-                  </h3>
-                  <p className="font-body-md text-body-md text-secondary leading-relaxed max-w-md mx-auto">
-                    {t('cancellation.successDesc') ||
-                      'Takk. Din forespørsel er registrert og lagret i vårt system. Vi vil behandle den og refundere beløpet i henhold til kjøpsbetingelsene så snart som mulig.'}
-                  </p>
+                  <CmsText
+                    slug="cancellation.successTitle"
+                    fallback="Kanselleringsforespørsel mottatt!"
+                    as="h3"
+                    className="font-headline-md text-xl md:text-headline-md font-bold text-onyx"
+                  />
+                  <CmsText
+                    slug="cancellation.successDesc"
+                    fallback="Takk. Din forespørsel er registrert og lagret i vårt system. Vi vil behandle den og refundere beløpet i henhold til kjøpsbetingelsene så snart som mulig."
+                    as="p"
+                    className="font-body-md text-body-md text-secondary leading-relaxed max-w-md mx-auto"
+                  />
                 </div>
                 <div className="pt-4 border-t border-outline-variant/30 flex justify-center gap-4">
                   <Link

@@ -756,7 +756,7 @@ export default function Home() {
                           to="/category/christmas"
                           className="group bg-[#C2613B] hover:bg-[#a84f2d] text-white px-8 py-3.5 rounded-[12px] font-label-md text-sm sm:text-base font-semibold transition-all active:scale-[0.98] hover:scale-[1.03] shadow-[0_10px_30px_rgba(0,0,0,0.45)] cursor-pointer flex items-center justify-center gap-2 border border-white/20"
                         >
-                          <span>{slide.ctaText || "Se hele julekolleksjonen"}</span>
+                          <CmsText slug="home-christmas-hero-cta" fallback={slide.ctaText || "Se hele julekolleksjonen"} as="span" />
                           <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform duration-300" />
                         </Link>
                       </div>
@@ -769,7 +769,7 @@ export default function Home() {
                         className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
                       >
                         <span>✨</span>
-                        <span>{t('home.newMonthlyPacks')}</span>
+                        <CmsText slug="home-hero-monthly-pill" fallback={t('home.newMonthlyPacks')} as="span" />
                       </button>
 
                       {slide.isProduct ? (
@@ -810,7 +810,7 @@ export default function Home() {
                           onClick={slide.ctaAction}
                           className="group bg-terracotta hover:bg-[#bd4f2a] text-white px-8 py-4 rounded-[12px] font-label-md text-label-md transition-all active:scale-[0.98] hover:scale-[1.02] hover:shadow-xl duration-300 shadow-lg cursor-pointer flex items-center justify-center gap-2"
                         >
-                          <span>{slide.ctaText}</span>
+                          <CmsText slug={idx === 1 ? "home-hero-cta" : "home-hero-cta-2"} fallback={slide.ctaText} as="span" />
                           <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
                         </button>
                       </div>
@@ -875,7 +875,7 @@ export default function Home() {
             onClick={() => navigate('/produkter')}
             className="text-terracotta font-label-md text-label-md flex items-center gap-2 hover:underline underline-offset-4 font-bold group cursor-pointer"
           >
-            {t('home.categories.allBtn')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
+            <CmsText slug="home-categories-all-btn" fallback={t('home.categories.allBtn')} as="span" /> <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
           </button>
         </div>
         
@@ -895,7 +895,7 @@ export default function Home() {
               <CmsText slug={currentSet.large.titleSlug} fallback={getCategoryTranslation(currentSet.large).title} as="h3" className="text-white font-headline-md text-headline-md mb-2" />
               <CmsText slug={currentSet.large.descSlug} fallback={getCategoryTranslation(currentSet.large).desc} as="p" className="text-white/80 font-body-md text-body-md mb-4 max-w-sm" />
               <span className="w-fit bg-white text-onyx px-5 py-2.5 rounded font-label-md text-label-md group-hover:bg-terracotta group-hover:text-white transition-colors duration-300">
-                {t('home.categories.shopNow')}
+                <CmsText slug="home-categories-shop-now" fallback={t('home.categories.shopNow')} as="span" />
               </span>
             </div>
           </Link>
@@ -960,28 +960,37 @@ export default function Home() {
         <div className="px-margin-mobile md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto">
           <div className="bg-white border border-outline-variant/40 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xs">
             <div className="max-w-xl">
-              <span className="text-terracotta font-label-md text-xs uppercase tracking-widest font-semibold mb-2 block">
-                {t('gifts.badge') || 'Gaveidéer & Inspirasjon'}
-              </span>
-              <h2 className="font-headline-lg text-2xl md:text-3xl font-bold text-onyx mb-3">
-                {t('gifts.h1') || 'Kristne gaver med mening'}
-              </h2>
-              <p className="text-secondary text-sm md:text-base leading-relaxed mb-6">
-                {t('gifts.intro') || 'Leter du etter en omtenksom gave til konfirmasjon, dåp, bursdag eller en oppmuntring i hverdagen? Utforsk vårt utvalg av meningsfylte kristne gaver med bibelvers og oppmuntrende budskap.'}
-              </p>
+              <CmsText 
+                slug="home-gifts-badge" 
+                fallback={t('gifts.badge') || 'Gaveidéer & Inspirasjon'} 
+                as="span" 
+                className="text-terracotta font-label-md text-xs uppercase tracking-widest font-semibold mb-2 block" 
+              />
+              <CmsText 
+                slug="home-gifts-title" 
+                fallback={t('gifts.h1') || 'Kristne gaver med mening'} 
+                as="h2" 
+                className="font-headline-lg text-2xl md:text-3xl font-bold text-onyx mb-3" 
+              />
+              <CmsText 
+                slug="home-gifts-intro" 
+                fallback={t('gifts.intro') || 'Leter du etter en omtenksom gave til konfirmasjon, dåp, bursdag eller en oppmuntring i hverdagen? Utforsk vårt utvalg av meningsfylte kristne gaver med bibelvers og oppmuntrende budskap.'} 
+                as="p" 
+                className="text-secondary text-sm md:text-base leading-relaxed mb-6" 
+              />
               <div className="flex flex-wrap gap-4">
                 <Link 
                   to="/kristne-gaver"
                   className="inline-flex items-center gap-2 bg-terracotta hover:bg-[#bd4f2a] text-white px-6 py-3.5 rounded-xl font-label-md text-sm font-semibold transition-all shadow-sm active:scale-[0.98] hover:scale-[1.02] hover:shadow-md"
                 >
-                  <span>Finn kristne gaver med mening</span>
+                  <CmsText slug="home-gifts-cta-1" fallback="Finn kristne gaver med mening" as="span" />
                   <ArrowRight size={16} />
                 </Link>
                 <Link 
                   to="/category/kristne-t-skjorter"
                   className="inline-flex items-center gap-2 bg-transparent hover:bg-slate-50 text-onyx border border-outline-variant px-5 py-3.5 rounded-xl font-label-md text-sm font-semibold transition-all active:scale-[0.98]"
                 >
-                  <span>Se populære T-skjorter</span>
+                  <CmsText slug="home-gifts-cta-2" fallback="Se populære T-skjorter" as="span" />
                 </Link>
               </div>
             </div>
@@ -1189,7 +1198,7 @@ export default function Home() {
                 to={localizedPath('/about')} 
                 className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta/90 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-[0.98] hover:shadow-md"
               >
-                <span>{t('home.about.linkText')}</span>
+                <CmsText slug="home-about-link-text" fallback={t('home.about.linkText')} as="span" />
                 <ArrowRight size={16} />
               </Link>
             </div>
@@ -1297,7 +1306,9 @@ export default function Home() {
                 type="submit"
                 disabled={newsletterLoading}
               >
-                {newsletterLoading ? t('home.newsletter.sending') : t('home.newsletter.subscribeBtn')}
+                {newsletterLoading ? t('home.newsletter.sending') : (
+                  <CmsText slug="home-newsletter-button" fallback={t('home.newsletter.subscribeBtn')} as="span" />
+                )}
               </button>
             </form>
             {newsletterSubscribed && (

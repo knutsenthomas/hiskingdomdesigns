@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CmsText({ 
   slug, 
-  fallback, 
+  fallback = '', 
   className = '', 
   as: Component = 'span', 
   replaceObj = null,
@@ -12,27 +12,43 @@ export default function CmsText({
 }) {
   const { cmsContent, updateCmsContent, isAdminEditing, showToast } = useApp();
   const { t, language } = useLanguage();
-  
+
   const getCmsText = () => {
-    if (!isAdminEditing) {
-      const translated = t(slug);
-      if (translated !== slug) {
-        return translated;
-      }
-      if (language !== 'no') {
-        return fallback;
-      }
+    let text = "";
+    if (language === 'en') {
+      text = cmsContent?.[slug + '-en'] || cmsContent?.[slug];
+    } else if (language === 'es') {
+      text = cmsContent?.[slug + '-es'] || cmsContent?.[slug];
+    } else {
+      text = cmsContent?.[slug];
     }
-    return cmsContent?.[slug] || fallback;
+
+    if (text !== undefined && text !== null && text !== '') {
+      return text;
+    }
+
+    // Fallback order: Explicit fallback -> Translation dictionary -> Slug itself
+    if (fallback !== undefined && fallback !== null && fallback !== '') {
+      return fallback;
+    }
+
+    const dictText = t(slug);
+    if (dictText && dictText !== slug) {
+      return dictText;
+    }
+
+    return '';
   };
   
   const rawText = getCmsText();
   
-  // Apply placeholders (e.g., {name}) ONLY when NOT editing
+  // Apply placeholders (e.g. {amount}) ONLY when NOT editing
   let displayText = rawText;
   if (replaceObj && !isAdminEditing) {
     Object.entries(replaceObj).forEach(([key, val]) => {
-      displayText = displayText.replace(key, val);
+      if (typeof displayText === 'string') {
+        displayText = displayText.split(key).join(val);
+      }
     });
   }
 
@@ -58,14 +74,22 @@ export default function CmsText({
     }
 
     if (newText !== rawText) {
-      updateCmsContent(slug, newText);
-      showToast(`Oppdatert felt "${slug}"!`);
+      const activeSlug = language === 'en' ? `${slug}-en` : (language === 'es' ? `${slug}-es` : slug);
+      showToast(
+        language === 'en' 
+          ? "Oppdaterer og oversetter til norsk og spansk..." 
+          : "Oppdaterer og oversetter til engelsk og spansk..."
+      );
+      updateCmsContent(activeSlug, newText);
     }
   };
 
   const handleKeyDown = (e) => {
-    // Save on Enter (unless holding shift for multiline textareas/paragraphs)
-    if (e.key === 'Enter' && Component !== 'p' && Component !== 'textarea') {
+    // Save on Enter (unless holding shift or component is multiline paragraph/div/textarea)
+    if (e.key === 'Enter') {
+      if (e.shiftKey || Component === 'p' || Component === 'textarea' || Component === 'div') {
+        return; // Allow newline
+      }
       e.preventDefault();
       elementRef.current?.blur();
     }
@@ -80,13 +104,24 @@ export default function CmsText({
 
   const handleClick = (e) => {
     if (isAdminEditing) {
-      e.preventDefault();
+      if (Component === 'a' || Component === 'button') {
+        e.preventDefault();
+      }
       e.stopPropagation();
+      elementRef.current?.focus();
     }
   };
 
   if (!isAdminEditing) {
-    return <Component className={className} style={style}>{displayText}</Component>;
+    return (
+      <Component 
+        className={className} 
+        style={style} 
+        data-cms-slug={slug}
+      >
+        {displayText}
+      </Component>
+    );
   }
 
   return (
@@ -101,7 +136,8 @@ export default function CmsText({
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       onClick={handleClick}
-      className={`${className} inline-block outline-none border border-dashed border-terracotta/50 hover:border-terracotta focus:border-terracotta focus:bg-terracotta/5 focus:ring-1 focus:ring-terracotta rounded px-1.5 -mx-1.5 transition-all cursor-text relative group min-h-[1em]`}
+      data-cms-slug={slug}
+      className={`${className} inline-block outline-none border border-dashed border-terracotta/60 hover:border-terracotta focus:border-terracotta focus:bg-terracotta/5 focus:ring-1 focus:ring-terracotta rounded px-1.5 -mx-1.5 transition-all cursor-text relative group min-h-[1em]`}
       title={`Klikk for å redigere "${slug}" direkte på siden`}
       style={style}
     >

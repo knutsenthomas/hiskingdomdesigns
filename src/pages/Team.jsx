@@ -97,7 +97,12 @@ export default function Team() {
                   }}
                 />
               </div>
-              <h3 className="font-headline-md text-onyx text-[21px] mb-1 font-bold">{member.name}</h3>
+              <CmsText
+                slug={`team-member-name-${index}`}
+                fallback={member.name}
+                as="h3"
+                className="font-headline-md text-onyx text-[21px] mb-1 font-bold"
+              />
               <CmsText
                 slug={member.slugRole}
                 fallback={member.role}
@@ -153,7 +158,11 @@ export default function Team() {
           />
           <div className="text-label-sm text-secondary space-y-2">
             <p>
-              <strong>{t('team.addressLabel')}</strong>
+              <CmsText
+                slug="team-address-label"
+                fallback={t('team.addressLabel')}
+                as="strong"
+              />
               <CmsText
                 slug="team-base-address"
                 fallback="Løkkeveien 3B, 4580 Lyngdal"
@@ -161,7 +170,11 @@ export default function Team() {
               />
             </p>
             <p>
-              <strong>{t('team.emailLabel')}</strong>
+              <CmsText
+                slug="team-email-label"
+                fallback={t('team.emailLabel')}
+                as="strong"
+              />
               <CmsText
                 slug="team-base-email"
                 fallback="post@hiskingdomministry.no"

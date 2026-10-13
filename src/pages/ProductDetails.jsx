@@ -9,6 +9,7 @@ import { wixClient } from '@/lib/wix';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
+import CmsText from '@/components/CmsText';
 
 import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from '@/lib/colors';
 
@@ -32,7 +33,9 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
             <path d="M20.38 3.46 16 7.83V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3.83L3.62 3.46a2 2 0 0 0-2.82 2.82L7.64 13v7a2 2 0 0 0 2 2h4.72a2 2 0 0 0 2-2v-7l6.84-6.72a2 2 0 0 0-2.82-2.82z" />
           </svg>
-          <span>{t('product.clothingTab')}</span>
+          <span>
+            <CmsText slug="product-sizeguide-clothing-tab" fallback={t('product.clothingTab')} as="span" />
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('caps')}
@@ -48,7 +51,9 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
             <circle cx="13" cy="7" r="1" fill="currentColor" />
             <path d="M13 7c-1 3-2 7-2 10" />
           </svg>
-          <span>{t('product.capsTab')}</span>
+          <span>
+            <CmsText slug="product-sizeguide-caps-tab" fallback={t('product.capsTab')} as="span" />
+          </span>
         </button>
         <button
           onClick={() => setActiveTab('posters')}
@@ -63,7 +68,9 @@ function SizeGuideContent({ defaultTab = 'clothing' }) {
             <circle cx="9" cy="9" r="2" />
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
           </svg>
-          <span>{t('product.postersTab')}</span>
+          <span>
+            <CmsText slug="product-sizeguide-posters-tab" fallback={t('product.postersTab')} as="span" />
+          </span>
         </button>
       </div>
 
@@ -1710,7 +1717,9 @@ export default function ProductDetails() {
           {/* Color Selector */}
           {product.colorNames && product.colorNames.length > 0 && product.colors && product.colors.length > 0 && (
             <div className="space-y-3">
-              <span className="font-label-md text-label-md text-onyx">{t('product.color')}: <strong className="text-terracotta">{selectedColor}</strong></span>
+              <span className="font-label-md text-label-md text-onyx">
+                <CmsText slug="product-label-color" fallback={t('product.color')} as="span" />: <strong className="text-terracotta">{selectedColor}</strong>
+              </span>
               <div className="flex gap-3">
                 {product.colors.map((colorHex, idx) => {
                   const colorName = product.colorNames[idx];
@@ -1741,7 +1750,7 @@ export default function ProductDetails() {
           {product.sizes && product.sizes.length > 0 && (
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="font-label-md text-label-md text-onyx">{t('product.size')}</span>
+                <CmsText slug="product-label-size" fallback={t('product.size')} as="span" className="font-label-md text-label-md text-onyx" />
                 {['Klær', 'Bilder & Kunst', 'Plakater'].includes(product.category) && (
                   <button 
                     type="button" 
@@ -1749,7 +1758,7 @@ export default function ProductDetails() {
                     className="text-label-sm text-terracotta hover:underline flex items-center gap-1 cursor-pointer font-semibold"
                   >
                     <Ruler size={14} />
-                    {t('product.sizeGuide')}
+                    <CmsText slug="product-label-sizeguide" fallback={t('product.sizeGuide')} as="span" />
                   </button>
                 )}
               </div>
@@ -1966,7 +1975,7 @@ export default function ProductDetails() {
 
           {/* Quantity Selector */}
           <div className="space-y-3">
-            <span className="font-label-md text-label-md text-onyx">{t('product.quantity')}</span>
+            <CmsText slug="product-label-quantity" fallback={t('product.quantity')} as="span" className="font-label-md text-label-md text-onyx" />
             <div className="flex items-center border border-outline rounded-lg w-max overflow-hidden bg-white">
               <button 
                 onClick={() => setQty(prev => Math.max(1, prev - 1))}
@@ -2020,16 +2029,16 @@ export default function ProductDetails() {
                 }`}
               >
                 {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
-                  <span>{t('product.outOfStock')}</span>
+                  <CmsText slug="product-btn-outofstock" fallback={t('product.outOfStock')} as="span" />
                 ) : added ? (
                   <>
                     <Check size={18} />
-                    <span>{t('product.addedToCart')}</span>
+                    <CmsText slug="product-btn-added" fallback={t('product.addedToCart')} as="span" />
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={18} />
-                    <span>{t('product.addToCart')}</span>
+                    <CmsText slug="product-btn-addtocart" fallback={t('product.addToCart')} as="span" />
                   </>
                 )}
               </button>
@@ -2041,9 +2050,7 @@ export default function ProductDetails() {
                 <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
               </button>
             </div>
-            <p className="text-center text-[11px] text-secondary/80 select-none font-medium leading-normal">
-              {t('product.benefits')}
-            </p>
+            <CmsText slug="product-benefits-note" fallback={t('product.benefits')} as="p" className="text-center text-[11px] text-secondary/80 select-none font-medium leading-normal" />
           </div>
 
           {/* Back in stock request form */}
@@ -2090,11 +2097,11 @@ export default function ProductDetails() {
           <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
             <div className="flex items-center gap-3 text-secondary">
               <Truck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">{t('product.deliveryTime')}</span>
+              <CmsText slug="product-delivery-time-note" fallback={t('product.deliveryTime')} as="span" className="text-label-sm font-label-sm" />
             </div>
             <div className="flex items-center gap-3 text-secondary">
               <ShieldCheck size={18} className="text-terracotta shrink-0" />
-              <span className="text-label-sm font-label-sm">{t('product.securePayment')}</span>
+              <CmsText slug="product-secure-payment-note" fallback={t('product.securePayment')} as="span" className="text-label-sm font-label-sm" />
             </div>
           </div>
         </div>
@@ -2104,7 +2111,7 @@ export default function ProductDetails() {
       <section id="reviews-section" className="mt-20 border-t border-outline-variant/30 pt-16">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h2 className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold">{t('product.reviews')}</h2>
+            <CmsText slug="product-reviews-heading" fallback={t('product.reviews')} as="h2" className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold" />
             <p className="text-secondary font-body-md text-sm mt-1">{t('product.reviewsSub', { name: product.name })}</p>
           </div>
           <button

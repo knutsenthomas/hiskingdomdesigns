@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Home, ShoppingBag, Gift, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 
 export default function NotFound() {
@@ -22,15 +23,24 @@ export default function NotFound() {
         <span className="material-symbols-outlined text-4xl">travel_explore</span>
       </div>
 
-      <span className="text-terracotta font-label-md text-xs uppercase tracking-widest font-bold mb-2 block">
-        Feilkode 404
-      </span>
-      <h1 className="font-headline-xl text-3xl md:text-4xl font-extrabold text-onyx mb-4">
-        Siden ble ikke funnet
-      </h1>
-      <p className="text-secondary text-sm md:text-base leading-relaxed mb-10 max-w-lg mx-auto">
-        Beklager, adressen du prøvde å nå finnes dessverre ikke eller har blitt flyttet til en ny adresse. Bruk lenkene nedenfor for å finne det du leter etter.
-      </p>
+      <CmsText
+        slug="notfound-badge"
+        fallback="Feilkode 404"
+        as="span"
+        className="text-terracotta font-label-md text-xs uppercase tracking-widest font-bold mb-2 block"
+      />
+      <CmsText
+        slug="notfound-title"
+        fallback="Siden ble ikke funnet"
+        as="h1"
+        className="font-headline-xl text-3xl md:text-4xl font-extrabold text-onyx mb-4"
+      />
+      <CmsText
+        slug="notfound-desc"
+        fallback="Beklager, adressen du prøvde å nå finnes dessverre ikke eller har blitt flyttet til en ny adresse. Bruk lenkene nedenfor for å finne det du leter etter."
+        as="p"
+        className="text-secondary text-sm md:text-base leading-relaxed mb-10 max-w-lg mx-auto"
+      />
 
       {/* Action buttons */}
       <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -39,21 +49,21 @@ export default function NotFound() {
           className="inline-flex items-center gap-2 bg-terracotta hover:bg-[#bd4f2a] text-white px-6 py-3.5 rounded-xl font-label-md text-sm font-semibold transition-all shadow-sm active:scale-[0.98] hover:scale-[1.02]"
         >
           <Home size={16} />
-          <span>Gå til forsiden</span>
+          <CmsText slug="notfound-home-btn" fallback="Gå til forsiden" as="span" />
         </Link>
         <Link
           to="/produkter"
           className="inline-flex items-center gap-2 bg-white text-onyx border border-outline-variant hover:border-terracotta hover:text-terracotta px-6 py-3.5 rounded-xl font-label-md text-sm font-semibold transition-all active:scale-[0.98]"
         >
           <ShoppingBag size={16} />
-          <span>Utforsk alle produkter</span>
+          <CmsText slug="notfound-products-btn" fallback="Utforsk alle produkter" as="span" />
         </Link>
       </div>
 
       {/* Helpful Quick Links Box */}
       <div className="bg-white border border-outline-variant/40 rounded-2xl p-6 text-left shadow-xs">
         <h2 className="font-headline-sm text-base font-bold text-onyx mb-4 flex items-center gap-2">
-          <span>Populære sider:</span>
+          <CmsText slug="notfound-popular-heading" fallback="Populære sider:" as="span" />
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <Link

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, X } from 'lucide-react';
+import CmsText from '@/components/CmsText';
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
@@ -62,8 +63,12 @@ export default function CookieConsent() {
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <h4 className="font-headline-md text-sm font-bold text-onyx">Informasjonskapsler</h4>
-                <p className="text-[10px] text-secondary font-semibold uppercase tracking-widest">GDPR & Personvern</p>
+                <h4 className="font-headline-md text-sm font-bold text-onyx">
+                  <CmsText slug="cookie-consent-title" fallback="Informasjonskapsler" />
+                </h4>
+                <p className="text-[10px] text-secondary font-semibold uppercase tracking-widest">
+                  <CmsText slug="cookie-consent-badge" fallback="GDPR & Personvern" />
+                </p>
               </div>
             </div>
             <button 
@@ -76,23 +81,26 @@ export default function CookieConsent() {
           </div>
 
           {/* Description */}
-          <p className="text-xs text-secondary leading-relaxed">
-            Vi bruker cookies for å optimalisere brukeropplevelsen, analysere trafikk, og levere tilpassede tilbud. Ved å trykke «Godta alle» samtykker du til denne bruken.
-          </p>
+          <CmsText
+            slug="cookie-consent-desc"
+            fallback="Vi bruker cookies for å optimalisere brukeropplevelsen, analysere trafikk, og levere tilpassede tilbud. Ved å trykke «Godta alle» samtykker du til denne bruken."
+            as="p"
+            className="text-xs text-secondary leading-relaxed"
+          />
 
           {/* Buttons */}
           <div className="flex gap-2.5 mt-2">
             <button
               onClick={handleAcceptNecessary}
-              className="flex-1 bg-parchment border border-outline-variant hover:border-terracotta hover:text-terracotta text-onyx py-2.5 rounded-xl font-label-md text-xs font-semibold active:scale-[0.98] transition-all whitespace-nowrap"
+              className="flex-1 bg-parchment border border-outline-variant hover:border-terracotta hover:text-terracotta text-onyx py-2.5 rounded-xl font-label-md text-xs font-semibold active:scale-[0.98] transition-all whitespace-nowrap cursor-pointer"
             >
-              Avvis analytiske
+              <CmsText slug="cookie-consent-btn-reject" fallback="Avvis analytiske" />
             </button>
             <button
               onClick={handleAcceptAll}
-              className="flex-1 bg-gradient-to-r from-terracotta to-terracotta/90 text-white py-2.5 rounded-xl font-label-md text-xs font-bold shadow-sm shadow-terracotta/20 hover:brightness-105 active:scale-[0.98] transition-all whitespace-nowrap"
+              className="flex-1 bg-gradient-to-r from-terracotta to-terracotta/90 text-white py-2.5 rounded-xl font-label-md text-xs font-bold shadow-sm shadow-terracotta/20 hover:brightness-105 active:scale-[0.98] transition-all whitespace-nowrap cursor-pointer"
             >
-              Godta alle
+              <CmsText slug="cookie-consent-btn-accept" fallback="Godta alle" />
             </button>
           </div>
         </motion.div>

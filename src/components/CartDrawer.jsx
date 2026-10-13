@@ -6,6 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { reportCheckoutIncident } from '@/lib/incidentAlerts';
+import CmsText from '@/components/CmsText';
 
 export default function CartDrawer() {
   const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
@@ -96,14 +97,14 @@ export default function CartDrawer() {
             <div className="px-6 py-5 border-b border-outline-variant/30 flex items-center justify-between bg-parchment/30">
               <div className="flex items-center gap-2.5">
                 <ShoppingCart size={20} className="text-terracotta" />
-                <h2 className="font-headline-md text-headline-md text-onyx font-bold">{t('nav.cart')}</h2>
+                <CmsText slug="cart-drawer-title" fallback={t('nav.cart')} as="h2" className="font-headline-md text-headline-md text-onyx font-bold" />
                 <span className="bg-terracotta/10 text-terracotta text-xs font-bold px-2 py-0.5 rounded-full">
                   {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               </div>
               <button
                 onClick={() => setIsCartDrawerOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-full text-secondary hover:text-onyx transition-all active:scale-95"
+                className="p-2 hover:bg-slate-100 rounded-full text-secondary hover:text-onyx transition-all active:scale-95 cursor-pointer"
                 title="Lukk handlekurv"
               >
                 <X size={20} />
@@ -125,19 +126,17 @@ export default function CartDrawer() {
                     <ShoppingCart size={32} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-onyx text-base">{t('cart.empty')}</h3>
-                    <p className="text-xs text-secondary/70 mt-1 max-w-[240px] mx-auto">
-                      {t('cart.emptyDrawerDesc')}
-                    </p>
+                    <CmsText slug="cart-empty-title" fallback={t('cart.empty')} as="h3" className="font-bold text-onyx text-base block" />
+                    <CmsText slug="cart-empty-drawer-desc" fallback={t('cart.emptyDrawerDesc')} as="p" className="text-xs text-secondary/70 mt-1 max-w-[240px] mx-auto block" />
                   </div>
                   <button
                     onClick={() => {
                       setIsCartDrawerOpen(false);
                       navigate('/produkter');
                     }}
-                    className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-opacity-95 active:scale-95 transition-all shadow-md"
+                    className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-opacity-95 active:scale-95 transition-all shadow-md cursor-pointer"
                   >
-                    {t('cart.exploreProducts')}
+                    <CmsText slug="cart-explore-btn" fallback={t('cart.exploreProducts')} />
                   </button>
                 </div>
               ) : (
@@ -244,16 +243,18 @@ export default function CartDrawer() {
             {cartItems.length > 0 && (
               <div className="border-t border-outline-variant/30 p-6 bg-parchment/10 space-y-4 shrink-0">
                 <div className="flex items-center justify-between text-onyx">
-                  <span className="text-sm font-semibold">{t('cart.subtotal')}</span>
+                  <span className="text-sm font-semibold">
+                    <CmsText slug="cart-subtotal-label" fallback={t('cart.subtotal')} />
+                  </span>
                   <span className="font-headline-md text-headline-md text-onyx font-extrabold">{formatPrice(subtotal)}</span>
                 </div>
                 <p className="text-[11px] text-secondary">
-                  {t('cart.drawerShippingNotice')}
+                  <CmsText slug="cart-drawer-shipping-notice" fallback={t('cart.drawerShippingNotice')} />
                 </p>
 
                 {getActiveCurrency() !== 'NOK' && (
                   <p className="text-[10px] text-amber-700 font-medium leading-relaxed bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/40">
-                    {t('cart.checkoutDisclaimer')}
+                    <CmsText slug="cart-checkout-disclaimer" fallback={t('cart.checkoutDisclaimer')} />
                   </p>
                 )}
 
@@ -267,11 +268,11 @@ export default function CartDrawer() {
                     {isRedirecting ? (
                       <>
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        {t('cart.sending')}
+                        <span>{t('cart.sending')}</span>
                       </>
                     ) : (
                       <>
-                        {t('cart.checkout')}
+                        <CmsText slug="cart-checkout-btn" fallback={t('cart.checkout')} />
                         <Lock size={12} />
                       </>
                     )}
@@ -286,7 +287,7 @@ export default function CartDrawer() {
                       }}
                       className="border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
                     >
-                      {t('cart.viewCart')}
+                      <CmsText slug="cart-view-cart-btn" fallback={t('cart.viewCart')} />
                     </button>
 
                     {/* Fortsett å handle */}
@@ -294,7 +295,7 @@ export default function CartDrawer() {
                       onClick={() => setIsCartDrawerOpen(false)}
                       className="border border-outline-variant/60 hover:border-terracotta hover:text-terracotta text-onyx font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-4 rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white"
                     >
-                      {t('cart.continueShopping')}
+                      <CmsText slug="cart-continue-shopping-btn" fallback={t('cart.continueShopping')} />
                     </button>
                   </div>
                 </div>

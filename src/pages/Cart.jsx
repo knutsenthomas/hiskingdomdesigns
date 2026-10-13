@@ -8,6 +8,7 @@ import useMeta from '@/hooks/useMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { reportCheckoutIncident } from '@/lib/incidentAlerts';
+import CmsText from '@/components/CmsText';
 
 export default function Cart() {
   const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
@@ -109,16 +110,14 @@ export default function Cart() {
         className="max-w-xl mx-auto py-40 px-4 text-center"
       >
         <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">shopping_cart</span>
-        <h2 className="font-headline-lg text-headline-lg text-onyx mb-2">{t('cart.empty')}</h2>
-        <p className="text-secondary font-body-md mb-8">
-          {t('cart.emptyDesc')}
-        </p>
+        <CmsText slug="cart-empty-title" fallback={t('cart.empty')} as="h2" className="font-headline-lg text-headline-lg text-onyx mb-2" />
+        <CmsText slug="cart-empty-desc" fallback={t('cart.emptyDesc')} as="p" className="text-secondary font-body-md mb-8" />
         <Link 
           to={localizedPath('/products')}
           className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md"
         >
           <ArrowLeft size={16} />
-          <span>{t('cart.exploreProducts')}</span>
+          <CmsText slug="cart-explore-btn" fallback={t('cart.exploreProducts')} as="span" />
         </Link>
       </motion.main>
     );
@@ -133,9 +132,7 @@ export default function Cart() {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-margin-mobile md:px-margin-desktop py-28"
     >
-      <h1 className="font-headline-lg text-headline-lg mb-10 text-onyx">
-        {t('cart.title')}
-      </h1>
+      <CmsText slug="cart-page-title" fallback={t('cart.title')} as="h1" className="font-headline-lg text-headline-lg mb-10 text-onyx" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
         {/* Left Column */}
@@ -235,7 +232,7 @@ export default function Cart() {
                   className="inline-flex items-center gap-2 text-terracotta font-label-md hover:underline group font-bold"
                 >
                   <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-                  <span>{t('cart.continueShopping')}</span>
+                  <CmsText slug="cart-continue-shopping-1" fallback={t('cart.continueShopping')} as="span" />
                 </Link>
               </div>
         </div>
@@ -243,12 +240,10 @@ export default function Cart() {
         {/* Summary Column */}
         <aside className="lg:col-span-4 sticky top-28">
           <div className="bg-white p-8 rounded-2xl shadow-md border border-outline-variant/20">
-            <h2 className="font-headline-md text-headline-md mb-6 border-b border-parchment pb-4 text-onyx">
-              {t('cart.summary')}
-            </h2>
+            <CmsText slug="cart-summary-title" fallback={t('cart.summary')} as="h2" className="font-headline-md text-headline-md mb-6 border-b border-parchment pb-4 text-onyx" />
             <div className="space-y-4 mb-8">
               <div className="flex justify-between font-body-md text-secondary">
-                <span>{t('cart.subtotal')}</span>
+                <CmsText slug="cart-subtotal-label" fallback={t('cart.subtotal')} as="span" />
                 <span className="font-bold text-onyx">{formatPrice(subtotal)}</span>
               </div>
               {appliedCoupon && (
@@ -282,7 +277,7 @@ export default function Cart() {
                 </div>
               )}
               <div className="flex justify-between font-body-md text-secondary">
-                <span>{t('cart.shipping')}</span>
+                <CmsText slug="cart-shipping-label" fallback={t('cart.shipping')} as="span" />
                 <span className="font-bold text-onyx">
                   {shipping === 0 ? t('cart.free') : formatPrice(shipping)}
                 </span>
@@ -291,7 +286,7 @@ export default function Cart() {
               <div className="h-px bg-parchment w-full my-4" />
               
               <div className="flex justify-between font-headline-md text-headline-md text-onyx text-xl">
-                <span>{t('cart.total')}</span>
+                <CmsText slug="cart-total-label" fallback={t('cart.total')} as="span" />
                 <span className="text-terracotta font-extrabold">{formatPrice(total)}</span>
               </div>
             </div>
@@ -318,7 +313,7 @@ export default function Cart() {
                   </button>
                 </div>
               )}
-              <span className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.couponPlaceholder')}</span>
+              <CmsText slug="cart-coupon-label" fallback={t('cart.couponPlaceholder')} as="span" className="block text-xs font-semibold text-onyx uppercase mb-2" />
               <form 
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -358,7 +353,7 @@ export default function Cart() {
 
             {/* Gift Card Form */}
             <div className="mb-6 pt-4 border-t border-slate-100">
-              <span className="block text-xs font-semibold text-onyx uppercase mb-2">{t('cart.giftCard')}</span>
+              <CmsText slug="cart-giftcard-label" fallback={t('cart.giftCard')} as="span" className="block text-xs font-semibold text-onyx uppercase mb-2" />
               <form 
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -522,7 +517,7 @@ export default function Cart() {
               onClick={handleCheckout}
               className="w-full bg-terracotta text-white py-4 rounded-xl font-label-md text-label-md hover:opacity-95 active:scale-95 transition-all mb-3 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md"
             >
-              <span>{t('cart.checkout')}</span>
+              <CmsText slug="cart-checkout-btn" fallback={t('cart.checkout')} as="span" />
               <ArrowRight size={16} />
             </button>
             <button
@@ -530,13 +525,11 @@ export default function Cart() {
               className="w-full bg-transparent hover:bg-parchment/60 text-secondary border border-outline-variant/60 py-4 rounded-xl font-label-md text-label-md active:scale-95 transition-all mb-6 font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2"
             >
               <ArrowLeft size={16} />
-              <span>{t('cart.continueShopping')}</span>
+              <CmsText slug="cart-continue-shopping-2" fallback={t('cart.continueShopping')} as="span" />
             </button>
 
             <div className="space-y-4">
-              <p className="text-center text-label-sm font-label-sm text-secondary tracking-widest uppercase">
-                {t('cart.securePaymentMethods')}
-              </p>
+              <CmsText slug="cart-payment-methods-title" fallback={t('cart.securePaymentMethods')} as="p" className="text-center text-label-sm font-label-sm text-secondary tracking-widest uppercase" />
               <div className="flex justify-center items-center gap-2.5 pt-1 select-none">
                 <img
                   src="/vipps.svg"

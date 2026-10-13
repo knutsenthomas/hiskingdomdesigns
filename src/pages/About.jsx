@@ -45,7 +45,7 @@ export default function About() {
           >
             His Kingdom Ministry
           </a>{' '}
-          {t('about.hkmDesc')}
+          <CmsText slug="about-hkm-desc" fallback={t('about.hkmDesc')} as="span" />
         </p>
       </div>
 
@@ -83,14 +83,14 @@ export default function About() {
               to={localizedPath('/products')}
               className="inline-flex items-center gap-2 bg-terracotta text-white px-8 py-4 rounded-xl font-label-md text-label-md hover:bg-terracotta/90 transition-all active:scale-[0.98] shadow-lg"
             >
-              <span>{t('about.exploreBtn')}</span>
+              <CmsText slug="about-explore-btn" fallback={t('about.exploreBtn')} as="span" />
               <ArrowRight size={16} />
             </Link>
             <Link 
               to={localizedPath('/team')}
               className="inline-flex items-center gap-2 border border-terracotta text-terracotta hover:bg-terracotta/5 px-8 py-4 rounded-xl font-label-md text-label-md transition-all active:scale-[0.98]"
             >
-              <span>{t('about.teamBtn')}</span>
+              <CmsText slug="about-team-btn" fallback={t('about.teamBtn')} as="span" />
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -183,7 +183,7 @@ export default function About() {
               to={localizedPath('/faq')} 
               className="bg-white text-onyx px-8 py-4 rounded-xl font-label-md hover:bg-terracotta hover:text-white transition-all inline-block active:scale-95 font-bold shadow-md"
             >
-              {t('about.readFaqBtn')}
+              <CmsText slug="about-read-faq-btn" fallback={t('about.readFaqBtn')} as="span" />
             </Link>
           </div>
         </div>

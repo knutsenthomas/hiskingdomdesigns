@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from '@/lib/colors';
 import { notifySlackChatMessage } from '@/lib/incidentAlerts';
+import { translateText } from '@/utils/translator';
 
 const getWixClient = async () => {
   const { wixClient } = await import('@/lib/wix');
@@ -404,8 +405,11 @@ export const AppProvider = ({ children }) => {
     }, 4000);
   };
 
-  // Update CMS Content
-  const updateCmsContent = async (slug, value) => {
+  // Update CMS Content with resilient Firestore persistence and auto-translation
+  const updateCmsContent = async (slug, value, options = { autoTranslate: true }) => {
+    if (!slug) return;
+
+    // 1. Immediately apply the update in the active language
     setCmsContent(prev => {
       const updated = { ...prev, [slug]: value };
       try {
@@ -416,12 +420,80 @@ export const AppProvider = ({ children }) => {
       return updated;
     });
 
+    // 2. Persist to Firestore client SDK
     try {
       const { db, doc, setDoc } = await getFirestoreDb();
       const cmsDocRef = doc(db, "cms_configs", "designs");
       await setDoc(cmsDocRef, { [slug]: value }, { merge: true });
     } catch (err) {
-      console.error("Feil ved oppdatering av CMS-innhold i Firestore:", err);
+      console.warn("Feil ved oppdatering av CMS-innhold i Firestore klient:", err);
+    }
+
+    // 3. Persist via serverless API endpoint
+    try {
+      await fetch('/api/update-cms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, value })
+      });
+    } catch (apiErr) {
+      console.warn("Server-side CMS update fallback notice:", apiErr);
+    }
+
+    // 4. Automatically translate and synchronize counterpart languages
+    if (options?.autoTranslate !== false && typeof value === 'string' && value.trim()) {
+      const isEnglish = slug.endsWith('-en');
+      const isSpanish = slug.endsWith('-es');
+      const baseSlug = isEnglish ? slug.slice(0, -3) : (isSpanish ? slug.slice(0, -3) : slug);
+      const fromLang = isEnglish ? 'en' : (isSpanish ? 'es' : 'no');
+
+      const translationsToSave = {};
+
+      try {
+        if (fromLang === 'no') {
+          const enVal = await translateText(value, 'no', 'en');
+          const esVal = await translateText(value, 'no', 'es');
+          if (enVal && enVal !== value) translationsToSave[`${baseSlug}-en`] = enVal;
+          if (esVal && esVal !== value) translationsToSave[`${baseSlug}-es`] = esVal;
+        } else if (fromLang === 'en') {
+          const noVal = await translateText(value, 'en', 'no');
+          const esVal = await translateText(value, 'en', 'es');
+          if (noVal && noVal !== value) translationsToSave[baseSlug] = noVal;
+          if (esVal && esVal !== value) translationsToSave[`${baseSlug}-es`] = esVal;
+        } else if (fromLang === 'es') {
+          const noVal = await translateText(value, 'es', 'no');
+          const enVal = await translateText(value, 'es', 'en');
+          if (noVal && noVal !== value) translationsToSave[baseSlug] = noVal;
+          if (enVal && enVal !== value) translationsToSave[`${baseSlug}-en`] = enVal;
+        }
+
+        if (Object.keys(translationsToSave).length > 0) {
+          setCmsContent(prev => {
+            const updated = { ...prev, ...translationsToSave };
+            try {
+              localStorage.setItem('hkm-cms-content', JSON.stringify(updated));
+            } catch (e) {}
+            return updated;
+          });
+
+          // Sync to Firestore & API
+          try {
+            const { db, doc, setDoc } = await getFirestoreDb();
+            const cmsDocRef = doc(db, "cms_configs", "designs");
+            await setDoc(cmsDocRef, translationsToSave, { merge: true });
+          } catch (e) {}
+
+          fetch('/api/update-cms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ updates: translationsToSave })
+          }).catch(() => {});
+
+          showToast("Lagret! Automatisk oversatt til andre språk ✨");
+        }
+      } catch (tErr) {
+        console.warn("Automatisk CMS-oversettelse feilet:", tErr);
+      }
     }
   };
 

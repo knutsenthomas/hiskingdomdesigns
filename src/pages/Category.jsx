@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ProductCard from '@/components/ProductCard';
 import { motion } from 'framer-motion';
+import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 
 const SEO_CATEGORY_CONFIG = {
@@ -444,7 +445,7 @@ export default function Category() {
       {/* Category Filter - only show if not inside a specific category route */}
       {!categoryName && (
         <div>
-          <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('category.categories')}</h3>
+          <CmsText slug="category-filter-categories-label" fallback={t('category.categories')} as="h3" className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase" />
           <div className="space-y-3">
             {Object.entries(categoryTaxonomy).map(([group, cats]) => {
               const isExpanded = expandedGroups[group];
@@ -500,7 +501,7 @@ export default function Category() {
 
       {/* Size Filter */}
       <div>
-        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('product.size')}</h3>
+        <CmsText slug="category-filter-size-label" fallback={t('product.size')} as="h3" className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase" />
         <div className="max-h-48 overflow-y-auto no-scrollbar border border-outline-variant/30 rounded-lg p-3 bg-white/40">
           <div className="grid grid-cols-4 gap-2">
             {availableSizes.map(size => {
@@ -527,7 +528,7 @@ export default function Category() {
 
       {/* Color Filter */}
       <div>
-        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('product.color')}</h3>
+        <CmsText slug="category-filter-color-label" fallback={t('product.color')} as="h3" className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase" />
         <div className="flex flex-wrap gap-3">
           {availableColors.map(color => {
             const isSelected = selectedColors.includes(color.name);
@@ -548,7 +549,7 @@ export default function Category() {
 
       {/* Price Filter */}
       <div>
-        <h3 className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase">{t('category.maxPrice')}</h3>
+        <CmsText slug="category-filter-price-label" fallback={t('category.maxPrice')} as="h3" className="font-label-md text-label-md text-onyx mb-4 tracking-wider uppercase" />
         <input 
           type="range"
           min="50"
@@ -570,7 +571,7 @@ export default function Category() {
         onClick={handleClearFilters}
         className="w-full bg-parchment border border-outline hover:border-terracotta hover:text-terracotta text-onyx py-3 rounded-lg font-label-md text-label-md transition-all active:scale-[0.98]"
       >
-        {t('category.clearFilters')}
+        <CmsText slug="category-filter-clear-label" fallback={t('category.clearFilters')} as="span" />
       </button>
     </div>
   );
@@ -588,12 +589,10 @@ export default function Category() {
         <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-4">
           <Link to="/" className="hover:text-terracotta transition-colors">{t('nav.home')}</Link>
           <ChevronRight size={14} className="text-secondary/60" />
-          <span className="text-onyx font-bold">{displayTitle}</span>
+          <CmsText slug={`category-title-${categorySlug || 'all'}`} fallback={displayTitle} as="span" className="text-onyx font-bold" />
         </nav>
-        <h1 className="font-headline-xl text-3xl md:text-[48px] font-bold text-onyx mb-2 capitalize">{displayTitle}</h1>
-        <p className="text-body-lg font-body-lg text-secondary w-full mb-4">
-          {exploreDesc}
-        </p>
+        <CmsText slug={`category-h1-${categorySlug || 'all'}`} fallback={displayTitle} as="h1" className="font-headline-xl text-3xl md:text-[48px] font-bold text-onyx mb-2 capitalize" />
+        <CmsText slug={`category-desc-${categorySlug || 'all'}`} fallback={exploreDesc} as="p" className="text-body-lg font-body-lg text-secondary w-full mb-4" />
 
         {/* Related Category Navigation Pills */}
         <div className="flex flex-wrap gap-2 pt-2 select-none">
@@ -658,7 +657,7 @@ export default function Category() {
                 className="flex items-center gap-2 bg-white border border-outline-variant px-4 py-2.5 rounded-lg text-sm font-semibold text-onyx hover:border-terracotta"
               >
                 <SlidersHorizontal size={16} />
-                <span>{t('category.filterBtn')}</span>
+                <CmsText slug="category-filter-btn" fallback={t('category.filterBtn')} as="span" />
               </button>
               
               <div className="flex items-center gap-2">
@@ -731,13 +730,9 @@ export default function Category() {
         className="mt-16 md:mt-24 bg-gradient-to-br from-parchment/60 to-white/40 border border-outline-variant/30 rounded-3xl p-8 md:p-12 shadow-xs"
       >
         <div className="max-w-3xl">
-          <h2 className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold mb-4">
-            {t('category.seoText.title')}
-          </h2>
+          <CmsText slug="category-seo-title" fallback={t('category.seoText.title')} as="h2" className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold mb-4" />
           <div className="w-12 h-1 bg-terracotta rounded-full mb-6" />
-          <p className="text-body-lg font-body-lg text-secondary leading-relaxed">
-            {seoText}
-          </p>
+          <CmsText slug={`category-seo-text-${seoCatKey}`} fallback={seoText} as="p" className="text-body-lg font-body-lg text-secondary leading-relaxed" />
         </div>
       </section>
 
