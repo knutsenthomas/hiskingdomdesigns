@@ -55,6 +55,27 @@ export default async function handler(req, res) {
       }
     }
 
+    // Include real Wix collection names and creation dates for the newsletter picker.
+    const collections = [];
+    let categoriesAvailable = true;
+    try {
+      for (let offset = 0; ; offset += 100) {
+        const response = await fetch('https://www.wixapis.com/stores-reader/v1/collections/query', {
+          method: 'POST',
+          headers: { Authorization: API_KEY, 'wix-site-id': SITE_ID, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: { paging: { limit: 100, offset } } })
+        });
+        if (!response.ok) throw new Error(`Collection query failed: ${response.status}`);
+        const page = (await response.json()).collections || [];
+        collections.push(...page.map(item => ({ id: item.id, name: item.name })));
+        if (page.length < 100) break;
+      }
+    } catch (error) {
+      categoriesAvailable = false;
+      console.warn('Product categories unavailable:', error.message);
+    }
+    const collectionNames = new Map(collections.map(item => [item.id, item.name]));
+
     // Format products
     const formatted = allProducts.map(p => ({
       id: p.id,
@@ -62,12 +83,17 @@ export default async function handler(req, res) {
       price: p.price?.price || 0,
       inStock: p.inStock !== false,
       imageUrl: p.media?.mainMedia?.image?.url || '',
-      description: p.description || ''
+      description: p.description || '',
+      createdDate: p.createdDate || null,
+      collectionIds: p.collectionIds || [],
+      categories: (p.collectionIds || []).filter(id => collectionNames.has(id)).map(id => ({ id, name: collectionNames.get(id) }))
     }));
 
     res.status(200).json({
       success: true,
-      products: formatted
+      products: formatted,
+      collections,
+      categoriesAvailable
     });
   } catch (error) {
     console.error('API Error: Failed to fetch Wix products:', error);
