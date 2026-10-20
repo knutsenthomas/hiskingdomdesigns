@@ -17,16 +17,7 @@ export default function useMeta(title, description, ogProperties = null, product
     let formattedTitle = "His Kingdom Designs";
     if (title) {
       const cleanTitle = title.trim();
-      if (cleanTitle.includes("His Kingdom Designs")) {
-        formattedTitle = cleanTitle.length > 58 ? `${cleanTitle.substring(0, 55)}...` : cleanTitle;
-      } else {
-        const fullTitle = `${cleanTitle} | His Kingdom Designs`;
-        if (fullTitle.length > 58) {
-          formattedTitle = `${cleanTitle.substring(0, 35)}... | His Kingdom Designs`;
-        } else {
-          formattedTitle = fullTitle;
-        }
-      }
+      formattedTitle = cleanTitle.includes("His Kingdom Designs") ? cleanTitle : `${cleanTitle} | His Kingdom Designs`;
     }
     document.title = formattedTitle;
 
@@ -111,6 +102,14 @@ export default function useMeta(title, description, ogProperties = null, product
     }
 
     const isCategory = cleanPath.startsWith('/category/');
+
+    // Keep private storefront routes out of search, and clear their directive on public navigation.
+    if (['cart', 'checkout', 'profile'].includes(routeKey)) {
+      getOrCreateMetaTag('robots').setAttribute('content', 'noindex, follow');
+    } else if (product || routeKey || isCategory) {
+      document.querySelectorAll('meta[name="robots"]').forEach(tag => tag.remove());
+    }
+
 
     // Update canonical link (Self-referencing canonical per language URL)
     const canonicalUrl = `https://hiskingdomdesigns.no${cleanPath === '/' ? '/' : cleanPath}`;

@@ -1,5 +1,5 @@
-import { createClient, OAuthStrategy } from '@wix/sdk';
-import { products } from '@wix/stores';
+import { loadCatalog } from '../server/catalog.js';
+import { canonicalCategoryPath } from '../src/lib/seoCanonical.js';
 
 const DOMAIN = 'https://hiskingdomdesigns.no';
 const WIX_CLIENT_ID = '82b2b70d-fb70-4b76-abfd-a2a70f38ac06';
@@ -93,7 +93,8 @@ const staticRoutes = [
   }
 ];
 
-export default async function handler(req, res) {
+export function createSitemapHandler(catalogLoader = loadCatalog) {
+ return async function handler(req, res) {
   // Set cache control for 1 hour, stale-while-revalidate
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=600');
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
@@ -106,32 +107,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Fetch products using Wix Stores SDK
-    let allProducts = [];
-
-    try {
-      const wixClient = createClient({
-        modules: { products },
-        auth: OAuthStrategy({ clientId: WIX_CLIENT_ID })
-      });
-
-      let skip = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        const queryRes = await wixClient.products.queryProducts().skip(skip).limit(100).find();
-        const items = queryRes.items || [];
-        allProducts = allProducts.concat(items);
-
-        if (items.length < 100) {
-          hasMore = false;
-        } else {
-          skip += 100;
-        }
-      }
-    } catch (fetchErr) {
-      console.error('Error fetching dynamic products for sitemap:', fetchErr);
-    }
+    const {products:allProducts, collections:allCollections} = await catalogLoader();
 
     // 2. Generate XML Sitemap with 100% 200-OK Canonical URLs & Valid Self-Referencing Hreflang
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
@@ -139,7 +115,10 @@ export default async function handler(req, res) {
     xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
     // Helper function to append canonical URL nodes with compliant self-referencing alternates
+    const seen = new Set();
     const appendUrl = (path, changefreq, priority) => {
+      if (seen.has(path)) return;
+      seen.add(path);
       const formattedPath = path === '/' ? '/' : path;
       const loc = `${DOMAIN}${formattedPath}`;
 
@@ -157,6 +136,10 @@ export default async function handler(req, res) {
       appendUrl(route.path, route.changefreq, route.priority);
     });
 
+    for (const collection of allCollections) {
+      if (collection.slug && collection.visible !== false) appendUrl(canonicalCategoryPath(`/category/${encodeURIComponent(collection.slug)}`), 'weekly', '0.7');
+    }
+
     // 4. Add dynamic product pages (only canonical /produkt/:id)
     allProducts.forEach(p => {
       if (p.visible === false) return;
@@ -171,7 +154,12 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Error generating sitemap:', error);
     let errXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    errXml += `<error><message>${error.message || 'Internal Server Error'}</message></error>`;
-    res.status(500).send(errXml);
+    errXml += `<error><message>Catalog temporarily unavailable</message></error>`;
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Retry-After', '300');
+    res.status(503).send(errXml);
   }
 }
+
+}
+export default createSitemapHandler();

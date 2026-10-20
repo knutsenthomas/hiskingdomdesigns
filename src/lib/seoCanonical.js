@@ -16,7 +16,8 @@ export function canonicalCategoryPath(pathname) {
   let slug;
   try { slug = decodeURIComponent(match[1]).toLowerCase(); } catch { return pathname; }
   const target = categoryAliases[slug];
-  return target ? `/category/${target}` : pathname;
+  if (slug === 'all-products' || slug === 'alle-produkter') return '/produkter';
+  return `/category/${encodeURIComponent(target || slug)}`;
 }
 
 export function canonicalProductPath(product) {

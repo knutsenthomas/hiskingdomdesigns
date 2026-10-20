@@ -1,8 +1,9 @@
+import { escapeHtml, jsonForHtml, buildProductSchema } from '../src/lib/productSeo.js';
+import { loadCatalog } from '../server/catalog.js';
+import { selectCategoryProducts, categorySlugForName, isProductOceaniaExclusive } from '../src/lib/catalogSelection.js';
 import fs from 'fs';
 import { canonicalCategoryPath, canonicalProductPath } from '../src/lib/seoCanonical.js';
 import path from 'path';
-import { createClient, OAuthStrategy } from '@wix/sdk';
-import { products } from '@wix/stores';
 
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
@@ -245,61 +246,8 @@ const getWixImageUrl = (url, width = 1200, height = 630) => {
   return url;
 };
 
-const isProductOceaniaExclusive = (p) => {
-  if (!p) return false;
-  const desc = ((p.description || '') + ' ' + (p.additionalInfoSections?.map(s => s.description).join(' ') || '')).replace(/<[^>]*>/g, ' ');
-  const lower = desc.toLowerCase();
-  
-  return (
-    lower.includes('oceania exclusive') ||
-    lower.includes('shipping: us, ca and oceania exclusive') ||
-    lower.includes('shipping: us, ca & oceania exclusive') ||
-    lower.includes('shipping exclusively usa, canada and oceania') ||
-    lower.includes('shipping exclusively us, canada and oceania') ||
-    lower.includes('shipping: usa, ca and oceania') ||
-    lower.includes('usa, canada and oceania') ||
-    lower.includes('us, ca and oceania') ||
-    lower.includes('us, ca, oceania') ||
-    (lower.includes('oceania') && (lower.includes('shipping') || lower.includes('exclusive') || lower.includes('levering')))
-  );
-};
 
-const fetchProducts = async () => {
-  const now = Date.now();
-  if (productsCache.data && now - productsCache.timestamp < CACHE_TTL_MS) {
-    return productsCache.data;
-  }
 
-  try {
-    const wixClient = createClient({
-      modules: { products },
-      auth: OAuthStrategy({ clientId: WIX_CLIENT_ID })
-    });
-
-    let all = [];
-    let skip = 0;
-    let hasMore = true;
-
-    while (hasMore) {
-      const queryRes = await wixClient.products.queryProducts().skip(skip).limit(100).find();
-      const items = queryRes.items || [];
-      const normalized = items.map(p => ({
-        ...p,
-        id: p._id || p.id
-      }));
-      all = all.concat(normalized);
-
-      if (items.length < 100) hasMore = false;
-      else skip += 100;
-    }
-
-    productsCache = { data: all, timestamp: now };
-    return all;
-  } catch (err) {
-    console.error('SSR fetchProducts error:', err);
-    return productsCache.data || [];
-  }
-};
 
 const categorySeoData = {
   'kristne-klaer': {
@@ -464,7 +412,9 @@ const categorySeoData = {
   }
 };
 
-export default async function handler(req, res) {
+export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = getBaseHtml} = {}) {
+  const fetchProducts = async () => (await catalogLoader()).products;
+  return async function handler(req, res) {
   try {
     // 0. Enforce Canonical Domain (301 redirect www -> non-www)
     const host = req.headers['x-forwarded-host'] || req.headers['host'] || '';
@@ -637,7 +587,7 @@ export default async function handler(req, res) {
       bodySnippet = `
         <div class="home-summary" style="margin-top: 1rem;">
           <p class="intro-text" style="font-size: 1.15rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
-            ${description}
+            ${escapeHtml(description)}
           </p>
           <div style="margin-bottom: 2rem;">
             <h2 style="font-size: 1.4rem; margin-bottom: 1.25rem; font-weight: 700;">Populære kristne produkter</h2>
@@ -645,9 +595,9 @@ export default async function handler(req, res) {
               ${featuredProducts.map(p => `
                 <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
                   <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
-                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${p.name}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
-                    <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
-                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${escapeHtml(p.name)}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                    <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${escapeHtml(p.name)}</h3>
+                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.discountedPrice ?? p.price?.price ?? p.price ?? ''} NOK</p>
                   </a>
                 </div>
               `).join('')}
@@ -658,6 +608,12 @@ export default async function handler(req, res) {
           </div>
         </div>
       `;
+    } else if (['cart', 'checkout', 'profile'].includes(routeKey)) {
+      const names = {cart:'Handlekurv', checkout:'Kasse', profile:'Profil'};
+      title = `${names[routeKey]} | His Kingdom Designs`;
+      h1Text = names[routeKey];
+      description = names[routeKey];
+      bodySnippet = '';
     } else if (routeKey && staticContent[routeKey]) {
       const data = staticContent[routeKey][lang] || staticContent[routeKey].no;
       title = data.title;
@@ -676,15 +632,15 @@ export default async function handler(req, res) {
         bodySnippet = `
           <div class="products-summary" style="margin-top: 1rem;">
             <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
-              ${description}
+              ${escapeHtml(description)}
             </p>
             <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
               ${catalogProducts.map(p => `
                 <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
                   <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
-                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${p.name}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
-                    <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
-                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${escapeHtml(p.name)}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                    <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${escapeHtml(p.name)}</h3>
+                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.discountedPrice ?? p.price?.price ?? p.price ?? ''} NOK</p>
                   </a>
                 </div>
               `).join('')}
@@ -697,13 +653,13 @@ export default async function handler(req, res) {
           {
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "name": ${JSON.stringify(h1Text)},
-            "description": ${JSON.stringify(description)},
+            "name": ${jsonForHtml(h1Text)},
+            "description": ${jsonForHtml(description)},
             "url": "${canonicalUrl}",
             "mainEntity": {
               "@type": "ItemList",
               "numberOfItems": ${catalogProducts.length},
-              "itemListElement": ${JSON.stringify(catalogProducts.slice(0, 30).map((p, idx) => ({
+              "itemListElement": ${jsonForHtml(catalogProducts.slice(0, 30).map((p, idx) => ({
                 "@type": "ListItem",
                 "position": idx + 1,
                 "url": `${DOMAIN}/produkt/${p.id}`,
@@ -720,15 +676,15 @@ export default async function handler(req, res) {
         bodySnippet = `
           <div class="gifts-summary" style="margin-top: 1rem;">
             <p class="intro-text" style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 2rem;">
-              ${description}
+              ${escapeHtml(description)}
             </p>
             <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
               ${giftProducts.map(p => `
                 <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
                   <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
-                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl)}" alt="${p.name}" width="200" height="200" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
-                    <h3 style="font-size: 1rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
-                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                    <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl)}" alt="${escapeHtml(p.name)}" width="200" height="200" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                    <h3 style="font-size: 1rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${escapeHtml(p.name)}</h3>
+                    <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.discountedPrice ?? p.price?.price ?? p.price ?? ''} NOK</p>
                   </a>
                 </div>
               `).join('')}
@@ -743,13 +699,13 @@ export default async function handler(req, res) {
             "@graph": [
               {
                 "@type": "CollectionPage",
-                "name": ${JSON.stringify(h1Text)},
-                "description": ${JSON.stringify(description)},
+                "name": ${jsonForHtml(h1Text)},
+                "description": ${jsonForHtml(description)},
                 "url": "${canonicalUrl}",
                 "mainEntity": {
                   "@type": "ItemList",
                   "numberOfItems": ${giftProducts.length},
-                  "itemListElement": ${JSON.stringify(giftProducts.map((p, idx) => ({
+                  "itemListElement": ${jsonForHtml(giftProducts.map((p, idx) => ({
                     "@type": "ListItem",
                     "position": idx + 1,
                     "url": `${DOMAIN}/produkt/${p.id}`,
@@ -800,7 +756,8 @@ export default async function handler(req, res) {
         `;
       }
     } else if (isCategory) {
-      const catSlug = cleanPath.replace('/category/', '').toLowerCase();
+      let catSlug;
+      try { catSlug = decodeURIComponent(cleanPath.replace('/category/', '')).toLowerCase(); } catch { catSlug = ''; }
       const seoData = categorySeoData[catSlug]?.[lang] || categorySeoData[catSlug]?.no;
       
       const formattedCategory = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
@@ -814,68 +771,14 @@ export default async function handler(req, res) {
       description = rawDesc.length > 155 ? `${rawDesc.substring(0, 150).trim()}...` : rawDesc;
       h1Text = seoData?.h1 || formattedCategory;
       
-      const products = await fetchProducts();
-      let matchedProducts = products;
-
-      if (catSlug === 'kristne-t-skjorter' || catSlug === 't-skjorter' || catSlug === 't-shirts') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-          const isTee = /\b(t-skjorte|t-skjorter|tskjorte|tskjorter|t-shirt|t-shirts|tee|tees|trøye|trøyer|dametrøye|dametrøyer|treningstrøye|treningstrøyer)\b/i.test(nameLower);
-          return isTee && !isNonClothing;
-        });
-      } else if (catSlug === 'kristne-gensere' || catSlug === 'gensere' || catSlug === 'genser' || catSlug === 'hettegensere') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-          const isSweater = /\b(genser|gensere|hoodie|hoodies|sweatshirt|sweatshirts|hettejakke|hettejakker|hettegenser|hettegensere|crewneck)\b/i.test(nameLower);
-          return isSweater && !isNonClothing;
-        });
-      } else if (catSlug === 'kristen-streetwear' || catSlug === 'streetwear') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-          const isStreet = /\b(hoodie|hoodies|genser|gensere|oversized|street|caps|cap|hat|hatt|hatter|joggebukse|joggebukser)\b/i.test(nameLower);
-          return isStreet && !isNonClothing;
-        });
-      } else if (catSlug === 'klaer-med-bibelvers' || catSlug === 'bibelvers') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const descLower = (p.description || '').toLowerCase();
-          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-          const hasVerse = nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || descLower.includes('bibel') || descLower.includes('vers');
-          return hasVerse && !isNonClothing;
-        });
-      } else if (catSlug === 'kristne-klaer' || catSlug === 'klær' || catSlug === 'kler' || catSlug === 'klaer') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const catLower = (p.category || '').toLowerCase();
-          const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster|bilde|lerret|canvas)\b/i.test(nameLower);
-          return (catLower.includes('klær') || catLower.includes('kler') || catLower.includes('clothing')) && !isNonClothing;
-        });
-      } else if (catSlug === 'kristne-plakater' || catSlug === 'plakater' || catSlug === 'bilder-og-plakater') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const pCat = (p.category || '').toLowerCase();
-          return pCat.includes('plakat') || pCat.includes('bilde') || pCat.includes('poster') || nameLower.includes('plakat') || nameLower.includes('poster');
-        });
-      } else if (catSlug === 'kristne-kopper' || catSlug === 'kopper' || catSlug === 'cups-bottles') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const pCat = (p.category || '').toLowerCase();
-          return pCat.includes('kopp') || pCat.includes('cup') || pCat.includes('bottle') || nameLower.includes('kopp') || nameLower.includes('krus');
-        });
-      } else if (catSlug === 'kristne-klistermerker' || catSlug === 'klistermerker' || catSlug === 'stickers') {
-        matchedProducts = products.filter(p => {
-          const nameLower = (p.name || '').toLowerCase();
-          const pCat = (p.category || '').toLowerCase();
-          return pCat.includes('klister') || pCat.includes('sticker') || nameLower.includes('sticker') || nameLower.includes('klistermerke');
-        });
-      }
-
-      if (lang !== 'en') {
-        matchedProducts = matchedProducts.filter(p => !isProductOceaniaExclusive(p));
-      }
+      const catalog = await catalogLoader();
+      const collection = catalog.collections.find(c => categorySlugForName(c.name, catalog.collections).toLowerCase() === catSlug);
+      const knownCategory = Boolean(seoData || collection || catSlug === 'salg');
+      if (!knownCategory) isNotFound = true;
+      const matchedProducts = knownCategory ? selectCategoryProducts(catalog.products, {
+        categorySlug:catSlug, categoryName:catSlug === 'salg' ? 'Salg' : collection?.name || categoryName,
+        language:lang, wixCollections:catalog.collections
+      }) : [];
 
       bodySnippet = `
         <div class="category-summary" style="margin-top: 1rem;">
@@ -886,9 +789,9 @@ export default async function handler(req, res) {
             ${matchedProducts.map(p => `
               <div class="product-card" style="background: #fff; border-radius: 12px; padding: 1rem; border: 1px solid #e5e7eb;">
                 <a href="/produkt/${p.id}" style="text-decoration: none; color: inherit;">
-                  <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${p.name}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
-                  <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${p.name}</h3>
-                  <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.price || p.price || ''} NOK</p>
+                  <img src="${getWixImageUrl(p.media?.mainMedia?.image?.url || p.imageUrl, 260, 260)}" alt="${escapeHtml(p.name)}" width="180" height="180" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; object-fit: contain;" />
+                  <h3 style="font-size: 0.95rem; margin: 0.75rem 0 0.25rem; font-weight: 600;">${escapeHtml(p.name)}</h3>
+                  <p style="color: #a34e36; font-weight: bold; margin: 0;">${p.price?.discountedPrice ?? p.price?.price ?? p.price ?? ''} NOK</p>
                 </a>
               </div>
             `).join('')}
@@ -901,13 +804,13 @@ export default async function handler(req, res) {
         {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          "name": ${JSON.stringify(h1Text)},
-          "description": ${JSON.stringify(description)},
+          "name": ${jsonForHtml(h1Text)},
+          "description": ${jsonForHtml(description)},
           "url": "${canonicalUrl}",
           "mainEntity": {
             "@type": "ItemList",
             "numberOfItems": ${matchedProducts.length},
-            "itemListElement": ${JSON.stringify(matchedProducts.slice(0, 10).map((p, idx) => ({
+            "itemListElement": ${jsonForHtml(matchedProducts.slice(0, 10).map((p, idx) => ({
               "@type": "ListItem",
               "position": idx + 1,
               "url": `${DOMAIN}/produkt/${p.id}`,
@@ -936,11 +839,7 @@ export default async function handler(req, res) {
           return;
         }
         const cleanName = (product.name || '').trim();
-        if (cleanName.length > 35) {
-          title = `${cleanName.substring(0, 32)}... | His Kingdom Designs`;
-        } else {
-          title = `${cleanName} | His Kingdom Designs`;
-        }
+        title = `${cleanName} | His Kingdom Designs`;
 
         const rawText = stripHtml(product.description || '');
         let prodDesc = rawText;
@@ -955,24 +854,24 @@ export default async function handler(req, res) {
         ogType = 'product';
         h1Text = product.name;
         
-        const priceVal = product.price?.price || product.price || 0;
-        const otherProducts = products.filter(p => p.id !== product.id && p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
+        const priceVal = product.price?.discountedPrice ?? product.price?.price ?? product.price ?? 0;
+        const otherProducts = products.filter(p => p.id !== product.id && p.category === product.category && p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
         const relatedProducts = otherProducts.slice(0, 6);
 
         bodySnippet = `
           <div class="product-summary" style="margin-top: 1rem;">
             <p class="price" style="font-weight: bold; font-size: 1.25rem; color: #a34e36;">${priceVal} NOK</p>
-            <p class="description" style="margin: 1rem 0; line-height: 1.6;">${description}</p>
-            <img src="${ogImage}" alt="${product.name}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
+            <p class="description" style="margin: 1rem 0; line-height: 1.6;">${escapeHtml(rawText)}</p>
+            <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(product.name)}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
             <div class="related-products" style="margin-top: 3rem; border-top: 1px solid #e5e7eb; padding-top: 2rem;">
               <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; font-weight: 600;">Flere populære produkter</h2>
               <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
                 ${relatedProducts.map(rp => `
                   <div class="product-card" style="background: #fff; border-radius: 10px; padding: 0.75rem; border: 1px solid #e5e7eb;">
                     <a href="/produkt/${rp.id}" style="text-decoration: none; color: inherit;">
-                      <img src="${getWixImageUrl(rp.media?.mainMedia?.image?.url || rp.imageUrl, 200, 200)}" alt="${rp.name}" width="150" height="150" loading="lazy" style="width: 100%; height: auto; border-radius: 6px; object-fit: contain;" />
-                      <h3 style="font-size: 0.9rem; margin: 0.5rem 0 0.25rem; font-weight: 600;">${rp.name}</h3>
-                      <p style="color: #a34e36; font-weight: bold; margin: 0; font-size: 0.85rem;">${rp.price?.price || rp.price || ''} NOK</p>
+                      <img src="${getWixImageUrl(rp.media?.mainMedia?.image?.url || rp.imageUrl, 200, 200)}" alt="${escapeHtml(rp.name)}" width="150" height="150" loading="lazy" style="width: 100%; height: auto; border-radius: 6px; object-fit: contain;" />
+                      <h3 style="font-size: 0.9rem; margin: 0.5rem 0 0.25rem; font-weight: 600;">${escapeHtml(rp.name)}</h3>
+                      <p style="color: #a34e36; font-weight: bold; margin: 0; font-size: 0.85rem;">${rp.price?.discountedPrice ?? rp.price?.price ?? rp.price ?? ''} NOK</p>
                     </a>
                   </div>
                 `).join('')}
@@ -981,66 +880,7 @@ export default async function handler(req, res) {
           </div>
         `;
 
-        extraJsonLd = `
-          <script id="jsonld-product-schema" type="application/ld+json">
-          {
-            "@context": "https://schema.org/",
-            "@type": "Product",
-            "name": ${JSON.stringify(product.name)},
-            "image": ${JSON.stringify(ogImage)},
-            "description": ${JSON.stringify(description)},
-            "sku": ${JSON.stringify(product.id || productId)},
-            "brand": {
-              "@type": "Brand",
-              "name": "His Kingdom Designs"
-            },
-            "offers": {
-              "@type": "Offer",
-              "priceCurrency": "NOK",
-              "price": "${priceVal}",
-              "availability": "${product.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}",
-              "url": "${canonicalUrl}",
-              "seller": {
-                "@type": "Organization",
-                "name": "His Kingdom Designs"
-              },
-              "hasMerchantReturnPolicy": {
-                "@type": "MerchantReturnPolicy",
-                "applicableCountry": "NO",
-                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-                "merchantReturnDays": 14,
-                "returnMethod": "https://schema.org/ReturnByMail",
-                "returnFees": "https://schema.org/FreeReturn"
-              },
-              "shippingDetails": {
-                "@type": "OfferShippingDetails",
-                "shippingRate": {
-                  "@type": "MonetaryAmount",
-                  "value": "0",
-                  "currency": "NOK"
-                },
-                "shippingDestination": {
-                  "@type": "DefinedRegion",
-                  "addressCountry": "NO"
-                },
-                "deliveryTime": {
-                  "@type": "ShippingDeliveryTime",
-                  "businessDays": {
-                    "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": ["https://schema.org/Monday", "https://schema.org/Tuesday", "https://schema.org/Wednesday", "https://schema.org/Thursday", "https://schema.org/Friday"]
-                  },
-                  "transitTime": {
-                    "@type": "QuantitativeValue",
-                    "minValue": 2,
-                    "maxValue": 5,
-                    "unitCode": "d"
-                  }
-                }
-              }
-            }
-          }
-          </script>
-        `;
+        extraJsonLd = `<script id="jsonld-product-schema" type="application/ld+json">${jsonForHtml(buildProductSchema(product, {images:ogImage}))}</script>`;
       } else {
         isNotFound = true;
         title = 'Produkt ikke funnet (404) | His Kingdom Designs';
@@ -1107,11 +947,11 @@ export default async function handler(req, res) {
 
     // 6. Build Head Tags
     let headInject = `
-    <title>${title}</title>
-    <meta name="description" content="${description}" />
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
     <link rel="canonical" href="${canonicalUrl}" />
 `;
-    if (isNotFound) {
+    if (isNotFound || ['cart', 'checkout', 'profile'].includes(routeKey)) {
       headInject += `    <meta name="robots" content="noindex, follow" />\n`;
     }
 
@@ -1119,20 +959,20 @@ export default async function handler(req, res) {
       headInject += `    <link rel="alternate" hreflang="${hl.lang}" href="${hl.href}" />\n`;
     });
 
-    headInject += `    <meta property="og:title" content="${title}" />
-    <meta property="og:description" content="${description}" />
+    headInject += `    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:url" content="${canonicalUrl}" />
-    <meta property="og:image" content="${ogImage}" />
+    <meta property="og:image" content="${escapeHtml(ogImage)}" />
     <meta property="og:type" content="${ogType}" />
     <meta property="og:site_name" content="His Kingdom Designs" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${title}" />
-    <meta name="twitter:description" content="${description}" />
-    <meta name="twitter:image" content="${ogImage}" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(ogImage)}" />
     ${extraJsonLd}`;
 
     // 7. Inject into Base HTML Template
-    let html = getBaseHtml();
+    let html = htmlLoader();
 
     // Replace HTML lang
     html = html.replace(/<html\s+lang="[^"]*"/i, `<html lang="${lang}"`);
@@ -1149,11 +989,11 @@ export default async function handler(req, res) {
 
     // Detect if client is a search engine crawler, AI crawler, or SEO audit bot
     const userAgent = req.headers['user-agent'] || '';
-    const isBot = /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse|ahrefs|semrush|dotbot|bytespider|applebot|gptbot|claudebot|perplexity|google-extended|screaming frog|site-audit/i.test(userAgent);
+    const isBot = /googlebot|google-inspectiontool|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse|ahrefs|semrush|dotbot|bytespider|applebot|gptbot|claudebot|perplexity|google-extended|screaming frog|site-audit/i.test(userAgent);
 
     // Only inject semantic crawler markup inside <div id="root"> for search engines and social bots to eliminate initial flash for real users
     if (isBot) {
-      const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${h1Text}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
+      const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${escapeHtml(h1Text)}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
       html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
       // Remove noscript fallback for crawlers to guarantee exactly ONE single <h1> tag and eliminate duplicate navigation
       html = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, '');
@@ -1161,10 +1001,12 @@ export default async function handler(req, res) {
 
     // 8. Send Response with Edge CDN caching (Instant response for AI crawlers, fresh client app for users)
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Vary', 'User-Agent');
+    res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
     if (isNotFound) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     } else {
-      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400');
+      res.setHeader('Cache-Control', 'no-store');
     }
     res.status(isNotFound ? 404 : 200).send(html);
   } catch (error) {
@@ -1172,10 +1014,16 @@ export default async function handler(req, res) {
     // Fallback to base HTML with dynamic self-referencing canonical to protect SEO indexing
     const fallbackPath = req.url ? req.url.split('?')[0] : '/';
     const fallbackCanonical = `${DOMAIN}${fallbackPath === '/' ? '/' : fallbackPath}`;
-    let fallbackHtml = getBaseHtml();
+    let fallbackHtml = htmlLoader();
     fallbackHtml = fallbackHtml.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, `<link rel="canonical" href="${fallbackCanonical}" />`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    res.status(200).send(fallbackHtml);
+    res.setHeader('Retry-After', '300');
+    res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+    res.status(503).send(fallbackHtml);
   }
 }
+
+}
+
+export default createRenderHandler();

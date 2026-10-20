@@ -1,3 +1,4 @@
+import { buildProductSchema } from '@/lib/productSeo';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler, X } from 'lucide-react';
@@ -915,6 +916,7 @@ export default function ProductDetails() {
               isBestseller: false,
               isSale: isSale,
               isOceaniaExclusive: isProductOceaniaExclusive(item),
+              stock: item.stock,
               description: item.description || '',
               subcategories: [],
               productOptions: item.productOptions,
@@ -1091,60 +1093,7 @@ export default function ProductDetails() {
         });
       }
 
-      const productSchema = {
-        "@type": "Product",
-        "name": product.name,
-        "image": imageUrls.length > 0 ? (imageUrls.length === 1 ? imageUrls[0] : imageUrls) : '',
-        "description": (product.description || '').replace(/<[^>]*>/g, '') || 'Utforsk våre kristne motiver og produkter av høy kvalitet.',
-        "sku": product.sku || product._id,
-        "brand": {
-          "@type": "Brand",
-          "name": "His Kingdom Designs"
-        },
-        "offers": {
-          "@type": "Offer",
-          "url": window.location.href,
-          "priceCurrency": "NOK",
-          "price": activePrice || 0,
-          "priceValidUntil": "2027-12-31",
-          "availability": product.stock?.inventoryStatus === 'IN_STOCK' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          "shippingDetails": {
-            "@type": "OfferShippingDetails",
-            "shippingRate": {
-              "@type": "MonetaryAmount",
-              "value": 39,
-              "currency": "NOK"
-            },
-            "shippingDestination": {
-              "@type": "DefinedRegion",
-              "addressCountry": "NO"
-            },
-            "deliveryTime": {
-              "@type": "ShippingDeliveryTime",
-              "handlingTime": {
-                "@type": "QuantitativeValue",
-                "minValue": 1,
-                "maxValue": 3,
-                "unitCode": "DAY"
-              },
-              "transitTime": {
-                "@type": "QuantitativeValue",
-                "minValue": 5,
-                "maxValue": 10,
-                "unitCode": "DAY"
-              }
-            }
-          },
-          "hasMerchantReturnPolicy": {
-            "@type": "MerchantReturnPolicy",
-            "applicableCountry": "NO",
-            "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnPeriod",
-            "merchantReturnDays": 14,
-            "returnMethod": "https://schema.org/ReturnByMail",
-            "returnFees": "https://schema.org/ReturnFeesCustomerPaying"
-          }
-        }
-      };
+      const productSchema = buildProductSchema(product, {price:activePrice, images:imageUrls});
 
       if (count > 0) {
         productSchema.aggregateRating = {

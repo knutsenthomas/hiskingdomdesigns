@@ -18,3 +18,9 @@ test('product names resolve to the same ID path used by the sitemap', () => {
   assert.equal(canonicalProductPath({ id: 'catalog-id', slug: 'prayer-journal' }), '/produkt/catalog-id');
   assert.equal(canonicalProductPath({ _id: 'wix-id', id: 'other-id' }), '/produkt/wix-id');
 });
+
+test('case variants and all-products categories converge without losing Norwegian slugs',()=>{
+ assert.equal(canonicalCategoryPath('/category/NORSKE-PRODUKTER'),'/category/norske-produkter');
+ assert.equal(canonicalCategoryPath('/category/Damekl%C3%A6r'),'/category/damekl%C3%A6r');
+ assert.equal(canonicalCategoryPath('/category/all-products'),'/produkter');
+});

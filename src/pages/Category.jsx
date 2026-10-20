@@ -1,3 +1,4 @@
+import { selectCategoryProducts } from '@/lib/catalogSelection';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ChevronRight, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
@@ -236,111 +237,7 @@ export default function Category() {
 
   // Get products belonging to current category context (before applying size/color/price filters)
   const categoryProducts = useMemo(() => {
-    let result = [...products];
-
-    // Hide US, CA & Oceania exclusive products on non-English store
-    if (language !== 'en') {
-      result = result.filter(p => !p.isOceaniaExclusive);
-    }
-
-    // Dedicated SEO Topic Cluster Filters
-    if (categorySlug === 'kristne-t-skjorter' || categorySlug === 't-skjorter' || categorySlug === 't-shirts') {
-      result = result.filter(p => {
-        const nameLower = p.name.toLowerCase();
-        const pCat = (p.category || '').toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('t-skjorter')) && !isNonClothing;
-        const isTee = /\b(t-skjorte|t-skjorter|tskjorte|tskjorter|t-shirt|t-shirts|tee|tees|trøye|trøyer|dametrøye|dametrøyer|treningstrøye|treningstrøyer)\b/i.test(nameLower) || subs.includes('t-shirts') || subs.includes('t-skjorter');
-        return isClothing && isTee;
-      });
-    } else if (categorySlug === 'kristne-gensere' || categorySlug === 'gensere' || categorySlug === 'genser' || categorySlug === 'hettegensere') {
-      result = result.filter(p => {
-        const nameLower = p.name.toLowerCase();
-        const pCat = (p.category || '').toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('genser')) && !isNonClothing;
-        const isSweater = /\b(genser|gensere|hoodie|hoodies|sweatshirt|sweatshirts|hettejakke|hettejakker|hettegenser|hettegensere|crewneck)\b/i.test(nameLower) || subs.includes('genser');
-        return isClothing && isSweater;
-      });
-    } else if (categorySlug === 'kristen-streetwear' || categorySlug === 'streetwear') {
-      result = result.filter(p => {
-        const nameLower = p.name.toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-        const isStreet = /\b(hoodie|hoodies|genser|gensere|oversized|street|caps|cap|hat|hatt|hatter|joggebukse|joggebukser)\b/i.test(nameLower) || subs.includes('genser') || subs.includes('hatter /caps') || subs.includes('joggebukser');
-        return isStreet && !isNonClothing;
-      });
-    } else if (categorySlug === 'klaer-med-bibelvers' || categorySlug === 'bibelvers') {
-      result = result.filter(p => {
-        const nameLower = p.name.toLowerCase();
-        const descLower = (p.description || '').toLowerCase();
-        const pCat = (p.category || '').toLowerCase();
-        const isNonClothing = /\b(bottle|flaske|mug|kopp|krus|cup|tumbler|totebag|tote|handlenett|sticker|klistremerke|plakat|poster)\b/i.test(nameLower);
-        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || (p.subcategories || []).some(s => s.toLowerCase().includes('klær') || s.toLowerCase().includes('t-shirts') || s.toLowerCase().includes('genser'))) && !isNonClothing;
-        const hasVerse = nameLower.includes('vers') || nameLower.includes('psalm') || nameLower.includes('salme') || nameLower.includes('jesaja') || nameLower.includes('joh') || nameLower.includes('john') || nameLower.includes('matteus') || nameLower.includes('korint') || nameLower.includes('ester') || nameLower.includes('mirakel') || nameLower.includes('velsign') || nameLower.includes('gud') || nameLower.includes('jesus') || nameLower.includes('lord') || nameLower.includes('faith') || nameLower.includes('love god') || descLower.includes('bibel') || descLower.includes('vers') || descLower.includes('salme');
-        return isClothing && hasVerse;
-      });
-    } else if (categorySlug === 'kristne-klaer' || categorySlug === 'klær' || categorySlug === 'kler' || categorySlug === 'klaer') {
-      result = result.filter(p => {
-        const pCat = (p.category || '').toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        const isNonClothing = pCat.includes('plakat') || pCat.includes('bilde') || /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|kopp|kopper|krus|mug|mugs|flaske|flasker|bottle|bottles|tumbler|totebag|tote|handlenett|sticker|klistremerke)\b/i.test(p.name);
-        const isClothing = (pCat.includes('klær') || pCat.includes('kler') || subs.includes('klær') || subs.includes('t-shirts') || subs.includes('genser') || subs.includes('dameklær')) && !isNonClothing;
-        return isClothing;
-      });
-    } else if (categorySlug === 'kristne-plakater' || categorySlug === 'plakater' || categorySlug === 'bilder-og-plakater') {
-      result = result.filter(p => {
-        const pCat = (p.category || '').toLowerCase();
-        const nameLower = p.name.toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        return pCat.includes('plakat') || pCat.includes('bilde') || pCat.includes('poster') || subs.includes('plakater') || /\b(plakat|plakater|poster|postere|kunsttrykk|lerret|canvas)\b/i.test(nameLower);
-      });
-    } else if (categorySlug === 'kristne-kopper' || categorySlug === 'kopper' || categorySlug === 'cups-bottles') {
-      result = result.filter(p => {
-        const pCat = (p.category || '').toLowerCase();
-        const nameLower = p.name.toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        return pCat.includes('kopp') || pCat.includes('cup') || pCat.includes('bottle') || pCat.includes('flaske') || subs.includes('kopper') || /\b(kopp|kopper|krus|mug|flaske|termoflaske|bottle)\b/i.test(nameLower);
-      });
-    } else if (categorySlug === 'kristne-klistermerker' || categorySlug === 'klistermerker' || categorySlug === 'klistremerker' || categorySlug === 'stickers') {
-      result = result.filter(p => {
-        const pCat = (p.category || '').toLowerCase();
-        const nameLower = p.name.toLowerCase();
-        const subs = (p.subcategories || []).map(s => s.toLowerCase());
-        return pCat.includes('klister') || pCat.includes('klistre') || pCat.includes('sticker') || subs.includes('klistermerker') || /\b(klistermerke|klistermerker|sticker|stickers)\b/i.test(nameLower);
-      });
-    } else if (categoryName === 'Salg') {
-      result = result.filter(p => p.isSale);
-    } else if (categoryName) {
-      const targetSlug = getSlugByCategoryName(categoryName);
-      result = result.filter(p => {
-        const pCatSlug = getSlugByCategoryName(p.category);
-        const hasMatchingSub = p.subcategories && p.subcategories.some(sub => getSlugByCategoryName(sub) === targetSlug);
-        return pCatSlug === targetSlug || hasMatchingSub;
-      });
-    } else if (selectedCategories.length > 0) {
-      const targetSlugs = selectedCategories.map(c => getSlugByCategoryName(c));
-      result = result.filter(p => {
-        const pCatSlug = getSlugByCategoryName(p.category);
-        const hasMatchingSub = p.subcategories && p.subcategories.some(sub => targetSlugs.includes(getSlugByCategoryName(sub)));
-        return targetSlugs.includes(pCatSlug) || hasMatchingSub;
-      });
-    }
-
-    // Filter by search query
-    if (urlSearch) {
-      const query = urlSearch.toLowerCase();
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.category.toLowerCase().includes(query) ||
-        (p.subcategories && p.subcategories.some(s => s.toLowerCase().includes(query))) ||
-        (p.description && p.description.toLowerCase().includes(query))
-      );
-    }
-
-    return result;
+    return selectCategoryProducts(products, {categorySlug, categoryName, language, wixCollections, selectedCategories, urlSearch});
   }, [products, categoryName, categorySlug, selectedCategories, urlSearch, wixCollections, language]);
 
   const availableSizes = useMemo(() => {
@@ -414,7 +311,7 @@ export default function Category() {
     }
 
     return result;
-  }, [products, categoryName, selectedCategories, urlSearch, selectedSizes, selectedColors, priceRange, sortBy]);
+  }, [categoryProducts, selectedSizes, selectedColors, priceRange, sortBy]);
 
   // Dynamic sticky sidebar height calculation to adapt "from category to category"
   useEffect(() => {

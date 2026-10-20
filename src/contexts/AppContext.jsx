@@ -1,3 +1,5 @@
+import { categorySlugForName, productTaxonomy, isProductOceaniaExclusive } from '@/lib/catalogSelection';
+export { isProductOceaniaExclusive } from '@/lib/catalogSelection';
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from '@/lib/colors';
@@ -45,24 +47,7 @@ const FALLBACK_TAXONOMY = {
 
 
 
-export const isProductOceaniaExclusive = (item) => {
-  if (!item) return false;
-  const desc = ((item.description || '') + ' ' + (item.additionalInfoSections?.map(s => s.description).join(' ') || '')).replace(/<[^>]*>/g, ' ');
-  const lower = desc.toLowerCase();
-  
-  return (
-    lower.includes('oceania exclusive') ||
-    lower.includes('shipping: us, ca and oceania exclusive') ||
-    lower.includes('shipping: us, ca & oceania exclusive') ||
-    lower.includes('shipping exclusively usa, canada and oceania') ||
-    lower.includes('shipping exclusively us, canada and oceania') ||
-    lower.includes('shipping: usa, ca and oceania') ||
-    lower.includes('usa, canada and oceania') ||
-    lower.includes('us, ca and oceania') ||
-    lower.includes('us, ca, oceania') ||
-    (lower.includes('oceania') && (lower.includes('shipping') || lower.includes('exclusive') || lower.includes('levering')))
-  );
-};
+
 
 export const AppProvider = ({ children }) => {
   const { language } = useLanguage();
@@ -630,46 +615,8 @@ export const AppProvider = ({ children }) => {
 
         console.log(`Hentet totalt ${allItems.length} produkter fra Wix.`);
 
-        // Define lists of collection names belonging to each primary category
-        const pureClothingCollections = ['Klær', 'Dameklær', 'Genser', 'Joggebukser', 'T-shirts', 'Hatter /caps'];
-        const plakaterCollections = ['Bilder og plakater', 'Maleri', 'Fotografi', 'Typografi', 'Abstrakt', 'Minimalistisk', 'Fargerik', 'Svart-hvit', 'Retro', 'Romantisk', 'Whimsical'];
-        const klistermerkerCollections = ['Klistermerker'];
-        const cupsCollections = ['Cups and bottles', 'Kopper og flasker'];
-
-        // Precise regexes with word boundaries for name keyword matching
-        const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib|dametrøye|dametrøyer|treningstrøye|treningstrøyer)\b/i;
-        const stickerRegex = /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
-        const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|semi-glossy|wall art|veggkunst|digital plakat|digital poster)\b/i;
-        const cupOrBottleRegex = /\b(kopp|kopper|krus|mug|mugs|flaske|flasker|bottle|bottles|tumbler|travel mug|water bottle)\b/i;
-        const bagRegex = /\b(tote|totebag|handlenett|bag|shopping bag)\b/i;
-
         const mapped = allItems.map(item => {
-          const nameLower = item.name.toLowerCase();
-          const resolvedCollections = item.collectionIds?.map(id => collectionsMap[id]).filter(Boolean) || [];
-          
-          const hasCupCollection = resolvedCollections.some(c => cupsCollections.includes(c));
-          const hasCupName = cupOrBottleRegex.test(nameLower);
-          const hasBagName = bagRegex.test(nameLower);
-          const hasPosterCollection = resolvedCollections.some(c => plakaterCollections.includes(c));
-          const hasPosterName = posterRegex.test(nameLower);
-          const hasClothingCollection = resolvedCollections.some(c => pureClothingCollections.includes(c));
-          const hasClothingName = clothingRegex.test(nameLower);
-          const hasStickerCollection = resolvedCollections.some(c => klistermerkerCollections.includes(c));
-          const hasStickerName = stickerRegex.test(nameLower);
-
-          let category = 'Tilbehør';
-          if (hasStickerName || (hasStickerCollection && !hasPosterName && !hasClothingName)) {
-            category = 'Klistermerker';
-          } else if (hasPosterName || (hasPosterCollection && !hasClothingName && !hasClothingCollection)) {
-            category = 'Plakater';
-          } else if ((hasCupName || hasCupCollection || hasBagName) && !hasClothingName) {
-            category = 'Tilbehør';
-          } else if (hasClothingName || hasClothingCollection) {
-            category = 'Klær';
-          } else if (hasPosterCollection) {
-            category = 'Plakater';
-          }
-
+          const {category, subcategories: resolvedCollections} = productTaxonomy(item, collectionsMap);
           let sizes = [];
           let colors = [];
           let colorNames = [];
@@ -782,6 +729,8 @@ export const AppProvider = ({ children }) => {
             isBestseller: isBestseller,
             isSale: isSale,
             isOceaniaExclusive: isProductOceaniaExclusive(item),
+            stock: item.stock,
+            visible: item.visible,
             description: item.description || '',
             subcategories: resolvedCollections,
             productOptions: item.productOptions,
@@ -1526,62 +1475,7 @@ export const AppProvider = ({ children }) => {
     }, 1000);
   };
 
-  const getSlugByCategoryName = (name) => {
-    if (!name) return '';
-    if (name === 'Salg') return 'salg';
-    const found = wixCollections.find(c => c.name === name);
-    if (found && found.slug) return found.slug;
-    
-    // Fallback mapping for standard categories and SEO landing pages
-    const staticMap = {
-      'CHRISTMAS': 'christmas',
-      'Jul': 'christmas',
-      'Julekolleksjon': 'christmas',
-      'Kristne klær': 'kristne-klaer',
-      'Kristne T-skjorter': 'kristne-t-skjorter',
-      'Kristne gensere': 'kristne-gensere',
-      'Kristen streetwear': 'kristen-streetwear',
-      'Klær med bibelvers': 'klaer-med-bibelvers',
-      'Hatter /caps': 'caps',
-      'Hatter/caps': 'caps',
-      'Hats/Caps': 'caps',
-      'Hats/caps': 'caps',
-      'caps': 'caps',
-      'Handlenett / Totebag': 'totebag',
-      'Handlenett/Totebag': 'totebag',
-      'Tote Bag': 'totebag',
-      'Tote bag': 'totebag',
-      'totebag': 'totebag',
-      'armbånd og smykker': 'smykker',
-      'Kopper og flasker': 'cups-bottles',
-      'Bilder og plakater': 'bilder-og-plakater',
-      'Kristne plakater': 'kristne-plakater',
-      'Kristne kopper': 'kristne-kopper',
-      'Kristne klistremerker': 'kristne-klistermerker',
-      'Klistermerker': 'kristne-klistermerker',
-      'Plakater': 'kristne-plakater',
-      'Kopper': 'kristne-kopper',
-      'Klær': 'kristne-klaer',
-      'Dameklær': 'dameklær',
-      'Genser': 'kristne-gensere',
-      'Joggebukser': 'bukser',
-      'T-shirts': 'kristne-t-skjorter',
-      'Sport / Performance /Outdoor': 'sport-performance-outdoor',
-      'RUSS': 'russ',
-      'BABY': 'babyklær',
-      'BARN & UNGDOM': 'barneklær',
-      'Barnerom': 'barnerom',
-      'Varna - Evangeliesenteret Bibelskole': 'evangeliesenteret-bibelskole-varna',
-      'Varne evangliesenter - Bible school': 'evangeliesenteret-bibelskole-varna'
-    };
-    if (staticMap[name]) return staticMap[name];
-    
-    return name.toLowerCase()
-      .replace(/\//g, '-')
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9øæå-]/g, '')
-      .replace(/-+/g, '-');
-  };
+  const getSlugByCategoryName = name => categorySlugForName(name, wixCollections);
 
   const getCategoryNameBySlug = (slug) => {
     if (!slug) return '';
