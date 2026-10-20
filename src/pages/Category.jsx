@@ -11,11 +11,11 @@ import useMeta from '@/hooks/useMeta';
 const SEO_CATEGORY_CONFIG = {
   'kristne-klaer': {
     name: 'Kristne klær',
-    title: 'Kristne klær & Streetwear i Norge | His Kingdom Designs',
-    desc: 'Oppdag eksklusive kristne klær med meningsfulle budskap. Hettegensere, t-skjorter og streetwear med bibelvers. Høy kvalitet og rask levering fra Norge.',
-    h1: 'Kristne klær & Streetwear',
-    exploreDesc: 'Utforsk vårt utvalg av kristne klær for dame, herre og barn. Hvert plagg er nøye designet for å kombinere moderne streetwear-snitt med oppmuntrende budskap og bibelvers.',
-    seoText: 'His Kingdom Designs er en norsk kristen nettbutikk med lidenskap for meningsfull mote. Vi tilbyr et bredt spekter av kristne klær, fra minimalistiske t-skjorter og varme hettegensere til moderne streetwear. Alle våre plagg er laget i myke kvalitetsmaterialer som organisk bomull og slitesterk polyesterblanding som holder passformen vask etter vask.'
+    title: 'Kristne klær – t-skjorter og gensere | His Kingdom Designs',
+    desc: 'Utforsk kristne klær med bibelvers og trosbudskap. Finn t-skjorter, gensere og hettegensere hos His Kingdom Designs.',
+    h1: 'Kristne klær med bibelvers og trosbudskap',
+    exploreDesc: 'Finn kristne t-skjorter, gensere og hettegensere med bibelvers og oppmuntrende budskap. Utforsk produktene og velg et motiv som uttrykker troen din.',
+    seoText: 'Hos His Kingdom Designs finner du kristne klær med bibelvers, kors og trosbudskap. Utforsk t-skjorter, gensere og hettegensere til hverdagen, eller finn en gave med mening. Se hvert produkt for tilgjengelige størrelser, farger og materialer.'
   },
   'kristne-t-skjorter': {
     name: 'Kristne T-skjorter',

@@ -304,10 +304,10 @@ const fetchProducts = async () => {
 const categorySeoData = {
   'kristne-klaer': {
     no: {
-      title: 'Kristne klær & Streetwear i Norge | His Kingdom Designs',
-      description: 'Oppdag eksklusive kristne klær med meningsfulle budskap. Hettegensere, t-skjorter og streetwear med bibelvers. Høy kvalitet og rask levering fra Norge.',
-      h1: 'Kristne klær & Streetwear',
-      intro: 'Utforsk vårt utvalg av kristne klær for dame, herre og barn. Hvert plagg er nøye designet for å kombinere moderne streetwear-snitt med oppmuntrende budskap og bibelvers.'
+      title: 'Kristne klær – t-skjorter og gensere | His Kingdom Designs',
+      description: 'Utforsk kristne klær med bibelvers og trosbudskap. Finn t-skjorter, gensere og hettegensere hos His Kingdom Designs.',
+      h1: 'Kristne klær med bibelvers og trosbudskap',
+      intro: 'Finn kristne t-skjorter, gensere og hettegensere med bibelvers og oppmuntrende budskap. Utforsk produktene og velg et motiv som uttrykker troen din.'
     },
     en: {
       title: 'Christian Clothing & Streetwear | His Kingdom Designs',

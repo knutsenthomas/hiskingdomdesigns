@@ -1,3 +1,4 @@
+import { flushPurchases } from '@/lib/ecommerceAnalytics';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, X } from 'lucide-react';
@@ -29,6 +30,7 @@ export default function CookieConsent() {
         'ad_user_data': 'granted',
         'ad_personalization': 'granted'
       });
+      flushPurchases();
     }
   };
 

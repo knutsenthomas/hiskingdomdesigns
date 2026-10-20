@@ -1,3 +1,4 @@
+import { trackPaidOrder, trackCartEvent } from '@/lib/ecommerceAnalytics';
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { resolveColor } from '@/lib/colors';
 import { mapCartItemsToWixLineItems as mapWixCartItems } from '@/lib/wixCartItems';
@@ -155,6 +156,7 @@ export const CartProvider = ({ children }) => {
       quantity: qty
     };
 
+    trackCartEvent('add_to_cart', [newItem]);
     setCartItems(prev => {
       const existingIndex = prev.findIndex(item => 
         item.id === product.id && 
@@ -850,6 +852,7 @@ export const CartProvider = ({ children }) => {
       try {
         sessionStorage.setItem('hkd_pending_checkout_id', checkoutId);
       } catch (e) {}
+      trackCartEvent('begin_checkout', cartItems);
       return redirectUrl;
     });
   };
@@ -872,6 +875,7 @@ export const CartProvider = ({ children }) => {
             try {
               const { wixClient } = await getWixClient();
               const order = await wixClient.orders.getOrder(orderId);
+              trackPaidOrder(order);
               if (order?._id) {
                 const isFailedOrCanceled = order.status === 'CANCELED' || (order.paymentStatus === 'NOT_PAID' && order.status !== 'APPROVED');
                 if (!isFailedOrCanceled) {
@@ -891,6 +895,7 @@ export const CartProvider = ({ children }) => {
             try {
               const { wixClient } = await getWixClient();
               const order = await wixClient.orders.getOrder(orderId);
+              trackPaidOrder(order);
               if (order?._id) {
                 const isPaidOrApproved = order.paymentStatus === 'PAID' || order.status === 'APPROVED';
                 if (isPaidOrApproved) {
