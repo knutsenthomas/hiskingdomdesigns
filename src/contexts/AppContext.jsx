@@ -1119,7 +1119,7 @@ export const AppProvider = ({ children }) => {
       } else {
         reply = 'Velkommen til His Kingdom Designs. Hvordan kan vi hjelpe deg i dag?\n\n' +
           'Spør oss gjerne om:\n' +
-          '• **Leveringstid & frakt** (normalt ca. 2 uker)\n' +
+          '• **Leveringstid & frakt** (normalt 2–3 uker)\n' +
           '• **Retur & bytte** (14 dagers angrerett)\n' +
           '• **Størrelsesguide & vaskeråd**\n' +
           '• **Våre produkter & spesialbestillinger**';
@@ -1156,7 +1156,7 @@ export const AppProvider = ({ children }) => {
     }
     else if (lower.includes('frakt') || lower.includes('leveringstid') || lower.includes('porto') || (lower.includes('levering') && !lower.includes('adresse')) || lower.includes('hva koster frakt')) {
       reply = '### 🚚 Leveringstid & Frakt\n\n' +
-        'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid ca. **2 uker** (produksjonstid 1-2 uker pluss frakt).\n' +
+        'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid **2–3 uker** (produksjonstid 1-2 uker pluss frakt).\n' +
         'Du vil motta en bekreftelse på e-post med sporingsinfo så snart pakken din er på vei! 📦\n\n' +
         '**Vektbaserte fraktsatser i Norge:**\n' +
         '- Opptil 0.07 kg: **39 kr**\n' +

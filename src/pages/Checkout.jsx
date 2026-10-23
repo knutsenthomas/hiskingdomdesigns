@@ -20,6 +20,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { reportCheckoutIncident } from '@/lib/incidentAlerts';
 import CmsText from '@/components/CmsText';
+import { formatStreetAddress, norwegianCheckoutRegions } from '@/lib/checkoutAddress';
 
 export default function Checkout() {
   const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
@@ -53,6 +54,7 @@ export default function Checkout() {
     setShippingAddress,
     estimateShippingAndTotals,
     estimatedRates,
+    estimatedTax,
     selectedShippingRate,
     selectShippingRate
   } = useCart();
@@ -64,6 +66,7 @@ export default function Checkout() {
     firstName: '',
     lastName: '',
     addressLine: '',
+    subdivision: '',
     postalCode: '',
     city: '',
     country: 'NO',
@@ -100,6 +103,7 @@ export default function Checkout() {
       let addressLine = '';
       let postalCode = '';
       let city = '';
+      let subdivision = '';
 
       if (wixClient.auth.loggedIn()) {
         try {
@@ -115,7 +119,8 @@ export default function Checkout() {
             const addrObj = contact?.addresses?.[0];
             if (addrObj) {
               const addr = addrObj.address || addrObj;
-              addressLine = addr.addressLine || addr.streetAddress || addr.address || '';
+              addressLine = formatStreetAddress(addr.streetAddress || addr.addressLine1 || addr.addressLine || addr.address);
+              subdivision = addr.subdivision || '';
               postalCode = addr.postalCode || addr.zipCode || '';
               city = addr.city || '';
             }
@@ -135,7 +140,8 @@ export default function Checkout() {
       if (!addressLine && shippingAddress) {
         postalCode = shippingAddress.postalCode || postalCode;
         city = shippingAddress.city || city;
-        addressLine = shippingAddress.addressLine || '';
+        addressLine = formatStreetAddress(shippingAddress.streetAddress || shippingAddress.addressLine);
+        subdivision = shippingAddress.subdivision || subdivision;
       }
 
       setFormData(prev => ({
@@ -147,6 +153,7 @@ export default function Checkout() {
         addressLine: addressLine || prev.addressLine,
         postalCode: postalCode || prev.postalCode,
         city: city || prev.city,
+        subdivision: subdivision || prev.subdivision,
       }));
 
       setIsMemberLoaded(true);
@@ -206,6 +213,7 @@ export default function Checkout() {
     if (!formData.city || formData.city.trim().length < 2) {
       errors.city = 'Poststed er påkrevd';
     }
+    if (!formData.subdivision) errors.subdivision = t('checkout.regionRequired');
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -237,6 +245,7 @@ export default function Checkout() {
         lastName: formData.lastName.trim(),
         phone: formData.phone.trim(),
         addressLine: formData.addressLine.trim(),
+        subdivision: formData.subdivision,
         postalCode: formData.postalCode.trim(),
         city: formData.city.trim(),
         country: formData.country || 'NO'
@@ -526,6 +535,21 @@ export default function Checkout() {
                 </div>
 
                 <div className="space-y-1 sm:col-span-2">
+                  <label htmlFor="checkout-subdivision" className="block text-xs font-bold text-onyx uppercase tracking-wider">
+                    {t('checkout.regionLabel')}
+                  </label>
+                  <select
+                    id="checkout-subdivision" name="subdivision" value={formData.subdivision}
+                    onChange={handleInputChange} required autoComplete="address-level1"
+                    className="w-full bg-slate-50 border border-outline-variant/50 px-4 py-3 rounded-xl text-xs text-onyx focus:outline-none focus:ring-2 focus:ring-terracotta/40"
+                  >
+                    <option value="">{t('checkout.regionPlaceholder')}</option>
+                    {norwegianCheckoutRegions.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                  </select>
+                  {formErrors.subdivision && <span className="text-[11px] text-red-600 font-medium block">{formErrors.subdivision}</span>}
+                </div>
+
+                <div className="space-y-1 sm:col-span-2">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
                     <CmsText slug="checkout.countryLabel" fallback="Land" as="span" />
                   </label>
@@ -773,10 +797,12 @@ export default function Checkout() {
                   </span>
                 </div>
 
-                <div className="flex justify-between text-[11px] text-secondary/80 pt-1">
-                  <CmsText slug="cart.mva" fallback="Herav 25% MVA" as="span" />
-                  <span>{formatPrice(total * 0.2)}</span>
-                </div>
+                {isEstimated && Number.isFinite(estimatedTax) && (
+                  <div className="flex justify-between text-[11px] text-secondary/80 pt-1">
+                    <span>{t('cart.taxAmount')}</span>
+                    <span>{formatPrice(estimatedTax)}</span>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-baseline pt-4 border-t border-outline-variant/30 text-base font-bold text-onyx">
                   <CmsText slug="cart.total" fallback="Totalt å betale" as="span" />

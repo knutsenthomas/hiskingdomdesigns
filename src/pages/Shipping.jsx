@@ -62,7 +62,7 @@ export default function Shipping() {
           
           <CmsText
             slug="shipping-details-desc"
-            fallback="Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er ca. 2 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Du mottar en e-post med sporingsnummer så snart pakken din er sendt."
+            fallback="Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er 2–3 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Du mottar en e-post med sporingsnummer så snart pakken din er sendt."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />
@@ -106,7 +106,7 @@ export default function Shipping() {
               />
               <CmsText
                 slug="shipping-row-val-4"
-                fallback="ca. 2 uker (total tid)"
+                fallback="2–3 uker (total tid)"
                 as="span"
                 className="font-label-md text-onyx"
               />

@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
     questions: [
       {
         q: 'Hvor lang tid tar leveringen?',
-        a: 'Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er ca 2 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Du mottar en e-post med sporingsnummer så snart pakken din er sendt.',
+        a: 'Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er 2–3 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Du mottar en e-post med sporingsnummer så snart pakken din er sendt.',
         qSlug: 'faq-shipping-q1',
         aSlug: 'faq-shipping-a1'
       },

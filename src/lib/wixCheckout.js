@@ -1,3 +1,5 @@
+import { toWixStreetAddress } from './checkoutAddress.js';
+
 const stableObject = (value) => {
   if (Array.isArray(value)) return value.map(stableObject);
   if (value && typeof value === 'object') {
@@ -65,9 +67,11 @@ export const updateCheckoutDetails = async (wixClient, checkoutId, { buyerEmail,
       };
       const street = shippingAddress.addressLine || shippingAddress.streetAddress || shippingAddress.address;
       if (street) {
-        address.addressLine = street;
+        address.streetAddress = toWixStreetAddress(street);
       }
 
+      if (shippingAddress.subdivision) address.subdivision = shippingAddress.subdivision;
+      if (shippingAddress.addressLine2) address.addressLine2 = shippingAddress.addressLine2;
       const dest = { address };
       if (shippingAddress.firstName || shippingAddress.lastName || shippingAddress.phone) {
         dest.contactDetails = {};
@@ -159,3 +163,11 @@ export const enrichCheckout = async (wixClient, checkoutId, {
 
   return currentId;
 };
+
+// Use the same redirect preferences for the initial attempt and expired-session recovery.
+export const createCheckoutRedirectSession = (wixClient, checkoutId, { returnUrl, thankYouUrl, language = 'no' }) =>
+  wixClient.redirects.createRedirectSession({
+    ecomCheckout: { checkoutId },
+    callbacks: { postFlowUrl: returnUrl, thankYouPageUrl: thankYouUrl },
+    preferences: { additionalQueryParameters: { lang: ['no', 'en', 'es'].includes(language) ? language : 'no' } },
+  });

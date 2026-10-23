@@ -117,7 +117,7 @@ test('buyerInfo email and shipping destination are passed to updateCheckout', as
   assert.equal(capturedPayload.shippingInfo?.selectedCarrierServiceOption?.code, 'standard-rate');
 });
 
-test('contact details and street addressLine are passed to updateCheckout', async () => {
+test('contact details and SDK streetAddress are passed to updateCheckout', async () => {
   let capturedPayload = null;
   const mockClient = {
     checkout: {
@@ -143,7 +143,7 @@ test('contact details and street addressLine are passed to updateCheckout', asyn
   });
 
   const dest = capturedPayload.shippingInfo?.shippingDestination;
-  assert.equal(dest?.address?.addressLine, 'Storgata 1');
+  assert.deepEqual(dest?.address?.streetAddress, { name: 'Storgata', number: '1' });
   assert.equal(dest?.address?.postalCode, '0150');
   assert.equal(dest?.contactDetails?.firstName, 'Ola');
   assert.equal(dest?.contactDetails?.lastName, 'Nordmann');
@@ -198,4 +198,61 @@ test('catalog customTextFields is automatically populated when cart item lacks i
   };
   const [line] = await mapCartItemsToWixLineItems([item], async () => customTextProduct);
   assert.equal(line.catalogReference.options.customTextFields['Spesielt motiv'], 'Tilfeldig');
+});
+
+// Exercise the real installed SDK serializer: a mocked updateCheckout alone did not
+// catch that the SDK silently drops the REST-only addressLine field.
+test('installed Wix SDK sends the full street and delivery region over the wire', async () => {
+  const { createClient } = await import('@wix/sdk');
+  const { checkout } = await import('@wix/ecom');
+  const { updateCheckoutDetails } = await import('../src/lib/wixCheckout.js');
+  let body;
+  const client = createClient({ modules: { checkout }, fetch: async (_url, options) => {
+    body = JSON.parse(options.body);
+    return new Response(JSON.stringify({ checkout: { id: 'wire-test', ...body.checkout } }), { headers: { 'Content-Type': 'application/json' } });
+  } });
+  await updateCheckoutDetails(client, 'wire-test', {
+    buyerEmail: 'checkout-test@example.com',
+    shippingAddress: { firstName: 'Test', lastName: 'Kunde', phone: '+12025550123', addressLine: 'Øvre gate 12 B', postalCode: '0150', city: 'Oslo', country: 'NO', subdivision: 'NO-03' },
+    selectedShippingRate: { code: 'standard' },
+  });
+  const destination = body.checkout.shippingInfo.shippingDestination;
+  assert.deepEqual(destination.address.streetAddress, { name: 'Øvre gate', number: '12 B' });
+  assert.equal(destination.address.subdivision, 'NO-03');
+  assert.equal(destination.address.city, 'Oslo');
+  assert.equal(destination.contactDetails.firstName, 'Test');
+  assert.equal(body.checkout.buyerInfo.email, 'checkout-test@example.com');
+  assert.equal(body.checkout.shippingInfo.selectedCarrierServiceOption.code, 'standard');
+});
+
+test('street formatting preserves existing member addresses and unusual house numbers', async () => {
+  const { formatStreetAddress, toWixStreetAddress } = await import('../src/lib/checkoutAddress.js');
+  for (const line of ['Storgata 1', 'Øvre gate 12 B', 'Vei 3 12/14', 'Postboks 42', 'Solheim']) {
+    assert.equal(formatStreetAddress(toWixStreetAddress(line)), line);
+  }
+  assert.equal(formatStreetAddress({ name: 'Storgata', number: '1A' }), 'Storgata 1A');
+  assert.deepEqual(toWixStreetAddress({ name: 'Storgata', number: '1A' }), { name: 'Storgata', number: '1A' });
+  assert.equal(toWixStreetAddress(''), undefined);
+});
+
+test('checkout redirect keeps the chosen language, checkout ID and return URLs', async () => {
+  const { createCheckoutRedirectSession } = await import('../src/lib/wixCheckout.js');
+  for (const language of ['no', 'en', 'es', 'unsupported']) {
+    let request;
+    const client = { redirects: { createRedirectSession: async options => { request = options; return { fullUrl: 'https://checkout.example.test/' }; } } };
+    await createCheckoutRedirectSession(client, 'checkout-id', { language, returnUrl: 'https://example.test/kasse', thankYouUrl: 'https://example.test/profil' });
+    assert.equal(request.ecomCheckout.checkoutId, 'checkout-id');
+    assert.equal(request.preferences.additionalQueryParameters.lang, language === 'unsupported' ? 'no' : language);
+    assert.deepEqual(request.callbacks, { postFlowUrl: 'https://example.test/kasse', thankYouPageUrl: 'https://example.test/profil' });
+  }
+});
+
+test('gift card remains an SDK options argument and preserves buyer details', async () => {
+  const { enrichCheckout } = await import('../src/lib/wixCheckout.js');
+  const calls = [];
+  const client = { checkout: { updateCheckout: async (id, payload, options) => { calls.push({ id, payload, options }); return { _id: id }; } } };
+  await enrichCheckout(client, 'gift-checkout', { buyerEmail: 'checkout-test@example.com', giftCardCode: ' TEST-GIFT ' });
+  assert.equal(calls[0].payload.buyerInfo.email, 'checkout-test@example.com');
+  assert.equal(calls[1].options.giftCardCode, 'TEST-GIFT');
+  assert.deepEqual(calls[1].payload, {});
 });

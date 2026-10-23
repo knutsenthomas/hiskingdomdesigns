@@ -1,8 +1,9 @@
 import { trackPaidOrder, trackCartEvent } from '@/lib/ecommerceAnalytics';
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { resolveColor } from '@/lib/colors';
 import { mapCartItemsToWixLineItems as mapWixCartItems } from '@/lib/wixCartItems';
-import { createVerifiedCheckout, verifyCheckout, enrichCheckout } from '@/lib/wixCheckout';
+import { createVerifiedCheckout, verifyCheckout, enrichCheckout, createCheckoutRedirectSession } from '@/lib/wixCheckout';
 
 const getWixClient = async () => {
   const { wixClient, staticWixClient, resetWixTokens, isWixAuthError, isWixConflictError } = await import('@/lib/wix');
@@ -63,6 +64,7 @@ const productCache = {};
 let activeCartOperationPromise = Promise.resolve();
 
 export const CartProvider = ({ children }) => {
+  const { language } = useLanguage();
   // Helper to safely load cart from storage with fallback
   const loadSavedCartItems = () => {
     try {
@@ -795,15 +797,7 @@ export const CartProvider = ({ children }) => {
       // 7. Create fresh redirect session with automatic fallback on expired checkout session
       let redirectSession = null;
       try {
-        redirectSession = await wixClient.redirects.createRedirectSession({
-          ecomCheckout: {
-            checkoutId: checkoutId
-          },
-          callbacks: {
-            postFlowUrl: returnUrl,
-            thankYouPageUrl: thankYouUrl
-          }
-        });
+        redirectSession = await createCheckoutRedirectSession(wixClient, checkoutId, { returnUrl, thankYouUrl, language });
       } catch (redirectErr) {
         const msg = (redirectErr?.message || String(redirectErr)).toLowerCase();
         const violations = redirectErr?.details?.validationError?.fieldViolations || [];
@@ -818,22 +812,14 @@ export const CartProvider = ({ children }) => {
           let freshId = freshCheckout._id || freshCheckout.checkoutId || freshCheckout.checkout?._id;
           if (freshId) {
             freshId = await enrichCheckout(wixClient, freshId, {
-              buyerEmail,
-              shippingAddress,
-              selectedShippingRate,
+              buyerEmail: effectiveBuyerEmail,
+              shippingAddress: effectiveShippingAddress,
+              selectedShippingRate: effectiveShippingRate,
               couponCode: appliedCoupon?.code,
               giftCardCode: appliedGiftCard?.code
             });
             await verifyCheckout(wixClient, freshId, lineItems);
-            redirectSession = await wixClient.redirects.createRedirectSession({
-              ecomCheckout: {
-                checkoutId: freshId
-              },
-              callbacks: {
-                postFlowUrl: returnUrl,
-                thankYouPageUrl: thankYouUrl
-              }
-            });
+            redirectSession = await createCheckoutRedirectSession(wixClient, freshId, { returnUrl, thankYouUrl, language });
             checkoutId = freshId;
           } else {
             throw redirectErr;
@@ -978,15 +964,16 @@ export const CartProvider = ({ children }) => {
 
         if (response && response.priceSummary) {
           const shipCost = parseFloat(response.priceSummary.shipping?.amount || '0');
-          const taxCost = parseFloat(response.priceSummary.tax?.amount || '0');
+          const rawTax = response.priceSummary.tax?.amount;
+          const taxCost = rawTax == null ? null : Number(rawTax);
           const totalCost = parseFloat(response.priceSummary.total?.amount || '0');
 
           setEstimatedShipping(shipCost);
-          setEstimatedTax(taxCost);
+          setEstimatedTax(Number.isFinite(taxCost) ? taxCost : null);
           setEstimatedTotal(totalCost);
           setIsEstimated(true);
           if (postalCode && city) {
-            setShippingAddress({ postalCode, city, country: countryCode });
+            setShippingAddress(previous => ({ ...previous, postalCode, city, country: countryCode }));
           }
 
           // Extract and populate actual shipping options from Wix
@@ -995,10 +982,7 @@ export const CartProvider = ({ children }) => {
             response.shippingInfo.carrierServiceOptions.forEach(carrier => {
               if (carrier.shippingOptions) {
                 carrier.shippingOptions.forEach(opt => {
-                  let deliveryTime = opt.logistics?.deliveryTime || '';
-                  if (deliveryTime === '2-3 uker') {
-                    deliveryTime = 'ca. 2 uker';
-                  }
+                  const deliveryTime = opt.logistics?.deliveryTime || '';
                   rates.push({
                     code: opt.code,
                     title: opt.title,
@@ -1055,8 +1039,7 @@ export const CartProvider = ({ children }) => {
   const giftCardAmount = appliedGiftCard ? appliedGiftCard.amount : 0;
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
   
-  // MVA (25%) included in price: if item is 125kr, MVA is 25kr (which is subtotal * 0.2)
-  // If estimated, use Wix calculated shipping
+  // Use Wix shipping estimates when available; keep the existing weight-based fallback.
   const shipping = isEstimated && selectedShippingRate !== null 
     ? selectedShippingRate.cost 
     : (() => {
@@ -1078,7 +1061,7 @@ export const CartProvider = ({ children }) => {
         }
       })();
 
-  const mva = Math.max(0, subtotalAfterDiscount - giftCardAmount) * 0.20;
+  const mva = isEstimated ? estimatedTax : null;
   const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + shipping;
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);

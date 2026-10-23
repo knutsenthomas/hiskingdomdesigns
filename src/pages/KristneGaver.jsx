@@ -96,7 +96,7 @@ export default function KristneGaver() {
     },
     {
       q: 'Hvor lang er leveringstiden, og hva med retur?',
-      a: 'Normal leveringstid er ca. 2 uker i hele Norge. Vi tilbyr 14 dagers full angrerett fra pakken er levert, så mottakeren trygt kan bytte størrelse hvis det trengs.'
+      a: 'Normal leveringstid er 2–3 uker i hele Norge. Vi tilbyr 14 dagers full angrerett fra pakken er levert, så mottakeren trygt kan bytte størrelse hvis det trengs.'
     }
   ];
 

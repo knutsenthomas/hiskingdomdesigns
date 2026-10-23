@@ -605,7 +605,8 @@ export default function Home() {
         callbacks: {
           postFlowUrl: window.location.origin,
           thankYouPageUrl: window.location.origin + '/profile'
-        }
+        },
+        preferences: { additionalQueryParameters: { lang: language } }
       });
       const redirectUrl = redirectSession.fullUrl || redirectSession.redirectSession?.fullUrl;
       if (redirectUrl) {

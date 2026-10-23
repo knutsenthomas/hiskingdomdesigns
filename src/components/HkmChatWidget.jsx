@@ -189,8 +189,8 @@ const SHORTCUTS = [
   {
     command: '/frakt',
     label: 'Frakt',
-    description: 'Leveringstid og fraktsatser (ca. 2 uker)',
-    text: 'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid ca. 2 uker (produksjonstid 1-2 uker pluss frakt). Du vil motta en bekreftelse på e-post med sporingsinfo så snart pakken din er på vei! 📦'
+    description: 'Leveringstid og fraktsatser (2–3 uker)',
+    text: 'Hei! Vi pakker og sender bestillinger fortløpende. Siden produktene våre produseres på bestilling (print-on-demand), er normal total leveringstid 2–3 uker (produksjonstid 1-2 uker pluss frakt). Du vil motta en bekreftelse på e-post med sporingsinfo så snart pakken din er på vei! 📦'
   },
   {
     command: '/retur',
@@ -533,7 +533,7 @@ export default function HkmChatWidget() {
         let answer = '';
         const lower = cleanText.toLowerCase();
         if (lower.includes('levering') || lower.includes('frakt') || lower.includes('porto')) {
-          answer = 'Hei! Normal leveringstid er ca. 2 uker (produksjon 1-2 uker + frakt). Du mottar sporingslenke på e-post så snart pakken din er sendt! 📦';
+          answer = 'Hei! Normal leveringstid er 2–3 uker (produksjon 1-2 uker + frakt). Du mottar sporingslenke på e-post så snart pakken din er sendt! 📦';
         } else if (lower.includes('retur') || lower.includes('bytte')) {
           answer = 'Hei! Vi har 14 dagers åpent kjøp og enkel retur/bytte. Varen må være ubrukt og i original stand. Ta kontakt her eller på e-post, så ordner vi det! 🔄';
         } else if (lower.includes('gratis')) {

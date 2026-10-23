@@ -451,7 +451,7 @@ export default function Cart() {
               {estimateError && (
                 <p className="text-[11px] text-red-600 font-semibold mt-1.5">{estimateError}</p>
               )}
-              {isEstimated && (
+              {isEstimated && shippingAddress?.postalCode && shippingAddress?.city && (
                 <div className="space-y-4 mt-3">
                   <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-between text-xs">
                     <div className="text-emerald-800 font-medium flex items-center gap-1.5">

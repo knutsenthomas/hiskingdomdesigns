@@ -113,7 +113,7 @@ export default function Betingelser() {
           </div>
           <CmsText
             slug="terms-section-desc-4"
-            fallback="Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er ca 2 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Risikoen for varen går over på deg når du har mottatt pakken."
+            fallback="Vi sender ordrer direkte til kunden. Normal leveringstid i Norge er 2–3 uker (Produksjonstid og frakt) avhengig av hvor i landet du bor. Risikoen for varen går over på deg når du har mottatt pakken."
             as="p"
           />
         </section>
