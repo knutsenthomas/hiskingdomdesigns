@@ -1,359 +1,50 @@
-import { buildProductSchema } from '@/lib/productSeo';
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ShoppingCart, Check, ShieldCheck, Truck, ArrowLeft, Heart, Star, Sparkles, Ruler, X } from 'lucide-react';
-import { useApp, isProductOceaniaExclusive } from '@/contexts/AppContext';
-import { useCart } from '@/contexts/CartContext';
-import ProductCard from '@/components/ProductCard';
-import { motion, AnimatePresence } from 'framer-motion';
-import { wixClient } from '@/lib/wix';
-import { getOptimizedWixImageUrl } from '@/lib/media';
-import useMeta from '@/hooks/useMeta';
-import { useLanguage } from '@/contexts/LanguageContext';
-import CmsText from '@/components/CmsText';
-
-import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from '@/lib/colors';
-
-
-function SizeGuideContent({ defaultTab = 'clothing' }) {
-  const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState(defaultTab);
-
-  return (
-    <div className="flex flex-col flex-1 overflow-hidden">
-      {/* Tabs list */}
-      <div className="flex border-b border-outline-variant/30 text-xs font-semibold select-none bg-slate-50">
-        <button
-          onClick={() => setActiveTab('clothing')}
-          className={`flex-1 py-3.5 px-2 text-center transition-all text-[11px] sm:text-xs flex items-center justify-center gap-1.5 ${
-            activeTab === 'clothing' 
-              ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
-              : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-            <path d="M20.38 3.46 16 7.83V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3.83L3.62 3.46a2 2 0 0 0-2.82 2.82L7.64 13v7a2 2 0 0 0 2 2h4.72a2 2 0 0 0 2-2v-7l6.84-6.72a2 2 0 0 0-2.82-2.82z" />
-          </svg>
-          <span>
-            <CmsText slug="product-sizeguide-clothing-tab" fallback={t('product.clothingTab')} as="span" />
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab('caps')}
-          className={`flex-1 py-3.5 px-2 text-center transition-all border-x border-outline-variant/20 text-[11px] sm:text-xs flex items-center justify-center gap-1.5 ${
-            activeTab === 'caps' 
-              ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
-              : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-            <path d="M4 17c0-6 4-10 9-10s9 4 9 10" />
-            <path d="M12 17h10c1.5 0 2 1 2 2a1.5 1.5 0 0 1-1.5 1.5H10.5" />
-            <circle cx="13" cy="7" r="1" fill="currentColor" />
-            <path d="M13 7c-1 3-2 7-2 10" />
-          </svg>
-          <span>
-            <CmsText slug="product-sizeguide-caps-tab" fallback={t('product.capsTab')} as="span" />
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab('posters')}
-          className={`flex-1 py-3.5 px-2 text-center transition-all text-[11px] sm:text-xs flex items-center justify-center gap-1.5 ${
-            activeTab === 'posters' 
-              ? 'bg-white text-terracotta font-bold border-b-2 border-terracotta' 
-              : 'text-secondary hover:text-onyx hover:bg-slate-100/60'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-            <circle cx="9" cy="9" r="2" />
-            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-          </svg>
-          <span>
-            <CmsText slug="product-sizeguide-posters-tab" fallback={t('product.postersTab')} as="span" />
-          </span>
-        </button>
-      </div>
-
-      {/* Tab Panels */}
-      <div className="p-6 overflow-y-auto space-y-4 text-xs leading-relaxed text-secondary custom-scrollbar flex-1">
-        {activeTab === 'clothing' && (
-          <div className="space-y-4">
-            <p className="italic">{t('product.clothingGuideDesc')}</p>
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3">{t('product.size')}</th>
-                  <th className="py-2.5 px-3">Bredde (A)</th>
-                  <th className="py-2.5 px-3">Lengde (B)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">S</td>
-                  <td className="py-2.5 px-3">48 cm</td>
-                  <td className="py-2.5 px-3">69 cm</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">M</td>
-                  <td className="py-2.5 px-3">51 cm</td>
-                  <td className="py-2.5 px-3">71 cm</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">L</td>
-                  <td className="py-2.5 px-3">54 cm</td>
-                  <td className="py-2.5 px-3">73 cm</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">XL</td>
-                  <td className="py-2.5 px-3">57 cm</td>
-                  <td className="py-2.5 px-3">75 cm</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">XXL</td>
-                  <td className="py-2.5 px-3">60 cm</td>
-                  <td className="py-2.5 px-3">77 cm</td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mt-2">
-              <p className="font-semibold text-onyx mb-1 text-[10px] uppercase">{t('product.howToMeasure')}</p>
-              <p>{t('product.widthMeasure')}</p>
-              <p>{t('product.lengthMeasure')}</p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'caps' && (
-          <div className="space-y-4">
-            <p className="italic">{t('product.capsGuideDesc')}</p>
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3">Type</th>
-                  <th className="py-2.5 px-3">Hodeomkrets</th>
-                  <th className="py-2.5 px-3">Justerbarhet</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">Caps (Snapback / Justerbar)</td>
-                  <td className="py-2.5 px-3">54 – 60 cm</td>
-                  <td className="py-2.5 px-3">Spenne bak (Plast eller metall)</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">Bøttehatt (Bucket hat)</td>
-                  <td className="py-2.5 px-3">56 – 58 cm</td>
-                  <td className="py-2.5 px-3">Fast omkrets (Fleksibelt bomullsstoff)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {activeTab === 'posters' && (
-          <div className="space-y-4">
-            <p className="italic">{t('product.postersGuideDesc')}</p>
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-onyx font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3">Format</th>
-                  <th className="py-2.5 px-3">Dimensjoner (i cm)</th>
-                  <th className="py-2.5 px-3">Papirtype</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">A4</td>
-                  <td className="py-2.5 px-3">21.0 x 29.7 cm</td>
-                  <td className="py-2.5 px-3">230g Matte Premium</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">A3</td>
-                  <td className="py-2.5 px-3">29.7 x 42.0 cm</td>
-                  <td className="py-2.5 px-3">230g Matte Premium</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">30x40 cm</td>
-                  <td className="py-2.5 px-3">30.0 x 40.0 cm</td>
-                  <td className="py-2.5 px-3">230g Matte Premium</td>
-                </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="py-2.5 px-3 font-semibold text-onyx">50x70 cm</td>
-                  <td className="py-2.5 px-3">50.0 x 70.0 cm</td>
-                  <td className="py-2.5 px-3">230g Matte Premium</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function formatDescription(html, lang = 'no') {
-  if (!html) return '';
-  if (!html.toLowerCase().includes('measurements')) return html;
-  
-  const parts = html.split(/<\/p>/i);
-  
-  const before = [];
-  const sizeRows = [];
-  const after = [];
-  let inMeasurements = false;
-  let headerHtml = '';
-  
-  const isNo = lang === 'no';
-  const isEs = lang === 'es';
-  
-  const headerText = isNo ? 'Størrelsesmål:' : isEs ? 'Medidas:' : 'Measurements:';
-  const footerText = isNo 
-    ? 'Alle mål er veiledende med en minimumstoleranse på 1 cm.' 
-    : isEs 
-    ? 'Todas las medidas son indicativas con una tolerancia mínima de 1 cm.' 
-    : 'All measurements are indicative with minimum tolerance of 1 cm.';
-  
-  for (let part of parts) {
-    part = part.trim();
-    if (!part) continue;
-    const p = part + '</p>';
-    
-    // Strip HTML tags to check text content
-    const text = p.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ').trim();
-    
-    if (text.toLowerCase() === 'measurements:') {
-      inMeasurements = true;
-      headerHtml = `<p><strong>${headerText}</strong></p>`;
-      continue;
-    }
-    
-    if (text.toLowerCase().includes('all measurements are indicative')) {
-      after.push(`<p>${footerText}</p>`);
-      continue;
-    }
-    
-    if (inMeasurements) {
-      const firstWord = text.split(/\s+/)[0].replace(/[^a-zA-Z0-9]/g, '');
-      const isSize = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'XXS', 'XXL', '4XL'].includes(firstWord.toUpperCase());
-      
-      if (isSize) {
-        sizeRows.push(text);
-      } else {
-        if (sizeRows.length > 0) {
-          after.push(p);
-          inMeasurements = false;
-        } else {
-          before.push(p);
-        }
-      }
-    } else {
-      before.push(p);
-    }
-  }
-  
-  if (sizeRows.length > 0) {
-    const tableRows = [];
-    const headers = isNo 
-      ? ['Størrelse', 'Lengde', 'Brystvidde (½ Chest)'] 
-      : isEs 
-      ? ['Talla', 'Largo', '½ Pecho'] 
-      : ['Size', 'Length', '½ Chest'];
-    
-    sizeRows.forEach(row => {
-      const cleanText = row.replace(/[\s\u00A0]+/g, ' ').trim();
-      const tokens = cleanText.split(' ');
-      
-      if (tokens[0].toUpperCase() === 'XS' && cleanText.toLowerCase().includes('body')) {
-        // mixed row: "XS Body Length 66. ½ Chest 46"
-        tableRows.push({
-          size: 'XS',
-          length: '66 cm',
-          chest: '46 cm'
-        });
-      } else {
-        const size = tokens[0].replace(/\.$/, ''); // remove trailing dot like "M."
-        const length = tokens[1] ? tokens[1].replace(/\.$/, '') + ' cm' : '';
-        const chest = tokens[2] ? tokens[2].replace(/\.$/, '') + ' cm' : '';
-        tableRows.push({
-          size,
-          length,
-          chest
-        });
-      }
-    });
-    
-    const tableHtml = `
-<div class="my-4 overflow-x-auto border border-outline-variant/30 rounded-2xl bg-white/40 shadow-xs">
-  <table class="w-full border-collapse text-left text-sm text-onyx">
-    <thead>
-      <tr class="bg-onyx/5 border-b border-outline-variant/40">
-        <th class="p-3 font-bold uppercase tracking-wider text-[11px] text-onyx/60">${headers[0]}</th>
-        <th class="p-3 font-bold uppercase tracking-wider text-[11px] text-onyx/60">${headers[1]}</th>
-        <th class="p-3 font-bold uppercase tracking-wider text-[11px] text-onyx/60">${headers[2]}</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-outline-variant/20">
-      ${tableRows.map(r => `
-      <tr class="hover:bg-onyx/5 transition-colors">
-        <td class="p-3 font-bold text-terracotta">${r.size}</td>
-        <td class="p-3 font-medium text-secondary">${r.length}</td>
-        <td class="p-3 font-medium text-secondary">${r.chest}</td>
-      </tr>`).join('')}
-    </tbody>
-  </table>
-</div>`;
-    
-    const beforeHtml = before.join('');
-    const afterHtml = after.join('');
-    return beforeHtml + headerHtml + tableHtml + afterHtml;
-  }
-  
-  return html;
-}
-
-
-
-const PRODUCT_COLOR_IMAGE_OVERRIDES = {
-  '7d464596-9655-ca07-77d0-a290d2acbaf4': {
-    'hvit': 'https://static.wixstatic.com/media/3a1544_4f7fe33df6c64c2aac168003dbdd83cb~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'rød': 'https://static.wixstatic.com/media/3a1544_6dce23ea561d443ca299c373a408a400~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'grønn': 'https://static.wixstatic.com/media/3a1544_f1c5a64930794de2b25f294c259b858f~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'grå': 'https://static.wixstatic.com/media/3a1544_2631c508aa4d4e7ea873d27cf228d730~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
-  },
-  '43ced8bd-218e-a5dd-0185-df6c13f54691': {
-    'rosa': 'https://static.wixstatic.com/media/3a1544_1712758067814192932cd35348660f65~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'rød': 'https://static.wixstatic.com/media/3a1544_450b863bf0cd4d46a3b45c038c208840~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'grå': 'https://static.wixstatic.com/media/3a1544_9fa88c959dc844308d0cd382ac4f2c78~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'lyseblå': 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'blå': 'https://static.wixstatic.com/media/3a1544_5bda2e9e2dea4284ad74a5a48ef1308b~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'sort': 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'svart': 'https://static.wixstatic.com/media/3a1544_9b8fb1e9adef439c90de6414f7420995~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
-  },
-  '9f55138f-b127-a7e9-db63-017bcfd820b3': {
-    'hvit': 'https://static.wixstatic.com/media/3a1544_116d099a0a6f4fd3a10dbe984a2f6959~mv2.png/v1/fit/w_1262,h_1482,q_90/file.png',
-    'rød': 'https://static.wixstatic.com/media/3a1544_5db0a80225144360aa7c7b43117aab90~mv2.png/v1/fit/w_1286,h_1480,q_90/file.png',
-    'rosa': 'https://static.wixstatic.com/media/3a1544_7c324fc200bb4946b3344f2f7bbb2335~mv2.png/v1/fit/w_1304,h_1508,q_90/file.png',
-    'grå': 'https://static.wixstatic.com/media/3a1544_3de976fe5fc34b91ba9f097b2a2b8f95~mv2.png/v1/fit/w_1164,h_1476,q_90/file.png'
-  },
-  '86bb3ff5-1d3c-2400-433c-156cdf78751b': {
-    'grønn': 'https://static.wixstatic.com/media/3a1544_f433ebb2c2ee440f8bb7c7fcbb0e7373~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'gammelrosa': 'https://static.wixstatic.com/media/3a1544_89081a2c740b4145a70b1eab1a5bb094~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'begunder': 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'burgunder': 'https://static.wixstatic.com/media/3a1544_f684bfbecee84b7ab69a08b43824650d~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'lyserosa': 'https://static.wixstatic.com/media/3a1544_4ea7decda6df47b3b6653376a7bab537~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'offwhite': 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'hvit': 'https://static.wixstatic.com/media/3a1544_267e9e50660d4420af678195a5b80774~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'blå melange': 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'mørkeblå': 'https://static.wixstatic.com/media/3a1544_547864a3ed084ac496273b5d37b86713~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'blå': 'https://static.wixstatic.com/media/3a1544_2a8ccc7bf2904927a71960a61d8fca09~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg',
-    'lyseblå': 'https://static.wixstatic.com/media/3a1544_1ff917d9a31f4c85937afe95e8e5f1a6~mv2.jpg/v1/fit/w_1080,h_1350,q_90/file.jpg'
-  }
-};
+import ProductPurchase from "../features/product/panels/ProductPurchase";
+import ProductReviews from "../features/product/panels/ProductReviews";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useApp, isProductOceaniaExclusive } from "@/contexts/AppContext";
+import { useCart } from "@/contexts/CartContext";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { resolveColor, PRODUCT_COLOR_ORDER_OVERRIDES } from "@/lib/colors";
+import { PRODUCT_COLOR_IMAGE_OVERRIDES } from "../features/product/lib/PRODUCT_COLOR_IMAGE_OVERRIDES";
+import { wixClient } from "@/lib/wix";
+import { getOptimizedWixImageUrl } from "@/lib/media";
+import useMeta from "@/hooks/useMeta";
+import { buildProductSchema } from "@/lib/productSeo";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  ChevronRight,
+  ChevronLeft,
+  Ruler,
+  Check,
+  ShoppingCart,
+  Heart,
+  Truck,
+  ShieldCheck,
+  X,
+} from "lucide-react";
+import { formatDescription } from "../features/product/lib/formatDescription";
+import CmsText from "@/components/CmsText";
+import ProductCard from "@/components/ProductCard";
+import { SizeGuideContent } from "../features/product/components/SizeGuideContent";
 
 export default function ProductDetails() {
-  const { t, translateProduct, language, setLanguage, formatPrice, localizedPath } = useLanguage();
-  const { products, isLoadingProducts, toggleWishlist, isInWishlist, getSlugByCategoryName } = useApp();
+  const {
+    t,
+    translateProduct,
+    language,
+    setLanguage,
+    formatPrice,
+    localizedPath,
+  } = useLanguage();
+  const {
+    products,
+    isLoadingProducts,
+    toggleWishlist,
+    isInWishlist,
+    getSlugByCategoryName,
+  } = useApp();
   const { addToCart } = useCart();
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -363,8 +54,8 @@ export default function ProductDetails() {
   const [isFetchingProduct, setIsFetchingProduct] = useState(false);
   const [fetchError, setFetchError] = useState(false);
 
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('Hvit');
+  const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedColor, setSelectedColor] = useState("Hvit");
   const [qty, setQty] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [customTextFieldValues, setCustomTextFieldValues] = useState({});
@@ -375,32 +66,38 @@ export default function ProductDetails() {
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   // Back in stock states
-  const [backInStockEmail, setBackInStockEmail] = useState('');
+  const [backInStockEmail, setBackInStockEmail] = useState("");
   const [backInStockSuccess, setBackInStockSuccess] = useState(false);
   const [backInStockLoading, setBackInStockLoading] = useState(false);
-  const [backInStockError, setBackInStockError] = useState('');
+  const [backInStockError, setBackInStockError] = useState("");
 
   // Reviews states
   const [reviewsList, setReviewsList] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
-  const [ratingDistribution, setRatingDistribution] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [ratingDistribution, setRatingDistribution] = useState({
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0,
+  });
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  
+
   // Review form states
-  const [reviewName, setReviewName] = useState('');
+  const [reviewName, setReviewName] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
-  const [reviewTitle, setReviewTitle] = useState('');
-  const [reviewBody, setReviewBody] = useState('');
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewBody, setReviewBody] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
-  const [reviewSubmitError, setReviewSubmitError] = useState('');
+  const [reviewSubmitError, setReviewSubmitError] = useState("");
 
   // --- 2. Memoized Derivations ---
-  
+
   // Find product by id or slug from app context
   const contextProduct = useMemo(() => {
-    return products.find(p => p.id === productId || p.slug === productId);
+    return products.find((p) => p.id === productId || p.slug === productId);
   }, [products, productId]);
 
   // Use fetchedProduct if available (contains full options/variants), otherwise fallback to contextProduct
@@ -411,29 +108,41 @@ export default function ProductDetails() {
 
   // Find the selected variant matching selectedSize, selectedColor and any other selected options
   const selectedVariant = useMemo(() => {
-    if (!product || !product.variants || product.variants.length === 0) return null;
-    
-    const sizeOpt = product.productOptions?.find(o => {
+    if (!product || !product.variants || product.variants.length === 0)
+      return null;
+
+    const sizeOpt = product.productOptions?.find((o) => {
       const name = o.name?.trim().toLowerCase();
-      return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+      return (
+        name &&
+        (name.includes("size") ||
+          name.includes("størrelse") ||
+          name.includes("størrelser") ||
+          name.includes("format") ||
+          name === "str" ||
+          name === "str.")
+      );
     });
-    const colorOpt = product.productOptions?.find(o => {
+    const colorOpt = product.productOptions?.find((o) => {
       const name = o.name?.trim().toLowerCase();
-      return name && (name === 'color' || name === 'farge');
+      return name && (name === "color" || name === "farge");
     });
 
-    const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
-    const colorChoice = colorOpt?.choices?.find(c => {
+    const sizeChoice = sizeOpt?.choices?.find(
+      (c) => c.value === selectedSize || c.description === selectedSize,
+    );
+    const colorChoice = colorOpt?.choices?.find((c) => {
       const resolved = resolveColor(c.value, c.description || c.name);
       return resolved.name === selectedColor;
     });
 
     const targetChoices = { ...selectedOptions };
     if (sizeOpt && sizeChoice) targetChoices[sizeOpt.name] = sizeChoice.value;
-    if (colorOpt && colorChoice) targetChoices[colorOpt.name] = colorChoice.value;
+    if (colorOpt && colorChoice)
+      targetChoices[colorOpt.name] = colorChoice.value;
 
     // 1. Exact match on choices
-    let match = product.variants.find(v => {
+    let match = product.variants.find((v) => {
       if (!v || !v.choices) return false;
       return Object.entries(v.choices).every(([optName, optVal]) => {
         return targetChoices[optName] === optVal;
@@ -442,17 +151,28 @@ export default function ProductDetails() {
 
     // 2. Fallback match resolving colors with resolveColor
     if (!match) {
-      match = product.variants.find(v => {
+      match = product.variants.find((v) => {
         if (!v || !v.choices) return false;
         return Object.entries(v.choices).every(([optName, optVal]) => {
           const lower = optName.toLowerCase();
-          if (lower === 'color' || lower === 'farge') {
+          if (lower === "color" || lower === "farge") {
             const vResolved = resolveColor(optVal);
-            const tResolved = resolveColor(targetChoices[optName] || selectedColor);
+            const tResolved = resolveColor(
+              targetChoices[optName] || selectedColor,
+            );
             return vResolved.name === tResolved.name;
           }
-          if (lower.includes('size') || lower.includes('størrelse') || lower === 'str') {
-            return String(optVal).trim().toLowerCase() === String(targetChoices[optName] || selectedSize).trim().toLowerCase();
+          if (
+            lower.includes("size") ||
+            lower.includes("størrelse") ||
+            lower === "str"
+          ) {
+            return (
+              String(optVal).trim().toLowerCase() ===
+              String(targetChoices[optName] || selectedSize)
+                .trim()
+                .toLowerCase()
+            );
           }
           return targetChoices[optName] === optVal;
         });
@@ -464,7 +184,10 @@ export default function ProductDetails() {
 
   // Dynamic prices based on selected variant if present
   const activePrice = useMemo(() => {
-    if (selectedVariant && selectedVariant.variant?.priceData?.discountedPrice !== undefined) {
+    if (
+      selectedVariant &&
+      selectedVariant.variant?.priceData?.discountedPrice !== undefined
+    ) {
       return selectedVariant.variant.priceData.discountedPrice;
     }
     return product ? product.price : 0;
@@ -484,31 +207,35 @@ export default function ProductDetails() {
 
   // Aggregate stock information from wix client structures
   const stockStatus = useMemo(() => {
-    if (selectedVariant && selectedVariant.stock && typeof selectedVariant.stock.inStock === 'boolean') {
-      return { 
-        inStock: selectedVariant.stock.inStock, 
-        trackQuantity: selectedVariant.stock.trackQuantity || false, 
-        quantity: selectedVariant.stock.quantity ?? 999999 
+    if (
+      selectedVariant &&
+      selectedVariant.stock &&
+      typeof selectedVariant.stock.inStock === "boolean"
+    ) {
+      return {
+        inStock: selectedVariant.stock.inStock,
+        trackQuantity: selectedVariant.stock.trackQuantity || false,
+        quantity: selectedVariant.stock.quantity ?? 999999,
       };
     }
-    if (productRaw?.stock && typeof productRaw.stock.inStock === 'boolean') {
+    if (productRaw?.stock && typeof productRaw.stock.inStock === "boolean") {
       return {
         inStock: productRaw.stock.inStock,
         trackQuantity: productRaw.stock.trackQuantity || false,
-        quantity: productRaw.stock.quantity ?? 999999
+        quantity: productRaw.stock.quantity ?? 999999,
       };
     }
-    if (productRaw && typeof productRaw.inStock === 'boolean') {
+    if (productRaw && typeof productRaw.inStock === "boolean") {
       return {
         inStock: productRaw.inStock,
         trackQuantity: false,
-        quantity: 999999
+        quantity: 999999,
       };
     }
-    return { 
-      inStock: true, 
-      trackQuantity: false, 
-      quantity: 999999 
+    return {
+      inStock: true,
+      trackQuantity: false,
+      quantity: 999999,
     };
   }, [selectedVariant, productRaw]);
 
@@ -518,18 +245,38 @@ export default function ProductDetails() {
 
     const getKeywords = (name) => {
       if (!name) return [];
-      return name.toLowerCase()
-        .replace(/[^a-z0-9æøå ]/g, ' ')
+      return name
+        .toLowerCase()
+        .replace(/[^a-z0-9æøå ]/g, " ")
         .split(/\s+/)
-        .filter(w => w.length > 2 && !['med', 'paa', 'for', 'den', 'det', 'the', 'and', 'with', 'pinn', 'til'].includes(w));
+        .filter(
+          (w) =>
+            w.length > 2 &&
+            ![
+              "med",
+              "paa",
+              "for",
+              "den",
+              "det",
+              "the",
+              "and",
+              "with",
+              "pinn",
+              "til",
+            ].includes(w),
+        );
     };
 
     const currentKeywords = getKeywords(productRaw.name);
     const currentSubcategories = productRaw.subcategories || [];
 
     const scored = products
-      .filter(p => p.id !== productRaw.id && (language === 'en' || !p.isOceaniaExclusive)) // Exclude current product and regional exclusives on non-English store
-      .map(p => {
+      .filter(
+        (p) =>
+          p.id !== productRaw.id &&
+          (language === "en" || !p.isOceaniaExclusive),
+      ) // Exclude current product and regional exclusives on non-English store
+      .map((p) => {
         let score = 0;
 
         // 1. Primary Category match (large boost)
@@ -538,15 +285,23 @@ export default function ProductDetails() {
         }
 
         // 2. Subcategory (collection) overlap
-        if (p.subcategories && p.subcategories.length > 0 && currentSubcategories.length > 0) {
-          const commonSubs = p.subcategories.filter(sub => currentSubcategories.includes(sub));
+        if (
+          p.subcategories &&
+          p.subcategories.length > 0 &&
+          currentSubcategories.length > 0
+        ) {
+          const commonSubs = p.subcategories.filter((sub) =>
+            currentSubcategories.includes(sub),
+          );
           score += commonSubs.length * 50; // High score for matching collections (e.g. "Hatter /caps" or "Nøkkelring")
         }
 
         // 3. Name keyword overlap
         const pKeywords = getKeywords(p.name);
         if (pKeywords.length > 0 && currentKeywords.length > 0) {
-          const commonKeywords = pKeywords.filter(w => currentKeywords.includes(w));
+          const commonKeywords = pKeywords.filter((w) =>
+            currentKeywords.includes(w),
+          );
           score += commonKeywords.length * 30; // Boost for design family (e.g. both having "Norge" or "Brodert")
         }
 
@@ -560,7 +315,7 @@ export default function ProductDetails() {
     // Sort by score descending and take top 3
     return scored
       .sort((a, b) => b.score - a.score)
-      .map(item => item.product)
+      .map((item) => item.product)
       .slice(0, 3);
   }, [productRaw, products, language]);
 
@@ -576,63 +331,95 @@ export default function ProductDetails() {
         if (match) return match;
       }
 
-      const colorOpt = product.productOptions?.find(o => {
+      const colorOpt = product.productOptions?.find((o) => {
         const name = o.name?.trim().toLowerCase();
-        return name === 'color' || name === 'farge';
+        return name === "color" || name === "farge";
       });
 
-      const sizeOpt = product.productOptions?.find(o => {
+      const sizeOpt = product.productOptions?.find((o) => {
         const name = o.name?.trim().toLowerCase();
-        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+        return (
+          name &&
+          (name.includes("size") ||
+            name.includes("størrelse") ||
+            name.includes("størrelser") ||
+            name.includes("format") ||
+            name === "str" ||
+            name === "str.")
+        );
       });
 
       const activeSize = sizeValue || selectedSize;
-      const sizeChoice = sizeOpt?.choices?.find(c => c.value === activeSize || c.description === activeSize);
-      const colorChoice = colorOpt?.choices?.find(c => {
+      const sizeChoice = sizeOpt?.choices?.find(
+        (c) => c.value === activeSize || c.description === activeSize,
+      );
+      const colorChoice = colorOpt?.choices?.find((c) => {
         const resolved = resolveColor(c.value, c.description || c.name);
         return resolved.name.toLowerCase() === colorName.toLowerCase();
       });
 
       // 1. Direct mediaId lookup from Wix variants
       if (product.variants && product.variants.length > 0) {
-        const matchingVariant = product.variants.find(v => {
-          if (!v || !v.choices) return false;
-          let colorMatch = false;
-          let sizeMatch = true;
-          Object.entries(v.choices).forEach(([optName, optVal]) => {
-            const lower = optName.toLowerCase();
-            if (lower === 'color' || lower === 'farge') {
-              const vResolved = resolveColor(optVal);
-              const targetResolved = resolveColor(colorName);
-              if (vResolved.name === targetResolved.name) {
-                colorMatch = true;
+        const matchingVariant =
+          product.variants.find((v) => {
+            if (!v || !v.choices) return false;
+            let colorMatch = false;
+            let sizeMatch = true;
+            Object.entries(v.choices).forEach(([optName, optVal]) => {
+              const lower = optName.toLowerCase();
+              if (lower === "color" || lower === "farge") {
+                const vResolved = resolveColor(optVal);
+                const targetResolved = resolveColor(colorName);
+                if (vResolved.name === targetResolved.name) {
+                  colorMatch = true;
+                }
+              } else if (
+                lower.includes("size") ||
+                lower.includes("størrelse") ||
+                lower === "str"
+              ) {
+                if (
+                  sizeChoice &&
+                  optVal !== sizeChoice.value &&
+                  optVal.toLowerCase() !== activeSize.toLowerCase()
+                ) {
+                  sizeMatch = false;
+                }
               }
-            } else if (lower.includes('size') || lower.includes('størrelse') || lower === 'str') {
-              if (sizeChoice && optVal !== sizeChoice.value && optVal.toLowerCase() !== activeSize.toLowerCase()) {
-                sizeMatch = false;
+            });
+            return colorMatch && sizeMatch;
+          }) ||
+          product.variants.find((v) => {
+            if (!v || !v.choices) return false;
+            return Object.entries(v.choices).some(([optName, optVal]) => {
+              const lower = optName.toLowerCase();
+              if (lower === "color" || lower === "farge") {
+                const vResolved = resolveColor(optVal);
+                const targetResolved = resolveColor(colorName);
+                return vResolved.name === targetResolved.name;
               }
-            }
+              return false;
+            });
           });
-          return colorMatch && sizeMatch;
-        }) || product.variants.find(v => {
-          if (!v || !v.choices) return false;
-          return Object.entries(v.choices).some(([optName, optVal]) => {
-            const lower = optName.toLowerCase();
-            if (lower === 'color' || lower === 'farge') {
-              const vResolved = resolveColor(optVal);
-              const targetResolved = resolveColor(colorName);
-              return vResolved.name === targetResolved.name;
-            }
-            return false;
-          });
-        });
 
         if (matchingVariant) {
           // Check mediaId from Wix variant
-          const varMediaId = matchingVariant.mediaId || matchingVariant.variant?.mediaId || matchingVariant.media?.mainMedia?.id;
+          const varMediaId =
+            matchingVariant.mediaId ||
+            matchingVariant.variant?.mediaId ||
+            matchingVariant.media?.mainMedia?.id;
           if (varMediaId) {
-            const allMediaItems = product.mediaItems || product.media?.items || productRaw?.media?.items || [];
-            const mediaMatch = allMediaItems.find(mi => mi._id === varMediaId || mi.id === varMediaId || mi.image?.id === varMediaId);
+            const allMediaItems =
+              product.mediaItems ||
+              product.media?.items ||
+              productRaw?.media?.items ||
+              [];
+            const mediaMatch = allMediaItems.find(
+              (mi) =>
+                mi._id === varMediaId ||
+                mi.id === varMediaId ||
+                mi.image?.id === varMediaId,
+            );
             if (mediaMatch?.image?.url) {
               return mediaMatch.image.url;
             }
@@ -654,10 +441,20 @@ export default function ProductDetails() {
         if (colorChoice.media?.items?.[0]?.image?.url) {
           return colorChoice.media.items[0].image.url;
         }
-        const choiceMediaId = colorChoice.media?.mainMedia?.id || colorChoice.mediaId;
+        const choiceMediaId =
+          colorChoice.media?.mainMedia?.id || colorChoice.mediaId;
         if (choiceMediaId) {
-          const allMediaItems = product.mediaItems || product.media?.items || productRaw?.media?.items || [];
-          const mediaMatch = allMediaItems.find(mi => mi._id === choiceMediaId || mi.id === choiceMediaId || mi.image?.id === choiceMediaId);
+          const allMediaItems =
+            product.mediaItems ||
+            product.media?.items ||
+            productRaw?.media?.items ||
+            [];
+          const mediaMatch = allMediaItems.find(
+            (mi) =>
+              mi._id === choiceMediaId ||
+              mi.id === choiceMediaId ||
+              mi.image?.id === choiceMediaId,
+          );
           if (mediaMatch?.image?.url) {
             return mediaMatch.image.url;
           }
@@ -666,7 +463,7 @@ export default function ProductDetails() {
 
       // 3. Media on size choice (Printify / POD pattern)
       if (colorOpt && colorOpt.choices) {
-        const colorIndex = colorOpt.choices.findIndex(c => {
+        const colorIndex = colorOpt.choices.findIndex((c) => {
           const resolved = resolveColor(c.value, c.description || c.name);
           return resolved.name.toLowerCase() === colorName.toLowerCase();
         });
@@ -696,12 +493,12 @@ export default function ProductDetails() {
 
     // Check if product has explicit override for images and colors
     if (product.id && PRODUCT_COLOR_ORDER_OVERRIDES[product.id]) {
-      return PRODUCT_COLOR_ORDER_OVERRIDES[product.id].map(c => c.image);
+      return PRODUCT_COLOR_ORDER_OVERRIDES[product.id].map((c) => c.image);
     }
 
-    const colorOpt = product.productOptions?.find(o => {
+    const colorOpt = product.productOptions?.find((o) => {
       const name = o.name?.trim().toLowerCase();
-      return name === 'color' || name === 'farge';
+      return name === "color" || name === "farge";
     });
 
     if (colorOpt && colorOpt.choices?.length > 0) {
@@ -721,54 +518,70 @@ export default function ProductDetails() {
 
       // 2. Identify all mockup URLs across all variants to filter them out of extra images
       const allMockupUrls = new Set(colorImages);
-      const sizeOpt = product.productOptions?.find(o => {
+      const sizeOpt = product.productOptions?.find((o) => {
         const name = o.name?.trim().toLowerCase();
-        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+        return (
+          name &&
+          (name.includes("size") ||
+            name.includes("størrelse") ||
+            name.includes("størrelser") ||
+            name.includes("format") ||
+            name === "str" ||
+            name === "str.")
+        );
       });
       if (sizeOpt) {
-        sizeOpt.choices?.forEach(sc => {
-          sc.media?.items?.forEach(item => {
+        sizeOpt.choices?.forEach((sc) => {
+          sc.media?.items?.forEach((item) => {
             if (item?.image?.url) {
               allMockupUrls.add(item.image.url);
             }
           });
         });
       }
-      colorOpt.choices.forEach(cc => {
+      colorOpt.choices.forEach((cc) => {
         if (cc.media?.mainMedia?.image?.url) {
           allMockupUrls.add(cc.media.mainMedia.image.url);
         }
       });
 
       // 3. Find extra unique images in product.images that are not mockups
-      const extraImages = product.images?.filter(url => !allMockupUrls.has(url)) || [];
+      const extraImages =
+        product.images?.filter((url) => !allMockupUrls.has(url)) || [];
 
       // Combine color mockups first, then extra images
       const combined = [...colorImages, ...extraImages];
-      return combined.length > 0 ? combined : (product.images?.length > 0 ? product.images : [product.image]);
+      return combined.length > 0
+        ? combined
+        : product.images?.length > 0
+          ? product.images
+          : [product.image];
     }
 
-    return product.images && product.images.length > 0 ? product.images : [product.image];
+    return product.images && product.images.length > 0
+      ? product.images
+      : [product.image];
   }, [product, selectedSize, getColorImageUrl]);
 
   // Wishlist helper
   const isWishlisted = product ? isInWishlist(product.id) : false;
 
   // --- 3. Helper Functions ---
-  
+
   const loadReviews = async () => {
     setIsLoadingReviews(true);
     let apiReviews = [];
     try {
-      const res = await wixClient.reviews.queryReviews()
-        .eq('entityId', productId)
-        .descending('_createdDate')
+      const res = await wixClient.reviews
+        .queryReviews()
+        .eq("entityId", productId)
+        .descending("_createdDate")
         .find();
       if (res && res.items) {
         apiReviews = res.items;
       }
     } catch (err) {
-      console.warn('Wix Reviews API call failed. Using fallback reviews.', err);
+      console.warn("Wix Reviews API call failed. Using fallback reviews.", err);
     }
 
     // Load local storage reviews
@@ -779,7 +592,7 @@ export default function ProductDetails() {
         localReviews = JSON.parse(saved);
       }
     } catch (e) {
-      console.error('Failed to parse local reviews', e);
+      console.error("Failed to parse local reviews", e);
     }
 
     const allReviews = [...localReviews, ...apiReviews];
@@ -787,11 +600,16 @@ export default function ProductDetails() {
 
     // Calculate average and distribution
     if (allReviews.length > 0) {
-      const totalRating = allReviews.reduce((sum, r) => sum + (r.content?.rating || 5), 0);
-      setAverageRating(parseFloat((totalRating / allReviews.length).toFixed(1)));
+      const totalRating = allReviews.reduce(
+        (sum, r) => sum + (r.content?.rating || 5),
+        0,
+      );
+      setAverageRating(
+        parseFloat((totalRating / allReviews.length).toFixed(1)),
+      );
 
       const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-      allReviews.forEach(r => {
+      allReviews.forEach((r) => {
         const rating = r.content?.rating || 5;
         if (dist[rating] !== undefined) dist[rating]++;
       });
@@ -809,60 +627,96 @@ export default function ProductDetails() {
   useEffect(() => {
     async function fetchSingleProduct() {
       const targetId = contextProduct?.id || productId;
-      if ((!contextProduct || !contextProduct.description || !contextProduct.variants || contextProduct.variants.length === 0) && targetId) {
+      if (
+        (!contextProduct ||
+          !contextProduct.description ||
+          !contextProduct.variants ||
+          contextProduct.variants.length === 0) &&
+        targetId
+      ) {
         setIsFetchingProduct(true);
         setFetchError(false);
         try {
-          console.log(`Fetching full details for product ${targetId} from Wix...`);
+          console.log(
+            `Fetching full details for product ${targetId} from Wix...`,
+          );
           const res = await wixClient.products.getProduct(targetId);
           if (res && res.product) {
             const item = res.product;
-            const nameLower = item.name?.toLowerCase() || '';
-            
-            const clothingRegex = /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib)\b/i;
-            const stickerRegex = /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
-            const posterRegex = /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|semi-glossy|wall art|veggkunst|digital plakat|digital poster)\b/i;
+            const nameLower = item.name?.toLowerCase() || "";
 
-            let category = 'Tilbehør';
+            const clothingRegex =
+              /\b(genser|gensere|hettegenser|hettegensere|tskjorte|tskjorter|t-skjorte|t-skjorter|tee|tees|body|bodyer|babybody|babybodyer|babysuit|skjorte|skjorter|topp|topper|caps|lue|luer|beanie|beanies|sokker|bukse|bukser|pants|hoodie|hoodies|sweatshirt|sweatshirts|tights|jakke|jakker|smekke|smekker|bib)\b/i;
+            const stickerRegex =
+              /\b(klistremerke|klistremerker|sticker|stickers)\b/i;
+            const posterRegex =
+              /\b(plakat|plakater|poster|postere|kunsttrykk|bilde|bilder|canvas|matte paper|glossy paper|semi-glossy|wall art|veggkunst|digital plakat|digital poster)\b/i;
+
+            let category = "Tilbehør";
             if (stickerRegex.test(nameLower)) {
-              category = 'Klistermerker';
+              category = "Klistermerker";
             } else if (posterRegex.test(nameLower)) {
-              category = 'Plakater';
+              category = "Plakater";
             } else if (clothingRegex.test(nameLower)) {
-              category = 'Klær';
+              category = "Klær";
             }
 
             let sizes = [];
             let colors = [];
             let colorNames = [];
-            
+
             if (item.productOptions) {
-              const sizeOpt = item.productOptions.find(o => {
+              const sizeOpt = item.productOptions.find((o) => {
                 const name = o.name?.trim().toLowerCase();
-                return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+                return (
+                  name &&
+                  (name.includes("size") ||
+                    name.includes("størrelse") ||
+                    name.includes("størrelser") ||
+                    name.includes("format") ||
+                    name === "str" ||
+                    name === "str.")
+                );
               });
               if (sizeOpt) {
-                const rawSizes = sizeOpt.choices?.map(c => c.value) || [];
-                sizes = rawSizes.filter(s => {
+                const rawSizes = sizeOpt.choices?.map((c) => c.value) || [];
+                sizes = rawSizes.filter((s) => {
                   if (!s) return false;
-                  const isDimension = s.includes('cm') || s.includes('″') || s.includes('"') || s.toLowerCase().includes('x');
+                  const isDimension =
+                    s.includes("cm") ||
+                    s.includes("″") ||
+                    s.includes('"') ||
+                    s.toLowerCase().includes("x");
                   if (s.length > 15 && !isDimension) return false;
                   const lower = s.toLowerCase();
-                  if (lower.includes('sticker') || lower.includes('mug') || lower.includes('kopp') || lower.includes('flaske') || lower.includes('valg') || lower.includes('option') || lower.includes('pega') || lower.includes('norsk') || lower.includes('english')) {
+                  if (
+                    lower.includes("sticker") ||
+                    lower.includes("mug") ||
+                    lower.includes("kopp") ||
+                    lower.includes("flaske") ||
+                    lower.includes("valg") ||
+                    lower.includes("option") ||
+                    lower.includes("pega") ||
+                    lower.includes("norsk") ||
+                    lower.includes("english")
+                  ) {
                     return false;
                   }
                   return true;
                 });
               }
 
-              const colorOpt = item.productOptions.find(o => {
+              const colorOpt = item.productOptions.find((o) => {
                 const name = o.name?.trim().toLowerCase();
-                return name === 'color' || name === 'farge';
+                return name === "color" || name === "farge";
               });
               if (colorOpt) {
-                const resolved = colorOpt.choices?.map(c => resolveColor(c.value, c.description || c.name)) || [];
-                colorNames = resolved.map(r => r.name);
-                colors = resolved.map(r => r.hex);
+                const resolved =
+                  colorOpt.choices?.map((c) =>
+                    resolveColor(c.value, c.description || c.name),
+                  ) || [];
+                colorNames = resolved.map((r) => r.name);
+                colors = resolved.map((r) => r.hex);
 
                 // Filter to unique color names and align colors array
                 const uniqueNames = [];
@@ -878,8 +732,12 @@ export default function ProductDetails() {
               }
 
               if (PRODUCT_COLOR_ORDER_OVERRIDES[item._id]) {
-                colorNames = PRODUCT_COLOR_ORDER_OVERRIDES[item._id].map(c => c.name);
-                colors = PRODUCT_COLOR_ORDER_OVERRIDES[item._id].map(c => c.hex);
+                colorNames = PRODUCT_COLOR_ORDER_OVERRIDES[item._id].map(
+                  (c) => c.name,
+                );
+                colors = PRODUCT_COLOR_ORDER_OVERRIDES[item._id].map(
+                  (c) => c.hex,
+                );
               }
             }
 
@@ -897,7 +755,8 @@ export default function ProductDetails() {
 
             const price = item.price?.discountedPrice || item.price?.price || 0;
             const originalPrice = item.price?.price || 0;
-            const isSale = price < originalPrice || item.discount?.type !== 'NONE';
+            const isSale =
+              price < originalPrice || item.discount?.type !== "NONE";
 
             const mapped = {
               id: item._id,
@@ -909,20 +768,26 @@ export default function ProductDetails() {
               colorNames: colorNames,
               sizes: sizes,
               sku: item.sku || item._id,
-              image: item.media?.mainMedia?.image?.url || 'https://via.placeholder.com/400',
-              images: item.media?.items?.filter(mi => mi.mediaType === 'image').map(mi => mi.image?.url).filter(Boolean) || [],
+              image:
+                item.media?.mainMedia?.image?.url ||
+                "https://via.placeholder.com/400",
+              images:
+                item.media?.items
+                  ?.filter((mi) => mi.mediaType === "image")
+                  .map((mi) => mi.image?.url)
+                  .filter(Boolean) || [],
               media: item.media,
               mediaItems: item.media?.items || [],
               isBestseller: false,
               isSale: isSale,
               isOceaniaExclusive: isProductOceaniaExclusive(item),
               stock: item.stock,
-              description: item.description || '',
+              description: item.description || "",
               subcategories: [],
               productOptions: item.productOptions,
               manageVariants: item.manageVariants,
               variants: item.variants,
-              customTextFields: item.customTextFields || []
+              customTextFields: item.customTextFields || [],
             };
 
             setFetchedProduct(mapped);
@@ -930,7 +795,10 @@ export default function ProductDetails() {
             setFetchError(true);
           }
         } catch (err) {
-          console.error('Failed to fetch single product directly from Wix:', err);
+          console.error(
+            "Failed to fetch single product directly from Wix:",
+            err,
+          );
           setFetchError(true);
         } finally {
           setIsFetchingProduct(false);
@@ -984,27 +852,35 @@ export default function ProductDetails() {
       // 1. Initialize options
       const initialOpts = {};
       if (product.productOptions && product.productOptions.length > 0) {
-        product.productOptions.forEach(opt => {
+        product.productOptions.forEach((opt) => {
           const nameLower = opt.name?.trim().toLowerCase();
-          const isSize = nameLower.includes('size') || 
-                         nameLower.includes('størrelse') || 
-                         nameLower.includes('størrelser') || 
-                         nameLower.includes('format') || 
-                         nameLower === 'str' || nameLower === 'str.';
-          
-          const isColor = nameLower === 'color' || nameLower === 'farge';
+          const isSize =
+            nameLower.includes("size") ||
+            nameLower.includes("størrelse") ||
+            nameLower.includes("størrelser") ||
+            nameLower.includes("format") ||
+            nameLower === "str" ||
+            nameLower === "str.";
+
+          const isColor = nameLower === "color" || nameLower === "farge";
 
           if (isSize) {
-            const matchingChoice = opt.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
-            initialOpts[opt.name] = matchingChoice ? matchingChoice.value : (opt.choices?.[0]?.value || '');
+            const matchingChoice = opt.choices?.find(
+              (c) => c.value === selectedSize || c.description === selectedSize,
+            );
+            initialOpts[opt.name] = matchingChoice
+              ? matchingChoice.value
+              : opt.choices?.[0]?.value || "";
           } else if (isColor) {
-            const matchingChoice = opt.choices?.find(c => {
+            const matchingChoice = opt.choices?.find((c) => {
               const resolved = resolveColor(c.value, c.description || c.name);
               return resolved.name === selectedColor;
             });
-            initialOpts[opt.name] = matchingChoice ? matchingChoice.value : (opt.choices?.[0]?.value || '');
+            initialOpts[opt.name] = matchingChoice
+              ? matchingChoice.value
+              : opt.choices?.[0]?.value || "";
           } else {
-            initialOpts[opt.name] = opt.choices?.[0]?.value || '';
+            initialOpts[opt.name] = opt.choices?.[0]?.value || "";
           }
         });
       }
@@ -1013,19 +889,28 @@ export default function ProductDetails() {
       // 2. Initialize custom text fields
       const initialTexts = {};
       const initialModes = {};
-      const isGiftCard = product.name?.toLowerCase().includes('gavekort') || product.name?.toLowerCase().includes('gift card') || product.category === 'Gavekort';
-      
+      const isGiftCard =
+        product.name?.toLowerCase().includes("gavekort") ||
+        product.name?.toLowerCase().includes("gift card") ||
+        product.category === "Gavekort";
+
       if (product.customTextFields && product.customTextFields.length > 0) {
-        product.customTextFields.forEach(field => {
+        product.customTextFields.forEach((field) => {
           const lowerTitle = field.title.toLowerCase();
-          const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
-          
+          const isMotifField =
+            !isGiftCard &&
+            (lowerTitle.includes("tekst") ||
+              lowerTitle.includes("vers") ||
+              lowerTitle.includes("motiv") ||
+              lowerTitle.includes("skriftsted") ||
+              lowerTitle.includes("bibel"));
+
           if (isMotifField) {
-            initialTexts[field.title] = 'Tilfeldig';
-            initialModes[field.title] = 'random';
+            initialTexts[field.title] = "Tilfeldig";
+            initialModes[field.title] = "random";
           } else {
-            initialTexts[field.title] = '';
-            initialModes[field.title] = 'custom';
+            initialTexts[field.title] = "";
+            initialModes[field.title] = "custom";
           }
         });
       }
@@ -1038,22 +923,32 @@ export default function ProductDetails() {
   // Keep selectedOptions in sync with selectedSize and selectedColor selections
   useEffect(() => {
     if (product) {
-      const sizeOpt = product.productOptions?.find(o => {
+      const sizeOpt = product.productOptions?.find((o) => {
         const name = o.name?.trim().toLowerCase();
-        return name && (name.includes('size') || name.includes('størrelse') || name.includes('størrelser') || name.includes('format') || name === 'str' || name === 'str.');
+        return (
+          name &&
+          (name.includes("size") ||
+            name.includes("størrelse") ||
+            name.includes("størrelser") ||
+            name.includes("format") ||
+            name === "str" ||
+            name === "str.")
+        );
       });
-      const colorOpt = product.productOptions?.find(o => {
+      const colorOpt = product.productOptions?.find((o) => {
         const name = o.name?.trim().toLowerCase();
-        return name && (name === 'color' || name === 'farge');
+        return name && (name === "color" || name === "farge");
       });
 
-      const sizeChoice = sizeOpt?.choices?.find(c => c.value === selectedSize || c.description === selectedSize);
-      const colorChoice = colorOpt?.choices?.find(c => {
+      const sizeChoice = sizeOpt?.choices?.find(
+        (c) => c.value === selectedSize || c.description === selectedSize,
+      );
+      const colorChoice = colorOpt?.choices?.find((c) => {
         const resolved = resolveColor(c.value, c.description || c.name);
         return resolved.name === selectedColor;
       });
 
-      setSelectedOptions(prev => {
+      setSelectedOptions((prev) => {
         const updated = { ...prev };
         if (sizeOpt && sizeChoice) updated[sizeOpt.name] = sizeChoice.value;
         if (colorOpt && colorChoice) updated[colorOpt.name] = colorChoice.value;
@@ -1062,15 +957,19 @@ export default function ProductDetails() {
     }
   }, [selectedSize, selectedColor, product]);
 
-  const productMetaTitle = product ? `${product.name} | His Kingdom Designs` : t('nav.products');
+  const productMetaTitle = product
+    ? `${product.name} | His Kingdom Designs`
+    : t("nav.products");
 
   useMeta(
     productMetaTitle,
-    product && typeof product.description === 'string' 
-      ? product.description.replace(/<[^>]*>/g, '').substring(0, 155) 
-      : t('home.metaDesc'),
-    product ? { type: 'product', image: product.image, price: `${activePrice} NOK` } : null,
+    product && typeof product.description === "string"
+      ? product.description.replace(/<[^>]*>/g, "").substring(0, 155)
+      : t("home.metaDesc"),
     product
+      ? { type: "product", image: product.image, price: `${activePrice} NOK` }
+      : null,
+    product,
   );
 
   // Dynamic Product & Breadcrumbs JSON-LD Schema (World-Class SEO)
@@ -1085,7 +984,7 @@ export default function ProductDetails() {
         imageUrls.push(getOptimizedWixImageUrl(product.image, 800, 1000));
       }
       if (product.images && product.images.length > 0) {
-        product.images.forEach(img => {
+        product.images.forEach((img) => {
           const opt = getOptimizedWixImageUrl(img, 800, 1000);
           if (opt && !imageUrls.includes(opt)) {
             imageUrls.push(opt);
@@ -1093,64 +992,67 @@ export default function ProductDetails() {
         });
       }
 
-      const productSchema = buildProductSchema(product, {price:activePrice, images:imageUrls});
+      const productSchema = buildProductSchema(product, {
+        price: activePrice,
+        images: imageUrls,
+      });
 
       if (count > 0) {
         productSchema.aggregateRating = {
           "@type": "AggregateRating",
-          "ratingValue": score,
-          "reviewCount": count
+          ratingValue: score,
+          reviewCount: count,
         };
-        productSchema.review = reviewsList.map(r => ({
+        productSchema.review = reviewsList.map((r) => ({
           "@type": "Review",
-          "author": {
+          author: {
             "@type": "Person",
-            "name": r.content?.title || 'Kunde'
+            name: r.content?.title || "Kunde",
           },
-          "datePublished": r._createdDate,
-          "reviewBody": r.content?.body || '',
-          "reviewRating": {
+          datePublished: r._createdDate,
+          reviewBody: r.content?.body || "",
+          reviewRating: {
             "@type": "Rating",
-            "ratingValue": r.content?.rating || 5
-          }
+            ratingValue: r.content?.rating || 5,
+          },
         }));
       }
 
       const breadcrumbSchema = {
         "@type": "BreadcrumbList",
-        "itemListElement": [
+        itemListElement: [
           {
             "@type": "ListItem",
-            "position": 1,
-            "name": "Hjem",
-            "item": "https://hiskingdomdesigns.no/"
+            position: 1,
+            name: "Hjem",
+            item: "https://hiskingdomdesigns.no/",
           },
           {
             "@type": "ListItem",
-            "position": 2,
-            "name": product.category || "Produkter",
-            "item": `https://hiskingdomdesigns.no/category/${getSlugByCategoryName ? getSlugByCategoryName(product.category) : 'kristne-klaer'}`
+            position: 2,
+            name: product.category || "Produkter",
+            item: `https://hiskingdomdesigns.no/category/${getSlugByCategoryName ? getSlugByCategoryName(product.category) : "kristne-klaer"}`,
           },
           {
             "@type": "ListItem",
-            "position": 3,
-            "name": product.name,
-            "item": window.location.href
-          }
-        ]
+            position: 3,
+            name: product.name,
+            item: window.location.href,
+          },
+        ],
       };
 
       const graphSchema = {
         "@context": "https://schema.org",
-        "@graph": [productSchema, breadcrumbSchema]
+        "@graph": [productSchema, breadcrumbSchema],
       };
 
-      const scriptId = 'jsonld-product-schema';
+      const scriptId = "jsonld-product-schema";
       let script = document.getElementById(scriptId);
       if (!script) {
-        script = document.createElement('script');
+        script = document.createElement("script");
         script.id = scriptId;
-        script.type = 'application/ld+json';
+        script.type = "application/ld+json";
         document.head.appendChild(script);
       }
       script.innerHTML = JSON.stringify(graphSchema);
@@ -1169,19 +1071,32 @@ export default function ProductDetails() {
     async function checkLoggedInMember() {
       if (wixClient.auth.loggedIn()) {
         try {
-          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
+          const res = await wixClient.members.getCurrentMember({
+            fieldsets: ["FULL"],
+          });
           const member = res?.member;
           if (member) {
-            const email = member.loginEmail || 
-              (member.contactDetails?.emails?.[0] && (typeof member.contactDetails.emails[0] === 'object' ? member.contactDetails.emails[0].email : member.contactDetails.emails[0])) ||
-              (member.contact?.emails?.[0] && (typeof member.contact.emails[0] === 'object' ? member.contact.emails[0].email : member.contact.emails[0])) ||
-              member.contact?.email || member.contactDetails?.email;
+            const email =
+              member.loginEmail ||
+              (member.contactDetails?.emails?.[0] &&
+                (typeof member.contactDetails.emails[0] === "object"
+                  ? member.contactDetails.emails[0].email
+                  : member.contactDetails.emails[0])) ||
+              (member.contact?.emails?.[0] &&
+                (typeof member.contact.emails[0] === "object"
+                  ? member.contact.emails[0].email
+                  : member.contact.emails[0])) ||
+              member.contact?.email ||
+              member.contactDetails?.email;
             if (email) {
               setBackInStockEmail(email);
             }
           }
         } catch (err) {
-          console.warn('Could not auto-fill member email for back-in-stock request:', err);
+          console.warn(
+            "Could not auto-fill member email for back-in-stock request:",
+            err,
+          );
         }
       }
     }
@@ -1193,18 +1108,22 @@ export default function ProductDetails() {
     async function getMemberName() {
       if (wixClient.auth.loggedIn()) {
         try {
-          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
+          const res = await wixClient.members.getCurrentMember({
+            fieldsets: ["FULL"],
+          });
           const member = res?.member;
           if (member) {
             const contact = member.contactDetails || member.contact;
             if (contact?.firstName) {
-              setReviewName(`${contact.firstName} ${contact.lastName || ''}`.trim());
+              setReviewName(
+                `${contact.firstName} ${contact.lastName || ""}`.trim(),
+              );
             } else if (member.profile?.nickname) {
               setReviewName(member.profile.nickname);
             }
           }
         } catch (err) {
-          console.warn('Could not pre-fill review name:', err);
+          console.warn("Could not pre-fill review name:", err);
         }
       }
     }
@@ -1221,10 +1140,12 @@ export default function ProductDetails() {
   useEffect(() => {
     if (product) {
       if (product.sizes && product.sizes.length > 0) {
-        setSelectedSize(product.sizes.includes('M') ? 'M' : product.sizes[0]);
+        setSelectedSize(product.sizes.includes("M") ? "M" : product.sizes[0]);
       }
       if (product.colorNames && product.colorNames.length > 0) {
-        setSelectedColor(product.colorNames.includes('Hvit') ? 'Hvit' : product.colorNames[0]);
+        setSelectedColor(
+          product.colorNames.includes("Hvit") ? "Hvit" : product.colorNames[0],
+        );
       }
       setQty(1);
     }
@@ -1237,13 +1158,16 @@ export default function ProductDetails() {
     }
   }, [stockStatus, qty]);
 
-  const isCurrentlyLoading = isLoadingProducts || (isFetchingProduct && !fetchedProduct);
+  const isCurrentlyLoading =
+    isLoadingProducts || (isFetchingProduct && !fetchedProduct);
 
   if (isCurrentlyLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-56">
         <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-secondary font-semibold font-body-md">{t('product.loading')}</p>
+        <p className="mt-4 text-secondary font-semibold font-body-md">
+          {t("product.loading")}
+        </p>
       </div>
     );
   }
@@ -1257,13 +1181,18 @@ export default function ProductDetails() {
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="max-w-md mx-auto py-40 px-4 text-center"
       >
-        <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">error</span>
-        <h2 className="font-headline-md text-headline-md text-onyx mb-2">Produktet finnes ikke</h2>
+        <span className="material-symbols-outlined text-5xl text-terracotta/40 mb-4">
+          error
+        </span>
+        <h2 className="font-headline-md text-headline-md text-onyx mb-2">
+          Produktet finnes ikke
+        </h2>
         <p className="text-secondary font-body-md mb-8">
-          Vi beklager, men produktet du leter etter er enten slettet eller midlertidig utilgjengelig.
+          Vi beklager, men produktet du leter etter er enten slettet eller
+          midlertidig utilgjengelig.
         </p>
-        <button 
-          onClick={() => navigate(localizedPath('/products'))}
+        <button
+          onClick={() => navigate(localizedPath("/products"))}
           className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all"
         >
           <ArrowLeft size={16} />
@@ -1273,28 +1202,35 @@ export default function ProductDetails() {
     );
   }
 
-
-
   const handleAddToCart = () => {
-    const isGiftCard = product.name?.toLowerCase().includes('gavekort') || product.name?.toLowerCase().includes('gift card') || product.category === 'Gavekort';
-    
+    const isGiftCard =
+      product.name?.toLowerCase().includes("gavekort") ||
+      product.name?.toLowerCase().includes("gift card") ||
+      product.category === "Gavekort";
+
     // Validate mandatory custom text fields
     const errors = {};
     if (product.customTextFields && product.customTextFields.length > 0) {
-      product.customTextFields.forEach(field => {
+      product.customTextFields.forEach((field) => {
         if (field.mandatory) {
           const val = customTextFieldValues[field.title];
           const mode = customTextModes[field.title];
           const lowerTitle = field.title.toLowerCase();
-          
-          // Motif fields are only required if they are in 'custom' mode
-          const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
-          const isRequired = isMotifField ? (mode === 'custom') : true;
 
-          if (isRequired && (!val || !val.trim() || val === 'Tilfeldig')) {
-            if (language === 'es') {
+          // Motif fields are only required if they are in 'custom' mode
+          const isMotifField =
+            !isGiftCard &&
+            (lowerTitle.includes("tekst") ||
+              lowerTitle.includes("vers") ||
+              lowerTitle.includes("motiv") ||
+              lowerTitle.includes("skriftsted") ||
+              lowerTitle.includes("bibel"));
+          const isRequired = isMotifField ? mode === "custom" : true;
+
+          if (isRequired && (!val || !val.trim() || val === "Tilfeldig")) {
+            if (language === "es") {
               errors[field.title] = `${field.title} es obligatorio`;
-            } else if (language === 'en') {
+            } else if (language === "en") {
               errors[field.title] = `${field.title} is required`;
             } else {
               errors[field.title] = `${field.title} er obligatorisk`;
@@ -1309,7 +1245,7 @@ export default function ProductDetails() {
       const firstErrorKey = Object.keys(errors)[0];
       const errEl = document.getElementById(`field-err-${firstErrorKey}`);
       if (errEl) {
-        errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       return;
     }
@@ -1317,19 +1253,32 @@ export default function ProductDetails() {
     setValidationErrors({});
 
     // Construct custom text fields payload as [{ title, value }]
-    const customTextFieldsPayload = Object.entries(customTextFieldValues).map(([title, value]) => {
-      const lowerTitle = title.toLowerCase();
-      const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
-      const cleanVal = (typeof value === 'string' ? value.trim() : value) || '';
-      return {
-        title,
-        value: cleanVal || (isMotifField ? 'Tilfeldig' : '')
-      };
-    });
+    const customTextFieldsPayload = Object.entries(customTextFieldValues).map(
+      ([title, value]) => {
+        const lowerTitle = title.toLowerCase();
+        const isMotifField =
+          !isGiftCard &&
+          (lowerTitle.includes("tekst") ||
+            lowerTitle.includes("vers") ||
+            lowerTitle.includes("motiv") ||
+            lowerTitle.includes("skriftsted") ||
+            lowerTitle.includes("bibel"));
+        const cleanVal =
+          (typeof value === "string" ? value.trim() : value) || "";
+        return {
+          title,
+          value: cleanVal || (isMotifField ? "Tilfeldig" : ""),
+        };
+      },
+    );
 
     // Extract exact variant ID and SKU from selectedVariant
     const variantId = selectedVariant?._id || selectedVariant?.id || null;
-    const sku = selectedVariant?.variant?.sku || selectedVariant?.sku || product.sku || null;
+    const sku =
+      selectedVariant?.variant?.sku ||
+      selectedVariant?.sku ||
+      product.sku ||
+      null;
 
     // Override product image, price, variantId and sku with active variant-specific choices
     const productWithActiveImage = {
@@ -1339,10 +1288,19 @@ export default function ProductDetails() {
       sku,
       image: activeImage || product.image,
       price: activePrice,
-      originalPrice: activeOriginalPrice
+      originalPrice: activeOriginalPrice,
     };
 
-    addToCart(productWithActiveImage, selectedSize, selectedColor, qty, selectedOptions, customTextFieldsPayload, variantId, sku);
+    addToCart(
+      productWithActiveImage,
+      selectedSize,
+      selectedColor,
+      qty,
+      selectedOptions,
+      customTextFieldsPayload,
+      variantId,
+      sku,
+    );
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -1351,25 +1309,29 @@ export default function ProductDetails() {
     e.preventDefault();
     if (!backInStockEmail) return;
     setBackInStockLoading(true);
-    setBackInStockError('');
+    setBackInStockError("");
     try {
       const variantId = selectedVariant?._id || product.variants?.[0]?._id;
       const requestPayload = {
         email: backInStockEmail,
         catalogReference: {
-          appId: '215238eb-22a5-4c36-9e7b-e7c08025e04e',
+          appId: "215238eb-22a5-4c36-9e7b-e7c08025e04e",
           catalogItemId: product.id,
-          ...(variantId ? { options: { variantId } } : {})
-        }
+          ...(variantId ? { options: { variantId } } : {}),
+        },
       };
-      
-      console.log('Sending Back in Stock Request to Wix:', requestPayload);
-      await wixClient.backInStockNotifications.createBackInStockNotificationRequest(requestPayload);
+
+      console.log("Sending Back in Stock Request to Wix:", requestPayload);
+      await wixClient.backInStockNotifications.createBackInStockNotificationRequest(
+        requestPayload,
+      );
       setBackInStockSuccess(true);
-      setBackInStockError('');
+      setBackInStockError("");
     } catch (err) {
-      console.error('Error creating back in stock request:', err);
-      setBackInStockError('Kunne ikke opprette varsling. Vennligst prøv igjen.');
+      console.error("Error creating back in stock request:", err);
+      setBackInStockError(
+        "Kunne ikke opprette varsling. Vennligst prøv igjen.",
+      );
     } finally {
       setBackInStockLoading(false);
     }
@@ -1379,7 +1341,7 @@ export default function ProductDetails() {
     e.preventDefault();
     if (!reviewName || !reviewTitle || !reviewBody) return;
     setIsSubmittingReview(true);
-    setReviewSubmitError('');
+    setReviewSubmitError("");
     setReviewSubmitSuccess(false);
 
     const newReviewItem = {
@@ -1388,25 +1350,25 @@ export default function ProductDetails() {
       content: {
         title: reviewTitle,
         body: reviewBody,
-        rating: reviewRating
+        rating: reviewRating,
       },
-      _createdDate: new Date().toISOString()
+      _createdDate: new Date().toISOString(),
     };
 
     try {
       await wixClient.reviews.createReview({
         review: {
-          namespace: 'stores',
+          namespace: "stores",
           entityId: productId,
           content: {
             title: reviewTitle,
             body: reviewBody,
-            rating: reviewRating
+            rating: reviewRating,
           },
           author: {
-            authorName: reviewName
-          }
-        }
+            authorName: reviewName,
+          },
+        },
       });
 
       try {
@@ -1415,17 +1377,19 @@ export default function ProductDetails() {
         list.unshift(newReviewItem);
         localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
       } catch (err) {
-        console.error('Failed to save review to localStorage:', err);
+        console.error("Failed to save review to localStorage:", err);
       }
 
       setReviewSubmitSuccess(true);
-      setReviewTitle('');
-      setReviewBody('');
+      setReviewTitle("");
+      setReviewBody("");
       setShowReviewForm(false);
       loadReviews();
     } catch (err) {
-      console.error('Wix Reviews API submit failed:', err);
-      setReviewSubmitError(err?.message || 'Kunne ikke sende inn omtalen. Vennligst prøv igjen.');
+      console.error("Wix Reviews API submit failed:", err);
+      setReviewSubmitError(
+        err?.message || "Kunne ikke sende inn omtalen. Vennligst prøv igjen.",
+      );
     } finally {
       setIsSubmittingReview(false);
     }
@@ -1436,7 +1400,8 @@ export default function ProductDetails() {
   const handlePrevImage = (e) => {
     e.stopPropagation();
     if (imagesList.length <= 1) return;
-    const newIndex = (currentImageIndex - 1 + imagesList.length) % imagesList.length;
+    const newIndex =
+      (currentImageIndex - 1 + imagesList.length) % imagesList.length;
     setActiveImage(imagesList[newIndex]);
   };
 
@@ -1457,856 +1422,121 @@ export default function ProductDetails() {
     >
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-label-sm font-label-sm text-secondary mb-8">
-        <Link to="/" className="hover:text-terracotta transition-colors">Hjem</Link>
+        <Link to="/" className="hover:text-terracotta transition-colors">
+          Hjem
+        </Link>
         <ChevronRight size={14} className="text-secondary/60" />
-        <Link to={localizedPath('/products')} className="hover:text-terracotta transition-colors">Produkter</Link>
+        <Link
+          to={localizedPath("/products")}
+          className="hover:text-terracotta transition-colors"
+        >
+          Produkter
+        </Link>
         <ChevronRight size={14} className="text-secondary/60" />
-        <Link to={`/category/${getSlugByCategoryName(product.category)}`} className="hover:text-terracotta transition-colors">{product.category}</Link>
+        <Link
+          to={`/category/${getSlugByCategoryName(product.category)}`}
+          className="hover:text-terracotta transition-colors"
+        >
+          {product.category}
+        </Link>
         <ChevronRight size={14} className="text-secondary/60" />
         <span className="text-onyx font-bold line-clamp-1">{product.name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Gallery Column */}
-        <div className="lg:col-span-6 flex flex-col gap-4">
-          <div className="relative group bg-white rounded-xl overflow-hidden shadow-sm aspect-square md:aspect-[4/5] max-h-[500px] md:max-h-[550px] lg:max-h-[600px] flex items-center justify-center p-8 border border-outline-variant/35">
-            <motion.img 
-              key={activeImage || product.image}
-              initial={{ opacity: 0.4 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              alt={product.name} 
-              className="max-w-full max-h-full object-contain rounded-lg hover:scale-[1.02] transition-transform duration-500" 
-              src={getOptimizedWixImageUrl(activeImage || product.image, 600, 750)}
-              width="600"
-              height="750"
-              fetchPriority="high"
-            />
-            
-            {/* Image navigation arrows */}
-            {imagesList.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={handlePrevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-onyx w-10 h-10 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:scale-105 active:scale-95 z-10"
-                  aria-label="Forrige bilde"
-                >
-                  <ChevronLeft size={20} className="text-[#1B4965]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-onyx w-10 h-10 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:scale-105 active:scale-95 z-10"
-                  aria-label="Neste bilde"
-                >
-                  <ChevronRight size={20} className="text-[#1B4965]" />
-                </button>
-              </>
-            )}
-          </div>
-          {/* Thumbnails (for visual complete design look and active image switching) */}
-          {imagesList && imagesList.length > 0 && (
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar select-none">
-              {imagesList.map((imgUrl, idx) => {
-                const isActive = (activeImage || product.image) === imgUrl;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      setActiveImage(imgUrl);
-                      if (product?.id && PRODUCT_COLOR_ORDER_OVERRIDES[product.id]) {
-                        const override = PRODUCT_COLOR_ORDER_OVERRIDES[product.id][idx];
-                        if (override) {
-                          setSelectedColor(override.name);
-                          return;
-                        }
-                      }
-                      if (product?.productOptions) {
-                        const colorOpt = product.productOptions.find(o => {
-                          const name = o.name?.trim().toLowerCase();
-                          return name === 'color' || name === 'farge';
-                        });
-                        if (colorOpt && colorOpt.choices) {
-                          let matchedColor = null;
-                          for (let i = 0; i < colorOpt.choices.length; i++) {
-                            const c = colorOpt.choices[i];
-                            const resolved = resolveColor(c.value, c.description || c.name);
-                            const cImg = getColorImageUrl(resolved.name, selectedSize);
-                            if (cImg === imgUrl) {
-                              matchedColor = resolved.name;
-                              break;
-                            }
-                          }
-                          if (!matchedColor && product.images) {
-                            const imgIdx = product.images.indexOf(imgUrl);
-                            if (imgIdx !== -1 && imgIdx < colorOpt.choices.length) {
-                              const resolved = resolveColor(colorOpt.choices[imgIdx].value, colorOpt.choices[imgIdx].description || colorOpt.choices[imgIdx].name);
-                              matchedColor = resolved.name;
-                            }
-                          }
-                          if (matchedColor) {
-                            setSelectedColor(matchedColor);
-                          }
-                        }
-                      }
-                    }}
-                    onMouseEnter={() => setActiveImage(imgUrl)}
-                    className={`w-20 h-20 rounded-lg p-1.5 flex-shrink-0 cursor-pointer shadow-sm border-2 transition-all outline-none ${
-                      isActive 
-                        ? 'border-terracotta bg-white scale-[1.02]' 
-                        : 'border-outline-variant/50 hover:border-terracotta/40 bg-white'
-                    }`}
-                  >
-                    <img 
-                      alt={`Produktbilde thumbnail ${idx + 1}`} 
-                      className="w-full h-full object-contain rounded" 
-                      src={getOptimizedWixImageUrl(imgUrl, 100, 100)} 
-                      loading="lazy"
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Info Column */}
-        <div className="lg:col-span-6 flex flex-col gap-6">
-          <div>
-            <span className="text-terracotta font-label-sm text-label-sm uppercase tracking-widest font-semibold block mb-1">
-              {product.category} {product.gender && `• ${product.gender}`}
-            </span>
-            <h1 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx mb-2">{product.name}</h1>
-            
-            {/* Average Rating Stars shortcut */}
-            {reviewsList.length > 0 && (
-              <div 
-                onClick={() => {
-                  const element = document.getElementById('reviews-section');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className="flex items-center gap-2 mb-3 cursor-pointer select-none group w-max"
-              >
-                <div className="flex text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <span 
-                      key={i} 
-                      className="material-symbols-outlined text-sm font-bold"
-                      style={{ fontVariationSettings: i < Math.round(averageRating) ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
-                    >
-                      star
-                    </span>
-                  ))}
-                </div>
-                <span className="text-xs text-secondary font-semibold group-hover:text-terracotta transition-colors">
-                  {averageRating} ({reviewsList.length} {reviewsList.length === 1 ? t('product.review') : t('product.reviewsPlural')})
-                </span>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3">
-              <span className="font-headline-md text-headline-md text-terracotta font-extrabold text-2xl">
-                {formatPrice(activePrice)}
-              </span>
-              {activeOriginalPrice && (
-                <span className="font-body-md text-body-md text-onyx/40 line-through">
-                  {formatPrice(activeOriginalPrice)}
-                </span>
-              )}
-            </div>
-
-            {product.isOceaniaExclusive && language !== 'en' && (
-              <div className="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-onyx flex items-start gap-3 shadow-xs">
-                <span className="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5 select-none">public_off</span>
-                <div className="space-y-1">
-                  <p className="font-bold text-sm text-onyx">{t('product.oceaniaExclusiveTitle')}</p>
-                  <p className="text-xs text-secondary leading-relaxed">{t('product.oceaniaExclusiveDesc')}</p>
-                  <div className="pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setLanguage('en')}
-                      className="text-xs font-bold text-terracotta hover:underline inline-flex items-center gap-1 cursor-pointer"
-                    >
-                      {t('product.oceaniaSwitchToEn')} &rarr;
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="h-px bg-outline-variant/50 w-full" />
-
-          <div>
-            <h4 className="font-label-md text-label-md text-onyx mb-2 uppercase tracking-wider">{t('product.descriptionTitle')}</h4>
-            <div 
-              className="font-body-md text-body-md text-secondary leading-relaxed space-y-3 html-description"
-              dangerouslySetInnerHTML={{ __html: formatDescription(product.description || t('home.metaDesc'), language) }}
-            />
-          </div>
-
-          {/* Bullet points for clothing products */}
-          {product.category === 'Klær' && (
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-body-md text-onyx">
-                <span className="material-symbols-outlined text-terracotta text-lg select-none">check_circle</span>
-                <span>{t('product.cottonBullet')}</span>
-              </li>
-              <li className="flex items-center gap-2 text-body-md text-onyx">
-                <span className="material-symbols-outlined text-terracotta text-lg select-none">check_circle</span>
-                <span>{t('product.qualityBullet')}</span>
-              </li>
-            </ul>
-          )}
-
-          {/* Color Selector */}
-          {product.colorNames && product.colorNames.length > 0 && product.colors && product.colors.length > 0 && (
-            <div className="space-y-3">
-              <span className="font-label-md text-label-md text-onyx">
-                <CmsText slug="product-label-color" fallback={t('product.color')} as="span" />: <strong className="text-terracotta">{selectedColor}</strong>
-              </span>
-              <div className="flex gap-3">
-                {product.colors.map((colorHex, idx) => {
-                  const colorName = product.colorNames[idx];
-                  const isSelected = selectedColor === colorName;
-                  return (
-                    <button
-                      key={colorName}
-                      onClick={() => {
-                        setSelectedColor(colorName);
-                        const imgUrl = getColorImageUrl(colorName, selectedSize);
-                        if (imgUrl) {
-                          setActiveImage(imgUrl);
-                        }
-                      }}
-                      className={`w-8 h-8 rounded-full border ring-offset-2 transition-all ${
-                        isSelected ? 'ring-2 ring-terracotta scale-105 shadow-md' : 'hover:ring-1 hover:ring-terracotta'
-                      }`}
-                      style={{ background: colorHex }}
-                      title={colorName}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Size Selector */}
-          {product.sizes && product.sizes.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <CmsText slug="product-label-size" fallback={t('product.size')} as="span" className="font-label-md text-label-md text-onyx" />
-                {['Klær', 'Bilder & Kunst', 'Plakater'].includes(product.category) && (
-                  <button 
-                    type="button" 
-                    onClick={() => setIsSizeGuideOpen(true)}
-                    className="text-label-sm text-terracotta hover:underline flex items-center gap-1 cursor-pointer font-semibold"
-                  >
-                    <Ruler size={14} />
-                    <CmsText slug="product-label-sizeguide" fallback={t('product.sizeGuide')} as="span" />
-                  </button>
-                )}
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {product.sizes.map(size => {
-                  const isSelected = selectedSize === size;
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`min-h-12 py-2 px-1 border rounded-lg transition-all flex items-center justify-center text-center ${
-                        size.length > 3 ? 'text-[11px] leading-tight font-semibold' : 'font-label-md text-label-md'
-                      } ${
-                        isSelected 
-                          ? 'border-terracotta bg-terracotta text-white font-bold' 
-                          : 'border-outline text-onyx hover:border-terracotta hover:text-terracotta'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* General Option Selectors (e.g. Choose Your Option) */}
-          {product.productOptions && product.productOptions.length > 0 && (
-            product.productOptions.some(opt => {
-              const nameLower = opt.name?.trim().toLowerCase();
-              const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
-              const isColor = nameLower === 'color' || nameLower === 'farge';
-              return !isSize && !isColor;
-            }) && (
-              <div className="space-y-4">
-                {product.productOptions.map(opt => {
-                  const nameLower = opt.name?.trim().toLowerCase();
-                  const isSize = nameLower.includes('size') || nameLower.includes('størrelse') || nameLower.includes('størrelser') || nameLower.includes('format') || nameLower === 'str' || nameLower === 'str.';
-                  const isColor = nameLower === 'color' || nameLower === 'farge';
-                  
-                  if (isSize || isColor) return null;
- 
-                  return (
-                    <div key={opt.name} className="space-y-2">
-                      <span className="font-label-md text-label-md text-onyx block">{opt.name}</span>
-                      <select
-                        value={selectedOptions[opt.name] || ''}
-                        onChange={(e) => setSelectedOptions(prev => ({ ...prev, [opt.name]: e.target.value }))}
-                        className="w-full bg-white border border-outline rounded-lg p-3 text-sm font-semibold text-onyx focus:border-terracotta focus:ring-1 focus:ring-terracotta cursor-pointer outline-none"
-                      >
-                        {opt.choices?.map(c => (
-                          <option key={c.value} value={c.value}>
-                            {c.value}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  );
-                })}
-              </div>
-            )
-          )}
-
-          {/* Custom Text Fields */}
-          {product.customTextFields && product.customTextFields.length > 0 && (
-            <div className="space-y-4">
-              {product.customTextFields.map(field => {
-                const currentMode = customTextModes[field.title] || 'random';
-                const isGiftCard = product.name?.toLowerCase().includes('gavekort') || product.name?.toLowerCase().includes('gift card') || product.category === 'Gavekort';
-                const lowerTitle = field.title.toLowerCase();
-                const isMotifField = !isGiftCard && (lowerTitle.includes('tekst') || lowerTitle.includes('vers') || lowerTitle.includes('motiv') || lowerTitle.includes('skriftsted') || lowerTitle.includes('bibel'));
-
-                if (!isMotifField) {
-                  // Direct input field for gift cards and standard custom text properties (email, name, greetings, etc.)
-                  return (
-                    <div key={field.title} className="space-y-2">
-                      <label className="font-label-md text-label-md text-onyx block font-semibold">
-                        {field.title}
-                        {field.mandatory && <span className="text-red-500 ml-1">*</span>}
-                      </label>
-                      <input
-                        type="text"
-                        maxLength={field.maxLength || 500}
-                        required={field.mandatory}
-                        value={customTextFieldValues[field.title] || ''}
-                        placeholder={field.title}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setCustomTextFieldValues(prev => ({
-                            ...prev,
-                            [field.title]: val
-                          }));
-                          if (val.trim()) {
-                            setValidationErrors(prev => {
-                              const next = { ...prev };
-                              delete next[field.title];
-                              return next;
-                            });
-                          }
-                        }}
-                        className={`w-full bg-white border rounded-lg p-3 text-sm text-onyx focus:ring-1 outline-none transition-all ${
-                          validationErrors[field.title]
-                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50/10'
-                            : 'border-outline focus:border-terracotta focus:ring-terracotta'
-                        }`}
-                      />
-                      {validationErrors[field.title] && (
-                        <p id={`field-err-${field.title}`} className="text-xs text-red-500 font-semibold mt-1">
-                          {validationErrors[field.title]}
-                        </p>
-                      )}
-                    </div>
-                  );
-                }
-
-                // Motif field (e.g. customized poster or clothing with random/custom toggle buttons)
-                return (
-                  <div key={field.title} className="space-y-2">
-                    <label className="font-label-md text-label-md text-onyx block font-semibold">
-                      {field.title}
-                      {field.mandatory && <span className="text-red-500 ml-1">*</span>}
-                    </label>
-                    
-                    <div className="flex gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCustomTextModes(prev => ({ ...prev, [field.title]: 'random' }));
-                          setCustomTextFieldValues(prev => ({ ...prev, [field.title]: t('product.randomText') }));
-                          setValidationErrors(prev => {
-                            const next = { ...prev };
-                            delete next[field.title];
-                            return next;
-                          });
-                        }}
-                        className={`flex-1 py-3 px-3 border rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all select-none cursor-pointer outline-none active:scale-[0.98] ${
-                          currentMode === 'random'
-                            ? 'border-terracotta bg-terracotta/5 text-terracotta'
-                            : 'border-outline text-secondary hover:border-terracotta/40 hover:text-onyx bg-white'
-                        }`}
-                      >
-                        {t('product.leaveMotif')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCustomTextModes(prev => ({ ...prev, [field.title]: 'custom' }));
-                          setCustomTextFieldValues(prev => ({ ...prev, [field.title]: '' }));
-                        }}
-                        className={`flex-1 py-3 px-3 border rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all select-none cursor-pointer outline-none active:scale-[0.98] ${
-                          currentMode === 'custom'
-                            ? 'border-terracotta bg-terracotta/5 text-terracotta'
-                            : 'border-outline text-secondary hover:border-terracotta/40 hover:text-onyx bg-white'
-                        }`}
-                      >
-                        {t('product.chooseMotif')}
-                      </button>
-                    </div>
-
-                    <AnimatePresence initial={false}>
-                      {currentMode === 'custom' && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2, ease: 'easeInOut' }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-2">
-                            <input
-                              type="text"
-                              maxLength={field.maxLength || 500}
-                              required={field.mandatory && currentMode === 'custom'}
-                              value={customTextFieldValues[field.title] === t('product.randomText') ? '' : (customTextFieldValues[field.title] || '')}
-                              placeholder={t('product.customTextPlaceholder')}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setCustomTextFieldValues(prev => ({
-                                  ...prev,
-                                  [field.title]: val
-                                }));
-                                if (val.trim()) {
-                                  setValidationErrors(prev => {
-                                    const next = { ...prev };
-                                    delete next[field.title];
-                                    return next;
-                                  });
-                                }
-                              }}
-                              className={`w-full bg-white border rounded-lg p-3 text-sm text-onyx focus:ring-1 outline-none transition-all ${
-                                validationErrors[field.title]
-                                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500 bg-red-50/10'
-                                  : 'border-outline focus:border-terracotta focus:ring-terracotta'
-                              }`}
-                            />
-                            {validationErrors[field.title] ? (
-                              <p id={`field-err-${field.title}`} className="text-xs text-red-500 font-semibold mt-1">
-                                {validationErrors[field.title]}
-                              </p>
-                            ) : field.mandatory && (
-                              <p className="text-[10px] text-secondary/70 mt-1">
-                                {t('product.mandatoryText')}
-                              </p>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Quantity Selector */}
-          <div className="space-y-3">
-            <CmsText slug="product-label-quantity" fallback={t('product.quantity')} as="span" className="font-label-md text-label-md text-onyx" />
-            <div className="flex items-center border border-outline rounded-lg w-max overflow-hidden bg-white">
-              <button 
-                onClick={() => setQty(prev => Math.max(1, prev - 1))}
-                disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
-                className="px-4 py-2 hover:bg-slate-100 transition-colors font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                -
-              </button>
-              <span className="px-6 py-2 border-x border-outline font-bold select-none text-center min-w-[50px]">
-                {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? 0 : qty}
-              </span>
-              <button 
-                onClick={() => setQty(prev => (stockStatus.trackQuantity && prev >= stockStatus.quantity) ? prev : prev + 1)}
-                disabled={!stockStatus.inStock || (stockStatus.trackQuantity && (stockStatus.quantity === 0 || qty >= stockStatus.quantity))}
-                className="px-4 py-2 hover:bg-slate-100 transition-colors font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                +
-              </button>
-            </div>
-            
-            {/* Real Stock Indicators */}
-            {stockStatus.trackQuantity && stockStatus.quantity > 0 && stockStatus.quantity <= 5 && (
-              <p className="text-xs font-semibold text-orange-600 flex items-center gap-1.5 mt-1 select-none">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse"></span>
-                {t('product.onlyLeftInStock', { count: stockStatus.quantity })}
-              </p>
-            )}
-            {!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0) ? (
-              <p className="text-xs font-semibold text-red-600 flex items-center gap-1.5 mt-1 select-none">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                {t('product.outOfStockVariant')}
-              </p>
-            ) : (
-              <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5 mt-1 select-none">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                {t('product.inStockShipping')}
-              </p>
-            )}
-          </div>
-
-          {/* CTA Add to Cart & Wishlist */}
-          <div className="flex flex-col gap-2.5 mt-4">
-            <div className="flex gap-4 items-stretch">
-              <button 
-                onClick={handleAddToCart}
-                disabled={!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)}
-                className={`flex-grow font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-md ${
-                  (!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0))
-                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                    : 'bg-terracotta text-white hover:opacity-95 active:scale-[0.98]'
-                }`}
-              >
-                {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) ? (
-                  <CmsText slug="product-btn-outofstock" fallback={t('product.outOfStock')} as="span" />
-                ) : added ? (
-                  <>
-                    <Check size={18} />
-                    <CmsText slug="product-btn-added" fallback={t('product.addedToCart')} as="span" />
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart size={18} />
-                    <CmsText slug="product-btn-addtocart" fallback={t('product.addToCart')} as="span" />
-                  </>
-                )}
-              </button>
-              <button
-                onClick={() => toggleWishlist(product)}
-                className="p-4 border border-outline hover:border-terracotta text-terracotta rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center shrink-0 active:scale-95"
-                title={isWishlisted ? t('product.wishlistRemove') : t('product.wishlistAdd')}
-              >
-                <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
-              </button>
-            </div>
-            <CmsText slug="product-benefits-note" fallback={t('product.benefits')} as="p" className="text-center text-[11px] text-secondary/80 select-none font-medium leading-normal" />
-          </div>
-
-          {/* Back in stock request form */}
-          {(!stockStatus.inStock || (stockStatus.trackQuantity && stockStatus.quantity === 0)) && (
-            <div className="mt-4 p-5 bg-slate-50 border border-outline-variant/30 rounded-xl space-y-3">
-              <h4 className="font-label-md text-label-md text-onyx font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-terracotta text-lg">mail</span>
-                {t('product.notifyWhenInStock')}
-              </h4>
-              <p className="text-xs text-secondary leading-relaxed">
-                {t('product.notifyDesc')}
-              </p>
-              {backInStockSuccess ? (
-                <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
-                  {t('product.notifySuccess')}
-                </div>
-              ) : (
-                <form onSubmit={handleBackInStockSubmit} className="flex gap-2">
-                  <input
-                    type="email"
-                    required
-                    placeholder="din.epost@adresse.no"
-                    value={backInStockEmail}
-                    onChange={(e) => setBackInStockEmail(e.target.value)}
-                    disabled={backInStockLoading}
-                    className="bg-white border border-outline rounded-lg px-3 py-2 text-xs flex-grow text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                  />
-                  <button
-                    type="submit"
-                    disabled={backInStockLoading}
-                    className="bg-terracotta text-white font-label-md text-xs px-4 py-2 rounded-lg font-bold hover:brightness-105 active:scale-95 transition-all shadow-sm"
-                  >
-                    {backInStockLoading ? t('footer.sending') : t('product.notifySubmit')}
-                  </button>
-                </form>
-              )}
-              {backInStockError && (
-                <p className="text-[11px] text-red-600 font-medium mt-1">{backInStockError}</p>
-              )}
-            </div>
-          )}
-
-          {/* Shipping / Trust details */}
-          <div className="bg-white/50 p-4 rounded-lg border border-outline-variant/30 space-y-3 shadow-sm">
-            <div className="flex items-center gap-3 text-secondary">
-              <Truck size={18} className="text-terracotta shrink-0" />
-              <CmsText slug="product-delivery-time-note" fallback={t('product.deliveryTime')} as="span" className="text-label-sm font-label-sm" />
-            </div>
-            <div className="flex items-center gap-3 text-secondary">
-              <ShieldCheck size={18} className="text-terracotta shrink-0" />
-              <CmsText slug="product-secure-payment-note" fallback={t('product.securePayment')} as="span" className="text-label-sm font-label-sm" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <ProductPurchase
+        {...{
+          activeImage,
+          activeOriginalPrice,
+          activePrice,
+          added,
+          averageRating,
+          backInStockEmail,
+          backInStockError,
+          backInStockLoading,
+          backInStockSuccess,
+          customTextFieldValues,
+          customTextModes,
+          formatPrice,
+          getColorImageUrl,
+          handleAddToCart,
+          handleBackInStockSubmit,
+          handleNextImage,
+          handlePrevImage,
+          imagesList,
+          isWishlisted,
+          language,
+          product,
+          qty,
+          reviewsList,
+          selectedColor,
+          selectedOptions,
+          selectedSize,
+          setActiveImage,
+          setBackInStockEmail,
+          setCustomTextFieldValues,
+          setCustomTextModes,
+          setIsSizeGuideOpen,
+          setLanguage,
+          setQty,
+          setSelectedColor,
+          setSelectedOptions,
+          setSelectedSize,
+          setValidationErrors,
+          stockStatus,
+          t,
+          toggleWishlist,
+          validationErrors,
+        }}
+      />
 
       {/* Section: Kundeomtaler & Vurderinger */}
-      <section id="reviews-section" className="mt-20 border-t border-outline-variant/30 pt-16">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div>
-            <CmsText slug="product-reviews-heading" fallback={t('product.reviews')} as="h2" className="font-headline-lg text-2xl md:text-3xl text-[#1B4965] font-bold" />
-            <p className="text-secondary font-body-md text-sm mt-1">{t('product.reviewsSub', { name: product.name })}</p>
-          </div>
-          <button
-            onClick={() => setShowReviewForm(!showReviewForm)}
-            className="bg-terracotta text-white hover:brightness-105 px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-95 shadow-sm"
-          >
-            {showReviewForm ? (language === 'es' ? 'Cerrar formulario' : language === 'en' ? 'Close form' : 'Lukk skjema') : t('product.reviewFormTitle')}
-          </button>
-        </div>
-
-        {/* Review Submission Form - Stacked layout to avoid Chrome jitter */}
-        {showReviewForm && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mb-10 p-6 bg-slate-50 border border-outline-variant/30 rounded-xl max-w-xl shadow-sm"
-          >
-            <h3 className="font-headline-md text-lg text-onyx mb-4 font-bold">{t('product.reviewFormTitle')}</h3>
-            <form onSubmit={handleReviewSubmit} className="block space-y-4">
-              <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">{t('product.reviewNamePlaceholder')}</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={language === 'es' ? 'Ej. Juan Pérez' : language === 'en' ? 'E.g. John Doe' : 'F.eks. Ola Nordmann'}
-                  value={reviewName}
-                  onChange={(e) => setReviewName(e.target.value)}
-                  disabled={isSubmittingReview}
-                  style={{ transform: 'translateZ(0) !important', backfaceVisibility: 'hidden !important' }}
-                  className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                />
-              </div>
-
-              <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">{language === 'es' ? 'Tu valoración (1-5 estrellas)' : language === 'en' ? 'Your rating (1-5 stars)' : 'Din vurdering (1-5 stjerner)'}</label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setReviewRating(star)}
-                      className="text-amber-500 hover:scale-110 active:scale-90 transition-transform cursor-pointer"
-                    >
-                      <span 
-                        className="material-symbols-outlined text-2xl"
-                        style={{ fontVariationSettings: star <= reviewRating ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
-                      >
-                        star
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">{language === 'es' ? 'Título' : language === 'en' ? 'Title' : 'Overskrift'}</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={language === 'es' ? 'Resume tu experiencia...' : language === 'en' ? 'Summarize your experience...' : 'Oppsummer din opplevelse...'}
-                  value={reviewTitle}
-                  onChange={(e) => setReviewTitle(e.target.value)}
-                  disabled={isSubmittingReview}
-                  style={{ transform: 'translateZ(0) !important', backfaceVisibility: 'hidden !important' }}
-                  className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                />
-              </div>
-
-              <div className="block">
-                <label className="block text-xs font-semibold text-secondary mb-1">{language === 'es' ? 'Opinión' : language === 'en' ? 'Review' : 'Omtale'}</label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder={language === 'es' ? 'Cuéntanos qué te parece la calidad...' : language === 'en' ? 'Tell us what you think about the quality...' : 'Fortell oss hva du syns om kvaliteten...'}
-                  value={reviewBody}
-                  onChange={(e) => setReviewBody(e.target.value)}
-                  disabled={isSubmittingReview}
-                  style={{ transform: 'translateZ(0) !important', backfaceVisibility: 'hidden !important' }}
-                  className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmittingReview}
-                className="block w-full bg-terracotta text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider hover:brightness-105 active:scale-95 transition-all shadow-md"
-              >
-                {isSubmittingReview ? t('product.reviewSubmitting') : t('product.reviewSubmitBtn')}
-              </button>
-
-              {reviewSubmitError && (
-                <p className="text-[11px] text-red-600 font-semibold mt-1 text-center">{reviewSubmitError}</p>
-              )}
-            </form>
-          </motion.div>
-        )}
-
-        {reviewSubmitSuccess && (
-          <div className="mb-6 p-4 bg-emerald-50 text-emerald-800 text-xs rounded-lg border border-emerald-200 font-medium">
-            {t('product.reviewSuccess')}
-          </div>
-        )}
-
-        {/* Reviews Summary Dashboard */}
-        {reviewsList.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center bg-white p-6 rounded-2xl border border-outline-variant/20 shadow-sm mb-10">
-            {/* Left Block: Average Rating */}
-            <div className="md:col-span-4 text-center md:border-r border-slate-100 md:pr-8">
-              <p className="text-5xl font-extrabold text-[#1B4965] mb-2">{averageRating}</p>
-              <div className="flex justify-center text-amber-500 mb-1">
-                {[...Array(5)].map((_, i) => (
-                  <span 
-                    key={i} 
-                    className="material-symbols-outlined text-lg"
-                    style={{ fontVariationSettings: i < Math.round(averageRating) ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
-                  >
-                    star
-                  </span>
-                ))}
-              </div>
-              <p className="text-xs text-secondary font-medium uppercase tracking-wider">
-                {language === 'es' ? 'Basado en' : language === 'en' ? 'Based on' : 'Basert på'} {reviewsList.length} {reviewsList.length === 1 ? t('product.review') : t('product.reviewsPlural')}
-              </p>
-            </div>
-
-            {/* Right Block: Star Distribution */}
-            <div className="md:col-span-8 space-y-2.5">
-              {[5, 4, 3, 2, 1].map((rating) => {
-                const count = ratingDistribution[rating] || 0;
-                const percentage = reviewsList.length > 0 ? (count / reviewsList.length) * 100 : 0;
-                return (
-                  <div key={rating} className="flex items-center gap-3 text-xs">
-                    <span className="font-semibold text-secondary w-12 text-right">{rating} {language === 'es' ? 'estrellas' : language === 'en' ? 'stars' : 'stjerner'}</span>
-                    <div className="flex-grow h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-amber-500 rounded-full transition-all duration-500" 
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-secondary w-8 font-medium">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Review list */}
-        {isLoadingReviews ? (
-          <div className="py-10 text-center text-secondary font-semibold text-sm">{language === 'es' ? 'Obteniendo opiniones...' : language === 'en' ? 'Fetching reviews...' : 'Henter omtaler...'}</div>
-        ) : reviewsList.length === 0 ? (
-          <div className="py-12 text-center text-secondary bg-slate-50/55 rounded-xl border border-dashed border-outline-variant/40">
-            <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">rate_review</span>
-            <p className="font-semibold text-sm">{t('product.noReviews')}</p>
-            <p className="text-xs text-secondary/75 mt-0.5">{language === 'es' ? '¡Sé el primero en compartir tu opinión sobre este producto!' : language === 'en' ? 'Be the first to share your opinion about this product!' : 'Vær den første til å dele din mening om dette produktet!'}</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {reviewsList.map((rev) => (
-              <div 
-                key={rev._id} 
-                className="p-6 bg-white rounded-2xl border border-outline-variant/20 shadow-sm space-y-3"
-              >
-                {/* Review Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className="flex text-amber-500">
-                      {[...Array(5)].map((_, i) => (
-                        <span 
-                          key={i} 
-                          className="material-symbols-outlined text-sm"
-                          style={{ fontVariationSettings: i < (rev.content?.rating || 5) ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
-                        >
-                          star
-                        </span>
-                      ))}
-                    </div>
-                    <h4 className="font-bold text-sm text-onyx">{rev.content?.title}</h4>
-                  </div>
-                  <span className="text-[11px] text-secondary font-medium">
-                    {(() => {
-                      try {
-                        const d = new Date(rev._createdDate || Date.now());
-                        if (!isNaN(d.getTime())) {
-                          const rawDate = d.toLocaleDateString(language === 'es' ? 'es-ES' : language === 'en' ? 'en-US' : 'no-NO', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          });
-                          const parts = rawDate.split(' ');
-                          if (parts.length >= 2) {
-                            parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
-                          }
-                          return parts.join(' ');
-                        }
-                      } catch (e) {}
-                      return language === 'es' ? 'Opinión reciente' : language === 'en' ? 'Recent review' : 'Nylig omtale';
-                    })()}
-                  </span>
-                </div>
-
-                {/* Review Body */}
-                <p className="text-xs text-secondary leading-relaxed font-body-md">
-                  {rev.content?.body}
-                </p>
-
-                {/* Review Author */}
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold select-none">
-                  <span className="material-symbols-outlined text-sm">person</span>
-                  <span>{language === 'es' ? 'Escrito por' : language === 'en' ? 'Written by' : 'Skrevet av'} {rev.author?.authorName || 'Anonym'}</span>
-                  {rev.verified && (
-                    <span className="text-[9px] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
-                      {language === 'es' ? 'Comprador Verificado' : language === 'en' ? 'Verified Buyer' : 'Verifisert Kjøper'}
-                    </span>
-                  )}
-                </div>
-
-                {/* Admin Reply */}
-                {rev.reply && (
-                  <div className="mt-4 p-4 bg-slate-50 border-l-2 border-terracotta rounded-r-lg space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] text-terracotta font-bold uppercase tracking-wider">
-                      <span className="material-symbols-outlined text-xs">storefront</span>
-                      <span>{language === 'es' ? 'Respuesta de His Kingdom Designs' : language === 'en' ? 'Reply from His Kingdom Designs' : 'Svar fra His Kingdom Designs'}</span>
-                    </div>
-                    <p className="text-xs text-secondary leading-relaxed font-body-md italic">
-                      "{rev.reply.body}"
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <ProductReviews
+        {...{
+          averageRating,
+          handleReviewSubmit,
+          isLoadingReviews,
+          isSubmittingReview,
+          language,
+          product,
+          ratingDistribution,
+          reviewBody,
+          reviewName,
+          reviewRating,
+          reviewSubmitError,
+          reviewSubmitSuccess,
+          reviewTitle,
+          reviewsList,
+          setReviewBody,
+          setReviewName,
+          setReviewRating,
+          setReviewTitle,
+          setShowReviewForm,
+          showReviewForm,
+          t,
+        }}
+      />
 
       {/* Section: Related Products */}
       {relatedProducts.length > 0 && (
         <section className="mt-section-gap border-t border-outline-variant/30 pt-16">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-2">
-            <h2 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx">{language === 'es' ? 'Productos relacionados' : language === 'en' ? 'Related products' : 'Relaterte produkter'}</h2>
-            <Link 
-              to={`/category/${getSlugByCategoryName(product.category)}`} 
+            <h2 className="font-headline-lg text-2xl md:text-headline-lg font-bold text-onyx">
+              {language === "es"
+                ? "Productos relacionados"
+                : language === "en"
+                  ? "Related products"
+                  : "Relaterte produkter"}
+            </h2>
+            <Link
+              to={`/category/${getSlugByCategoryName(product.category)}`}
               className="text-terracotta font-label-md hover:underline underline-offset-4 font-bold"
             >
-              {language === 'es' ? 'Ver todos en' : language === 'en' ? 'View all in' : 'Se alle'} {product.category.toLowerCase()}
+              {language === "es"
+                ? "Ver todos en"
+                : language === "en"
+                  ? "View all in"
+                  : "Se alle"}{" "}
+              {product.category.toLowerCase()}
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-gutter">
@@ -2339,7 +1569,9 @@ export default function ProductDetails() {
               <div className="px-6 py-5 border-b border-outline-variant/20 flex justify-between items-center bg-slate-50 shrink-0">
                 <div className="flex items-center gap-2.5 text-terracotta">
                   <Ruler size={18} />
-                  <h3 className="font-bold text-sm text-onyx">{t('product.sizeGuide')}</h3>
+                  <h3 className="font-bold text-sm text-onyx">
+                    {t("product.sizeGuide")}
+                  </h3>
                 </div>
                 <button
                   onClick={() => setIsSizeGuideOpen(false)}
@@ -2350,14 +1582,20 @@ export default function ProductDetails() {
               </div>
 
               {/* Size Guide Content with intelligent default tab */}
-              <SizeGuideContent 
+              <SizeGuideContent
                 defaultTab={
-                  (product?.category?.toLowerCase() || '').includes('hat') || (product?.category?.toLowerCase() || '').includes('caps') 
-                    ? 'caps' 
-                    : (product?.category?.toLowerCase() || '').includes('bilder') || (product?.category?.toLowerCase() || '').includes('plakat') 
-                      ? 'posters' 
-                      : 'clothing'
-                } 
+                  (product?.category?.toLowerCase() || "").includes("hat") ||
+                  (product?.category?.toLowerCase() || "").includes("caps")
+                    ? "caps"
+                    : (product?.category?.toLowerCase() || "").includes(
+                          "bilder",
+                        ) ||
+                        (product?.category?.toLowerCase() || "").includes(
+                          "plakat",
+                        )
+                      ? "posters"
+                      : "clothing"
+                }
               />
             </motion.div>
           </motion.div>

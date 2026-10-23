@@ -1,126 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { User, ShoppingBag, Package, LogOut, Mail, Key, ShieldCheck, Heart } from 'lucide-react';
-import { wixClient, resetWixTokens } from '@/lib/wix';
-import { db } from '@/firebase';
-import { collection, query, where, getDocs, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { media } from '@wix/sdk';
-import { useApp } from '@/contexts/AppContext';
-import { useCart } from '@/contexts/CartContext';
-import { Link } from 'react-router-dom';
-import useMeta from '@/hooks/useMeta';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getOptimizedWixImageUrl } from '@/lib/media';
-import { formatE164Phone } from '@/lib/phone';
-
-// Helper to safely extract email from Wix member object across various schema versions
-const getMemberEmail = (member) => {
-  if (member?.loginEmail) return member.loginEmail;
-  
-  const cdEmails = member?.contactDetails?.emails || [];
-  if (cdEmails[0]) {
-    return typeof cdEmails[0] === 'object' ? cdEmails[0].email : cdEmails[0];
-  }
-  
-  const cEmails = member?.contact?.emails || [];
-  if (cEmails[0]) {
-    return typeof cEmails[0] === 'object' ? cEmails[0].email : cEmails[0];
-  }
-  
-  return member?.contact?.email || member?.contactDetails?.email || null;
-};
-
-// Helper to safely extract phone from Wix member object across various schema versions
-const getMemberPhone = (member) => {
-  const cdPhones = member?.contactDetails?.phones || [];
-  if (cdPhones[0]) {
-    return typeof cdPhones[0] === 'object' ? cdPhones[0].phone : cdPhones[0];
-  }
-  
-  const cPhones = member?.contact?.phones || [];
-  if (cPhones[0]) {
-    return typeof cPhones[0] === 'object' ? cPhones[0].phone : cPhones[0];
-  }
-  
-  return member?.contact?.phone || member?.contactDetails?.phone || null;
-};
-
-// Helper to safely extract address details from Wix member object across various schema versions
-const getMemberAddress = (member) => {
-  const contact = member?.contactDetails || member?.contact;
-  const addrObj = contact?.addresses?.[0];
-  if (!addrObj) return null;
-
-  const address = addrObj.address || addrObj;
-
-  let addressLine = address.addressLine || address.addressLine1 || address.formatted || '';
-  if (!addressLine && address.streetAddress) {
-    if (typeof address.streetAddress === 'object') {
-      const name = address.streetAddress.name || '';
-      const number = address.streetAddress.number || '';
-      addressLine = `${name} ${number}`.trim();
-    } else if (typeof address.streetAddress === 'string') {
-      addressLine = address.streetAddress;
-    }
-  }
-
-  const postalCode = address.postalCode || address.zipCode || '';
-  const city = address.city || '';
-  const country = address.country || 'NO';
-
-  return { addressLine, postalCode, city, country };
-};
-
-// Helper to safely extract and build profile image URL from Wix member object
-const getProfileImageUrl = (member) => {
-  const photo = member?.profile?.photo;
-  if (!photo) return null;
-
-  const url = photo.url || photo;
-  if (!url || typeof url !== 'string') return null;
-
-  if (url.startsWith('wix:image://')) {
-    try {
-      return media.getScaledToFillImageUrl(url, 160, 160) || media.getImageUrl(url).url;
-    } catch (e) {
-      console.warn('Failed to parse Wix image URI using SDK:', e);
-      const match = url.match(/wix:image:\/\/v1\/([^\/]+)/);
-      if (match && match[1]) {
-        return `https://static.wixstatic.com/media/${match[1]}`;
-      }
-    }
-  }
-
-  return url;
-};
-
+import LoyaltyRewards from "../features/profile/panels/LoyaltyRewards";
+import ReferralProgram from "../features/profile/panels/ReferralProgram";
+import { useLanguage } from "@/contexts/LanguageContext";
+import useMeta from "@/hooks/useMeta";
+import { useState, useEffect } from "react";
+import { wixClient, resetWixTokens } from "@/lib/wix";
+import { useApp } from "@/contexts/AppContext";
+import { useCart } from "@/contexts/CartContext";
+import { getMemberPhone } from "../features/profile/lib/getMemberPhone";
+import { getMemberAddress } from "../features/profile/lib/getMemberAddress";
+import { formatE164Phone } from "@/lib/phone";
 let isExchangingTokens = false;
+import {
+  query,
+  collection,
+  where,
+  getDocs,
+  addDoc,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "@/firebase";
+import { getMemberEmail } from "../features/profile/lib/getMemberEmail";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Mail,
+  Key,
+  ShieldCheck,
+  LogOut,
+  ShoppingBag,
+  Package,
+  Heart,
+  User,
+} from "lucide-react";
+import { getProfileImageUrl } from "../features/profile/lib/getProfileImageUrl";
+import { Link } from "react-router-dom";
+import { getOptimizedWixImageUrl } from "@/lib/media";
 
 export default function Profile() {
   const { language, t, formatPrice } = useLanguage();
   useMeta(
-    t('profile.metaTitle') || "Min konto",
-    t('profile.metaDesc') || "Administrer din profil, se dine ordre, administrer adresser, lojalitetspoeng og verv venner hos His Kingdom Designs."
+    t("profile.metaTitle") || "Min konto",
+    t("profile.metaDesc") ||
+      "Administrer din profil, se dine ordre, administrer adresser, lojalitetspoeng og verv venner hos His Kingdom Designs.",
   );
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
       return wixClient.auth.loggedIn();
     } catch (e) {
-      console.error('Failed to initialize login status:', e);
+      console.error("Failed to initialize login status:", e);
       return false;
     }
   });
-  const [loginTab, setLoginTab] = useState('login'); // 'login' | 'register'
-  const [activeTab, setActiveTab] = useState('dashboard');
-  
+  const [loginTab, setLoginTab] = useState("login"); // 'login' | 'register'
+  const [activeTab, setActiveTab] = useState("dashboard");
+
   const { wishlist, toggleWishlist } = useApp();
   const { addToCart } = useCart();
-  
+
   // Login form state
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -131,16 +75,16 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Address book form state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [addressLine, setAddressLine] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [city, setCity] = useState('');
-  
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [addressLine, setAddressLine] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [city, setCity] = useState("");
+
   const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
   const [addressSuccess, setAddressSuccess] = useState(false);
-  const [addressError, setAddressError] = useState('');
+  const [addressError, setAddressError] = useState("");
 
   // Loyalty Program States
   const [loyaltyAccount, setLoyaltyAccount] = useState(null);
@@ -155,15 +99,15 @@ export default function Profile() {
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [selectedOrderForReturn, setSelectedOrderForReturn] = useState(null);
   const [returnItems, setReturnItems] = useState({});
-  const [returnReason, setReturnReason] = useState('');
-  const [returnComments, setReturnComments] = useState('');
+  const [returnReason, setReturnReason] = useState("");
+  const [returnComments, setReturnComments] = useState("");
   const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
   const [returnSuccess, setReturnSuccess] = useState(false);
   const [activeReturns, setActiveReturns] = useState([]);
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const link = `${window.location.origin}/?ref=${member?._id || 'medlem'}`;
+    const link = `${window.location.origin}/?ref=${member?._id || "medlem"}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -172,15 +116,15 @@ export default function Profile() {
   // Handle tab from URL search parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get('tab');
-    if (tabParam === 'wishlist') {
-      setActiveTab('wishlist');
-    } else if (tabParam === 'address') {
-      setActiveTab('address');
-    } else if (tabParam === 'loyalty') {
-      setActiveTab('loyalty');
+    const tabParam = params.get("tab");
+    if (tabParam === "wishlist") {
+      setActiveTab("wishlist");
+    } else if (tabParam === "address") {
+      setActiveTab("address");
+    } else if (tabParam === "loyalty") {
+      setActiveTab("loyalty");
     } else {
-      setActiveTab('dashboard');
+      setActiveTab("dashboard");
     }
   }, [window.location.search]);
 
@@ -188,14 +132,14 @@ export default function Profile() {
   useEffect(() => {
     if (member) {
       const contact = member.contactDetails || member.contact;
-      setFirstName(contact?.firstName || '');
-      setLastName(contact?.lastName || '');
-      setPhone(getMemberPhone(member) || '');
-      
+      setFirstName(contact?.firstName || "");
+      setLastName(contact?.lastName || "");
+      setPhone(getMemberPhone(member) || "");
+
       const addr = getMemberAddress(member);
-      setAddressLine(addr?.addressLine || '');
-      setPostalCode(addr?.postalCode || '');
-      setCity(addr?.city || '');
+      setAddressLine(addr?.addressLine || "");
+      setPostalCode(addr?.postalCode || "");
+      setCity(addr?.city || "");
     }
   }, [member]);
 
@@ -203,22 +147,22 @@ export default function Profile() {
     e.preventDefault();
     setIsUpdatingAddress(true);
     setAddressSuccess(false);
-    setAddressError('');
+    setAddressError("");
     try {
-      console.log('Updating member address book in Wix...');
-      const formattedPhone = phone ? formatE164Phone(phone, 'NO') : '';
+      console.log("Updating member address book in Wix...");
+      const formattedPhone = phone ? formatE164Phone(phone, "NO") : "";
       const phonePayload = formattedPhone ? [formattedPhone] : [];
       if (formattedPhone && formattedPhone !== phone) {
         setPhone(formattedPhone);
       }
-      
+
       const addressPayload = [
         {
           addressLine: addressLine,
           postalCode: postalCode,
           city: city,
-          country: 'NO'
-        }
+          country: "NO",
+        },
       ];
 
       const updated = await wixClient.members.updateMember(member._id, {
@@ -226,17 +170,17 @@ export default function Profile() {
           firstName: firstName,
           lastName: lastName,
           phones: phonePayload,
-          addresses: addressPayload
-        }
+          addresses: addressPayload,
+        },
       });
-      console.log('Successfully updated member address:', updated);
+      console.log("Successfully updated member address:", updated);
       setMember(updated?.member || updated);
       setAddressSuccess(true);
       setTimeout(() => setAddressSuccess(false), 3000);
-      setRefreshKey(prev => prev + 1); // Refresh page data
+      setRefreshKey((prev) => prev + 1); // Refresh page data
     } catch (err) {
-      console.error('Failed to update member address in Wix:', err);
-      setAddressError(t('profile.addressError') + (err.message || err));
+      console.error("Failed to update member address in Wix:", err);
+      setAddressError(t("profile.addressError") + (err.message || err));
     } finally {
       setIsUpdatingAddress(false);
     }
@@ -247,83 +191,114 @@ export default function Profile() {
     async function handleAuthCallback() {
       try {
         const searchParams = new URLSearchParams(window.location.search);
-        
+
         // Also check window.location.hash since OAuth callbacks can return params in hash fragment
-        const cleanHash = window.location.hash.startsWith('#') 
-          ? window.location.hash.substring(1) 
+        const cleanHash = window.location.hash.startsWith("#")
+          ? window.location.hash.substring(1)
           : window.location.hash;
         const hashParams = new URLSearchParams(cleanHash);
 
-        const code = searchParams.get('code') || hashParams.get('code');
-        const state = searchParams.get('state') || hashParams.get('state');
-        
+        const code = searchParams.get("code") || hashParams.get("code");
+        const state = searchParams.get("state") || hashParams.get("state");
+
         if (code && state) {
           if (isExchangingTokens) {
-            console.warn('OAuth token exchange already in progress, blocking duplicate execution.');
+            console.warn(
+              "OAuth token exchange already in progress, blocking duplicate execution.",
+            );
             return;
           }
           isExchangingTokens = true;
           setIsLoading(true);
-          console.log('OAuth callback detected! Code:', code, 'State:', state);
-          
+          console.log("OAuth callback detected! Code:", code, "State:", state);
+
           let savedOauthDataStr = null;
           try {
-            savedOauthDataStr = localStorage.getItem('hkd-oauth-data');
+            savedOauthDataStr = localStorage.getItem("hkd-oauth-data");
           } catch (storageErr) {
-            console.error('Failed to read OAuth data from localStorage:', storageErr);
+            console.error(
+              "Failed to read OAuth data from localStorage:",
+              storageErr,
+            );
           }
-          
+
           // Clear query params and hash from URL immediately to prevent duplicate runs
           try {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
           } catch (historyErr) {
-            console.error('Failed to clear OAuth params from URL history:', historyErr);
+            console.error(
+              "Failed to clear OAuth params from URL history:",
+              historyErr,
+            );
           }
 
           let savedOauthData = null;
-          if (savedOauthDataStr && savedOauthDataStr !== 'null' && savedOauthDataStr !== 'undefined') {
+          if (
+            savedOauthDataStr &&
+            savedOauthDataStr !== "null" &&
+            savedOauthDataStr !== "undefined"
+          ) {
             try {
               savedOauthData = JSON.parse(savedOauthDataStr);
             } catch (parseErr) {
-              console.error('Failed to parse OAuth data:', parseErr);
+              console.error("Failed to parse OAuth data:", parseErr);
             }
           }
 
-          if (savedOauthData && typeof savedOauthData === 'object') {
+          if (savedOauthData && typeof savedOauthData === "object") {
             // Remove from localStorage immediately to block duplicate React StrictMode effect runs
             try {
-              localStorage.removeItem('hkd-oauth-data');
+              localStorage.removeItem("hkd-oauth-data");
             } catch (storageErr) {
-              console.error('Failed to remove OAuth data from localStorage:', storageErr);
+              console.error(
+                "Failed to remove OAuth data from localStorage:",
+                storageErr,
+              );
             }
-            
-            const redirectUri = savedOauthData.redirectUri || (window.location.origin + '/profile');
-            console.log('Exchanging Wix auth code for tokens with redirectUri:', redirectUri);
-            
-            const memberTokens = await wixClient.auth.getMemberTokens(code, state, {
-              ...savedOauthData,
-              redirectUri
-            });
+
+            const redirectUri =
+              savedOauthData.redirectUri || window.location.origin + "/profile";
+            console.log(
+              "Exchanging Wix auth code for tokens with redirectUri:",
+              redirectUri,
+            );
+
+            const memberTokens = await wixClient.auth.getMemberTokens(
+              code,
+              state,
+              {
+                ...savedOauthData,
+                redirectUri,
+              },
+            );
             await wixClient.auth.setTokens(memberTokens);
             setIsLoggedIn(true);
             isExchangingTokens = false; // Reset lock on success
-            window.dispatchEvent(new Event('wix-auth-change'));
-            console.log('Successfully completed Wix OAuth login!');
-            setRefreshKey(prev => prev + 1);
+            window.dispatchEvent(new Event("wix-auth-change"));
+            console.log("Successfully completed Wix OAuth login!");
+            setRefreshKey((prev) => prev + 1);
           } else {
-            console.warn('No valid OAuth data found in localStorage or already consumed!');
+            console.warn(
+              "No valid OAuth data found in localStorage or already consumed!",
+            );
             isExchangingTokens = false;
           }
         }
       } catch (err) {
         isExchangingTokens = false;
-        console.error('Error exchanging oauth tokens:', err);
-        const errMsg = err && typeof err === 'object' && 'message' in err 
-          ? err.message 
-          : (typeof err === 'string' ? err : 'Ukjent tilkoblingsfeil');
-        setErrorMsg('Innloggingsfeil: ' + errMsg);
-        alert('Det oppstod en feil under utveksling av innloggingstokener: ' + errMsg);
+        console.error("Error exchanging oauth tokens:", err);
+        const errMsg =
+          err && typeof err === "object" && "message" in err
+            ? err.message
+            : typeof err === "string"
+              ? err
+              : "Ukjent tilkoblingsfeil";
+        setErrorMsg("Innloggingsfeil: " + errMsg);
+        alert(
+          "Det oppstod en feil under utveksling av innloggingstokener: " +
+            errMsg,
+        );
       } finally {
         setIsLoading(false);
       }
@@ -341,14 +316,15 @@ export default function Profile() {
           setMember(null);
           setOrdersList([]);
         } else {
-          setRefreshKey(prev => prev + 1);
+          setRefreshKey((prev) => prev + 1);
         }
       } catch (e) {
-        console.error('Failed to handle auth change in Profile page:', e);
+        console.error("Failed to handle auth change in Profile page:", e);
       }
     };
-    window.addEventListener('wix-auth-change', handleAuthChange);
-    return () => window.removeEventListener('wix-auth-change', handleAuthChange);
+    window.addEventListener("wix-auth-change", handleAuthChange);
+    return () =>
+      window.removeEventListener("wix-auth-change", handleAuthChange);
   }, []);
 
   // 2. Fetch current member, order history, and subscription status
@@ -358,9 +334,9 @@ export default function Profile() {
       try {
         logged = wixClient.auth.loggedIn();
       } catch (e) {
-        console.warn('Failed to check if logged in:', e);
+        console.warn("Failed to check if logged in:", e);
       }
-      
+
       if (logged) {
         setIsLoggedIn(true);
         if (!member) {
@@ -368,14 +344,19 @@ export default function Profile() {
         }
         // Get member info
         try {
-          const res = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
+          const res = await wixClient.members.getCurrentMember({
+            fieldsets: ["FULL"],
+          });
           console.log("getCurrentMember response:", res);
           if (res && res.member) {
             setMember(res.member);
           }
         } catch (err) {
-          console.error('Failed to get current member:', err);
-          if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
+          console.error("Failed to get current member:", err);
+          if (
+            err.message?.includes("401") ||
+            err.message?.includes("Unauthorized")
+          ) {
             await resetWixTokens();
             setIsLoggedIn(false);
           }
@@ -385,8 +366,8 @@ export default function Profile() {
         try {
           const response = await wixClient.orders.searchOrders({
             search: {
-              filter: {}
-            }
+              filter: {},
+            },
           });
           if (response.orders && response.orders.length > 0) {
             setOrdersList(response.orders);
@@ -394,36 +375,39 @@ export default function Profile() {
             setOrdersList([]);
           }
         } catch (err) {
-          console.warn('Wix Orders API error or not available:', err);
+          console.warn("Wix Orders API error or not available:", err);
           setOrdersList([]);
         }
 
         // Get subscriptions from Wix Pricing Plans
         try {
-          console.log('Fetching pricing plan subscriptions for member...');
+          console.log("Fetching pricing plan subscriptions for member...");
           const response = await wixClient.pricingPlansOrders.memberListOrders({
-            paging: { limit: 100 }
+            paging: { limit: 100 },
           });
-          console.log('Wix pricing plans memberListOrders response:', response);
+          console.log("Wix pricing plans memberListOrders response:", response);
           if (response && response.orders && response.orders.length > 0) {
-            const activeOrPastSubscriptions = response.orders.map(subOrder => {
-              const amountVal = subOrder.price?.value || '0';
-              const nextDate = subOrder.nextPaymentDate || subOrder.endDate || null;
-              
-              return {
-                _id: subOrder._id,
-                planName: subOrder.planName || 'Abonnement',
-                price: { amount: amountVal },
-                status: subOrder.status || 'ACTIVE',
-                nextShipmentDate: nextDate
-              };
-            });
+            const activeOrPastSubscriptions = response.orders.map(
+              (subOrder) => {
+                const amountVal = subOrder.price?.value || "0";
+                const nextDate =
+                  subOrder.nextPaymentDate || subOrder.endDate || null;
+
+                return {
+                  _id: subOrder._id,
+                  planName: subOrder.planName || "Abonnement",
+                  price: { amount: amountVal },
+                  status: subOrder.status || "ACTIVE",
+                  nextShipmentDate: nextDate,
+                };
+              },
+            );
             setSubscriptionsList(activeOrPastSubscriptions);
           } else {
             setSubscriptionsList([]);
           }
         } catch (err) {
-          console.warn('Wix Pricing Plans memberListOrders API error:', err);
+          console.warn("Wix Pricing Plans memberListOrders API error:", err);
           setSubscriptionsList([]);
         }
         setIsLoading(false);
@@ -431,40 +415,46 @@ export default function Profile() {
         setIsLoading(false);
       }
     }
-    
+
     getProfileData();
   }, [refreshKey]);
 
   // Fetch Loyalty Data
   useEffect(() => {
     async function fetchLoyaltyData() {
-      if (isLoggedIn && member && activeTab === 'loyalty') {
+      if (isLoggedIn && member && activeTab === "loyalty") {
         setIsLoadingLoyalty(true);
         try {
-          console.log('Fetching loyalty account for member...');
+          console.log("Fetching loyalty account for member...");
           let account = null;
           try {
             account = await wixClient.loyaltyAccounts.getCurrentMemberAccount();
           } catch (accErr) {
-            console.warn('getCurrentMemberAccount failed, trying getAccountBySecondaryId:', accErr);
+            console.warn(
+              "getCurrentMemberAccount failed, trying getAccountBySecondaryId:",
+              accErr,
+            );
             try {
-              account = await wixClient.loyaltyAccounts.getAccountBySecondaryId({ memberId: member._id });
+              account = await wixClient.loyaltyAccounts.getAccountBySecondaryId(
+                { memberId: member._id },
+              );
             } catch (secErr) {
-              console.warn('getAccountBySecondaryId failed:', secErr);
+              console.warn("getAccountBySecondaryId failed:", secErr);
             }
           }
 
           if (account) {
             setLoyaltyAccount(account);
             try {
-              const txs = await wixClient.loyaltyTransactions.queryLoyaltyTransactions()
-                .eq('accountId', account._id)
-                .descending('_createdDate')
+              const txs = await wixClient.loyaltyTransactions
+                .queryLoyaltyTransactions()
+                .eq("accountId", account._id)
+                .descending("_createdDate")
                 .limit(20)
                 .find();
               setLoyaltyHistory(txs.items || []);
             } catch (txErr) {
-              console.warn('Failed to fetch loyalty transactions:', txErr);
+              console.warn("Failed to fetch loyalty transactions:", txErr);
             }
           } else {
             setLoyaltyAccount(null);
@@ -476,25 +466,25 @@ export default function Profile() {
             const rws = await wixClient.loyaltyRewards.queryRewards({
               query: {
                 filter: {
-                  active: { '$eq': true }
-                }
-              }
+                  active: { $eq: true },
+                },
+              },
             });
             setLoyaltyRewards(rws.rewards || []);
           } catch (rwsErr) {
-            console.warn('Failed to fetch loyalty rewards:', rwsErr);
+            console.warn("Failed to fetch loyalty rewards:", rwsErr);
           }
 
           // Fetch coupons
           try {
-            const cps = await wixClient.loyaltyCoupons.getCurrentMemberCoupons();
+            const cps =
+              await wixClient.loyaltyCoupons.getCurrentMemberCoupons();
             setMyCoupons(cps.loyaltyCoupons || cps.coupons || cps.items || []);
           } catch (cpsErr) {
-            console.warn('Failed to fetch loyalty coupons:', cpsErr);
+            console.warn("Failed to fetch loyalty coupons:", cpsErr);
           }
-
         } catch (err) {
-          console.error('Failed to fetch loyalty data:', err);
+          console.error("Failed to fetch loyalty data:", err);
         } finally {
           setIsLoadingLoyalty(false);
         }
@@ -508,7 +498,10 @@ export default function Profile() {
     async function fetchReturns() {
       if (isLoggedIn && member?._id) {
         try {
-          const q = query(collection(db, 'order_returns'), where('memberId', '==', member._id));
+          const q = query(
+            collection(db, "order_returns"),
+            where("memberId", "==", member._id),
+          );
           const querySnapshot = await getDocs(q);
           const returns = [];
           querySnapshot.forEach((doc) => {
@@ -516,7 +509,7 @@ export default function Profile() {
           });
           setActiveReturns(returns);
         } catch (e) {
-          console.warn('Failed to fetch returns:', e);
+          console.warn("Failed to fetch returns:", e);
         }
       }
     }
@@ -526,20 +519,20 @@ export default function Profile() {
   const handleOpenReturnModal = (order) => {
     setSelectedOrderForReturn(order);
     const initialItems = {};
-    order.lineItems?.forEach(item => {
+    order.lineItems?.forEach((item) => {
       initialItems[item._id] = 0;
     });
     setReturnItems(initialItems);
-    setReturnReason('');
-    setReturnComments('');
+    setReturnReason("");
+    setReturnComments("");
     setReturnSuccess(false);
     setIsReturnModalOpen(true);
   };
 
   const handleReturnQtyChange = (itemId, qty) => {
-    setReturnItems(prev => ({
+    setReturnItems((prev) => ({
       ...prev,
-      [itemId]: qty
+      [itemId]: qty,
     }));
   };
 
@@ -549,31 +542,31 @@ export default function Profile() {
 
     try {
       const itemsToReturn = selectedOrderForReturn.lineItems
-        .map(item => ({
+        .map((item) => ({
           _id: item._id,
           name: item.name || item.productName?.translated,
-          quantity: returnItems[item._id] || 0
+          quantity: returnItems[item._id] || 0,
         }))
-        .filter(item => item.quantity > 0);
+        .filter((item) => item.quantity > 0);
 
       const payload = {
-        memberId: member?._id || '',
+        memberId: member?._id || "",
         memberName: displayName,
         memberEmail: displayEmail,
         orderId: selectedOrderForReturn._id,
         items: itemsToReturn,
         reason: returnReason,
         comments: returnComments,
-        status: 'Mottatt',
-        createdAt: new Date().toISOString()
+        status: "Mottatt",
+        createdAt: new Date().toISOString(),
       };
 
-      await addDoc(collection(db, 'order_returns'), payload);
+      await addDoc(collection(db, "order_returns"), payload);
       setReturnSuccess(true);
-      setRefreshKey(prev => prev + 1); // Refresh return list
+      setRefreshKey((prev) => prev + 1); // Refresh return list
     } catch (err) {
-      console.error('Failed to submit return request to Firestore:', err);
-      alert('Klarte ikke å opprette returforespørsel: ' + err.message);
+      console.error("Failed to submit return request to Firestore:", err);
+      alert("Klarte ikke å opprette returforespørsel: " + err.message);
     } finally {
       setIsSubmittingReturn(false);
     }
@@ -583,36 +576,44 @@ export default function Profile() {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setIsLoggingIn(true);
-    setErrorMsg('');
+    setErrorMsg("");
     try {
       const result = await wixClient.auth.login({ email, password });
-      if (result.loginState === 'SUCCESS') {
-        const tokens = await wixClient.auth.getMemberTokensForDirectLogin(result.sessionToken);
+      if (result.loginState === "SUCCESS") {
+        const tokens = await wixClient.auth.getMemberTokensForDirectLogin(
+          result.sessionToken,
+        );
         await wixClient.auth.setTokens(tokens);
         setIsLoggedIn(true);
-        window.dispatchEvent(new Event('wix-auth-change'));
-        setRefreshKey(prev => prev + 1);
+        window.dispatchEvent(new Event("wix-auth-change"));
+        setRefreshKey((prev) => prev + 1);
       } else {
-        if (result.errorCode === 'invalidEmail' || result.errorCode === 'invalidPassword') {
-          setErrorMsg('Feil e-postadresse eller passord.');
-        } else if (result.errorCode === 'missingCaptchaToken') {
+        if (
+          result.errorCode === "invalidEmail" ||
+          result.errorCode === "invalidPassword"
+        ) {
+          setErrorMsg("Feil e-postadresse eller passord.");
+        } else if (result.errorCode === "missingCaptchaToken") {
           // If captcha is needed, redirect to Wix OAuth portal to complete safely
-          const redirectUri = window.location.origin + '/profile';
+          const redirectUri = window.location.origin + "/profile";
           const oauthData = wixClient.auth.generateOAuthData(redirectUri);
           try {
-            localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
+            localStorage.setItem("hkd-oauth-data", JSON.stringify(oauthData));
           } catch (storageErr) {
-            console.error('Failed to save OAuth data to localStorage:', storageErr);
+            console.error(
+              "Failed to save OAuth data to localStorage:",
+              storageErr,
+            );
           }
           const { authUrl } = await wixClient.auth.getAuthUrl(oauthData);
           window.location.href = authUrl;
         } else {
-          setErrorMsg('Feil ved pålogging. Vennligst prøv igjen.');
+          setErrorMsg("Feil ved pålogging. Vennligst prøv igjen.");
         }
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg('Tilkoblingsfeil ved pålogging.');
+      setErrorMsg("Tilkoblingsfeil ved pålogging.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -623,18 +624,18 @@ export default function Profile() {
     e.preventDefault();
     setIsLoggingIn(true);
     try {
-      const redirectUri = window.location.origin + '/profile';
+      const redirectUri = window.location.origin + "/profile";
       const oauthData = wixClient.auth.generateOAuthData(redirectUri);
       try {
-        localStorage.setItem('hkd-oauth-data', JSON.stringify(oauthData));
+        localStorage.setItem("hkd-oauth-data", JSON.stringify(oauthData));
       } catch (storageErr) {
-        console.error('Failed to save OAuth data to localStorage:', storageErr);
+        console.error("Failed to save OAuth data to localStorage:", storageErr);
       }
       const { authUrl } = await wixClient.auth.getAuthUrl(oauthData);
       window.location.href = authUrl;
     } catch (err) {
       console.error(err);
-      alert('Tilkoblingsfeil ved opprettelse av registrering.');
+      alert("Tilkoblingsfeil ved opprettelse av registrering.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -644,24 +645,26 @@ export default function Profile() {
     try {
       let logoutUrl = null;
       try {
-        const res = await wixClient.auth.logout(window.location.origin + '/profile');
+        const res = await wixClient.auth.logout(
+          window.location.origin + "/profile",
+        );
         logoutUrl = res?.logoutUrl;
       } catch (logoutErr) {
-        console.warn('Wix auth logout callback warning:', logoutErr);
+        console.warn("Wix auth logout callback warning:", logoutErr);
       }
 
       await resetWixTokens();
       setIsLoggedIn(false);
-      window.dispatchEvent(new Event('wix-auth-change'));
+      window.dispatchEvent(new Event("wix-auth-change"));
       setMember(null);
       setOrdersList([]);
-      setRefreshKey(prev => prev + 1);
+      setRefreshKey((prev) => prev + 1);
 
       if (logoutUrl) {
         window.location.href = logoutUrl;
       }
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.error("Logout failed:", err);
     }
   };
 
@@ -670,18 +673,24 @@ export default function Profile() {
     setRedeemingRewardId(rewardId);
     setNewlyRedeemedCoupon(null);
     try {
-      console.log('Attempting to redeem loyalty reward:', rewardId);
-      const res = await wixClient.loyaltyCoupons.redeemCurrentMemberPointsForCoupon({ rewardId });
-      console.log('Redemption successful:', res);
-      
+      console.log("Attempting to redeem loyalty reward:", rewardId);
+      const res =
+        await wixClient.loyaltyCoupons.redeemCurrentMemberPointsForCoupon({
+          rewardId,
+        });
+      console.log("Redemption successful:", res);
+
       const couponObj = res.loyaltyCoupon || res;
       setNewlyRedeemedCoupon(couponObj);
-      
+
       // Refresh the loyalty account and list
-      setRefreshKey(prev => prev + 1);
+      setRefreshKey((prev) => prev + 1);
     } catch (err) {
-      console.error('Failed to redeem reward:', err);
-      alert(t('footer.subscribeError') || 'Klarte ikke å løse inn belønning. Vennligst prøv igjen.');
+      console.error("Failed to redeem reward:", err);
+      alert(
+        t("footer.subscribeError") ||
+          "Klarte ikke å løse inn belønning. Vennligst prøv igjen.",
+      );
     } finally {
       setRedeemingRewardId(null);
     }
@@ -689,79 +698,97 @@ export default function Profile() {
 
   const translateStatus = (status) => {
     switch (status?.toUpperCase()) {
-      case 'DELIVERED': return t('profile.delivered') || 'Levert';
-      case 'PAID': return t('profile.paid') || 'Betalt';
-      case 'APPROVED': return t('profile.approved') || 'Godkjent';
-      case 'CANCELED': return t('profile.canceled') || 'Kansellert';
-      case 'ACTIVE': return t('profile.active') || 'Aktiv';
-      default: return t('profile.pending') || 'Behandles';
+      case "DELIVERED":
+        return t("profile.delivered") || "Levert";
+      case "PAID":
+        return t("profile.paid") || "Betalt";
+      case "APPROVED":
+        return t("profile.approved") || "Godkjent";
+      case "CANCELED":
+        return t("profile.canceled") || "Kansellert";
+      case "ACTIVE":
+        return t("profile.active") || "Aktiv";
+      default:
+        return t("profile.pending") || "Behandles";
     }
   };
 
   // Helper values destructured defensively
-  const displayName = member?.contactDetails?.firstName 
-    ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ''}`.trim() 
-    : member?.contact?.firstName 
-      ? `${member.contact.firstName} ${member.contact.lastName || ''}`.trim() 
-      : (member?.profile?.nickname || member?.loginEmail?.split('@')[0] || 'Medlem');
+  const displayName = member?.contactDetails?.firstName
+    ? `${member.contactDetails.firstName} ${member.contactDetails.lastName || ""}`.trim()
+    : member?.contact?.firstName
+      ? `${member.contact.firstName} ${member.contact.lastName || ""}`.trim()
+      : member?.profile?.nickname ||
+        member?.loginEmail?.split("@")[0] ||
+        "Medlem";
 
-  const displayInitials = String(displayName || '')
-    .split(' ')
-    .map(n => n ? n[0] : '')
-    .join('')
-    .toUpperCase() || 'M';
+  const displayInitials =
+    String(displayName || "")
+      .split(" ")
+      .map((n) => (n ? n[0] : ""))
+      .join("")
+      .toUpperCase() || "M";
 
-  const displayEmail = getMemberEmail(member) || member?.loginEmail || '';
-  
-  const displayPhone = getMemberPhone(member) || '';
-  
+  const displayEmail = getMemberEmail(member) || member?.loginEmail || "";
+
+  const displayPhone = getMemberPhone(member) || "";
+
   const addrDetails = getMemberAddress(member);
-  const displayAddress = (addrDetails && (addrDetails.addressLine || addrDetails.postalCode || addrDetails.city))
-    ? `${addrDetails.addressLine || ''}, ${addrDetails.postalCode || ''} ${addrDetails.city || ''}`.trim().replace(/^,\s*/, '')
-    : '';
+  const displayAddress =
+    addrDetails &&
+    (addrDetails.addressLine || addrDetails.postalCode || addrDetails.city)
+      ? `${addrDetails.addressLine || ""}, ${addrDetails.postalCode || ""} ${addrDetails.city || ""}`
+          .trim()
+          .replace(/^,\s*/, "")
+      : "";
 
   // Affiliate states
-  const [affiliateStatus, setAffiliateStatus] = useState('none'); // 'none' | 'pending' | 'approved'
-  const [affiliateName, setAffiliateName] = useState('');
-  const [affiliateEmail, setAffiliateEmail] = useState('');
-  const [affiliateSocials, setAffiliateSocials] = useState('');
-  const [affiliateAddress, setAffiliateAddress] = useState('');
-  const [affiliateMotivation, setAffiliateMotivation] = useState('');
+  const [affiliateStatus, setAffiliateStatus] = useState("none"); // 'none' | 'pending' | 'approved'
+  const [affiliateName, setAffiliateName] = useState("");
+  const [affiliateEmail, setAffiliateEmail] = useState("");
+  const [affiliateSocials, setAffiliateSocials] = useState("");
+  const [affiliateAddress, setAffiliateAddress] = useState("");
+  const [affiliateMotivation, setAffiliateMotivation] = useState("");
   const [isSubmittingAffiliate, setIsSubmittingAffiliate] = useState(false);
   const [affiliateSuccess, setAffiliateSuccess] = useState(false);
-  const [affiliateError, setAffiliateError] = useState('');
+  const [affiliateError, setAffiliateError] = useState("");
 
   // Sync default values for application form
   useEffect(() => {
     if (member) {
-      setAffiliateName(displayName || '');
-      setAffiliateEmail(displayEmail || '');
-      setAffiliateAddress(displayAddress || '');
+      setAffiliateName(displayName || "");
+      setAffiliateEmail(displayEmail || "");
+      setAffiliateAddress(displayAddress || "");
     }
   }, [member, displayName, displayEmail, displayAddress]);
 
   // Load status from cache and database
   useEffect(() => {
     if (!member?._id) return;
-    
-    const cachedStatus = localStorage.getItem(`hkm-affiliate-status-${member._id}`);
+
+    const cachedStatus = localStorage.getItem(
+      `hkm-affiliate-status-${member._id}`,
+    );
     if (cachedStatus) {
       setAffiliateStatus(cachedStatus);
     }
-    
+
     const fetchStatus = async () => {
       try {
-        const docRef = doc(db, 'affiliate_applications', member._id);
+        const docRef = doc(db, "affiliate_applications", member._id);
         const snapshot = await getDoc(docRef);
         if (snapshot.exists()) {
           const data = snapshot.data();
           if (data.status) {
             setAffiliateStatus(data.status);
-            localStorage.setItem(`hkm-affiliate-status-${member._id}`, data.status);
+            localStorage.setItem(
+              `hkm-affiliate-status-${member._id}`,
+              data.status,
+            );
           }
         }
       } catch (err) {
-        console.warn('Kunne ikke hente affiliate-status fra Firestore:', err);
+        console.warn("Kunne ikke hente affiliate-status fra Firestore:", err);
       }
     };
     fetchStatus();
@@ -771,10 +798,10 @@ export default function Profile() {
     e.preventDefault();
     if (!member?._id) return;
     setIsSubmittingAffiliate(true);
-    setAffiliateError('');
+    setAffiliateError("");
     setAffiliateSuccess(false);
     try {
-      const docRef = doc(db, 'affiliate_applications', member._id);
+      const docRef = doc(db, "affiliate_applications", member._id);
       await setDoc(docRef, {
         memberId: member._id,
         name: affiliateName,
@@ -782,15 +809,18 @@ export default function Profile() {
         address: affiliateAddress,
         socialMedia: affiliateSocials,
         motivation: affiliateMotivation,
-        status: 'pending',
-        appliedAt: new Date().toISOString()
+        status: "pending",
+        appliedAt: new Date().toISOString(),
       });
-      setAffiliateStatus('pending');
-      localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'pending');
+      setAffiliateStatus("pending");
+      localStorage.setItem(`hkm-affiliate-status-${member._id}`, "pending");
       setAffiliateSuccess(true);
     } catch (err) {
-      console.error('Kunne ikke lagre søknad i Firestore:', err);
-      setAffiliateError(err?.message || 'Kunne ikke sende inn søknaden. Vennligst sjekk nettforbindelsen og prøv igjen.');
+      console.error("Kunne ikke lagre søknad i Firestore:", err);
+      setAffiliateError(
+        err?.message ||
+          "Kunne ikke sende inn søknaden. Vennligst sjekk nettforbindelsen og prøv igjen.",
+      );
     } finally {
       setIsSubmittingAffiliate(false);
     }
@@ -799,29 +829,32 @@ export default function Profile() {
   // Admin Affiliate states & hooks
   const [pendingApplications, setPendingApplications] = useState([]);
   const ADMIN_EMAILS = [
-    'knutsenthomas@gmail.com',
-    'thomas@hiskingdomministry.no',
-    'thomas@hiskingdomministry',
-    'hildekarin@gmail.com',
-    'hildekarin@hiskingdomministry.no',
-    'thomas@tk-design.no'
+    "knutsenthomas@gmail.com",
+    "thomas@hiskingdomministry.no",
+    "thomas@hiskingdomministry",
+    "hildekarin@gmail.com",
+    "hildekarin@hiskingdomministry.no",
+    "thomas@tk-design.no",
   ];
   const ADMIN_MEMBER_IDS = [
-    '18cf516e-0caa-430c-9bb5-6150854fcd6f' // Thomas Knutsen
+    "18cf516e-0caa-430c-9bb5-6150854fcd6f", // Thomas Knutsen
   ];
-  const isAdminUser = 
-    ADMIN_EMAILS.includes(displayEmail?.toLowerCase()) || 
+  const isAdminUser =
+    ADMIN_EMAILS.includes(displayEmail?.toLowerCase()) ||
     ADMIN_MEMBER_IDS.includes(member?._id) ||
-    localStorage.getItem('hkm-user-role') === 'admin' || 
-    localStorage.getItem('hkm-user-role') === 'superadmin' ||
-    window.location.search.includes('admin=true');
+    localStorage.getItem("hkm-user-role") === "admin" ||
+    localStorage.getItem("hkm-user-role") === "superadmin" ||
+    window.location.search.includes("admin=true");
 
   useEffect(() => {
     if (!isAdminUser) return;
-    
+
     const fetchPendingApps = async () => {
       try {
-        const q = query(collection(db, 'affiliate_applications'), where('status', '==', 'pending'));
+        const q = query(
+          collection(db, "affiliate_applications"),
+          where("status", "==", "pending"),
+        );
         const querySnapshot = await getDocs(q);
         const apps = [];
         querySnapshot.forEach((doc) => {
@@ -829,56 +862,64 @@ export default function Profile() {
         });
         setPendingApplications(apps);
       } catch (err) {
-        console.warn('Kunne ikke hente søknader for admin:', err);
+        console.warn("Kunne ikke hente søknader for admin:", err);
       }
     };
-    
-    if (activeTab === 'referral') {
+
+    if (activeTab === "referral") {
       fetchPendingApps();
     }
   }, [activeTab, isAdminUser]);
 
   const handleAdminApprove = async (appId) => {
     try {
-      const docRef = doc(db, 'affiliate_applications', appId);
-      await updateDoc(docRef, { status: 'approved' });
-      setPendingApplications(prev => prev.filter(app => app.id !== appId));
+      const docRef = doc(db, "affiliate_applications", appId);
+      await updateDoc(docRef, { status: "approved" });
+      setPendingApplications((prev) => prev.filter((app) => app.id !== appId));
       if (appId === member?._id) {
-        setAffiliateStatus('approved');
-        localStorage.setItem(`hkm-affiliate-status-${member._id}`, 'approved');
+        setAffiliateStatus("approved");
+        localStorage.setItem(`hkm-affiliate-status-${member._id}`, "approved");
       }
     } catch (err) {
-      console.error('Feil ved godkjenning av affiliate:', err);
+      console.error("Feil ved godkjenning av affiliate:", err);
     }
   };
 
   const handleAdminReject = async (appId) => {
     try {
-      const docRef = doc(db, 'affiliate_applications', appId);
+      const docRef = doc(db, "affiliate_applications", appId);
       await deleteDoc(docRef);
-      setPendingApplications(prev => prev.filter(app => app.id !== appId));
+      setPendingApplications((prev) => prev.filter((app) => app.id !== appId));
       if (appId === member?._id) {
-        setAffiliateStatus('none');
+        setAffiliateStatus("none");
         localStorage.removeItem(`hkm-affiliate-status-${member._id}`);
       }
     } catch (err) {
-      console.error('Feil ved avvisning av affiliate:', err);
+      console.error("Feil ved avvisning av affiliate:", err);
     }
   };
 
-  let memberSinceStr = language === 'es' ? 'Marzo 2025' : (language === 'en' ? 'March 2025' : 'Mars 2025');
+  let memberSinceStr =
+    language === "es"
+      ? "Marzo 2025"
+      : language === "en"
+        ? "March 2025"
+        : "Mars 2025";
   if (member?._createdDate) {
     try {
       const d = new Date(member._createdDate);
       if (!isNaN(d.getTime())) {
-        const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
-        const dateStr = d.toLocaleDateString(localeMap[language] || 'no-NO', { month: 'long', year: 'numeric' });
+        const localeMap = { no: "no-NO", en: "en-US", es: "es-ES" };
+        const dateStr = d.toLocaleDateString(localeMap[language] || "no-NO", {
+          month: "long",
+          year: "numeric",
+        });
         if (dateStr) {
           memberSinceStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
         }
       }
     } catch (e) {
-      console.warn('Failed to parse member creation date:', e);
+      console.warn("Failed to parse member creation date:", e);
     }
   }
 
@@ -886,7 +927,11 @@ export default function Profile() {
     return (
       <div className="flex flex-col items-center justify-center py-56">
         <div className="w-12 h-12 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-secondary font-semibold font-body-md">{t('profile.saving') === 'Lagrer...' ? 'Laster din profil...' : 'Loading your profile...'}</p>
+        <p className="mt-4 text-secondary font-semibold font-body-md">
+          {t("profile.saving") === "Lagrer..."
+            ? "Laster din profil..."
+            : "Loading your profile..."}
+        </p>
       </div>
     );
   }
@@ -903,21 +948,25 @@ export default function Profile() {
         <div className="bg-white rounded-3xl p-8 md:p-10 shadow-lg border border-outline-variant/30">
           {/* Tabs header */}
           <div className="flex border-b border-slate-100 mb-8">
-            <button 
-              onClick={() => setLoginTab('login')}
+            <button
+              onClick={() => setLoginTab("login")}
               className={`flex-1 pb-4 text-center font-label-md text-label-md transition-all ${
-                loginTab === 'login' ? 'border-b-2 border-terracotta text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                loginTab === "login"
+                  ? "border-b-2 border-terracotta text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('login.login')}
+              {t("login.login")}
             </button>
-            <button 
-              onClick={() => setLoginTab('register')}
+            <button
+              onClick={() => setLoginTab("register")}
               className={`flex-1 pb-4 text-center font-label-md text-label-md transition-all ${
-                loginTab === 'register' ? 'border-b-2 border-terracotta text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                loginTab === "register"
+                  ? "border-b-2 border-terracotta text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('login.register')}
+              {t("login.register")}
             </button>
           </div>
 
@@ -927,90 +976,110 @@ export default function Profile() {
             </div>
           )}
 
-          {loginTab === 'login' ? (
+          {loginTab === "login" ? (
             /* Login Form */
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="font-headline-md text-headline-md text-onyx mb-2">{t('login.welcome')}</h2>
-                <p className="font-body-sm text-body-sm text-secondary">{t('login.welcomeDesc')}</p>
+                <h2 className="font-headline-md text-headline-md text-onyx mb-2">
+                  {t("login.welcome")}
+                </h2>
+                <p className="font-body-sm text-body-sm text-secondary">
+                  {t("login.welcomeDesc")}
+                </p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-onyx uppercase mb-2">{t('login.email')}</label>
+                <label className="block text-xs font-semibold text-onyx uppercase mb-2">
+                  {t("login.email")}
+                </label>
                 <div className="relative">
-                  <input 
-                    type="email" 
-                    required 
+                  <input
+                    type="email"
+                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t('login.emailPlaceholder')}
+                    placeholder={t("login.emailPlaceholder")}
                     disabled={isLoggingIn}
-                    className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 pl-10 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-onyx" 
+                    className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 pl-10 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-onyx"
                   />
-                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary/40" />
+                  <Mail
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary/40"
+                  />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-xs font-semibold text-onyx uppercase">{t('login.password')}</label>
-                  <button 
+                  <label className="block text-xs font-semibold text-onyx uppercase">
+                    {t("login.password")}
+                  </label>
+                  <button
                     type="button"
-                    onClick={handleRegisterSubmit} 
+                    onClick={handleRegisterSubmit}
                     className="text-xs text-terracotta hover:underline font-semibold"
                   >
-                    {t('login.forgotPassword')}
+                    {t("login.forgotPassword")}
                   </button>
                 </div>
                 <div className="relative">
-                  <input 
-                    type="password" 
-                    required 
+                  <input
+                    type="password"
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     disabled={isLoggingIn}
-                    className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 pl-10 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-onyx" 
+                    className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 pl-10 text-sm focus:outline-none focus:ring-1 focus:ring-terracotta focus:border-terracotta text-onyx"
                   />
-                  <Key size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary/40" />
+                  <Key
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary/40"
+                  />
                 </div>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={isLoggingIn}
                 className="w-full bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md mt-8 uppercase tracking-wider text-xs font-bold flex items-center justify-center gap-2"
               >
-                {isLoggingIn ? t('login.loggingIn') : t('login.login')}
+                {isLoggingIn ? t("login.loggingIn") : t("login.login")}
               </button>
             </form>
           ) : (
             /* Registration Form */
             <form onSubmit={handleRegisterSubmit} className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="font-headline-md text-headline-md text-onyx mb-2">{t('login.createAccount')}</h2>
-                <p className="font-body-sm text-body-sm text-secondary">{t('login.registerDesc')}</p>
+                <h2 className="font-headline-md text-headline-md text-onyx mb-2">
+                  {t("login.createAccount")}
+                </h2>
+                <p className="font-body-sm text-body-sm text-secondary">
+                  {t("login.registerDesc")}
+                </p>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={isLoggingIn}
                 className="w-full bg-terracotta text-white py-4 rounded-xl font-semibold hover:opacity-95 active:scale-95 transition-all shadow-md mt-8 uppercase tracking-wider text-xs font-bold flex items-center justify-center gap-2"
               >
-                {t('login.continueRegister')}
+                {t("login.continueRegister")}
               </button>
             </form>
           )}
 
           {/* Social login redirect triggers */}
           <div className="mt-8 pt-6 border-t border-slate-100 text-center space-y-4">
-            <span className="text-xs text-secondary/50 uppercase tracking-wider block">{t('login.orLoginWith')}</span>
-            <button 
+            <span className="text-xs text-secondary/50 uppercase tracking-wider block">
+              {t("login.orLoginWith")}
+            </span>
+            <button
               onClick={handleRegisterSubmit}
               className="w-full border border-outline-variant rounded-xl py-3 text-xs font-semibold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-onyx"
             >
               <ShieldCheck size={16} className="text-terracotta" />
-              <span>{t('login.secureLoginGoogle')}</span>
+              <span>{t("login.secureLoginGoogle")}</span>
             </button>
           </div>
         </div>
@@ -1031,31 +1100,53 @@ export default function Profile() {
         <aside className="w-full lg:w-80 bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm flex flex-col items-center text-center lg:text-left lg:items-start shrink-0">
           <div className="w-20 h-20 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center font-bold text-2xl mb-4 uppercase overflow-hidden border border-outline-variant/15">
             {getProfileImageUrl(member) ? (
-              <img 
-                src={getProfileImageUrl(member)} 
-                alt={displayName} 
-                className="w-full h-full object-cover object-[center_18%]" 
+              <img
+                src={getProfileImageUrl(member)}
+                alt={displayName}
+                className="w-full h-full object-cover object-[center_18%]"
               />
             ) : (
               displayInitials
             )}
           </div>
-          <h2 className="font-headline-md text-headline-md text-onyx mb-1">{displayName}</h2>
+          <h2 className="font-headline-md text-headline-md text-onyx mb-1">
+            {displayName}
+          </h2>
           <p className="text-secondary font-body-sm mb-6">{displayEmail}</p>
-          
+
           <div className="w-full h-px bg-slate-100 my-4" />
 
           <div className="space-y-4 w-full text-left font-body-sm text-secondary">
             <div>
-              <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.phone')}</span>
-              <span>{displayPhone || (language === 'es' ? 'Ikke registrert' : language === 'en' ? 'Not registered' : 'Ikke registrert')}</span>
+              <span className="text-xs font-semibold text-onyx uppercase block mb-1">
+                {t("profile.phone")}
+              </span>
+              <span>
+                {displayPhone ||
+                  (language === "es"
+                    ? "Ikke registrert"
+                    : language === "en"
+                      ? "Not registered"
+                      : "Ikke registrert")}
+              </span>
             </div>
             <div>
-              <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.defaultAddress')}</span>
-              <span className="block leading-relaxed">{displayAddress || (language === 'es' ? 'Ingen adresse registrert' : language === 'en' ? 'No address registered' : 'Ingen adresse registrert')}</span>
+              <span className="text-xs font-semibold text-onyx uppercase block mb-1">
+                {t("profile.defaultAddress")}
+              </span>
+              <span className="block leading-relaxed">
+                {displayAddress ||
+                  (language === "es"
+                    ? "Ingen adresse registrert"
+                    : language === "en"
+                      ? "No address registered"
+                      : "Ingen adresse registrert")}
+              </span>
             </div>
             <div>
-              <span className="text-xs font-semibold text-onyx uppercase block mb-1">{t('profile.memberSince')}</span>
+              <span className="text-xs font-semibold text-onyx uppercase block mb-1">
+                {t("profile.memberSince")}
+              </span>
               <span>{memberSinceStr}</span>
             </div>
           </div>
@@ -1063,137 +1154,177 @@ export default function Profile() {
           <div className="w-full h-px bg-slate-100 my-6" />
 
           {isAdminUser && (
-            <Link 
+            <Link
               to="/admin"
               className="w-full flex items-center justify-center gap-2 bg-terracotta hover:bg-opacity-95 text-white py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 mb-3 shadow-md font-bold cursor-pointer"
             >
-              <span className="material-symbols-outlined text-base">admin_panel_settings</span>
-              <span>{t('profile.goToAdmin')}</span>
+              <span className="material-symbols-outlined text-base">
+                admin_panel_settings
+              </span>
+              <span>{t("profile.goToAdmin")}</span>
             </Link>
           )}
 
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 border border-outline hover:border-terracotta hover:text-terracotta text-onyx py-3 rounded-xl font-label-md text-label-md transition-all active:scale-95 cursor-pointer"
           >
             <LogOut size={16} />
-            <span>{t('profile.logout')}</span>
+            <span>{t("profile.logout")}</span>
           </button>
         </aside>
 
         {/* Right column - Dashboard Details */}
         <div className="flex-grow w-full min-w-0 space-y-8">
-          
           {/* Tab selector */}
           <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1 no-scrollbar">
             <button
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => setActiveTab("dashboard")}
               className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
-                activeTab === 'dashboard' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                activeTab === "dashboard"
+                  ? "text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('profile.dashboard')}
-              {activeTab === 'dashboard' && (
+              {t("profile.dashboard")}
+              {activeTab === "dashboard" && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
             <button
-              onClick={() => setActiveTab('wishlist')}
+              onClick={() => setActiveTab("wishlist")}
               className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
-                activeTab === 'wishlist' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                activeTab === "wishlist"
+                  ? "text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('profile.wishlist')} ({wishlist.length})
-              {activeTab === 'wishlist' && (
+              {t("profile.wishlist")} ({wishlist.length})
+              {activeTab === "wishlist" && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
             <button
-              onClick={() => setActiveTab('address')}
+              onClick={() => setActiveTab("address")}
               className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
-                activeTab === 'address' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                activeTab === "address"
+                  ? "text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('profile.addressBook')}
-              {activeTab === 'address' && (
+              {t("profile.addressBook")}
+              {activeTab === "address" && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
             <button
-              onClick={() => setActiveTab('loyalty')}
+              onClick={() => setActiveTab("loyalty")}
               className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
-                activeTab === 'loyalty' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                activeTab === "loyalty"
+                  ? "text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('profile.loyalty')}
-              {activeTab === 'loyalty' && (
+              {t("profile.loyalty")}
+              {activeTab === "loyalty" && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
             <button
-              onClick={() => setActiveTab('referral')}
+              onClick={() => setActiveTab("referral")}
               className={`pb-4 px-4 font-label-md text-label-md transition-all relative whitespace-nowrap cursor-pointer ${
-                activeTab === 'referral' ? 'text-terracotta font-bold' : 'text-secondary hover:text-onyx'
+                activeTab === "referral"
+                  ? "text-terracotta font-bold"
+                  : "text-secondary hover:text-onyx"
               }`}
             >
-              {t('profile.affiliate')}
-              {activeTab === 'referral' && (
+              {t("profile.affiliate")}
+              {activeTab === "referral" && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-terracotta rounded" />
               )}
             </button>
           </div>
 
-          {activeTab === 'dashboard' && (
+          {activeTab === "dashboard" && (
             <>
               {/* Order history */}
               <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
                 <div className="flex items-center gap-3 text-terracotta">
                   <ShoppingBag size={22} />
-                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.orderHistory')}</h3>
+                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">
+                    {t("profile.orderHistory")}
+                  </h3>
                 </div>
 
                 {ordersList.length > 0 ? (
                   <div className="space-y-4">
-                    {ordersList.map(order => {
-                      let dateStr = t('profile.unknownDate') || 'Ukjent dato';
+                    {ordersList.map((order) => {
+                      let dateStr = t("profile.unknownDate") || "Ukjent dato";
                       if (order._createdDate) {
                         try {
                           const d = new Date(order._createdDate);
                           if (!isNaN(d.getTime())) {
-                            const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
-                            dateStr = d.toLocaleDateString(localeMap[language] || 'no-NO');
+                            const localeMap = {
+                              no: "no-NO",
+                              en: "en-US",
+                              es: "es-ES",
+                            };
+                            dateStr = d.toLocaleDateString(
+                              localeMap[language] || "no-NO",
+                            );
                           }
                         } catch (e) {}
                       }
-                      const itemsStr = order.lineItems 
-                        ? order.lineItems.map(item => `${item.name || item.productName?.translated} (x${item.quantity})`).join(', ')
-                        : t('profile.noDescription') || 'Ingen varebeskrivelse';
-                      const totalStr = order.priceSummary?.total?.amount || '0';
+                      const itemsStr = order.lineItems
+                        ? order.lineItems
+                            .map(
+                              (item) =>
+                                `${item.name || item.productName?.translated} (x${item.quantity})`,
+                            )
+                            .join(", ")
+                        : t("profile.noDescription") || "Ingen varebeskrivelse";
+                      const totalStr = order.priceSummary?.total?.amount || "0";
 
                       return (
-                        <div key={order._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-outline transition-colors bg-slate-50/20">
+                        <div
+                          key={order._id}
+                          className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-outline transition-colors bg-slate-50/20"
+                        >
                           <div>
                             <div className="flex items-center gap-3 mb-1">
-                              <span className="font-label-md text-onyx font-bold text-sm">{t('profile.order')} #{order._id?.substring(0, 8)}</span>
-                              <span className="text-xs text-secondary/60">• {dateStr}</span>
+                              <span className="font-label-md text-onyx font-bold text-sm">
+                                {t("profile.order")} #
+                                {order._id?.substring(0, 8)}
+                              </span>
+                              <span className="text-xs text-secondary/60">
+                                • {dateStr}
+                              </span>
                             </div>
-                            <p className="font-body-sm text-secondary text-xs line-clamp-1">{itemsStr}</p>
+                            <p className="font-body-sm text-secondary text-xs line-clamp-1">
+                              {itemsStr}
+                            </p>
                           </div>
                           <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
                             <div>
-                              <span className="text-xs text-secondary block">{t('profile.total')}</span>
-                              <span className="font-label-md text-onyx font-bold">{formatPrice(totalStr)}</span>
+                              <span className="text-xs text-secondary block">
+                                {t("profile.total")}
+                              </span>
+                              <span className="font-label-md text-onyx font-bold">
+                                {formatPrice(totalStr)}
+                              </span>
                             </div>
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                               <span className="bg-green-100 text-green-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider text-center">
                                 {translateStatus(order.status)}
                               </span>
-                              {(order.status === 'DELIVERED' || order.status === 'PAID' || order.status === 'APPROVED') && (
+                              {(order.status === "DELIVERED" ||
+                                order.status === "PAID" ||
+                                order.status === "APPROVED") && (
                                 <button
                                   onClick={() => handleOpenReturnModal(order)}
                                   className="border border-outline hover:border-terracotta hover:text-terracotta text-onyx px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] text-center"
                                 >
-                                  {t('profile.requestReturn')}
+                                  {t("profile.requestReturn")}
                                 </button>
                               )}
                             </div>
@@ -1203,27 +1334,49 @@ export default function Profile() {
                     })}
                   </div>
                 ) : (
-                  <p className="text-secondary font-body-md text-sm">{t('profile.noOrdersYet')}</p>
+                  <p className="text-secondary font-body-md text-sm">
+                    {t("profile.noOrdersYet")}
+                  </p>
                 )}
 
                 {activeReturns.length > 0 && (
                   <div className="mt-8 border-t border-slate-100 pt-6">
                     <h4 className="font-bold text-sm text-[#1B4965] mb-4 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-terracotta text-lg select-none">swap_driving_side</span>
-                      {t('profile.activeReturns')}
+                      <span className="material-symbols-outlined text-terracotta text-lg select-none">
+                        swap_driving_side
+                      </span>
+                      {t("profile.activeReturns")}
                     </h4>
                     <div className="space-y-3">
-                      {activeReturns.map(ret => (
-                        <div key={ret.id} className="border border-outline-variant/20 rounded-xl p-4 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                      {activeReturns.map((ret) => (
+                        <div
+                          key={ret.id}
+                          className="border border-outline-variant/20 rounded-xl p-4 bg-slate-50/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                        >
                           <div>
-                            <p className="font-semibold text-xs text-onyx">{t('profile.returnForOrder', { id: ret.orderId?.substring(0, 8) })}</p>
-                            <p className="text-[10px] text-secondary mt-0.5">
-                              {t('profile.returnItems', { items: ret.items?.map(i => `${i.name} (x${i.quantity})`).join(', ') })}
+                            <p className="font-semibold text-xs text-onyx">
+                              {t("profile.returnForOrder", {
+                                id: ret.orderId?.substring(0, 8),
+                              })}
                             </p>
-                            <p className="text-[10px] text-secondary/70 italic mt-0.5">{t('profile.returnReason', { reason: ret.reason })}</p>
+                            <p className="text-[10px] text-secondary mt-0.5">
+                              {t("profile.returnItems", {
+                                items: ret.items
+                                  ?.map((i) => `${i.name} (x${i.quantity})`)
+                                  .join(", "),
+                              })}
+                            </p>
+                            <p className="text-[10px] text-secondary/70 italic mt-0.5">
+                              {t("profile.returnReason", {
+                                reason: ret.reason,
+                              })}
+                            </p>
                           </div>
                           <span className="bg-amber-100 text-amber-800 text-[9px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider text-center">
-                            {ret.status === 'Mottatt' ? (t('profile.pending') || 'Mottatt') : (t(`profile.${ret.status?.toLowerCase()}`) || ret.status)}
+                            {ret.status === "Mottatt"
+                              ? t("profile.pending") || "Mottatt"
+                              : t(`profile.${ret.status?.toLowerCase()}`) ||
+                                ret.status}
                           </span>
                         </div>
                       ))}
@@ -1236,35 +1389,53 @@ export default function Profile() {
               <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 text-terracotta">
                   <Package size={22} />
-                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.mySubscriptions')}</h3>
+                  <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">
+                    {t("profile.mySubscriptions")}
+                  </h3>
                 </div>
 
                 {subscriptionsList.length > 0 ? (
                   <div className="space-y-4">
-                    {subscriptionsList.map(sub => {
-                      const subPrice = sub.price?.amount || '0';
-                      let subNextDate = '10. mnd';
+                    {subscriptionsList.map((sub) => {
+                      const subPrice = sub.price?.amount || "0";
+                      let subNextDate = "10. mnd";
                       if (sub.nextShipmentDate) {
                         try {
                           const d = new Date(sub.nextShipmentDate);
                           if (!isNaN(d.getTime())) {
-                            const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
-                            subNextDate = d.toLocaleDateString(localeMap[language] || 'no-NO');
+                            const localeMap = {
+                              no: "no-NO",
+                              en: "en-US",
+                              es: "es-ES",
+                            };
+                            subNextDate = d.toLocaleDateString(
+                              localeMap[language] || "no-NO",
+                            );
                           }
                         } catch (e) {}
                       }
                       return (
-                        <div key={sub._id} className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/20">
+                        <div
+                          key={sub._id}
+                          className="border border-outline-variant/30 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/20"
+                        >
                           <div>
-                            <h4 className="font-label-md text-onyx font-bold text-sm mb-1">{sub.planName}</h4>
+                            <h4 className="font-label-md text-onyx font-bold text-sm mb-1">
+                              {sub.planName}
+                            </h4>
                             <p className="text-xs text-secondary">
-                              {t('profile.nextShipment', { date: subNextDate })}
+                              {t("profile.nextShipment", { date: subNextDate })}
                             </p>
                           </div>
                           <div className="flex items-center gap-6 self-stretch md:self-auto justify-between border-t md:border-none border-slate-100 pt-3 md:pt-0">
                             <div>
-                              <span className="text-xs text-secondary block">{t('profile.monthlyPrice')}</span>
-                              <span className="font-label-md text-terracotta font-bold">{formatPrice(subPrice)}/{t('home.subscription.month')}</span>
+                              <span className="text-xs text-secondary block">
+                                {t("profile.monthlyPrice")}
+                              </span>
+                              <span className="font-label-md text-terracotta font-bold">
+                                {formatPrice(subPrice)}/
+                                {t("home.subscription.month")}
+                              </span>
                             </div>
                             <span className="bg-emerald-100 text-emerald-800 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                               {translateStatus(sub.status)}
@@ -1275,50 +1446,69 @@ export default function Profile() {
                     })}
                   </div>
                 ) : (
-                  <p className="text-secondary font-body-md text-sm">{t('profile.noSubscriptionsYet')}</p>
+                  <p className="text-secondary font-body-md text-sm">
+                    {t("profile.noSubscriptionsYet")}
+                  </p>
                 )}
               </section>
             </>
           )}
 
-          {activeTab === 'wishlist' && (
+          {activeTab === "wishlist" && (
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
               <div className="flex items-center gap-3 text-terracotta">
                 <Heart size={22} className="fill-current" />
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.wishlist')}</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">
+                  {t("profile.wishlist")}
+                </h3>
               </div>
-              
+
               {wishlist.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {wishlist.map(item => (
-                    <div key={item.id} className="border border-outline-variant/30 rounded-xl p-4 flex gap-4 hover:border-outline transition-all bg-slate-50/10 relative group">
+                  {wishlist.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border border-outline-variant/30 rounded-xl p-4 flex gap-4 hover:border-outline transition-all bg-slate-50/10 relative group"
+                    >
                       <div className="w-20 h-20 bg-parchment rounded-lg overflow-hidden flex items-center justify-center p-2 border border-outline-variant/15 flex-shrink-0">
-                        <img src={getOptimizedWixImageUrl(item.image, 160, 160)} alt={item.name} className="w-full h-full object-contain rounded" />
+                        <img
+                          src={getOptimizedWixImageUrl(item.image, 160, 160)}
+                          alt={item.name}
+                          className="w-full h-full object-contain rounded"
+                        />
                       </div>
                       <div className="flex-grow flex flex-col justify-between">
                         <div>
                           <h4 className="font-headline-md text-onyx font-bold text-sm line-clamp-1">
-                            <Link to={`/produkt/${item.id}`} className="hover:text-terracotta transition-colors">{item.name}</Link>
+                            <Link
+                              to={`/produkt/${item.id}`}
+                              className="hover:text-terracotta transition-colors"
+                            >
+                              {item.name}
+                            </Link>
                           </h4>
-                          <span className="font-label-md text-terracotta font-semibold text-xs mt-1 block">{formatPrice(item.price)}</span>
+                          <span className="font-label-md text-terracotta font-semibold text-xs mt-1 block">
+                            {formatPrice(item.price)}
+                          </span>
                         </div>
                         <div className="flex gap-3 mt-2">
                           <button
                             onClick={() => {
-                              const defaultSize = item.sizes?.[0] || 'M';
-                              const defaultColor = item.colorNames?.[0] || 'Hvit';
+                              const defaultSize = item.sizes?.[0] || "M";
+                              const defaultColor =
+                                item.colorNames?.[0] || "Hvit";
                               addToCart(item, defaultSize, defaultColor, 1);
                             }}
                             className="bg-terracotta text-white font-label-md text-[11px] px-3 py-1.5 rounded-lg hover:opacity-95 active:scale-95 transition-all shadow-md font-semibold flex items-center gap-1 cursor-pointer"
                           >
                             <ShoppingBag size={12} />
-                            {t('profile.addToCart')}
+                            {t("profile.addToCart")}
                           </button>
                           <button
                             onClick={() => toggleWishlist(item)}
                             className="text-secondary hover:text-red-500 font-label-md text-[11px] transition-colors cursor-pointer"
                           >
-                            {t('profile.remove')}
+                            {t("profile.remove")}
                           </button>
                         </div>
                       </div>
@@ -1327,271 +1517,55 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="text-center py-10">
-                  <p className="text-secondary font-body-md text-sm mb-4">{t('profile.emptyWishlist')}</p>
-                  <Link to="/products" className="inline-flex items-center gap-1 text-terracotta font-bold hover:underline text-xs">
-                    {t('profile.exploreProducts')}
+                  <p className="text-secondary font-body-md text-sm mb-4">
+                    {t("profile.emptyWishlist")}
+                  </p>
+                  <Link
+                    to="/products"
+                    className="inline-flex items-center gap-1 text-terracotta font-bold hover:underline text-xs"
+                  >
+                    {t("profile.exploreProducts")}
                   </Link>
                 </div>
               )}
             </section>
           )}
 
-          {activeTab === 'loyalty' && (
-            <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-8 animate-fade-in">
-              <div className="flex items-center gap-3 text-terracotta">
-                <span className="material-symbols-outlined text-2xl select-none">stars</span>
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.loyaltyPoints')}</h3>
-              </div>
-
-              {isLoadingLoyalty ? (
-                <div className="flex justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-terracotta border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {/* Newly Redeemed Coupon Success Banner */}
-                  {newlyRedeemedCoupon && (
-                    <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-center space-y-3 relative overflow-hidden animate-fade-in">
-                      <button
-                        onClick={() => setNewlyRedeemedCoupon(null)}
-                        className="absolute top-3 right-3 text-secondary hover:text-onyx"
-                      >
-                        <span className="material-symbols-outlined text-sm">close</span>
-                      </button>
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600">
-                        <span className="material-symbols-outlined">check_circle</span>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-onyx">{t('profile.redeemSuccess')}</h4>
-                        <p className="text-xs text-secondary mt-1">Kopier koden under og bruk den i kassen!</p>
-                      </div>
-                      <div className="flex items-center justify-center gap-2 max-w-xs mx-auto bg-white border border-green-200 p-2.5 rounded-xl">
-                        <code className="text-sm font-bold text-green-700 select-all tracking-wider">
-                          {newlyRedeemedCoupon.couponCode || newlyRedeemedCoupon.code || 'KODE'}
-                        </code>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(newlyRedeemedCoupon.couponCode || newlyRedeemedCoupon.code || '');
-                            alert('Kopiert!');
-                          }}
-                          className="text-xs text-terracotta hover:underline font-bold"
-                        >
-                          {t('profile.copyCoupon')}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Loyalty Card */}
-                  <div className="relative overflow-hidden bg-gradient-to-br from-[#d17d39] to-[#bd4f2a] text-white rounded-2xl p-6 shadow-md md:p-8">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full translate-x-12 -translate-y-12" />
-                    <div className="absolute bottom-0 left-1/3 w-48 h-48 bg-white/5 rounded-full translate-y-24" />
-                    
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <span className="text-[10px] uppercase tracking-widest text-white/80 font-semibold">{t('profile.loyaltyCard')}</span>
-                        <h4 className="text-xl font-bold mt-1 tracking-wide">{displayName}</h4>
-                      </div>
-                      <span className="bg-white text-terracotta text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
-                        {loyaltyAccount?.tier?.name || t('profile.loyaltyLevel')}
-                      </span>
-                    </div>
-
-                    <div className="flex items-baseline gap-2 mb-4">
-                      <span className="text-4xl md:text-5xl font-extrabold tracking-tight">
-                        {loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0}
-                      </span>
-                      <span className="text-sm font-semibold text-white/80">{t('profile.pointsAvailable')}</span>
-                    </div>
-
-                    {/* Progress to next level */}
-                    <div className="mt-6 pt-4 border-t border-white/10 space-y-2">
-                      <div className="flex justify-between text-xs text-white/90">
-                        <span>{t('profile.pointsProgress')}</span>
-                        <span className="font-semibold">{t('profile.pointsProgressValue', { current: loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0, target: 300 })}</span>
-                      </div>
-                      <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-white h-full rounded-full transition-all duration-500" 
-                          style={{ width: `${Math.min(100, ((loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0) / 300) * 100)}%` }} 
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Rewards Information & Wix Loyalty Rewards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="border border-outline-variant/30 rounded-xl p-5 bg-slate-50/40">
-                      <h4 className="font-bold text-sm text-onyx mb-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-terracotta text-lg select-none">local_activity</span>
-                        {t('profile.howToEarn')}
-                      </h4>
-                      <ul className="text-xs text-secondary space-y-2 pl-1">
-                        <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">{t('profile.earnBuy')}</span>
-                          <strong className="text-onyx text-right">{t('profile.earnBuyValue')}</strong>
-                        </li>
-                        <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">{t('profile.earnRegister')}</span>
-                          <strong className="text-onyx text-right">{t('profile.earnRegisterValue')}</strong>
-                        </li>
-                        <li className="flex justify-between items-start gap-4">
-                          <span className="shrink-0">{t('profile.earnReview')}</span>
-                          <strong className="text-onyx text-right">{t('profile.earnReviewValue')}</strong>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="border border-outline-variant/30 rounded-xl p-5 bg-slate-50/40 space-y-3">
-                      <h4 className="font-bold text-sm text-onyx mb-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-terracotta text-lg select-none">redeem</span>
-                        {t('profile.howToUse')}
-                      </h4>
-                      
-                      {loyaltyRewards.length > 0 ? (
-                        <div className="space-y-3">
-                          {loyaltyRewards.map((reward) => {
-                            const balance = loyaltyAccount ? (loyaltyAccount.points?.summary?.balance || 0) : 0;
-                            const canRedeem = balance >= reward.requiredPoints;
-                            const isRedeeming = redeemingRewardId === reward._id;
-                            
-                            return (
-                              <div key={reward._id} className="flex justify-between items-center p-3 bg-white border border-outline-variant/10 rounded-xl">
-                                <div className="pr-2">
-                                  <p className="font-semibold text-xs text-onyx leading-snug">{reward.name}</p>
-                                  <span className="text-[10px] text-terracotta font-semibold mt-0.5 block">
-                                    {t('profile.pointsNeeded', { points: reward.requiredPoints })}
-                                  </span>
-                                </div>
-                                <button
-                                  onClick={() => handleRedeemReward(reward._id)}
-                                  disabled={!canRedeem || isRedeeming || redeemingRewardId !== null}
-                                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 ${
-                                    canRedeem
-                                      ? 'bg-terracotta text-white hover:brightness-110 active:scale-95'
-                                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                  }`}
-                                >
-                                  {isRedeeming ? (
-                                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
-                                  ) : canRedeem ? (
-                                    t('profile.redeem')
-                                  ) : (
-                                    t('profile.insufficientPoints')
-                                  )}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-secondary/70 italic">{t('profile.noRewards')}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Redeemed Coupons List */}
-                  <div className="space-y-4">
-                    <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
-                      <span className="material-symbols-outlined text-terracotta text-lg select-none">confirmation_number</span>
-                      {t('profile.myCoupons')}
-                    </h4>
-                    
-                    {myCoupons.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {myCoupons.map((coupon) => (
-                          <div key={coupon._id} className="flex justify-between items-center p-4 border border-outline-variant/15 rounded-xl bg-amber-50/10">
-                            <div>
-                              <p className="font-bold text-xs text-onyx select-all tracking-wider">{coupon.couponCode || coupon.code}</p>
-                              <span className="text-[10px] text-secondary/60 block mt-1">
-                                {coupon.pointsCost} poeng • {coupon.status === 'UNUSED' ? 'Ubrukt' : 'Brukt'}
-                              </span>
-                            </div>
-                            {coupon.status === 'UNUSED' && (
-                              <button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(coupon.couponCode || coupon.code || '');
-                                  alert('Kopiert!');
-                                }}
-                                className="text-[10px] font-bold text-terracotta hover:underline border border-terracotta/20 px-2.5 py-1.5 rounded-lg hover:bg-terracotta/5 transition-all shrink-0 ml-2"
-                              >
-                                {t('profile.copyCoupon')}
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-secondary/60 italic">{t('profile.noCoupons')}</p>
-                    )}
-                  </div>
-
-                  {/* Transaction History */}
-                  <div className="space-y-4">
-                    <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
-                      <span className="material-symbols-outlined text-terracotta text-lg select-none">history</span>
-                      {t('profile.pointsHistory')}
-                    </h4>
-                    
-                    {loyaltyHistory.length > 0 ? (
-                      <div className="space-y-3">
-                        {loyaltyHistory.map(tx => {
-                          const isEarned = tx.pointsDelta > 0;
-                          let date = t('profile.unknownDate') || 'Ukjent dato';
-                          if (tx._createdDate) {
-                            try {
-                              const d = new Date(tx._createdDate);
-                              if (!isNaN(d.getTime())) {
-                                const localeMap = { no: 'no-NO', en: 'en-US', es: 'es-ES' };
-                                date = d.toLocaleDateString(localeMap[language] || 'no-NO');
-                              }
-                            } catch (e) {}
-                          }
-                          
-                          let txDesc = tx.description;
-                          if (tx.description === 'Konto opprettet velkomstbonus') {
-                            txDesc = t('profile.historyWelcome') || tx.description;
-                          } else if (tx.description?.includes('Poeng tjent på ordre')) {
-                            const orderMatch = tx.description.match(/HK-\d+/)?.[0] || '';
-                            txDesc = t('profile.historyOrder', { orderId: orderMatch }) || tx.description;
-                          }
-
-                          return (
-                            <div key={tx._id} className="flex justify-between items-center p-4 border border-outline-variant/15 rounded-xl bg-slate-50/10">
-                              <div>
-                                <p className="font-semibold text-sm text-onyx">{txDesc || (isEarned ? t('profile.pointsEarned') : t('profile.pointsUsed'))}</p>
-                                <span className="text-[10px] text-secondary/60">{date}</span>
-                              </div>
-                              <span className={`font-bold text-sm ${isEarned ? 'text-green-600' : 'text-red-500'}`}>
-                                {isEarned ? `+${tx.pointsDelta}` : tx.pointsDelta} {t('profile.pointsAvailable')?.split(' ')[0]}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-secondary/60 italic">Ingen poeng-transaksjoner registrert ennå.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </section>
+          {activeTab === "loyalty" && (
+            <LoyaltyRewards
+              {...{
+                displayName,
+                handleRedeemReward,
+                isLoadingLoyalty,
+                language,
+                loyaltyAccount,
+                loyaltyHistory,
+                loyaltyRewards,
+                myCoupons,
+                newlyRedeemedCoupon,
+                redeemingRewardId,
+                setNewlyRedeemedCoupon,
+                t,
+              }}
+            />
           )}
 
-          {activeTab === 'address' && (
+          {activeTab === "address" && (
             <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-6 animate-fade-in">
               <div className="flex items-center gap-3 text-terracotta">
                 <User size={22} />
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.addressBook')}</h3>
+                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">
+                  {t("profile.addressBook")}
+                </h3>
               </div>
               <p className="text-xs text-secondary leading-relaxed">
-                {t('profile.addressBookDesc')}
+                {t("profile.addressBookDesc")}
               </p>
-              
+
               <form onSubmit={handleAddressSubmit} className="space-y-4">
                 {addressSuccess && (
                   <div className="bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
-                    {t('profile.addressSaved')}
+                    {t("profile.addressSaved")}
                   </div>
                 )}
                 {addressError && (
@@ -1599,10 +1573,12 @@ export default function Profile() {
                     {addressError}
                   </div>
                 )}
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.firstName')}</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                      {t("profile.firstName")}
+                    </label>
                     <input
                       type="text"
                       value={firstName}
@@ -1612,7 +1588,9 @@ export default function Profile() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.lastName')}</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                      {t("profile.lastName")}
+                    </label>
                     <input
                       type="text"
                       value={lastName}
@@ -1622,348 +1600,107 @@ export default function Profile() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.phoneInput')}</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                      {t("profile.phoneInput")}
+                    </label>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder={t('profile.phonePlaceholder')}
+                      placeholder={t("profile.phonePlaceholder")}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.streetAddress')}</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                      {t("profile.streetAddress")}
+                    </label>
                     <input
                       type="text"
                       value={addressLine}
                       onChange={(e) => setAddressLine(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder={t('profile.streetPlaceholder')}
+                      placeholder={t("profile.streetPlaceholder")}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex flex-col sm:col-span-1">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.postalCode')}</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                      {t("profile.postalCode")}
+                    </label>
                     <input
                       type="text"
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder={t('profile.postalPlaceholder')}
+                      placeholder={t("profile.postalPlaceholder")}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
                   <div className="flex flex-col sm:col-span-2">
-                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('profile.city')}</label>
+                    <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                      {t("profile.city")}
+                    </label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       disabled={isUpdatingAddress}
-                      placeholder={t('profile.cityPlaceholder')}
+                      placeholder={t("profile.cityPlaceholder")}
                       className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                     />
                   </div>
                 </div>
-                
+
                 <button
                   type="submit"
                   disabled={isUpdatingAddress}
                   className="bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
                 >
-                  {isUpdatingAddress ? t('profile.saving') : t('profile.saveChanges')}
+                  {isUpdatingAddress
+                    ? t("profile.saving")
+                    : t("profile.saveChanges")}
                 </button>
               </form>
             </section>
           )}
 
-          {activeTab === 'referral' && (
-            <section className="bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm space-y-8 animate-fade-in">
-              <style>{`
-                .affiliate-input {
-                  transform: translateZ(0) !important;
-                  backface-visibility: hidden !important;
-                  display: block !important;
-                  width: 100% !important;
-                }
-              `}</style>
-              
-              <div className="flex items-center gap-3 text-[#1B4965]">
-                <span className="material-symbols-outlined text-2xl select-none">military_tech</span>
-                <h3 className="font-headline-md text-headline-md text-onyx text-xl font-bold">{t('profile.affiliate')}</h3>
-              </div>
-
-              {/* Info text */}
-              <div className="bg-[#1B4965]/5 border border-[#1B4965]/20 p-5 rounded-2xl text-secondary text-xs leading-relaxed flex items-start gap-3">
-                <span className="material-symbols-outlined text-terracotta text-lg mt-0.5 select-none">info</span>
-                <p className="font-semibold text-[#1B4965]">
-                  {t('profile.affiliateDesc')}
-                </p>
-              </div>
-
-              {affiliateStatus === 'none' && (
-                <div className="space-y-6">
-                  <div className="border-t border-slate-100 pt-4">
-                    <h4 className="font-headline-sm text-onyx text-base font-bold mb-2">{t('profile.applyAffiliate')}</h4>
-                    <p className="text-xs text-secondary mb-6 leading-relaxed">
-                      {t('profile.applyAffiliateDesc')}
-                    </p>
-                    
-                    {affiliateSuccess && (
-                      <div className="mb-4 bg-emerald-50 text-emerald-800 text-xs p-3 rounded-lg border border-emerald-200 font-medium">
-                        {t('profile.affiliateSuccess')}
-                      </div>
-                    )}
-
-                    {affiliateError && (
-                      <div className="mb-4 bg-red-50 text-red-700 text-xs p-3 rounded-lg border border-red-200 font-medium">
-                        {affiliateError}
-                      </div>
-                    )}
-
-                    <form onSubmit={handleAffiliateSubmit} className="space-y-5 max-w-xl">
-                      <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.name')}</label>
-                        <input
-                          type="text"
-                          required
-                          value={affiliateName}
-                          onChange={(e) => setAffiliateName(e.target.value)}
-                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                        />
-                      </div>
-
-                      <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.email')}</label>
-                        <input
-                          type="email"
-                          required
-                          value={affiliateEmail}
-                          onChange={(e) => setAffiliateEmail(e.target.value)}
-                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                        />
-                      </div>
-
-                      <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.address')}</label>
-                        <input
-                          type="text"
-                          required
-                          value={affiliateAddress}
-                          onChange={(e) => setAffiliateAddress(e.target.value)}
-                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                        />
-                      </div>
-
-                      <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.socials')}</label>
-                        <input
-                          type="text"
-                          required
-                          placeholder={t('profile.socialsPlaceholder')}
-                          value={affiliateSocials}
-                          onChange={(e) => setAffiliateSocials(e.target.value)}
-                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
-                        />
-                      </div>
-
-                      <div className="block">
-                        <label className="block text-xs font-bold text-onyx uppercase tracking-wider mb-2">{t('profile.motivation')}</label>
-                        <textarea
-                          required
-                          rows={4}
-                          placeholder={t('profile.motivationPlaceholder')}
-                          value={affiliateMotivation}
-                          onChange={(e) => setAffiliateMotivation(e.target.value)}
-                          className="affiliate-input bg-white border border-outline rounded-xl px-4 py-3 text-xs text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta resize-none"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isSubmittingAffiliate}
-                        className="w-full bg-terracotta hover:bg-opacity-95 text-white py-3.5 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider shadow-md active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
-                      >
-                        {isSubmittingAffiliate ? t('profile.submitting') : t('profile.submitApplication')}
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              )}
-
-              {affiliateStatus === 'pending' && (
-                <div className="space-y-6">
-                  <div className="border border-outline-variant/30 rounded-2xl p-8 bg-slate-50 text-center flex flex-col items-center space-y-4">
-                    <span className="material-symbols-outlined text-4xl text-amber-500 animate-pulse select-none">pending</span>
-                    <h4 className="font-headline-sm text-onyx text-base font-bold">{t('profile.affiliatePending')}</h4>
-                    <p className="text-xs text-secondary max-w-md leading-relaxed">
-                      {t('profile.affiliatePendingDesc')}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {affiliateStatus === 'approved' && (
-                <div className="space-y-8">
-                  {/* Approval Banner */}
-                  <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-emerald-800 text-xs flex items-center gap-3 font-semibold shadow-sm">
-                    <span className="material-symbols-outlined text-emerald-600 select-none">verified_user</span>
-                    <span>{t('profile.affiliateApproved')}</span>
-                  </div>
-
-                  {/* Share Card */}
-                  <div className="p-6 rounded-2xl border border-outline-variant/30 bg-[#1B4965]/5 space-y-4 shadow-sm text-left">
-                    <h4 className="font-bold text-xs text-[#1B4965] uppercase tracking-wider">{t('profile.affiliateLink')}</h4>
-                    
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <input
-                        type="text"
-                        readOnly
-                        value={`${window.location.origin}/?ref=${member?._id || 'medlem'}`}
-                        className="flex-grow bg-white border border-outline-variant rounded-xl px-4 py-3 text-xs focus:outline-none text-onyx font-mono"
-                      />
-                      <button
-                        onClick={handleCopyLink}
-                        className={`sm:w-36 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider py-3 px-4 rounded-xl transition-all shadow-md cursor-pointer ${
-                          copied ? 'bg-green-600 text-white' : 'bg-[#1B4965] text-white hover:opacity-95 active:scale-95'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
-                        <span>{copied ? t('profile.copied') : t('profile.copyLink')}</span>
-                      </button>
-                    </div>
-
-                    {/* Social Share Buttons */}
-                    <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                      <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mr-1">{t('profile.shareDirect')}</span>
-                      
-                      <a
-                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(t('profile.shareWhatsAppText', { link: `${window.location.origin}/?ref=${member?._id || 'medlem'}` }))}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-emerald-600 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
-                      >
-                        <span className="material-symbols-outlined text-xs">chat</span>
-                        WhatsApp
-                      </a>
-
-                      <a
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/?ref=${member?._id || 'medlem'}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-[#1877F2] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
-                      >
-                        <span className="material-symbols-outlined text-xs">share</span>
-                        Facebook
-                      </a>
-
-                      <a
-                        href={`mailto:?subject=${encodeURIComponent(t('profile.shareEmailSubject'))}&body=${encodeURIComponent(t('profile.shareEmailBody', { link: `${window.location.origin}/?ref=${member?._id || 'medlem'}` }))}`}
-                        className="flex items-center gap-1.5 bg-slate-700 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:brightness-105 shadow-sm active:scale-95 transition-all"
-                      >
-                        <span className="material-symbols-outlined text-xs">mail</span>
-                        E-post
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Stats Section */}
-                  <div className="space-y-6">
-                    <h4 className="font-bold text-sm text-onyx flex items-center gap-2 border-b border-slate-100 pb-2">
-                      <span className="material-symbols-outlined text-terracotta text-lg select-none">analytics</span>
-                      {t('profile.affiliateStats')}
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.clicksLink')}</span>
-                        <span className="text-2xl font-extrabold text-[#1B4965]">0</span>
-                      </div>
-                      <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.affiliateSales')}</span>
-                        <span className="text-2xl font-extrabold text-[#1B4965]">0</span>
-                      </div>
-                      <div className="p-4 bg-slate-50 border border-outline-variant/15 rounded-2xl shadow-sm text-center">
-                        <span className="text-[10px] text-secondary font-bold uppercase tracking-widest block mb-1">{t('profile.bonusPaid')}</span>
-                        <span className="text-2xl font-extrabold text-green-600">{formatPrice(0)}</span>
-                      </div>
-                    </div>
-
-                    {/* Sales history */}
-                    <div className="space-y-3">
-                      <h5 className="font-bold text-xs text-onyx">{t('profile.commissionHistory')}</h5>
-                      <div className="border border-outline-variant/20 rounded-2xl p-6 text-center bg-slate-50/50">
-                        <p className="text-xs text-secondary/70 italic">Ingen provisjoner registrert ennå.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Admin Panel */}
-              {isAdminUser && (
-                <div className="border-t border-slate-100 pt-8 space-y-6">
-                  <h4 className="font-bold text-sm text-[#1B4965] flex items-center gap-2">
-                    <span className="material-symbols-outlined text-amber-500 text-lg select-none">admin_panel_settings</span>
-                    {t('profile.adminTitle', { count: pendingApplications.length })}
-                  </h4>
-                  
-                  {pendingApplications.length === 0 ? (
-                    <p className="text-xs text-secondary italic">{t('profile.noPendingApps')}</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {pendingApplications.map((app) => (
-                        <div key={app.id} className="p-5 border border-outline-variant/30 rounded-2xl bg-slate-50 space-y-3 text-xs">
-                          <div className="flex justify-between items-start gap-4">
-                            <div>
-                              <p className="font-bold text-onyx text-sm">{app.name}</p>
-                              <p className="text-secondary">{app.email}</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleAdminApprove(app.id)}
-                                className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
-                              >
-                                {t('profile.approve')}
-                              </button>
-                              <button
-                                onClick={() => handleAdminReject(app.id)}
-                                className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
-                              >
-                                {t('profile.reject')}
-                              </button>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-secondary">
-                            <div>
-                              <span className="font-bold text-onyx block mb-0.5">{t('profile.address')}:</span>
-                              {app.address}
-                            </div>
-                            <div>
-                              <span className="font-bold text-onyx block mb-0.5">{t('profile.socialsLabel')}</span>
-                              {app.socialMedia}
-                            </div>
-                          </div>
-                          
-                          <div className="border-t border-slate-100 pt-3">
-                            <span className="font-bold text-onyx block mb-1">{t('profile.motivationLabel')}</span>
-                            <p className="text-secondary leading-relaxed bg-white p-3 rounded-lg border border-slate-100">{app.motivation}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </section>
+          {activeTab === "referral" && (
+            <ReferralProgram
+              {...{
+                affiliateAddress,
+                affiliateEmail,
+                affiliateError,
+                affiliateMotivation,
+                affiliateName,
+                affiliateSocials,
+                affiliateStatus,
+                affiliateSuccess,
+                copied,
+                formatPrice,
+                handleAdminApprove,
+                handleAdminReject,
+                handleAffiliateSubmit,
+                handleCopyLink,
+                isAdminUser,
+                isSubmittingAffiliate,
+                member,
+                pendingApplications,
+                setAffiliateAddress,
+                setAffiliateEmail,
+                setAffiliateMotivation,
+                setAffiliateName,
+                setAffiliateSocials,
+                t,
+              }}
+            />
           )}
         </div>
       </div>
@@ -1991,69 +1728,104 @@ export default function Profile() {
               {/* Header */}
               <div className="bg-[#1B4965] text-white px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
                 <div>
-                  <h3 className="font-bold text-base">{t('return.createRequest')}</h3>
-                  <span className="text-[10px] text-blue-200">Ordre #{selectedOrderForReturn._id?.substring(0, 8)}</span>
+                  <h3 className="font-bold text-base">
+                    {t("return.createRequest")}
+                  </h3>
+                  <span className="text-[10px] text-blue-200">
+                    Ordre #{selectedOrderForReturn._id?.substring(0, 8)}
+                  </span>
                 </div>
                 <button
                   onClick={() => setIsReturnModalOpen(false)}
                   className="p-1 hover:bg-white/10 text-white/80 hover:text-white transition-colors rounded-full"
                 >
-                  <span className="material-symbols-outlined text-lg select-none">close</span>
+                  <span className="material-symbols-outlined text-lg select-none">
+                    close
+                  </span>
                 </button>
               </div>
 
               {/* Form */}
-              <form onSubmit={handleReturnSubmit} className="p-6 overflow-y-auto space-y-6 flex-grow custom-scrollbar" style={{ display: 'block' }}>
+              <form
+                onSubmit={handleReturnSubmit}
+                className="p-6 overflow-y-auto space-y-6 flex-grow custom-scrollbar"
+                style={{ display: "block" }}
+              >
                 {returnSuccess ? (
                   <div className="text-center py-6 space-y-4">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto">
-                      <span className="material-symbols-outlined text-2xl select-none">check_circle</span>
+                      <span className="material-symbols-outlined text-2xl select-none">
+                        check_circle
+                      </span>
                     </div>
-                    <h4 className="font-bold text-onyx">{t('return.successTitle')}</h4>
+                    <h4 className="font-bold text-onyx">
+                      {t("return.successTitle")}
+                    </h4>
                     <p className="text-xs text-secondary leading-relaxed">
-                      {t('return.successDesc')}
+                      {t("return.successDesc")}
                     </p>
                     <button
                       type="button"
                       onClick={() => setIsReturnModalOpen(false)}
                       className="bg-terracotta text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 active:scale-95 transition-all shadow-md mx-auto"
                     >
-                      {t('return.closeWindow')}
+                      {t("return.closeWindow")}
                     </button>
                   </div>
                 ) : (
                   <>
                     <p className="text-xs text-secondary leading-relaxed">
-                      {t('return.intro')}
+                      {t("return.intro")}
                     </p>
 
                     {/* Line Items Selection */}
                     <div className="space-y-3">
-                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('return.selectItems')}</label>
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                        {t("return.selectItems")}
+                      </label>
                       <div className="border border-outline-variant/30 rounded-xl overflow-hidden divide-y divide-slate-100">
-                        {selectedOrderForReturn.lineItems?.map(item => {
+                        {selectedOrderForReturn.lineItems?.map((item) => {
                           const maxQty = item.quantity || 1;
                           const currentQty = returnItems[item._id] || 0;
                           return (
-                            <div key={item._id} className="p-4 flex justify-between items-center gap-4 bg-slate-50/20">
+                            <div
+                              key={item._id}
+                              className="p-4 flex justify-between items-center gap-4 bg-slate-50/20"
+                            >
                               <div className="flex-grow">
-                                <p className="font-semibold text-xs text-onyx">{item.name || item.productName?.translated}</p>
-                                <p className="text-[10px] text-secondary mt-0.5">{t('return.purchasedQty', { qty: maxQty })}</p>
+                                <p className="font-semibold text-xs text-onyx">
+                                  {item.name || item.productName?.translated}
+                                </p>
+                                <p className="text-[10px] text-secondary mt-0.5">
+                                  {t("return.purchasedQty", { qty: maxQty })}
+                                </p>
                               </div>
                               <div className="flex items-center gap-2">
                                 <button
                                   type="button"
                                   disabled={currentQty === 0}
-                                  onClick={() => handleReturnQtyChange(item._id, currentQty - 1)}
+                                  onClick={() =>
+                                    handleReturnQtyChange(
+                                      item._id,
+                                      currentQty - 1,
+                                    )
+                                  }
                                   className="w-7 h-7 bg-white border border-outline-variant rounded-full flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all font-bold text-xs"
                                 >
                                   -
                                 </button>
-                                <span className="text-xs font-bold w-4 text-center">{currentQty}</span>
+                                <span className="text-xs font-bold w-4 text-center">
+                                  {currentQty}
+                                </span>
                                 <button
                                   type="button"
                                   disabled={currentQty >= maxQty}
-                                  onClick={() => handleReturnQtyChange(item._id, currentQty + 1)}
+                                  onClick={() =>
+                                    handleReturnQtyChange(
+                                      item._id,
+                                      currentQty + 1,
+                                    )
+                                  }
                                   className="w-7 h-7 bg-white border border-outline-variant rounded-full flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-all font-bold text-xs"
                                 >
                                   +
@@ -2067,30 +1839,44 @@ export default function Profile() {
 
                     {/* Reason */}
                     <div className="flex flex-col">
-                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('return.reasonLabel')}</label>
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                        {t("return.reasonLabel")}
+                      </label>
                       <select
                         required
                         value={returnReason}
                         onChange={(e) => setReturnReason(e.target.value)}
                         className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx"
                       >
-                        <option value="">{t('return.selectReason')}</option>
-                        <option value="Feil størrelse">{t('return.reasonSize')}</option>
-                        <option value="Passet ikke / Misfornøyd">{t('return.reasonUnsatisfied')}</option>
-                        <option value="Skadet eller defekt vare">{t('return.reasonDamaged')}</option>
-                        <option value="Mottok feil vare">{t('return.reasonWrongItem')}</option>
-                        <option value="Annet (spesifiser under)">{t('return.reasonOther')}</option>
+                        <option value="">{t("return.selectReason")}</option>
+                        <option value="Feil størrelse">
+                          {t("return.reasonSize")}
+                        </option>
+                        <option value="Passet ikke / Misfornøyd">
+                          {t("return.reasonUnsatisfied")}
+                        </option>
+                        <option value="Skadet eller defekt vare">
+                          {t("return.reasonDamaged")}
+                        </option>
+                        <option value="Mottok feil vare">
+                          {t("return.reasonWrongItem")}
+                        </option>
+                        <option value="Annet (spesifiser under)">
+                          {t("return.reasonOther")}
+                        </option>
                       </select>
                     </div>
 
                     {/* Additional Comments */}
                     <div className="flex flex-col">
-                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">{t('return.commentsLabel')}</label>
+                      <label className="block text-[10px] font-semibold text-onyx uppercase mb-1">
+                        {t("return.commentsLabel")}
+                      </label>
                       <textarea
                         rows={3}
                         value={returnComments}
                         onChange={(e) => setReturnComments(e.target.value)}
-                        placeholder={t('return.commentsPlaceholder')}
+                        placeholder={t("return.commentsPlaceholder")}
                         className="w-full bg-slate-50 border border-outline-variant rounded-xl p-3 text-xs focus:outline-none focus:ring-1 focus:ring-terracotta text-onyx resize-none"
                       />
                     </div>
@@ -2098,10 +1884,15 @@ export default function Profile() {
                     {/* Submit */}
                     <button
                       type="submit"
-                      disabled={isSubmittingReturn || !Object.values(returnItems).some(qty => qty > 0)}
+                      disabled={
+                        isSubmittingReturn ||
+                        !Object.values(returnItems).some((qty) => qty > 0)
+                      }
                       className="w-full bg-terracotta text-white font-label-md text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
-                      {isSubmittingReturn ? t('return.submitting') : t('return.submit')}
+                      {isSubmittingReturn
+                        ? t("return.submitting")
+                        : t("return.submit")}
                     </button>
                   </>
                 )}
