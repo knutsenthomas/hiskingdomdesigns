@@ -25,7 +25,7 @@ export function trackPaidOrder(order, environment = globalThis.window) {
 }
 export function flushPurchases(environment = globalThis.window) {
   try {
-    if (environment.localStorage.getItem('hkd-cookie-consent') !== 'all' || typeof environment.gtag !== 'function') return false;
+    if (!environment.SitePrivacy?.allows('analytics') || typeof environment.gtag !== 'function') return false;
     let delivered = false;
     for (const [id, payload] of pending) {
       const key = `hkd-ga-purchase:${id}`;
@@ -43,7 +43,7 @@ export function flushPurchases(environment = globalThis.window) {
 export function trackCartEvent(name, cart, environment = globalThis.window) {
   if (!['add_to_cart', 'begin_checkout'].includes(name)) return false;
   try {
-    if (environment?.localStorage.getItem('hkd-cookie-consent') !== 'all' || typeof environment.gtag !== 'function') return false;
+    if (!environment?.SitePrivacy?.allows('analytics') || typeof environment.gtag !== 'function') return false;
     const items = cart.map(item => {
       const price = money(typeof item.price === 'object' ? item.price?.discountedPrice ?? item.price?.price : item.price);
       const quantity = Number(item.quantity);

@@ -12,7 +12,7 @@ test('only paid orders with verified line amounts produce anonymous ecommerce da
 });
 test('consent, delayed consent and transaction deduplication', () => {
  const storage = new Map(); const calls=[];
- const environment={ localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)}, gtag:(...args)=>calls.push(args),location:{origin:'https://example.test',pathname:'/profile',search:'?secret=private'} };
+ const environment={ SitePrivacy:{allows:()=>storage.get('hkd-cookie-consent') === 'all'}, localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)}, gtag:(...args)=>calls.push(args),location:{origin:'https://example.test',pathname:'/profile',search:'?secret=private'} };
  assert.equal(trackPaidOrder(order,environment),false);
  assert.equal(calls.length,0);
  storage.set('hkd-cookie-consent','all');
@@ -25,7 +25,7 @@ test('unavailable storage never breaks checkout',()=>assert.equal(trackPaidOrder
 
 test('cart events allow only catalog fields and reject invalid prices', async () => {
  const {trackCartEvent}=await import('../src/lib/ecommerceAnalytics.js');
- const calls=[]; const environment={localStorage:{getItem:()=> 'all'},gtag:(...args)=>calls.push(args),location:{origin:'https://example.test',pathname:'/cart'}};
+ const calls=[]; const environment={SitePrivacy:{allows:()=>true},localStorage:{getItem:()=> 'all'},gtag:(...args)=>calls.push(args),location:{origin:'https://example.test',pathname:'/cart'}};
  assert.equal(trackCartEvent('add_to_cart',[{id:'product',price:125,quantity:2,customTextFields:['private']}],environment),true);
  assert.equal(calls[0][2].value,250);
  assert.ok(!JSON.stringify(calls).includes('private'));

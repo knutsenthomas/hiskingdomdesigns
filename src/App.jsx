@@ -1,7 +1,5 @@
 import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AppProvider } from '@/contexts/AppContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -157,18 +155,24 @@ function MainLayout() {
     // 1. Wix referral parameter tracking
     const params = new URLSearchParams(location.search);
     const ref = params.get('ref');
-    if (ref) {
-      localStorage.setItem('hkm_referral_id', ref);
-    }
+    const saveReferral = () => {
+      if (ref && window.SitePrivacy?.allows('marketing')) {
+        try { localStorage.setItem('hkm_referral_id', ref); } catch { /* Storage may be blocked. */ }
+      }
+    };
+    saveReferral();
+    window.addEventListener('siteprivacychange', saveReferral);
 
     // 2. GoAffPro visit tracking on route change
-    if (window.Goaffpro) {
+    if (window.SitePrivacy?.allows('marketing') && window.Goaffpro) {
       try {
         window.Goaffpro('track-visit');
       } catch (err) {
         console.warn('GoAffPro track-visit failed:', err);
       }
     }
+    window.SitePrivacy?.pageView();
+    return () => window.removeEventListener('siteprivacychange', saveReferral);
   }, [location]);
 
   // Global handler for dynamic import/chunk loading failures across all files (including context lazy-loads)
@@ -329,8 +333,6 @@ export default function App() {
             <Router>
               <ScrollToTop />
               <MainLayout />
-              <Analytics />
-              <SpeedInsights />
             </Router>
           </CartProvider>
         </AppProvider>
