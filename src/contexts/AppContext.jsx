@@ -1,3 +1,4 @@
+import { memoryCache } from '@/lib/memoryCache';
 import { categorySlugForName, productTaxonomy, isProductOceaniaExclusive } from '@/lib/catalogSelection';
 export { isProductOceaniaExclusive } from '@/lib/catalogSelection';
 import React, { createContext, useState, useEffect, useContext } from 'react';
@@ -53,7 +54,7 @@ export const AppProvider = ({ children }) => {
   const { language } = useLanguage();
   const [products, setProducts] = useState(() => {
     try {
-      const cached = localStorage.getItem('hkm-products-cache');
+      const cached = memoryCache.getItem('hkm-products-cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -71,7 +72,7 @@ export const AppProvider = ({ children }) => {
 
   const [isLoadingProducts, setIsLoadingProducts] = useState(() => {
     try {
-      const cached = localStorage.getItem('hkm-products-cache');
+      const cached = memoryCache.getItem('hkm-products-cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -84,7 +85,7 @@ export const AppProvider = ({ children }) => {
 
   const [wixCollections, setWixCollections] = useState(() => {
     try {
-      const cached = localStorage.getItem('hkm-wix-collections-cache');
+      const cached = memoryCache.getItem('hkm-wix-collections-cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -208,7 +209,7 @@ export const AppProvider = ({ children }) => {
   const [isAdminEditing, setIsAdminEditing] = useState(false);
   const [cmsContent, setCmsContent] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('hkm-cms-content') || '{}');
+      return JSON.parse(memoryCache.getItem('hkm-cms-content') || '{}');
     } catch {
       return {};
     }
@@ -289,7 +290,8 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('hkd-wishlist', JSON.stringify(wishlist));
+      if (wishlist.length) localStorage.setItem('hkd-wishlist', JSON.stringify(wishlist));
+      else localStorage.removeItem('hkd-wishlist');
     } catch (e) {
       console.error('Failed to save wishlist to localStorage', e);
     }
@@ -398,7 +400,7 @@ export const AppProvider = ({ children }) => {
     setCmsContent(prev => {
       const updated = { ...prev, [slug]: value };
       try {
-        localStorage.setItem('hkm-cms-content', JSON.stringify(updated));
+        memoryCache.setItem('hkm-cms-content', JSON.stringify(updated));
       } catch (e) {
         console.error('Klarte ikke lagre cms content i localStorage:', e);
       }
@@ -456,7 +458,7 @@ export const AppProvider = ({ children }) => {
           setCmsContent(prev => {
             const updated = { ...prev, ...translationsToSave };
             try {
-              localStorage.setItem('hkm-cms-content', JSON.stringify(updated));
+              memoryCache.setItem('hkm-cms-content', JSON.stringify(updated));
             } catch (e) {}
             return updated;
           });
@@ -494,7 +496,7 @@ export const AppProvider = ({ children }) => {
             const dbData = snapshot.data();
             setCmsContent(prev => {
               const merged = { ...prev, ...dbData };
-              localStorage.setItem('hkm-cms-content', JSON.stringify(merged));
+              memoryCache.setItem('hkm-cms-content', JSON.stringify(merged));
               return merged;
             });
           }
@@ -531,7 +533,7 @@ export const AppProvider = ({ children }) => {
         })).filter(c => c.name !== 'All Products' && c.name !== 'all-products');
         setWixCollections(collectionsData);
         try {
-          localStorage.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsData));
+          memoryCache.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsData));
         } catch (e) {}
 
         let allItems = [];
@@ -588,7 +590,7 @@ export const AppProvider = ({ children }) => {
             })).filter(c => c.name !== 'All Products' && c.name !== 'all-products');
             setWixCollections(collectionsDataRetry);
             try {
-              localStorage.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsDataRetry));
+              memoryCache.setItem('hkm-wix-collections-cache', JSON.stringify(collectionsDataRetry));
             } catch (e) {}
 
             const firstPageRetry = await wixClient.products.queryProducts().descending('createdDate').limit(100).find();
@@ -773,7 +775,7 @@ export const AppProvider = ({ children }) => {
               isOceaniaExclusive: p.isOceaniaExclusive,
               subcategories: p.subcategories
             }));
-            localStorage.setItem('hkm-products-cache', JSON.stringify(lightweight));
+            memoryCache.setItem('hkm-products-cache', JSON.stringify(lightweight));
           } catch (e) {
             console.warn('Feil ved lagring av produkt-cache:', e);
           }

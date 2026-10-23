@@ -1,3 +1,4 @@
+import { registerServiceWorker } from './lib/serviceWorkerRegistration';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -9,11 +10,4 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-// Register PWA Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('Service Worker registered successfully:', reg.scope))
-      .catch(err => console.warn('Service Worker registration failed:', err));
-  });
-}
+registerServiceWorker();

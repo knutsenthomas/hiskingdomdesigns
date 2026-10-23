@@ -128,11 +128,11 @@ const renderRichText = (text, isAssistant) => {
   return <div className="space-y-1">{renderedElements}</div>;
 };
 
-// Safe localStorage wrapper
+// Chat data belongs to this tab session, not a permanent visitor profile.
 const safeStorage = {
   getItem: (key) => {
     try {
-      return localStorage.getItem(key);
+      return sessionStorage.getItem(key);
     } catch (e) {
       console.warn(`[SafeStorage] Failed to read key "${key}":`, e);
       return null;
@@ -140,14 +140,14 @@ const safeStorage = {
   },
   setItem: (key, value) => {
     try {
-      localStorage.setItem(key, value);
+      sessionStorage.setItem(key, value);
     } catch (e) {
       console.warn(`[SafeStorage] Failed to write key "${key}":`, e);
     }
   },
   removeItem: (key) => {
     try {
-      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
     } catch (e) {
       console.warn(`[SafeStorage] Failed to remove key "${key}":`, e);
     }

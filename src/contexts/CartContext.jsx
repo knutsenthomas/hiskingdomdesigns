@@ -131,9 +131,15 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('hkd-cart-items', JSON.stringify(cartItems));
-      localStorage.setItem('hkd-cart', JSON.stringify(cartItems)); // legacy alias
-      sessionStorage.setItem('hkd-cart-items', JSON.stringify(cartItems)); // resilient session fallback
+      if (cartItems.length) {
+        localStorage.setItem('hkd-cart-items', JSON.stringify(cartItems));
+        localStorage.setItem('hkd-cart', JSON.stringify(cartItems)); // legacy alias
+        sessionStorage.setItem('hkd-cart-items', JSON.stringify(cartItems)); // resilient session fallback
+      } else {
+        localStorage.removeItem('hkd-cart-items');
+        localStorage.removeItem('hkd-cart');
+        sessionStorage.removeItem('hkd-cart-items');
+      }
       window.dispatchEvent(new CustomEvent('hkd-cart-updated', { detail: { count: cartItems.length } }));
     } catch (e) {
       console.error('Failed to save cart items to localStorage', e);
@@ -776,7 +782,7 @@ export const CartProvider = ({ children }) => {
       } catch (e) {}
       if (!buyerEmail) {
         try {
-          buyerEmail = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
+          buyerEmail = sessionStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
         } catch (e) {}
       }
 

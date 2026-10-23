@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hk-designs-cache-v7';
+const CACHE_NAME = 'hk-designs-cache-v8-consent';
 const ASSETS_TO_CACHE = [
   '/favicon.ico',
   '/favicon-32x32.png',
@@ -23,7 +23,7 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key.startsWith('hk-designs-cache-') && key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
@@ -38,6 +38,9 @@ self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
     return;
   }
+
+  const requestedUrl = new URL(e.request.url);
+  if (requestedUrl.origin !== self.location.origin || requestedUrl.pathname.startsWith('/api/') || /privacy-consent|(?:^|\/)(?:admin|auth|profil|kasse|checkout)/.test(requestedUrl.pathname)) return;
 
   // Network-First for HTML navigation requests to preserve server-side SEO & avoid stale chunks
   if (e.request.mode === 'navigate') {

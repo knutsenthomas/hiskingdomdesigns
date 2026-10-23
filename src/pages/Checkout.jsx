@@ -133,7 +133,7 @@ export default function Checkout() {
       // Fallbacks from storage
       if (!email) {
         try {
-          email = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || '';
+          email = sessionStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || '';
         } catch (e) {}
       }
 
@@ -236,7 +236,7 @@ export default function Checkout() {
     try {
       // Save email for recovery
       try {
-        localStorage.setItem('hkd-checkout-email', formData.email.trim());
+        sessionStorage.setItem('hkd-checkout-email', formData.email.trim());
       } catch (e) {}
 
       // Update shipping address state in context

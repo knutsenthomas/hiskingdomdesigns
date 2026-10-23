@@ -1,3 +1,4 @@
+import PrivacyStorageInfo from '@/components/PrivacyStorageInfo';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Eye, Lock, FileText } from 'lucide-react';
@@ -6,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useMeta from '@/hooks/useMeta';
 
 export default function Privacy() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useMeta(
     t('privacy.metaTitle'),
@@ -124,11 +125,7 @@ export default function Privacy() {
               className="font-headline-md text-onyx text-xl font-bold"
             />
           </div>
-          <CmsText
-            slug="privacy-section-desc-4"
-            fallback="Vi bruker informasjonskapsler for å huske hvilke varer du har lagt i handlekurven din, analysere trafikken via Google Analytics (hvis du samtykker to det), og forbedre din generelle brukeropplevelse i nettbutikken. Du kan når som helst administrere dine innstillinger for informasjonskapsler nederst på siden."
-            as="p"
-          />
+          <PrivacyStorageInfo language={language} />
         </section>
 
         {/* Section 5 */}

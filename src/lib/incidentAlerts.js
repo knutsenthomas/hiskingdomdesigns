@@ -34,7 +34,7 @@ export async function reportCheckoutIncident({
     let email = customerEmail;
     if (!email) {
       try {
-        email = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
+        email = null; // Do not read stored contact details for diagnostics.
       } catch (e) {}
     }
 
@@ -54,7 +54,7 @@ export async function reportCheckoutIncident({
       })),
       customerEmail: email,
       customerName: customerName || null,
-      url: typeof window !== 'undefined' ? window.location.href : '',
+      url: typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '',
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
       timestamp: new Date().toISOString()
     };
@@ -112,7 +112,7 @@ export async function notifySlackChatMessage({
     let email = customerEmail;
     if (!email) {
       try {
-        email = localStorage.getItem('hkd-checkout-email') || localStorage.getItem('hkm-user-email') || null;
+        email = null; // Do not read stored contact details for diagnostics.
       } catch (e) {}
     }
 
