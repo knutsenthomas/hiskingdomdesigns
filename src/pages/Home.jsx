@@ -9,6 +9,7 @@ import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 import { getOptimizedWixImageUrl } from '@/lib/media';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { fetchApprovedTestimonials } from '@/lib/testimonials';
 
 const smartTruncate = (text, maxLength = 150) => {
   if (!text) return '';
@@ -232,23 +233,14 @@ export default function Home() {
   const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(true);
 
   const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [testimonialsPaused, setTestimonialsPaused] = useState(false);
-  const [testimonialsHovered, setTestimonialsHovered] = useState(false);
-  const [testimonialsFocused, setTestimonialsFocused] = useState(false);
   const reduceMotion = useReducedMotion();
-  const testimonialLabels = language === 'en'
-    ? { pause: 'Pause rotation', play: 'Start rotation' }
-    : language === 'es'
-      ? { pause: 'Pausar rotación', play: 'Iniciar rotación' }
-      : { pause: 'Pause rullering', play: 'Start rullering' };
-
   useEffect(() => {
-    if (testimonialsList.length < 2 || testimonialsPaused || testimonialsHovered || testimonialsFocused || reduceMotion) return;
+    if (testimonialsList.length < 2 || reduceMotion) return;
     const timer = window.setInterval(() => {
       if (!document.hidden) setTestimonialIndex(index => (index + 1) % testimonialsList.length);
     }, 6000);
     return () => window.clearInterval(timer);
-  }, [testimonialsList.length, testimonialsPaused, testimonialsHovered, testimonialsFocused, reduceMotion]);
+  }, [testimonialsList.length, reduceMotion]);
 
   const visibleTestimonials = Array.from(
     { length: Math.min(3, testimonialsList.length) },
@@ -557,24 +549,9 @@ export default function Home() {
       setIsLoadingTestimonials(true);
       try {
         const { wixClient } = await import('@/lib/wix');
-        const response = await wixClient.reviews.queryReviews()
-          .descending('_createdDate')
-          .limit(10)
-          .find();
-        if (response && response.items && response.items.length > 0) {
-          // Filter to only include approved reviews with body text
-          const approvedReviews = response.items.filter(item => 
-            (!item.moderation || item.moderation.moderationStatus === 'APPROVED') && 
-            item.content?.body
-          );
-          if (approvedReviews.length > 0) {
-            setTestimonialsList(approvedReviews);
-          } else {
-            setTestimonialsList([]);
-          }
-        } else {
-          setTestimonialsList([]);
-        }
+        const reviews = await fetchApprovedTestimonials(wixClient);
+        setTestimonialsList(reviews);
+        setTestimonialIndex(0);
       } catch (err) {
         console.warn('Wix Reviews API feilet:', err);
         setTestimonialsList([]);
@@ -1051,14 +1028,6 @@ export default function Home() {
               as="h2"
               className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 text-onyx block"
             />
-            <div
-              onMouseEnter={() => setTestimonialsHovered(true)}
-              onMouseLeave={() => setTestimonialsHovered(false)}
-              onFocusCapture={() => setTestimonialsFocused(true)}
-              onBlurCapture={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setTestimonialsFocused(false);
-              }}
-            >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter" aria-live="off">
               {visibleTestimonials.map((item, index) => {
                 const translatedItem = getTranslatedTestimonial(item);
@@ -1086,18 +1055,6 @@ export default function Home() {
                   </div>
                 );
               })}
-            </div>
-            {testimonialsList.length > 1 && !reduceMotion && (
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => setTestimonialsPaused(paused => !paused)}
-                  className="text-sm text-onyx/80 underline underline-offset-4 hover:text-terracotta focus-visible:outline focus-visible:outline-2 focus-visible:outline-terracotta rounded px-3 py-2"
-                >
-                  {testimonialsPaused ? testimonialLabels.play : testimonialLabels.pause}
-                </button>
-              </div>
-            )}
             </div>
           </div>
         </section>
