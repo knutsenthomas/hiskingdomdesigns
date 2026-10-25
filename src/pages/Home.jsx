@@ -4,7 +4,7 @@ import { ArrowRight, Star, CheckCircle, Award, BookOpen, Users, Sparkles, Gift }
 import { useApp } from '@/contexts/AppContext';
 import ProductCard from '@/components/ProductCard';
 import ProductSkeleton from '@/components/ProductSkeleton';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import CmsText from '@/components/CmsText';
 import useMeta from '@/hooks/useMeta';
 import { getOptimizedWixImageUrl } from '@/lib/media';
@@ -230,6 +230,30 @@ export default function Home() {
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const [testimonialsList, setTestimonialsList] = useState([]);
   const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(true);
+
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [testimonialsPaused, setTestimonialsPaused] = useState(false);
+  const [testimonialsHovered, setTestimonialsHovered] = useState(false);
+  const [testimonialsFocused, setTestimonialsFocused] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const testimonialLabels = language === 'en'
+    ? { pause: 'Pause rotation', play: 'Start rotation' }
+    : language === 'es'
+      ? { pause: 'Pausar rotación', play: 'Iniciar rotación' }
+      : { pause: 'Pause rullering', play: 'Start rullering' };
+
+  useEffect(() => {
+    if (testimonialsList.length < 2 || testimonialsPaused || testimonialsHovered || testimonialsFocused || reduceMotion) return;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) setTestimonialIndex(index => (index + 1) % testimonialsList.length);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [testimonialsList.length, testimonialsPaused, testimonialsHovered, testimonialsFocused, reduceMotion]);
+
+  const visibleTestimonials = Array.from(
+    { length: Math.min(3, testimonialsList.length) },
+    (_, index) => testimonialsList[(testimonialIndex + index) % testimonialsList.length]
+  );
 
   // Newsletter States
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -544,7 +568,7 @@ export default function Home() {
             item.content?.body
           );
           if (approvedReviews.length > 0) {
-            setTestimonialsList(approvedReviews.slice(0, 3));
+            setTestimonialsList(approvedReviews);
           } else {
             setTestimonialsList([]);
           }
@@ -1027,13 +1051,21 @@ export default function Home() {
               as="h2"
               className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 text-onyx block"
             />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-              {testimonialsList.map((item) => {
+            <div
+              onMouseEnter={() => setTestimonialsHovered(true)}
+              onMouseLeave={() => setTestimonialsHovered(false)}
+              onFocusCapture={() => setTestimonialsFocused(true)}
+              onBlurCapture={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setTestimonialsFocused(false);
+              }}
+            >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter" aria-live="off">
+              {visibleTestimonials.map((item, index) => {
                 const translatedItem = getTranslatedTestimonial(item);
                 return (
                   <div 
                     key={translatedItem._id} 
-                    className="bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between hover:shadow-md transition-all duration-300"
+                    className={`bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex-col justify-between hover:shadow-md transition-shadow duration-300 ${index === 0 ? 'flex' : 'hidden md:flex'}`}
                   >
                     <div>
                       <div className="flex text-terracotta mb-4">
@@ -1054,6 +1086,18 @@ export default function Home() {
                   </div>
                 );
               })}
+            </div>
+            {testimonialsList.length > 1 && !reduceMotion && (
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => setTestimonialsPaused(paused => !paused)}
+                  className="text-sm text-onyx/80 underline underline-offset-4 hover:text-terracotta focus-visible:outline focus-visible:outline-2 focus-visible:outline-terracotta rounded px-3 py-2"
+                >
+                  {testimonialsPaused ? testimonialLabels.play : testimonialLabels.pause}
+                </button>
+              </div>
+            )}
             </div>
           </div>
         </section>
