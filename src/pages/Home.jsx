@@ -660,6 +660,23 @@ export default function Home() {
     .filter(p => p.isBestseller && (language === 'en' || !p.isOceaniaExclusive))
     .map(p => translateProduct(p));
 
+  const [bestsellerIndex, setBestsellerIndex] = useState(0);
+  const [bestsellersHovered, setBestsellersHovered] = useState(false);
+  const [bestsellersFocused, setBestsellersFocused] = useState(false);
+
+  useEffect(() => {
+    if (bestsellers.length < 2 || reduceMotion || bestsellersHovered || bestsellersFocused) return;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) setBestsellerIndex(index => (index + 1) % bestsellers.length);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [bestsellers.length, reduceMotion, bestsellersHovered, bestsellersFocused]);
+
+  const visibleBestsellers = Array.from(
+    { length: Math.min(4, bestsellers.length) },
+    (_, index) => bestsellers[(bestsellerIndex + index) % bestsellers.length]
+  );
+
   return (
     <motion.div
       initial={false}
@@ -949,8 +966,17 @@ export default function Home() {
             as="h2" 
             className="font-headline-lg text-2xl md:text-headline-lg font-bold text-center mb-12 md:mb-16 text-onyx block" 
           />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
-            {bestsellers.slice(0, 4).map((product) => (
+          <div
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter"
+            onMouseEnter={() => setBestsellersHovered(true)}
+            onMouseLeave={() => setBestsellersHovered(false)}
+            onFocusCapture={() => setBestsellersFocused(true)}
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setBestsellersFocused(false);
+            }}
+            aria-live="off"
+          >
+            {visibleBestsellers.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
