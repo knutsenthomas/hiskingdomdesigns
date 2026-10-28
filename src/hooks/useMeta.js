@@ -10,10 +10,11 @@ import { routeTranslations } from '@/lib/localizedRoutes';
  * @param {string} description Page meta description
  * @param {object} ogProperties Optional Open Graph metadata (e.g. { type: 'product', image: '...' })
  */
-export default function useMeta(title, description, ogProperties = null, product = null) {
+export default function useMeta(title, description, ogProperties = null, product = null, enabled = true) {
   const { language } = useLanguage();
 
   useEffect(() => {
+    if (!enabled) return;
     let formattedTitle = "His Kingdom Designs";
     if (title) {
       const cleanTitle = title.trim();
@@ -154,5 +155,5 @@ export default function useMeta(title, description, ogProperties = null, product
     // Update HTML lang attribute dynamically for accessibility and localized search
     document.documentElement.setAttribute('lang', language);
 
-  }, [title, description, ogProperties, language, product]);
+  }, [title, description, ogProperties, language, product, enabled]);
 }

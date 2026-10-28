@@ -37,3 +37,25 @@ test('Google inspection and Googlebot both receive actual product content; priva
  assert.match(inspection.body,/A distinct poster description/);
  for(const path of ['/handlekurv','/kasse','/profil']){const r=await render(path);assert.equal(r.statusCode,200);assert.match(r.body,/name="robots" content="noindex, follow"/);}
 });
+
+test('ordinary browsers and crawlers receive the same product body before JavaScript',async()=>{
+ for (const agent of ['Mozilla/5.0', 'Googlebot', 'Google-InspectionTool/1.0', '']) {
+  const p=await render('/produkt/poster',async()=>catalog,agent);
+  const s=await render('/produkt/shirt',async()=>catalog,agent);
+  assert.match(p.body,/<main data-server-product-id="poster"/);
+  assert.match(p.body,/<h1[^>]*>A &quot;poster&quot;<\/h1>/);
+  assert.match(p.body,/A distinct poster description/);
+  assert.match(s.body,/<h1[^>]*>Other shirt<\/h1>/);
+  assert.doesNotMatch(p.body,/<h1[^>]*>Other shirt<\/h1>/);
+  assert.doesNotMatch(s.body,/<h1[^>]*>A &quot;poster&quot;<\/h1>/);
+  assert.equal((p.body.match(/<h1\b/g)||[]).length,1);
+ }
+});
+
+test('legacy Wix product paths consolidate to the matching product',async()=>{
+ for (const path of ['/product-page/a-poster','/en/product-page/a-poster','/product/poster','/es/producto/poster']) {
+  const r=await render(path);
+  assert.equal(r.statusCode,301);
+  assert.match(r.headers.Location,/\/produkt\/(a-poster|poster)$/);
+ }
+});

@@ -1,3 +1,4 @@
+import { getInitialProductHtml } from "@/lib/initialProductHtml";
 import ProductPurchase from "../features/product/panels/ProductPurchase";
 import ProductReviews from "../features/product/panels/ProductReviews";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -101,7 +102,9 @@ export default function ProductDetails() {
   }, [products, productId]);
 
   // Use fetchedProduct if available (contains full options/variants), otherwise fallback to contextProduct
-  const productRaw = fetchedProduct || contextProduct;
+  const fetchedProductMatchesRoute = fetchedProduct &&
+    (fetchedProduct.id === productId || fetchedProduct.slug === productId);
+  const productRaw = (fetchedProductMatchesRoute ? fetchedProduct : null) || contextProduct;
   const product = useMemo(() => {
     return translateProduct(productRaw);
   }, [productRaw, translateProduct]);
@@ -970,6 +973,7 @@ export default function ProductDetails() {
       ? { type: "product", image: product.image, price: `${activePrice} NOK` }
       : null,
     product,
+    Boolean(product) || !getInitialProductHtml(productId),
   );
 
   // Dynamic Product & Breadcrumbs JSON-LD Schema (World-Class SEO)
@@ -1159,8 +1163,12 @@ export default function ProductDetails() {
   }, [stockStatus, qty]);
 
   const isCurrentlyLoading =
-    isLoadingProducts || (isFetchingProduct && !fetchedProduct);
+    isLoadingProducts || (isFetchingProduct && !fetchedProductMatchesRoute);
 
+  const initialHtml = getInitialProductHtml(productId);
+  if ((isCurrentlyLoading || fetchError) && initialHtml) {
+    return <div data-product-loading={productId} dangerouslySetInnerHTML={{ __html: initialHtml }} />;
+  }
   if (isCurrentlyLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-56">

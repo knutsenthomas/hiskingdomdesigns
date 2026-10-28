@@ -991,9 +991,9 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
     const userAgent = req.headers['user-agent'] || '';
     const isBot = /googlebot|google-inspectiontool|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkShare|W3C_Validator|whatsapp|lighthouse|chrome-lighthouse|ahrefs|semrush|dotbot|bytespider|applebot|gptbot|claudebot|perplexity|google-extended|screaming frog|site-audit/i.test(userAgent);
 
-    // Only inject semantic crawler markup inside <div id="root"> for search engines and social bots to eliminate initial flash for real users
-    if (isBot) {
-      const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${escapeHtml(h1Text)}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
+    // Product content must be present for every visitor, independent of crawler detection.
+    if (isBot || isProduct) {
+      const semanticCrawlerHtml = `<div id="root"><header style="padding: 1rem 0;"><a href="/" style="font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #151a21;">His Kingdom Designs</a></header><main${isProduct && !isNotFound ? ` data-server-product-id="${escapeHtml(productId)}"` : ''} style="max-width: 1200px; margin: 0 auto; padding: 1rem;"><h1 style="font-size: 2rem; margin-bottom: 1rem;">${escapeHtml(h1Text)}</h1>${bodySnippet}${navLinksHtml}</main></div>`;
       html = html.replace(/<div\s+id=["']root["']>[\s\S]*?<\/div>/i, semanticCrawlerHtml);
       // Remove noscript fallback for crawlers to guarantee exactly ONE single <h1> tag and eliminate duplicate navigation
       html = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, '');
