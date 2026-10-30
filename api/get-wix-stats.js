@@ -17,8 +17,10 @@ const wixClient = createClient({
 });
 
 import { verifyAdminAuth } from './_admin-auth.js';
+import { allOrders } from '../lib/wix-order-history.js';
 
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -46,19 +48,9 @@ export default async function handler(req, res) {
 
   try {
     console.log('API: Fetching Wix orders...');
-    let ordersList = [];
-    let totalOrders = 0;
-    try {
-      // Query up to 100 recent orders
-      const ordersRes = await wixClient.orders.searchOrders({
-        filter: {},
-        cursorPaging: { limit: 100 }
-      });
-      ordersList = (ordersRes.orders || []).sort((a, b) => new Date(b._createdDate || 0) - new Date(a._createdDate || 0));
-      totalOrders = ordersRes.totalCount || ordersList.length || 0;
-    } catch (oErr) {
-      console.warn('API Warning: Failed to fetch orders from Wix:', oErr);
-    }
+    // Follow every cursor; errors must never masquerade as an empty shop.
+    const ordersList = await allOrders(search => wixClient.orders.searchOrders(search));
+    const totalOrders = ordersList.length;
 
     console.log('API: Fetching Wix members with full profiles...');
     let totalContacts = 0;
