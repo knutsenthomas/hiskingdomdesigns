@@ -260,11 +260,9 @@ export default function Home() {
   // Loading state for plan checkout redirect
   const [subscribingId, setSubscribingId] = useState(null);
 
-  const [heroSlide, setHeroSlide] = useState(0);
-
-  const goToSlide = useCallback((nextIdx) => {
-    setHeroSlide(nextIdx);
-  }, []);
+  const [heroImage, setHeroImage] = useState('/christmas_hero_real.jpg');
+  const [previousHeroImage, setPreviousHeroImage] = useState(null);
+  const [readyHeroImages, setReadyHeroImages] = useState(() => new Set());
 
   // Category translation helper
   const getCategoryTranslation = (category) => {
@@ -499,30 +497,21 @@ export default function Home() {
 
   const [isHeroHovered, setIsHeroHovered] = useState(false);
 
-  useEffect(() => {
-    if (heroSlide >= slides.length) {
-      setHeroSlide(0);
-    }
-  }, [slides.length, heroSlide]);
+  // Select by image identity so catalog loading cannot silently change the active slide.
+  const heroSlide = Math.max(0, slides.findIndex(slide => slide.image === heroImage));
+  const goToSlide = useCallback((nextIdx) => {
+    const nextImage = slides[nextIdx]?.image;
+    if (!nextImage || nextImage === heroImage || !readyHeroImages.has(nextImage)) return;
+    setPreviousHeroImage(heroImage);
+    setHeroImage(nextImage);
+  }, [slides, heroImage, readyHeroImages]);
 
   useEffect(() => {
     if (slides.length <= 1 || isHeroHovered) return;
-    const intervalTime = heroSlide === 0 ? 12000 : 8000;
-    const timer = setInterval(() => {
-      setHeroSlide((curr) => (curr + 1) % slides.length);
-    }, intervalTime);
-    return () => clearInterval(timer);
-  }, [slides.length, heroSlide, isHeroHovered]);
+    const timer = setTimeout(() => goToSlide((heroSlide + 1) % slides.length), heroSlide === 0 ? 12000 : 8000);
+    return () => clearTimeout(timer);
+  }, [slides.length, heroSlide, isHeroHovered, goToSlide]);
 
-  // Preload all hero slide images eagerly to ensure instantaneous transitions with zero flash
-  useEffect(() => {
-    slides.forEach(slide => {
-      if (slide.image) {
-        const img = new Image();
-        img.src = slide.image;
-      }
-    });
-  }, [slides]);
 
   useEffect(() => {
     async function fetchPlans() {
@@ -682,14 +671,10 @@ export default function Home() {
             return (
               <div
                 key={slide.image || idx}
-                className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-1000 ease-in-out ${
-                  isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0'
+                className={`absolute inset-0 overflow-hidden pointer-events-none ${
+                  isActive ? 'opacity-100 z-10 transition-opacity duration-1000 ease-in-out' :
+                  slide.image === previousHeroImage ? 'opacity-100 z-0' : 'opacity-0 z-0'
                 }`}
-                style={{
-                  WebkitBackfaceVisibility: 'hidden',
-                  backfaceVisibility: 'hidden',
-                  transform: 'translate3d(0, 0, 0)'
-                }}
               >
                 <img 
                   alt={slide.isChristmas ? "Julegaver og julekolleksjon hos His Kingdom Designs" : `Hero faith slide ${idx + 1}`} 
@@ -698,21 +683,21 @@ export default function Home() {
                   loading="eager"
                   fetchPriority={idx === 0 ? "high" : "auto"}
                   decoding="async"
-                  style={{
-                    WebkitBackfaceVisibility: 'hidden',
-                    backfaceVisibility: 'hidden',
-                    transform: 'translate3d(0, 0, 0)'
+                  onLoad={async (event) => {
+                    const image = event.currentTarget;
+                    try { await image.decode(); } catch { return; }
+                    setReadyHeroImages(current => {
+                      if (current.has(slide.image)) return current;
+                      return new Set([...current, slide.image]);
+                    });
                   }}
                 />
               </div>
             );
           })}
-          {/* Cinema gradient overlay tailored for each slide */}
-          <div className={`absolute inset-0 z-[25] pointer-events-none transition-all duration-700 ${
-            heroSlide === 0 
-              ? 'bg-gradient-to-b from-black/75 via-transparent to-black/60' 
-              : 'bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent'
-          }`}></div>
+          {/* Fade fixed gradient layers; CSS cannot interpolate background images. */}
+          <div className={`absolute inset-0 z-[25] pointer-events-none bg-gradient-to-b from-black/75 via-transparent to-black/60 transition-opacity duration-1000 ${heroSlide === 0 ? 'opacity-100' : 'opacity-0'}`} />
+          <div className={`absolute inset-0 z-[25] pointer-events-none bg-gradient-to-r from-onyx/90 via-onyx/50 to-transparent transition-opacity duration-1000 ${heroSlide === 0 ? 'opacity-0' : 'opacity-100'}`} />
         </div>
         <div className="relative z-30 px-6 sm:px-10 md:px-margin-desktop max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto w-full">
           <div className="grid grid-cols-1 grid-rows-1 w-full items-center">
@@ -722,7 +707,7 @@ export default function Home() {
               return (
                 <div
                   key={slide.image || idx}
-                  className={`col-start-1 row-start-1 w-full h-full flex flex-col justify-center transition-all duration-700 ease-in-out ${
+                  className={`col-start-1 row-start-1 w-full h-full flex flex-col justify-center transition-opacity duration-700 ease-in-out ${
                     isActive 
                       ? 'opacity-100 z-10 pointer-events-auto visible' 
                       : 'opacity-0 z-0 pointer-events-none invisible'
@@ -769,7 +754,7 @@ export default function Home() {
                     <div className="max-w-2xl text-white flex flex-col justify-center items-start text-left my-auto">
                       <button 
                         onClick={() => scrollToSection('manedspakker')}
-                        className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse select-none cursor-pointer transition-colors active:scale-95"
+                        className="hidden md:inline-flex items-center gap-2 bg-terracotta/25 hover:bg-terracotta/40 backdrop-blur-md border border-white/10 text-parchment px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 select-none cursor-pointer transition-colors active:scale-95"
                       >
                         <span>✨</span>
                         <CmsText slug="home-hero-monthly-pill" fallback={t('home.newMonthlyPacks')} as="span" />

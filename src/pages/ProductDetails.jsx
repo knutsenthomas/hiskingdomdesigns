@@ -87,6 +87,7 @@ export default function ProductDetails() {
 
   // Review form states
   const [reviewName, setReviewName] = useState("");
+  const [reviewEmail, setReviewEmail] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewBody, setReviewBody] = useState("");
@@ -1352,40 +1353,15 @@ export default function ProductDetails() {
     setReviewSubmitError("");
     setReviewSubmitSuccess(false);
 
-    const newReviewItem = {
-      _id: `local-${Date.now()}`,
-      author: { authorName: reviewName },
-      content: {
-        title: reviewTitle,
-        body: reviewBody,
-        rating: reviewRating,
-      },
-      _createdDate: new Date().toISOString(),
-    };
-
     try {
-      // The SDK accepts the review directly and adds the REST envelope itself.
-      await wixClient.reviews.createReview({
-        namespace: "stores",
-        entityId: product.id,
-        content: {
-          title: reviewTitle.trim(),
-          body: reviewBody.trim(),
-          rating: reviewRating,
-        },
-        author: {
-          authorName: reviewName.trim(),
-        },
+      const response = await fetch('/api/submit-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product.id, name: reviewName, email: reviewEmail,
+          title: reviewTitle, body: reviewBody, rating: reviewRating }),
       });
-
-      try {
-        const saved = localStorage.getItem(`hkd-reviews-${productId}`);
-        const list = saved ? JSON.parse(saved) : [];
-        list.unshift(newReviewItem);
-        localStorage.setItem(`hkd-reviews-${productId}`, JSON.stringify(list));
-      } catch (err) {
-        console.error("Failed to save review to localStorage:", err);
-      }
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'REVIEW_FAILED');
 
       setReviewSubmitSuccess(true);
       setReviewTitle("");
@@ -1394,6 +1370,10 @@ export default function ProductDetails() {
       loadReviews();
     } catch (err) {
       console.error("Wix Reviews API submit failed:", err);
+      if (err.message === 'DUPLICATE_REVIEW') {
+        setReviewSubmitError(language === 'en' ? 'A review has already been submitted for this product with this email.' : language === 'es' ? 'Ya se ha enviado una opinión para este producto con este correo.' : 'Det er allerede sendt inn en omtale av dette produktet med denne e-postadressen.');
+        return;
+      }
       setReviewSubmitError(
         language === "en"
           ? "Could not submit your review. Please try again. Your text has been kept."
@@ -1512,6 +1492,7 @@ export default function ProductDetails() {
           ratingDistribution,
           reviewBody,
           reviewName,
+          reviewEmail,
           reviewRating,
           reviewSubmitError,
           reviewSubmitSuccess,
@@ -1519,6 +1500,7 @@ export default function ProductDetails() {
           reviewsList,
           setReviewBody,
           setReviewName,
+          setReviewEmail,
           setReviewRating,
           setReviewTitle,
           setShowReviewForm,

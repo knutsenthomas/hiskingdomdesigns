@@ -12,6 +12,7 @@ export default function ProductReviews({
   ratingDistribution,
   reviewBody,
   reviewName,
+  reviewEmail,
   reviewRating,
   reviewSubmitError,
   reviewSubmitSuccess,
@@ -19,6 +20,7 @@ export default function ProductReviews({
   reviewsList,
   setReviewBody,
   setReviewName,
+  setReviewEmail,
   setReviewRating,
   setReviewTitle,
   setShowReviewForm,
@@ -82,6 +84,7 @@ export default function ProductReviews({
                       ? "E.g. John Doe"
                       : "F.eks. Ola Nordmann"
                 }
+                maxLength={100}
                 value={reviewName}
                 onChange={(e) => setReviewName(e.target.value)}
                 disabled={isSubmittingReview}
@@ -91,6 +94,15 @@ export default function ProductReviews({
                 }}
                 className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta"
               />
+            </div>
+
+            <div className="block">
+              <label htmlFor="review-email" className="block text-xs font-semibold text-secondary mb-1">
+                {language === 'en' ? 'Email (not published)' : language === 'es' ? 'Correo electrónico (no se publica)' : 'E-post (vises ikke offentlig)'}
+              </label>
+              <input id="review-email" type="email" autoComplete="email" required maxLength={320}
+                value={reviewEmail} onChange={(e) => setReviewEmail(e.target.value)} disabled={isSubmittingReview}
+                className="block w-full bg-white border border-outline rounded-lg px-3 py-2 text-sm text-onyx focus:outline-none focus:ring-1 focus:ring-terracotta" />
             </div>
 
             <div className="block">
@@ -143,6 +155,7 @@ export default function ProductReviews({
                       ? "Summarize your experience..."
                       : "Oppsummer din opplevelse..."
                 }
+                maxLength={3000}
                 value={reviewTitle}
                 onChange={(e) => setReviewTitle(e.target.value)}
                 disabled={isSubmittingReview}
@@ -172,6 +185,7 @@ export default function ProductReviews({
                       ? "Tell us what you think about the quality..."
                       : "Fortell oss hva du syns om kvaliteten..."
                 }
+                maxLength={3000}
                 value={reviewBody}
                 onChange={(e) => setReviewBody(e.target.value)}
                 disabled={isSubmittingReview}
