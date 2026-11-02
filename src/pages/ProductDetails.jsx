@@ -577,7 +577,7 @@ export default function ProductDetails() {
     try {
       const res = await wixClient.reviews
         .queryReviews()
-        .eq("entityId", productId)
+        .eq("entityId", product?.id || productId)
         .descending("_createdDate")
         .find();
       if (res && res.items) {
@@ -1347,7 +1347,7 @@ export default function ProductDetails() {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!reviewName || !reviewTitle || !reviewBody) return;
+    if (isSubmittingReview || !product?.id || !reviewName.trim() || !reviewTitle.trim() || !reviewBody.trim()) return;
     setIsSubmittingReview(true);
     setReviewSubmitError("");
     setReviewSubmitSuccess(false);
@@ -1364,18 +1364,17 @@ export default function ProductDetails() {
     };
 
     try {
+      // The SDK accepts the review directly and adds the REST envelope itself.
       await wixClient.reviews.createReview({
-        review: {
-          namespace: "stores",
-          entityId: productId,
-          content: {
-            title: reviewTitle,
-            body: reviewBody,
-            rating: reviewRating,
-          },
-          author: {
-            authorName: reviewName,
-          },
+        namespace: "stores",
+        entityId: product.id,
+        content: {
+          title: reviewTitle.trim(),
+          body: reviewBody.trim(),
+          rating: reviewRating,
+        },
+        author: {
+          authorName: reviewName.trim(),
         },
       });
 
@@ -1396,7 +1395,11 @@ export default function ProductDetails() {
     } catch (err) {
       console.error("Wix Reviews API submit failed:", err);
       setReviewSubmitError(
-        err?.message || "Kunne ikke sende inn omtalen. Vennligst prøv igjen.",
+        language === "en"
+          ? "Could not submit your review. Please try again. Your text has been kept."
+          : language === "es"
+            ? "No se pudo enviar tu opinión. Inténtalo de nuevo. Tu texto se ha conservado."
+            : "Kunne ikke sende inn omtalen. Prøv igjen. Teksten din er bevart.",
       );
     } finally {
       setIsSubmittingReview(false);
