@@ -842,13 +842,13 @@ export default function Home() {
         </div>}
       </section>
 
-      {((Date.now() >= 1795388400000 && Date.now() < 1795993200000) ||
+      {((Date.now() < 1795993200000) ||
         (import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'black-friday')) && (
         <section aria-labelledby="black-week-title" className="bg-[#171411] text-[#fff8eb]">
           <div className="mx-auto flex max-w-[1440px] flex-col items-start gap-4 px-margin-mobile py-5 sm:flex-row sm:items-center sm:justify-between md:px-margin-desktop">
             <div>
               <h2 id="black-week-title" className="text-xl font-bold tracking-widest text-[#e8cc93]">BLACK WEEK</h2>
-              <p className="mt-1 text-sm">Få 50 % rabatt på én vare fra kampanjeutvalget med koden BLACKWEEK. Gjelder 23.–29. november 2026, én gang per kunde.</p>
+              <p className="mt-1 text-sm">23.–29. november 2026 får du 50 % rabatt på én vare fra kampanjeutvalget med koden BLACKWEEK. Gjelder én gang per kunde.</p>
             </div>
             <button
               type="button"
