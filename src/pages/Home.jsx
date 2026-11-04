@@ -878,6 +878,11 @@ export default function Home() {
           </div>
 
           <div className="mx-auto max-w-[1440px] px-margin-mobile py-10 md:px-margin-desktop md:py-14">
+            <div className="mb-8 rounded-xl border border-[#dfcfad] bg-white p-5 md:p-6">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#705425]">Juletilbud</p>
+              <h3 className="mt-2 text-xl font-bold md:text-2xl">Kjøp to plagg, få én gratis T-skjorte</h3>
+              <p className="mt-2 text-sm">Bruk rabattkoden <strong className="font-mono">DES26</strong> i kassen. Gjelder utvalgte klær 1.–31. desember 2026, én gang per kunde.</p>
+            </div>
             <h3 className="text-2xl font-bold md:text-3xl">Julegaver og tilbehør</h3>
             <p className="mt-2 max-w-xl">En julekopp til adventsfrokosten, en genser med et budskap eller noe barna kan fargelegge mens dere leser juleevangeliet sammen.</p>
             <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
