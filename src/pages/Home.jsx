@@ -260,6 +260,12 @@ export default function Home() {
   // Loading state for plan checkout redirect
   const [subscribingId, setSubscribingId] = useState(null);
 
+  const isChristmasPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'jul';
+  const now = Date.now();
+  // Oslo midnight on December 1 and January 1.
+  const showChristmasTheme = isChristmasPreview ||
+    (now >= Date.parse('2026-12-01T00:00:00+01:00') &&
+      now < Date.parse('2027-01-01T00:00:00+01:00'));
   const [heroImage, setHeroImage] = useState('/christmas_hero_real.jpg');
   const [previousHeroImage, setPreviousHeroImage] = useState(null);
   const [readyHeroImages, setReadyHeroImages] = useState(() => new Set());
@@ -396,6 +402,8 @@ export default function Home() {
       isChristmas: true
     };
 
+    if (showChristmasTheme) return [christmasSlide];
+
     const defaultSlides = [
       {
         image: '/hero_fashion.webp',
@@ -493,7 +501,7 @@ export default function Home() {
     }
 
     return [christmasSlide, ...defaultSlides];
-  }, [products, navigate, t, translateProduct, language]);
+  }, [products, navigate, t, translateProduct, language, showChristmasTheme]);
 
   const [isHeroHovered, setIsHeroHovered] = useState(false);
 
@@ -656,8 +664,17 @@ export default function Home() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="pt-20"
+      className={showChristmasTheme ? 'pt-20 bg-[#faf4e8] [&>section.bg-white]:bg-[#fffaf1] [&>section.bg-parchment]:bg-[#efe6d4]' : 'pt-20'}
     >
+      {showChristmasTheme && (
+        <div className="border-y border-[#b48c50] bg-[#642c38] px-4 py-3 text-center text-sm font-semibold text-[#fff8e9]">
+          <Link to={localizedPath('/category/christmas')} className="inline-flex items-center justify-center gap-3 hover:underline">
+            <span aria-hidden="true" className="text-[#e8cc93]">✦</span>
+            Jul hos His Kingdom Designs · Se julekolleksjonen
+            <span aria-hidden="true" className="text-[#e8cc93]">✦</span>
+          </Link>
+        </div>
+      )}
       {/* Hero Section */}
       <section 
         onMouseEnter={() => setIsHeroHovered(true)}
@@ -811,7 +828,7 @@ export default function Home() {
         </div>
 
         {/* Slide Indicators: Alltid midtstilt på alle lysbilder */}
-        <div className="absolute z-30 flex items-center gap-2 bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2">
+        {slides.length > 1 && <div className="absolute z-30 flex items-center gap-2 bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2">
           {slides.map((_, idx) => (
             <button
               key={idx}
@@ -822,7 +839,7 @@ export default function Home() {
               title={`Gå til lysbilde ${idx + 1}`}
             />
           ))}
-        </div>
+        </div>}
       </section>
 
       {((Date.now() >= 1795388400000 && Date.now() < 1795993200000) ||
@@ -840,6 +857,45 @@ export default function Home() {
             >
               Se alle produkter <span aria-hidden="true">→</span>
             </button>
+          </div>
+        </section>
+      )}
+
+      {showChristmasTheme && (
+        <section aria-labelledby="christmas-preview-title" className="bg-[#faf4e8] text-[#293b31]">
+          <div className="border-y border-[#b48c50] bg-[#293b31] bg-[radial-gradient(ellipse_at_top,#45604d,transparent_70%)] px-margin-mobile py-12 text-center text-[#fff8e9] md:py-16">
+            <div aria-hidden="true" className="mb-4 flex items-center justify-center gap-4 text-[#e8cc93]">
+              <span className="h-px w-12 bg-current opacity-60" />
+              <span className="text-3xl">✦</span>
+              <span className="h-px w-12 bg-current opacity-60" />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#e8cc93]">Jul hos His Kingdom Designs</p>
+            <h2 id="christmas-preview-title" className="mt-3 text-3xl font-bold md:text-5xl">Jesus er julens glede</h2>
+            <p className="mx-auto mt-4 max-w-xl leading-relaxed">
+              I Betlehem ble Jesus født. Julen minner oss om at Gud kom nær og ga oss håp. Del den gleden med en gave som peker tilbake på det vi feirer.
+            </p>
+            <p className="mt-5 text-sm font-semibold text-[#e8cc93]">Juleevangeliet · Lukas 2,1–20</p>
+          </div>
+
+          <div className="mx-auto max-w-[1440px] px-margin-mobile py-10 md:px-margin-desktop md:py-14">
+            <h3 className="text-2xl font-bold md:text-3xl">Julegaver og tilbehør</h3>
+            <p className="mt-2 max-w-xl">En julekopp til adventsfrokosten, en genser med et budskap eller noe barna kan fargelegge mens dere leser juleevangeliet sammen.</p>
+            <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
+              {christmasFeaturedProducts.map((item) => (
+                <li key={item.id}>
+                  <Link to={localizedPath(`/produkt/${item.id}`)} className="block h-full overflow-hidden rounded-xl border border-[#dfcfad] bg-white transition-colors hover:border-[#b48c50]">
+                    <img src={item.image} alt="" loading="lazy" className="aspect-square w-full bg-[#f2ecdf] object-contain" />
+                    <div className="p-3 md:p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#705425]">{item.badge}</p>
+                      <p className="mt-1 text-sm font-bold">{item.name}</p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link to={localizedPath('/category/christmas')} className="mt-6 inline-flex rounded bg-[#293b31] px-5 py-3 text-sm font-semibold text-[#fff8e9] hover:bg-[#3c5044]">
+              Se hele julekolleksjonen <span aria-hidden="true" className="ml-2">→</span>
+            </Link>
           </div>
         </section>
       )}
