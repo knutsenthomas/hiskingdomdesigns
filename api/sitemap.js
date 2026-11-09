@@ -4,6 +4,18 @@ import { canonicalCategoryPath } from '../src/lib/seoCanonical.js';
 const DOMAIN = 'https://hiskingdomdesigns.no';
 const WIX_CLIENT_ID = '82b2b70d-fb70-4b76-abfd-a2a70f38ac06';
 
+// Date of the last site-wide change to the server-rendered page content.
+// Bump this when templates change for every page, so Google recrawls them.
+export const SEO_CONTENT_DATE = '2026-10-28';
+
+// Newest of the product's own update date and the last site-wide content change, as YYYY-MM-DD.
+export function productLastmod(product, floor = SEO_CONTENT_DATE) {
+  const raw = product?.lastUpdated || product?._updatedDate || product?.updatedDate;
+  const time = raw ? new Date(raw).getTime() : NaN;
+  const own = Number.isFinite(time) ? new Date(time).toISOString().slice(0, 10) : null;
+  return own && own > floor ? own : floor;
+}
+
 // Define static routes and priority SEO topic clusters with their canonical URLs
 const staticRoutes = [
   {
@@ -116,7 +128,7 @@ export function createSitemapHandler(catalogLoader = loadCatalog) {
 
     // Helper function to append canonical URL nodes with compliant self-referencing alternates
     const seen = new Set();
-    const appendUrl = (path, changefreq, priority) => {
+    const appendUrl = (path, changefreq, priority, lastmod = SEO_CONTENT_DATE) => {
       if (seen.has(path)) return;
       seen.add(path);
       const formattedPath = path === '/' ? '/' : path;
@@ -126,6 +138,7 @@ export function createSitemapHandler(catalogLoader = loadCatalog) {
       xml += `    <loc>${loc}</loc>\n`;
       xml += `    <xhtml:link rel="alternate" hreflang="no" href="${loc}" />\n`;
       xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />\n`;
+      xml += `    <lastmod>${lastmod}</lastmod>\n`;
       xml += `    <changefreq>${changefreq}</changefreq>\n`;
       xml += `    <priority>${priority}</priority>\n`;
       xml += `  </url>\n`;
@@ -145,7 +158,7 @@ export function createSitemapHandler(catalogLoader = loadCatalog) {
       if (p.visible === false) return;
       const id = p._id || p.id;
       if (!id) return;
-      appendUrl(`/produkt/${id}`, 'weekly', '0.8');
+      appendUrl(`/produkt/${id}`, 'weekly', '0.8', productLastmod(p));
     });
 
     xml += `</urlset>\n`;

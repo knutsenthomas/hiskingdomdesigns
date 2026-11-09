@@ -222,7 +222,18 @@ const getBaseHtml = () => {
 
 const stripHtml = (html) => {
   if (!html || typeof html !== 'string') return '';
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  // Wix rich text arrives HTML-encoded; decode entities so they are not escaped a second time
+  // and shown as literal "&nbsp;" in titles, descriptions and page text.
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;|&#160;|&#xa0;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 const getWixImageUrl = (url, width = 1200, height = 630) => {
@@ -414,6 +425,15 @@ const categorySeoData = {
 
 export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = getBaseHtml} = {}) {
   const fetchProducts = async () => (await catalogLoader()).products;
+  // Old Wix and legacy URLs go straight to the product's canonical URL in one redirect.
+  // If the catalog is unavailable, fall back to /produkt/<ref>, which redirects on the next request.
+  const legacyProductTarget = async (ref) => {
+    try {
+      const product = (await fetchProducts()).find(p => p.id === ref || p._id === ref || p.slug === ref);
+      if (product) return canonicalProductPath(product);
+    } catch { /* fall through */ }
+    return `/produkt/${ref}`;
+  };
   return async function handler(req, res) {
   try {
     // 0. Enforce Canonical Domain (301 redirect www -> non-www)
@@ -464,7 +484,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
     if (cleanPath.startsWith('/producto/') || cleanPath.startsWith('/product/')) {
       const prodId = cleanPath.replace(/^\/(producto|product)\//, '');
       res.writeHead(301, {
-        Location: `https://hiskingdomdesigns.no/produkt/${prodId}`
+        Location: `${DOMAIN}${await legacyProductTarget(prodId)}`
       });
       res.end();
       return;
@@ -473,7 +493,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
     const oldWixProductMatch = cleanPath.match(/^\/(en\/|es\/)?product-page\/(.*)/);
     if (oldWixProductMatch) {
       res.writeHead(301, {
-        Location: `https://hiskingdomdesigns.no/produkt/${oldWixProductMatch[2]}`
+        Location: `${DOMAIN}${await legacyProductTarget(oldWixProductMatch[2])}`
       });
       res.end();
       return;
@@ -491,7 +511,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
     const oldPrefixProductMatch = cleanPath.match(/^\/(en|es)\/(produkt|product|producto)\/(.*)/);
     if (oldPrefixProductMatch) {
       res.writeHead(301, {
-        Location: `https://hiskingdomdesigns.no/produkt/${oldPrefixProductMatch[3]}`
+        Location: `${DOMAIN}${await legacyProductTarget(oldPrefixProductMatch[3])}`
       });
       res.end();
       return;

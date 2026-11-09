@@ -56,6 +56,18 @@ test('legacy Wix product paths consolidate to the matching product',async()=>{
  for (const path of ['/product-page/a-poster','/en/product-page/a-poster','/product/poster','/es/producto/poster']) {
   const r=await render(path);
   assert.equal(r.statusCode,301);
-  assert.match(r.headers.Location,/\/produkt\/(a-poster|poster)$/);
+  assert.equal(r.headers.Location,'https://hiskingdomdesigns.no/produkt/poster','one redirect straight to the canonical product URL');
  }
+});
+test('legacy product paths still redirect when the catalog is unavailable',async()=>{
+ const r=await render('/product-page/a-poster',async()=>{throw new Error('wix down');});
+ assert.equal(r.statusCode,301);
+ assert.equal(r.headers.Location,'https://hiskingdomdesigns.no/produkt/a-poster');
+});
+test('Wix HTML entities in descriptions are decoded, never shown as literal &nbsp;',async()=>{
+ const c={collections:[],products:[{id:'mug',slug:'a-mug',name:'Mug',description:'<p>Walk&nbsp;the talk &amp; more</p><p>Tom&#39;s mug</p>',price:{price:199},stock:{inStock:true},category:'Kopper'}]};
+ const r=await render('/produkt/mug',async()=>c);
+ assert.equal(r.statusCode,200);
+ assert.doesNotMatch(r.body,/&amp;nbsp;|&amp;amp;|&amp;#39;/);
+ assert.match(r.body,/Walk the talk &amp; more/);
 });
