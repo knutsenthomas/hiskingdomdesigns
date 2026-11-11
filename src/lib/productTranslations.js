@@ -1,4 +1,5 @@
 import { translations } from './translations.js';
+import { productDescriptionsEn } from './productDescriptionsEn.js';
 
 // Product Translations Dictionary mapping specific products by ID or name keywords
 export const productTranslations = {
@@ -1188,8 +1189,10 @@ export function getTranslatedProduct(product, language) {
     }
   }
 
-  // 4. Fallback: Clean and Translate dynamically
+  // 4. Fallback: Clean and Translate dynamically.
+  // Wix descriptions are now Norwegian; English text lives in productDescriptionsEn
+  // and is the source for both English and the Spanish auto-translation.
   const autoName = cleanAndTranslateName(product.name, lang, product);
-  const autoDesc = cleanAndTranslateDesc(product.description, lang);
+  const autoDesc = cleanAndTranslateDesc(productDescriptionsEn[product.id] || product.description, lang);
   return makeTranslated(autoName, autoDesc);
 }
