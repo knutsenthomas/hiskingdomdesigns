@@ -66,6 +66,7 @@ const CLOTHES = ['tshirt', 'hoodie', 'sweater', 'zip', 'longsleeve', 'joggers'];
 const tidy = s => s
   .replace(/[«»"“”​]/g, '')
   .replace(/\(\s*\)/g, '')
+  .replace(/\(\s*(mug|cup|kopp|taza)\s*\)/gi, '')
   .replace(/\s*[|/]\s*$/, '')
   .replace(/\s{2,}/g, ' ')
   .replace(/^[\s\-–|:,.]+|[\s\-–|:,]+$/g, '')
@@ -119,7 +120,7 @@ export function merchantTitle(original = '', lang = 'no') {
   const en = lang === 'en';
   const title = String(original).replace(/\s+/g, ' ').trim();
   const type = detectType(title);
-  if (!type || !type.label) return title;
+  if (!type || !type.label) return en ? title.replace(/(\d)\s*år\b/gi, '$1 years').replace(/(\d)\s*mnd\b/gi, '$1 months') : title;
 
   const sizeMatch = title.match(SIZE_RE);
   let sizes = sizeMatch
@@ -143,7 +144,7 @@ export function merchantTitle(original = '', lang = 'no') {
 
 // True when the design text (motif) is Norwegian or Spanish rather than English.
 // Those products stay out of the English feed: the print itself isn't English.
-const NON_ENGLISH = /[æøåñáéíóú]|\b(jeg|er|og|deg|meg|oss|dere|du|vi|gud|guds|herren|herre|salme|salmo|ikke|min|mitt|har|ny|skapning|elsker|elsket|velsigne|velsign|rustning|rustningen|kjærlighet|tro|håp|fred|frihet|kongsdatter|kongerike|barn|smil|liten|stor|hender|naglemerkede|fredsdue|bevar|hjertet|norge|norgeskoppen|jesu|sauen|eselkoppen|gullfisk|sjiraff|koppen|handleliste|evigheten|ingenting|kan|fra|til|med|som|det|alt|gjør|sted|bygg|bygge|rike|mamma|utvalgt|unik|mirakel|framtid|ved|gleden|nåde|lys|levende|brødet|ordspråkene|jesaja|jeremia|matteus|johannes|kolosserne|efeserne|kol|morgenstund|bønnekriger|eldre|gammel|spiste|jona|noas|kall|fuglene|skapt|forandrer|sterkest|igår|idag|samme|lurt|elsk|likevel|nær|mat|metter|styrke|bruden|lammets|bryllup|plakat|sommerlige|skilpadde|dios|señor|amor|todo|esperanza|amado|aleluya|alaba|cristo|tiempo|como|este|nada|puede|separarnos|por|favor|disfruta|las|cosas|cambia|lo|puedo|que|el)\b/i;
+const NON_ENGLISH = /[æøåñáéíóú]|\b(jeg|er|og|deg|meg|oss|dere|du|vi|gud|guds|herren|herre|salme|salmo|ikke|min|mitt|har|ny|skapning|elsker|elsket|velsigne|velsign|rustning|rustningen|kjærlighet|tro|håp|fred|frihet|kongsdatter|kongerike|barn|smil|liten|stor|hender|naglemerkede|fredsdue|bevar|hjertet|norge|norgeskoppen|jesu|sauen|eselkoppen|gullfisk|sjiraff|koppen|handleliste|evigheten|ingenting|kan|fra|til|med|som|det|alt|gjør|sted|bygg|bygge|rike|mamma|utvalgt|unik|mirakel|framtid|ved|gleden|nåde|lys|levende|brødet|ordspråkene|jesaja|jeremia|matteus|johannes|kolosserne|efeserne|kol|morgenstund|bønnekriger|eldre|gammel|spiste|jona|noas|kall|fuglene|skapt|forandrer|sterkest|igår|idag|samme|lurt|elsk|likevel|nær|mat|metter|styrke|bruden|lammets|bryllup|plakat|sommerlige|skilpadde|stk|norsk|stort|klistermerke|dios|señor|amor|todo|esperanza|amado|aleluya|alaba|cristo|tiempo|como|este|nada|puede|separarnos|por|favor|disfruta|las|cosas|cambia|lo|puedo|que|el)\b/i;
 
 export function isEnglishMotif(original = '') {
   const m = merchantMotif(original);
