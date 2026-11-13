@@ -1,3 +1,5 @@
+import { merchantTitle, isExcludedFromMerchant } from './_merchant-titles.js';
+
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
 
@@ -90,9 +92,11 @@ export default async function handler(req, res) {
     allProducts.forEach(p => {
       // Filter out hidden products
       if (p.visible === false) return;
+      // Digital goods and subscriptions can't be listed as Shopping products
+      if (isExcludedFromMerchant(p.name)) return;
 
       const id = p.id;
-      const title = p.name;
+      const title = merchantTitle(p.name);
       const description = stripHtml(p.description || '');
       const link = `https://hiskingdomdesigns.no/produkt/${id}`;
       
