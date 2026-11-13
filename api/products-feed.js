@@ -107,7 +107,12 @@ export default async function handler(req, res) {
         }
       }
       
-      const availability = p.inStock ? 'in stock' : 'out of stock';
+      // Wix Stores v1 keeps stock under p.stock (same source as the product page)
+      const stock = p.stock || {};
+      let inStock = typeof stock.inStock === 'boolean' ? stock.inStock
+        : typeof p.inStock === 'boolean' ? p.inStock : true;
+      if (stock.inventoryStatus === 'OUT_OF_STOCK') inStock = false;
+      const availability = inStock ? 'in stock' : 'out of stock';
       
       // Google Merchant prices must be formatted with the currency code, f.eks. "139 NOK"
       const priceVal = p.price?.price || 0;
