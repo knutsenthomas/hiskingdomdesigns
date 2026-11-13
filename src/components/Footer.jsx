@@ -8,7 +8,6 @@ const NETWORK_LINKS = [
   { url: 'https://hiskingdomministry.no/', name: 'His Kingdom Ministry' },
   { url: 'https://hiskingdomfoundation.no/', name: 'His Kingdom Foundation' },
   { url: 'https://www.hkpc.no/', name: 'His Kingdom Prophetic Community' },
-  { url: 'https://prayer.no/', name: 'Pust' },
 ];
 
 export default function Footer() {
