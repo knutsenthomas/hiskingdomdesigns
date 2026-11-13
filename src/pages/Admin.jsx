@@ -3,6 +3,7 @@ import StoreSales from "../features/admin/panels/StoreSales";
 import StoreCustomers from "../features/admin/panels/StoreCustomers";
 import AbandonedCheckouts from "../features/admin/panels/AbandonedCheckouts";
 import VisitorAnalytics from "../features/admin/panels/VisitorAnalytics";
+import SearchVisibility from "../features/admin/panels/SearchVisibility";
 import AffiliateApplications from "../features/admin/panels/AffiliateApplications";
 import CustomerPreview from "../features/admin/panels/CustomerPreview";
 import useMeta from "@/hooks/useMeta";
@@ -479,6 +480,7 @@ export default function Admin() {
           : null,
     },
     { id: "visits", label: "Besøk (Analytics)", icon: Globe },
+    { id: "search", label: "Synlighet i Google", icon: Search },
     {
       id: "affiliates",
       label: "Affiliates",
@@ -739,6 +741,8 @@ export default function Admin() {
                 }}
               />
             )}
+
+            {activeTab === "search" && <SearchVisibility />}
 
             {/* TAB 4: AFFILIATES (Søknader) */}
             {activeTab === "affiliates" && (
