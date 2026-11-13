@@ -3,6 +3,8 @@
 
 User-agent: *
 Allow: /
+# Product feed for Google Merchant Center
+Allow: /api/products-feed
 Disallow: /admin/
 Disallow: /cart/
 Disallow: /handlekurv/
