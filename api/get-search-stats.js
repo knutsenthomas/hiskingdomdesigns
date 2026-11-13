@@ -147,7 +147,13 @@ export default async function handler(req, res) {
   const days = Math.min(90, Math.max(1, parseInt(req.query?.days, 10) || 28));
   const inspect = req.query?.inspect === '1';
 
-  const [gsc, mc] = await Promise.allSettled([searchConsole(days, inspect), merchantCenter(days)]);
+  // ?parts=merchant or ?parts=gsc fetches only one of them (faster for dashboards)
+  const parts = String(req.query?.parts || 'gsc,merchant').split(',');
+  const skip = Promise.resolve(undefined);
+  const [gsc, mc] = await Promise.allSettled([
+    parts.includes('gsc') ? searchConsole(days, inspect) : skip,
+    parts.includes('merchant') ? merchantCenter(days) : skip,
+  ]);
   res.status(200).json({
     success: true,
     generatedAt: new Date().toISOString(),
