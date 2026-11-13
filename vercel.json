@@ -232,12 +232,16 @@
     },
     {
       "src": "/assets/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
       "continue": true
     },
     {
       "src": "/(.*).(webp|png|jpg|jpeg|gif|svg|ico)",
-      "headers": { "cache-control": "public, max-age=604800, must-revalidate" },
+      "headers": {
+        "cache-control": "public, max-age=604800, must-revalidate"
+      },
       "continue": true
     },
     {
@@ -281,6 +285,12 @@
     {
       "src": "/(.*)",
       "dest": "/api/render"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/indexnow",
+      "schedule": "0 5 * * *"
     }
   ]
 }
