@@ -1,10 +1,23 @@
-import { merchantTitle, isExcludedFromMerchant } from './_merchant-titles.js';
+import { merchantTitle, isExcludedFromMerchant, merchantCategory, merchantAgeGroup } from './_merchant-titles.js';
+import { MERCHANT_DESCRIPTIONS } from './_merchant-descriptions.js';
 
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
 
+const decodeEntities = (str = '') => str
+  .replace(/&nbsp;/g, ' ')
+  .replace(/&amp;/g, '&')
+  .replace(/&quot;/g, '"')
+  .replace(/&#39;|&apos;/g, "'")
+  .replace(/&lt;/g, '<')
+  .replace(/&gt;/g, '>')
+  .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
+
 const stripHtml = (html = '') => {
-  return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  // Block tags become spaces so paragraphs don't run together ("150g/m2Tekstil")
+  return decodeEntities(html.replace(/<(br|\/p|\/li|\/div|\/h\d)[^>]*>/gi, ' ').replace(/<[^>]*>/g, ''))
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 const cleanCdata = (str = '') => {
@@ -97,7 +110,7 @@ export default async function handler(req, res) {
 
       const id = p.id;
       const title = merchantTitle(p.name);
-      const description = stripHtml(p.description || '');
+      const description = MERCHANT_DESCRIPTIONS[id] || stripHtml(p.description || '');
       const link = `https://hiskingdomdesigns.no/produkt/${id}`;
       
       // Get main image URL (and resolve wix:image:// internal URIs if present)
@@ -148,6 +161,14 @@ export default async function handler(req, res) {
       xml += `      <g:brand><![CDATA[${cleanCdata(brand)}]]></g:brand>\n`;
       xml += `      <g:condition>new</g:condition>\n`;
       xml += `      <g:product_type><![CDATA[${cleanCdata(productType)}]]></g:product_type>\n`;
+      const googleCategory = merchantCategory(p.name);
+      if (googleCategory) {
+        xml += `      <g:google_product_category><![CDATA[${cleanCdata(googleCategory)}]]></g:google_product_category>\n`;
+      }
+      const ageGroup = merchantAgeGroup(p.name);
+      if (ageGroup) {
+        xml += `      <g:age_group>${ageGroup}</g:age_group>\n`;
+      }
       xml += `      <g:shipping_weight>${shippingWeight}</g:shipping_weight>\n`;
       xml += `    </item>\n`;
     });

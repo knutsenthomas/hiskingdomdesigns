@@ -117,3 +117,42 @@ export function merchantTitle(original = '') {
   // Google allows 150 characters.
   return out.length > 150 ? out.slice(0, 147).replace(/\s+\S*$/, '') + '…' : out;
 }
+
+// Google product taxonomy (full paths are accepted by Merchant Center).
+const CATEGORIES = {
+  tshirt: 'Apparel & Accessories > Clothing > Shirts & Tops',
+  longsleeve: 'Apparel & Accessories > Clothing > Shirts & Tops',
+  hoodie: 'Apparel & Accessories > Clothing > Shirts & Tops',
+  sweater: 'Apparel & Accessories > Clothing > Shirts & Tops',
+  zip: 'Apparel & Accessories > Clothing > Shirts & Tops',
+  joggers: 'Apparel & Accessories > Clothing > Pants',
+  babybody: 'Apparel & Accessories > Clothing > Baby & Toddler Clothing > Baby One-Pieces',
+  cap: 'Apparel & Accessories > Clothing Accessories > Hats',
+  tote: 'Luggage & Bags > Shopping Totes',
+  backpack: 'Luggage & Bags > Backpacks',
+  mug: 'Home & Garden > Kitchen & Dining > Tableware > Drinkware > Mugs',
+  travelmug: 'Home & Garden > Kitchen & Dining > Tableware > Drinkware > Mugs',
+  bottle: 'Home & Garden > Kitchen & Dining > Food & Beverage Carriers > Water Bottles',
+  poster: 'Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork',
+  phonecase: 'Electronics > Communications > Telephony > Mobile Phone Accessories > Mobile Phone Cases',
+  ornament: 'Home & Garden > Decor > Seasonal & Holiday Decorations > Holiday Ornaments',
+  book: 'Media > Books',
+  coloring: 'Media > Books',
+};
+
+export function merchantCategory(title = '') {
+  const t = detectType(String(title));
+  return (t && CATEGORIES[t.key]) || '';
+}
+
+// age_group for clothing, so Google can match "barn"/"baby" searches.
+export function merchantAgeGroup(title = '') {
+  const t = detectType(String(title));
+  if (!t) return '';
+  if (t.key === 'babybody' || t.key === 'bib') return 'infant';
+  if (!CLOTHES.includes(t.key) && t.key !== 'cap') return '';
+  if (/\bbaby\b|\d+\s?mnd|months/i.test(title)) return 'infant';
+  if (/\btoddler\b|\b2T\b/i.test(title)) return 'toddler';
+  if (/\b(kids?|kid´s|junior|barn|barnestr|youth)\b|\d+\s?-\s?\d+\s?(år|years|yrs)/i.test(title)) return 'kids';
+  return 'adult';
+}
