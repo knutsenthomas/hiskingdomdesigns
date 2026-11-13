@@ -4,8 +4,20 @@ import { CreditCard, Heart, Mail, ShieldCheck, Copy, ExternalLink, Check, Instag
 import CmsText from '@/components/CmsText';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+const NETWORK_LINKS = [
+  { url: 'https://hiskingdomministry.no/', name: 'His Kingdom Ministry' },
+  { url: 'https://hiskingdomfoundation.no/', name: 'His Kingdom Foundation' },
+  { url: 'https://www.hkpc.no/', name: 'His Kingdom Prophetic Community' },
+  { url: 'https://prayer.no/', name: 'Pust' },
+];
+
 export default function Footer() {
-  const { t, localizedPath } = useLanguage();
+  const { t, localizedPath, language } = useLanguage();
+  const networkCopy = {
+    no: { partOf: 'Del av', websiteBy: 'Nettside laget av' },
+    en: { partOf: 'Part of', websiteBy: 'Website by' },
+    es: { partOf: 'Parte de', websiteBy: 'Sitio web de' },
+  }[language] || { partOf: 'Del av', websiteBy: 'Nettside laget av' };
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -404,6 +416,19 @@ export default function Footer() {
         <p>
           &copy; {new Date().getFullYear()} His Kingdom Designs.{' '}
           <CmsText slug="footer-copyright-text" fallback={t('footer.allRightsReserved')} />
+        </p>
+        <p className="mt-3">
+          {networkCopy.partOf}{' '}
+          {NETWORK_LINKS.map((site, i) => (
+            <React.Fragment key={site.url}>
+              {i > 0 && ' · '}
+              <a href={site.url} target="_blank" rel="noopener" className="hover:text-terracotta transition-colors underline-offset-2 hover:underline">{site.name}</a>
+            </React.Fragment>
+          ))}
+        </p>
+        <p className="mt-2">
+          {networkCopy.websiteBy}{' '}
+          <a href="https://www.tk-design.no/" target="_blank" rel="noopener" className="hover:text-terracotta transition-colors underline-offset-2 hover:underline">TK-design</a>
         </p>
       </div>
     </footer>
