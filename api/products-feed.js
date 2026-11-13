@@ -105,7 +105,6 @@ export default async function handler(req, res) {
     allProducts.forEach(p => {
       // Filter out hidden products
       if (p.visible === false) return;
-      // Digital goods and subscriptions can't be listed as Shopping products
       // Digital goods (Wix productType) and subscriptions can't be Shopping products
       if (p.productType === 'digital' || isExcludedFromMerchant(p.name)) return;
 
