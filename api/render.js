@@ -4,6 +4,7 @@ import { selectCategoryProducts, categorySlugForName, isProductOceaniaExclusive 
 import fs from 'fs';
 import { canonicalCategoryPath, canonicalProductPath } from '../src/lib/seoCanonical.js';
 import path from 'path';
+import { getTranslatedProduct } from '../src/lib/productTranslations.js';
 
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
@@ -550,6 +551,9 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
     ) {
       lang = 'en';
     }
+    // English product page for Google Shopping (UK/IE/US): /produkt/<id>?lang=en
+    const englishProductPage = cleanPath.startsWith('/produkt/') && parsedUrl.searchParams.get('lang') === 'en';
+    if (englishProductPage) lang = 'en';
 
     // 3. Determine Route Type
     let routeKey = null;
@@ -590,7 +594,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
 
     // Hreflang alternates
     let hreflangs = [];
-    const canonicalUrl = `${DOMAIN}${cleanPath === '/' ? '/' : cleanPath}`;
+    const canonicalUrl = `${DOMAIN}${cleanPath === '/' ? '/' : cleanPath}${englishProductPage ? '?lang=en' : ''}`;
 
     if (routeKey === 'home') {
       const data = staticContent.home[lang] || staticContent.home.no;
@@ -858,13 +862,16 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
           res.end();
           return;
         }
-        const cleanName = (product.name || '').trim();
+        const shown = englishProductPage ? getTranslatedProduct(product, 'en') : product;
+        const cleanName = (shown.name || '').trim();
         title = `${cleanName} | His Kingdom Designs`;
 
-        const rawText = stripHtml(product.description || '');
+        const rawText = stripHtml(shown.description || '');
         let prodDesc = rawText;
         if (prodDesc.length < 110) {
-          prodDesc = `Kjøp ${cleanName} hos His Kingdom Designs. Norsk kristen nettbutikk med rask levering, god kvalitet og tro i fokus.`;
+          prodDesc = englishProductPage
+            ? `Buy ${cleanName} from His Kingdom Designs. Christian clothing, posters and gifts with a faith-filled message.`
+            : `Kjøp ${cleanName} hos His Kingdom Designs. Norsk kristen nettbutikk med rask levering, god kvalitet og tro i fokus.`;
         }
         if (prodDesc.length > 155) {
           prodDesc = `${prodDesc.substring(0, 150).trim()}...`;
@@ -872,7 +879,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
         description = prodDesc;
         ogImage = getWixImageUrl(product.media?.mainMedia?.image?.url || product.imageUrl);
         ogType = 'product';
-        h1Text = product.name;
+        h1Text = shown.name;
         
         const priceVal = product.price?.discountedPrice ?? product.price?.price ?? product.price ?? 0;
         const otherProducts = products.filter(p => p.id !== product.id && p.category === product.category && p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
@@ -882,9 +889,9 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
           <div class="product-summary" style="margin-top: 1rem;">
             <p class="price" style="font-weight: bold; font-size: 1.25rem; color: #a34e36;">${priceVal} NOK</p>
             <p class="description" style="margin: 1rem 0; line-height: 1.6;">${escapeHtml(rawText)}</p>
-            <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(product.name)}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
+            <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(shown.name)}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
             <div class="related-products" style="margin-top: 3rem; border-top: 1px solid #e5e7eb; padding-top: 2rem;">
-              <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; font-weight: 600;">Flere populære produkter</h2>
+              <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; font-weight: 600;">${englishProductPage ? 'More popular products' : 'Flere populære produkter'}</h2>
               <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
                 ${relatedProducts.map(rp => `
                   <div class="product-card" style="background: #fff; border-radius: 10px; padding: 0.75rem; border: 1px solid #e5e7eb;">
@@ -900,7 +907,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
           </div>
         `;
 
-        extraJsonLd = `<script id="jsonld-product-schema" type="application/ld+json">${jsonForHtml(buildProductSchema(product, {images:ogImage}))}</script>`;
+        extraJsonLd = `<script id="jsonld-product-schema" type="application/ld+json">${jsonForHtml(buildProductSchema(englishProductPage ? {...product, name: shown.name, description: shown.description} : product, {images:ogImage}))}</script>`;
       } else {
         isNotFound = true;
         title = 'Produkt ikke funnet (404) | His Kingdom Designs';
@@ -920,6 +927,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
 
       hreflangs = [
         { lang: 'no', href: `${DOMAIN}/produkt/${productId}` },
+        ...(englishProductPage ? [{ lang: 'en', href: `${DOMAIN}/produkt/${productId}?lang=en` }] : []),
         { lang: 'x-default', href: `${DOMAIN}/produkt/${productId}` }
       ];
     } else {

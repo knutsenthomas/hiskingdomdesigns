@@ -16,6 +16,15 @@ export const useLanguage = () => {
 export const LanguageProvider = ({ children }) => {
   // 1. Initial state setup with URL path detection and browser locale fallback
   const [language, setLanguageState] = useState(() => {
+    // 0. Explicit ?lang= (used by the English Google Shopping feed links)
+    try {
+      const qLang = new URLSearchParams(window.location.search).get('lang');
+      if (qLang && ['no', 'en', 'es'].includes(qLang)) {
+        try { localStorage.setItem('hkd-language', qLang); } catch (e) {}
+        return qLang;
+      }
+    } catch (e) {}
+
     // 1. Check URL pathname first to support link sharing and correct routing
     try {
       const urlLang = detectLanguageFromPath(window.location.pathname);
@@ -166,8 +175,21 @@ export const LanguageProvider = ({ children }) => {
       });
   }, []);
 
+  // ?cur=NOK (Google Shopping links) keeps prices in NOK for this visit, so the
+  // page shows the same price and currency as the product feed.
+  const [forcedCurrency] = useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get('cur');
+      if (q === 'NOK') sessionStorage.setItem('hkd-currency', 'NOK');
+      return sessionStorage.getItem('hkd-currency') === 'NOK' ? 'NOK' : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
   // Determine active display currency
   const getActiveCurrency = useCallback(() => {
+    if (forcedCurrency) return forcedCurrency;
     if (language === 'no') return 'NOK';
     if (language === 'es') return 'EUR';
     if (language === 'en') {
@@ -181,7 +203,7 @@ export const LanguageProvider = ({ children }) => {
       return 'USD';
     }
     return 'NOK';
-  }, [language, detectedCountry]);
+  }, [language, detectedCountry, forcedCurrency]);
 
   // Convert and format NOK price to active currency
   const formatPrice = useCallback((priceInNok) => {

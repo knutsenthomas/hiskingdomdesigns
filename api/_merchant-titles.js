@@ -42,13 +42,24 @@ const NOISE = [
 const TRAILING = /\s*\b(poster|plakat|bibelplakat|bibel ?plakat|bibelvers ?plakat|bibelsk plakat|art print|print|kunsttrykk|wall art|wall decor|decor|t-?shirt|t-?skjorte|tskjorte|tee|hoodie|hettegenser|hettejakke|genser|sweatshirt|mug|kopp|koppen|cup|cap|caps|tote ?bag|totebag|handlenett|babybody|baby ?body|bodysuit|smekke|case|mobildeksel|water bottle|vannflaske|dametrøye|joggebukse|longsleeve|emaljekopp|camiseta|taza|bolsa|kids?|travel|arbeidsbok|workbook)\s*$/i;
 const LEADING = /^(kristen\s+)?(plakat|veggdekor|barneplakat)(\s+med)?\s*:?\s+/i;
 
+// English labels for the English feed (api/products-feed.js?lang=en).
+const LABELS_EN = {
+  phonecase: 'Christian phone case', babybody: 'Christian baby bodysuit', bib: 'Christian baby bib',
+  apron: 'Christian kids apron', sticker: 'Christian stickers', bottle: 'Christian water bottle',
+  travelmug: 'Christian travel mug', mug: 'Christian mug', zip: 'Christian zip hoodie',
+  hoodie: 'Christian hoodie', sweater: 'Christian sweatshirt', joggers: 'Christian joggers',
+  longsleeve: 'Christian long sleeve T-shirt', tshirt: 'Christian T-shirt', cap: 'Christian cap',
+  backpack: 'Christian backpack', tote: 'Christian tote bag', ornament: 'Christian Christmas ornament',
+  coloring: 'Christian coloring book', book: 'Christian book', poster: 'Christian poster',
+};
+
 const SIZE_RE = /\(([^)]*(?:\d\s?-\s?\d|xs|xl|år|mnd|months|years|yrs|m\))[^)]*)\)/i;
 const VERSE_RE = /\b(salme|salmo|psalm|ordspråkene|proverbs?|jesaja|isaiah|jeremia|jeremiah|matteus|matthew|matt|luke|lukas|romans|romerne|johannes|john|kol|kolosserne|efeserne|phil|klagesangene|5\.?\s?mos|1 kor|song of solomon|ester|esther)\b\.?\s*\d+[:.]\d+/i;
 
 const AUDIENCE = [
-  { re: /\b(womens?|woman|lady|dame|dametrøye|mujer)\b/i, word: ' dame' },
-  { re: /\b(kids?|kid´s|junior|barn|barnestr|youth|toddler|\d+\s?-\s?\d+\s?(år|years|yrs))\b/i, word: ' til barn' },
-  { re: /\bbaby\b/i, word: ' til baby' },
+  { re: /\b(womens?|woman|lady|dame|dametrøye|mujer)\b/i, word: ' dame', en: ' for women' },
+  { re: /\b(kids?|kid´s|junior|barn|barnestr|youth|toddler|\d+\s?-\s?\d+\s?(år|years|yrs))\b/i, word: ' til barn', en: ' for kids' },
+  { re: /\bbaby\b/i, word: ' til baby', en: ' for babies' },
 ];
 const CLOTHES = ['tshirt', 'hoodie', 'sweater', 'zip', 'longsleeve', 'joggers'];
 
@@ -83,17 +94,8 @@ export function isExcludedFromMerchant(title = '') {
   return !!t && t.label === null;
 }
 
-export function merchantTitle(original = '') {
-  const title = String(original).replace(/\s+/g, ' ').trim();
-  const type = detectType(title);
-  if (!type || !type.label) return title;
-
-  const sizeMatch = title.match(SIZE_RE);
-  const sizes = sizeMatch
-    ? sizeMatch[1].replace(/barnestr\.?\s*/i, '').replace(/\s*-\s*/g, '-').replace(/\s*,\s*/g, ', ').trim()
-    : '';
-
-  // Motif = first segment before " | ", " - " or " – ", cleaned of product words.
+// Motif = first segment before " | ", " - " or " – ", cleaned of product words.
+function motifOf(title) {
   const base = title.replace(SIZE_RE, '').replace(/\s*\([^)]*(farger|versions|pages|sider|spansk)[^)]*\)/gi, '').replace(/^\d+\.\s+(?=\D)/, '');
   const parts = base.split(/\s+[|–-]\s+|\s*\|\s*|\s+-(?=\S)|(?<=\S)-\s+/).map(tidy).filter(Boolean);
   let motif = cleanMotif(parts[0] || base);
@@ -105,17 +107,52 @@ export function merchantTitle(original = '') {
     if (tooShort || onlyProduct) motif = cleanMotif(parts[1]);
   }
   if (letters(motif) < 2) motif = tidy(title.split(/[|–]/)[0]);
+  return motif;
+}
 
-  let label = type.label;
+export function merchantMotif(original = '') {
+  return motifOf(String(original).replace(/\s+/g, ' ').trim());
+}
+
+// lang: 'no' (default) or 'en'.
+export function merchantTitle(original = '', lang = 'no') {
+  const en = lang === 'en';
+  const title = String(original).replace(/\s+/g, ' ').trim();
+  const type = detectType(title);
+  if (!type || !type.label) return title;
+
+  const sizeMatch = title.match(SIZE_RE);
+  let sizes = sizeMatch
+    ? sizeMatch[1].replace(/barnestr\.?\s*/i, '').replace(/\s*-\s*/g, '-').replace(/\s*,\s*/g, ', ').trim()
+    : '';
+  if (en) sizes = sizes.replace(/\s*år\b/gi, ' years').replace(/\s*mnd\b/gi, ' months').replace(/\bog\b/g, 'and');
+
+  const motif = motifOf(title);
+
+  let label = en ? LABELS_EN[type.key] : type.label;
   const audience = AUDIENCE.find(a => a.re.test(title));
-  if (audience && CLOTHES.includes(type.key)) label += audience.word;
-  if (type.key === 'poster' && /barnerom|barneplakat|\bbaby\b/i.test(title)) label = 'kristen plakat til barnerommet';
-  if (VERSE_RE.test(title) || /\bbibel ?vers|bible verse|bibelplakat|bible poster/i.test(title)) label += ' med bibelvers';
+  if (audience && CLOTHES.includes(type.key)) label += en ? audience.en : audience.word;
+  if (type.key === 'poster' && /barnerom|barneplakat|\bbaby\b/i.test(title)) label = en ? 'Christian nursery poster' : 'kristen plakat til barnerommet';
+  if (VERSE_RE.test(title) || /\bbibel ?vers|bible verse|bibelplakat|bible poster/i.test(title)) label += en ? ' with Bible verse' : ' med bibelvers';
 
   let out = `${motif} – ${label}`;
   if (sizes && CLOTHES.concat('babybody').includes(type.key)) out += ` (${sizes})`;
   // Google allows 150 characters.
   return out.length > 150 ? out.slice(0, 147).replace(/\s+\S*$/, '') + '…' : out;
+}
+
+// True when the design text (motif) is Norwegian or Spanish rather than English.
+// Those products stay out of the English feed: the print itself isn't English.
+const NON_ENGLISH = /[æøåñáéíóú]|\b(jeg|er|og|deg|meg|oss|dere|du|vi|gud|guds|herren|herre|salme|salmo|ikke|min|mitt|har|ny|skapning|elsker|elsket|velsigne|velsign|rustning|rustningen|kjærlighet|tro|håp|fred|frihet|kongsdatter|kongerike|barn|smil|liten|stor|hender|naglemerkede|fredsdue|bevar|hjertet|norge|norgeskoppen|jesu|sauen|eselkoppen|gullfisk|sjiraff|koppen|handleliste|evigheten|ingenting|kan|fra|til|med|som|det|alt|gjør|sted|bygg|bygge|rike|mamma|utvalgt|unik|mirakel|framtid|ved|gleden|nåde|lys|levende|brødet|ordspråkene|jesaja|jeremia|matteus|johannes|kolosserne|efeserne|kol|morgenstund|bønnekriger|eldre|gammel|spiste|jona|noas|kall|fuglene|skapt|forandrer|sterkest|igår|idag|samme|lurt|elsk|likevel|nær|mat|metter|styrke|bruden|lammets|bryllup|plakat|sommerlige|skilpadde|dios|señor|amor|todo|esperanza|amado|aleluya|alaba|cristo|tiempo|como|este|nada|puede|separarnos|por|favor|disfruta|las|cosas|cambia|lo|puedo|que|el)\b/i;
+
+export function isEnglishMotif(original = '') {
+  const m = merchantMotif(original);
+  return letters(m) >= 2 && !NON_ENGLISH.test(m) && !NON_ENGLISH.test(String(original).split(/[|–]| - /)[0]);
+}
+
+export function merchantTypeKey(original = '') {
+  const t = detectType(String(original));
+  return t ? t.key : '';
 }
 
 // Google product taxonomy (full paths are accepted by Merchant Center).

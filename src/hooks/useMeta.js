@@ -113,7 +113,9 @@ export default function useMeta(title, description, ogProperties = null, product
 
 
     // Update canonical link (Self-referencing canonical per language URL)
-    const canonicalUrl = `https://hiskingdomdesigns.no${cleanPath === '/' ? '/' : cleanPath}`;
+    // English product pages (?lang=en) are their own language version.
+    const englishProduct = isProduct && new URLSearchParams(window.location.search).get('lang') === 'en';
+    const canonicalUrl = `https://hiskingdomdesigns.no${cleanPath === '/' ? '/' : cleanPath}${englishProduct ? '?lang=en' : ''}`;
 
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {

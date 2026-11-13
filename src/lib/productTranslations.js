@@ -1193,6 +1193,9 @@ export function getTranslatedProduct(product, language) {
   // Wix descriptions are now Norwegian; English text lives in productDescriptionsEn
   // and is the source for both English and the Spanish auto-translation.
   const autoName = cleanAndTranslateName(product.name, lang, product);
-  const autoDesc = cleanAndTranslateDesc(productDescriptionsEn[product.id] || product.description, lang);
+  // English visitors never get the Norwegian Wix text: without an English source, a short English line.
+  const autoDesc = (lang === 'en' && !productDescriptionsEn[product.id])
+    ? `${autoName} from His Kingdom Designs – a Christian design with a faith-filled message. Made to order for you.`
+    : cleanAndTranslateDesc(productDescriptionsEn[product.id] || product.description, lang);
   return makeTranslated(autoName, autoDesc);
 }

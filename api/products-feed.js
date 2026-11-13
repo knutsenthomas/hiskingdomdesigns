@@ -1,5 +1,40 @@
-import { merchantTitle, isExcludedFromMerchant, merchantCategory, merchantAgeGroup } from './_merchant-titles.js';
+import { merchantTitle, isExcludedFromMerchant, merchantCategory, merchantAgeGroup, isEnglishMotif, merchantMotif, merchantTypeKey } from './_merchant-titles.js';
 import { MERCHANT_DESCRIPTIONS } from './_merchant-descriptions.js';
+import { productDescriptionsEn } from '../src/lib/productDescriptionsEn.js';
+import { productTranslations } from '../src/lib/productTranslations.js';
+
+// English feed (?lang=en): only products whose design text is English, linked to the
+// English product page with prices shown in NOK (same currency as the feed).
+const PRODUCT_TYPE_EN = { Plakater: 'Posters', 'T-skjorter': 'T-shirts', Kopper: 'Mugs', Gensere: 'Sweatshirts & hoodies', Trosprodukter: 'Christian gifts' };
+const TYPE_TEXT_EN = {
+  tshirt: 'A comfortable everyday T-shirt with a faith-filled message.',
+  longsleeve: 'A comfortable long sleeve T-shirt with a faith-filled message.',
+  hoodie: 'A soft, cosy hoodie with a faith-filled message.',
+  zip: 'A soft zip hoodie with a faith-filled message.',
+  sweater: 'A soft, comfortable sweatshirt with a faith-filled message.',
+  joggers: 'Comfortable joggers with a faith-filled message.',
+  babybody: 'A soft baby bodysuit with a faith-filled message.',
+  bib: 'A soft baby bib with a faith-filled message.',
+  mug: 'A mug for your morning coffee or tea, with a faith-filled message.',
+  travelmug: 'A travel mug that keeps your drink warm on the go, with a faith-filled message.',
+  bottle: 'A reusable water bottle with a faith-filled message.',
+  poster: 'A Christian wall art poster, a daily reminder of God\'s word in your home.',
+  tote: 'A practical tote bag with a faith-filled message.',
+  cap: 'A cap with a faith-filled message.',
+  phonecase: 'A protective phone case with a faith-filled message.',
+};
+// Shipping in NOK by weight, same rates as Wix (Europe / USA zones).
+const SHIP_EUROPE = [[0.25, 79], [1.5, 129], [3, 199], [5, 249]];
+const SHIP_US = [[0.41, 99], [2.5, 149], [5, 249]];
+const shipPrice = (table, kg) => (table.find(([max]) => kg <= max) || table[table.length - 1])[1];
+const EN_COUNTRIES = [['GB', SHIP_EUROPE], ['IE', SHIP_EUROPE], ['US', SHIP_US]];
+const englishDescription = (p) => {
+  const fixed = productDescriptionsEn[p.id] || productTranslations.ids?.[p.id]?.en?.description;
+  if (fixed) return stripHtml(fixed);
+  const motif = merchantMotif(p.name);
+  const type = TYPE_TEXT_EN[merchantTypeKey(p.name)] || 'A Christian product with a faith-filled message.';
+  return `"${motif}" from His Kingdom Designs. ${type} Made to order for you.`;
+};
 
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
@@ -56,6 +91,9 @@ export default async function handler(req, res) {
     return;
   }
 
+  const lang = (req.query?.lang || new URL(req.url, 'https://x').searchParams.get('lang')) === 'en' ? 'en' : 'no';
+  const en = lang === 'en';
+
   try {
     let allProducts = [];
     let skip = 0;
@@ -100,18 +138,21 @@ export default async function handler(req, res) {
     xml += `  <channel>\n`;
     xml += `    <title>His Kingdom Designs</title>\n`;
     xml += `    <link>https://hiskingdomdesigns.no</link>\n`;
-    xml += `    <description>Bær troen med stolthet - Premium kristne t-skjorter, plakater og kopper</description>\n`;
+    xml += en
+      ? `    <description>Wear your faith with pride - Christian T-shirts, posters and mugs</description>\n`
+      : `    <description>Bær troen med stolthet - Premium kristne t-skjorter, plakater og kopper</description>\n`;
 
     allProducts.forEach(p => {
       // Filter out hidden products
       if (p.visible === false) return;
       // Digital goods (Wix productType) and subscriptions can't be Shopping products
       if (p.productType === 'digital' || isExcludedFromMerchant(p.name)) return;
+      if (en && !isEnglishMotif(p.name)) return;
 
       const id = p.id;
-      const title = merchantTitle(p.name);
-      const description = MERCHANT_DESCRIPTIONS[id] || stripHtml(p.description || '');
-      const link = `https://hiskingdomdesigns.no/produkt/${id}`;
+      const title = merchantTitle(p.name, lang);
+      const description = en ? englishDescription(p) : (MERCHANT_DESCRIPTIONS[id] || stripHtml(p.description || ''));
+      const link = en ? `https://hiskingdomdesigns.no/produkt/${id}?lang=en&amp;cur=NOK` : `https://hiskingdomdesigns.no/produkt/${id}`;
       
       // Get main image URL (and resolve wix:image:// internal URIs if present)
       let imageUrl = p.media?.mainMedia?.image?.url || p.media?.items?.[0]?.image?.url || '';
@@ -141,9 +182,9 @@ export default async function handler(req, res) {
       const hasDiscount = salePriceVal && salePriceVal < priceVal;
       const formattedSalePrice = hasDiscount ? `${salePriceVal} ${currency}` : '';
 
-      const productType = getProductType(title);
+      const productType = getProductType(merchantTitle(p.name));
       const brand = p.brand || 'His Kingdom Designs';
-      const shippingWeight = getShippingWeight(productType, title);
+      const shippingWeight = getShippingWeight(productType, merchantTitle(p.name));
 
       xml += `    <item>\n`;
       xml += `      <g:id>${id}</g:id>\n`;
@@ -160,7 +201,7 @@ export default async function handler(req, res) {
       }
       xml += `      <g:brand><![CDATA[${cleanCdata(brand)}]]></g:brand>\n`;
       xml += `      <g:condition>new</g:condition>\n`;
-      xml += `      <g:product_type><![CDATA[${cleanCdata(productType)}]]></g:product_type>\n`;
+      xml += `      <g:product_type><![CDATA[${cleanCdata(en ? PRODUCT_TYPE_EN[productType] : productType)}]]></g:product_type>\n`;
       const googleCategory = merchantCategory(p.name);
       if (googleCategory) {
         xml += `      <g:google_product_category><![CDATA[${cleanCdata(googleCategory)}]]></g:google_product_category>\n`;
@@ -170,6 +211,12 @@ export default async function handler(req, res) {
         xml += `      <g:age_group>${ageGroup}</g:age_group>\n`;
       }
       xml += `      <g:shipping_weight>${shippingWeight}</g:shipping_weight>\n`;
+      if (en) {
+        const kg = parseFloat(shippingWeight);
+        for (const [country, table] of EN_COUNTRIES) {
+          xml += `      <g:shipping><g:country>${country}</g:country><g:service>Standard</g:service><g:price>${shipPrice(table, kg)} NOK</g:price></g:shipping>\n`;
+        }
+      }
       xml += `    </item>\n`;
     });
 
