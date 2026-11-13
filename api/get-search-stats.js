@@ -143,19 +143,6 @@ export default async function handler(req, res) {
     if (!auth.authorized) { res.status(401).json({ success: false, error: 'Unauthorized' }); return; }
   }
 
-  // One-time setup: register this Google Cloud project as developer on the Merchant Center account.
-  if (req.query?.action === 'register-merchant') {
-    try {
-      const out = await googleFetch(`https://merchantapi.googleapis.com/accounts/v1/accounts/${MERCHANT_ID}/developerRegistration:registerGcp`, MC_SCOPE, {
-        method: 'POST', body: JSON.stringify(req.query?.email ? { developerEmail: String(req.query.email) } : {}),
-      });
-      res.status(200).json({ success: true, registered: out });
-    } catch (e) {
-      res.status(200).json({ success: false, error: e.message, status: e.status });
-    }
-    return;
-  }
-
   const days = Math.min(90, Math.max(1, parseInt(req.query?.days, 10) || 28));
   const inspect = req.query?.inspect === '1';
 
