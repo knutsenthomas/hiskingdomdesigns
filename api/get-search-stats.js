@@ -1,5 +1,5 @@
 import { verifyAdminAuth } from './_admin-auth.js';
-import { googleFetch, getServiceAccount } from './_google-sa.js';
+import { googleFetch } from './_google-sa.js';
 
 // Search Console + Merchant Center status for hiskingdomdesigns.no, read with the
 // GA4 service account (needs read access in both, and the APIs enabled in its
@@ -146,9 +146,8 @@ export default async function handler(req, res) {
   // One-time setup: register this Google Cloud project as developer on the Merchant Center account.
   if (req.query?.action === 'register-merchant') {
     try {
-      const sa = getServiceAccount();
       const out = await googleFetch(`https://merchantapi.googleapis.com/accounts/v1/accounts/${MERCHANT_ID}/developerRegistration:registerGcp`, MC_SCOPE, {
-        method: 'POST', body: JSON.stringify({ developerEmail: sa.email }),
+        method: 'POST', body: JSON.stringify(req.query?.email ? { developerEmail: String(req.query.email) } : {}),
       });
       res.status(200).json({ success: true, registered: out });
     } catch (e) {
