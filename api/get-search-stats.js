@@ -85,7 +85,7 @@ async function merchantSearch(query) {
 
 async function merchantCenter(days) {
   const products = await merchantSearch(
-    'SELECT product_view.id, product_view.title, product_view.availability, product_view.aggregated_reporting_context_status, product_view.item_issues FROM product_view'
+    'SELECT product_view.id, product_view.offer_id, product_view.title, product_view.availability, product_view.aggregated_reporting_context_status, product_view.item_issues FROM product_view'
   );
   const status = {};
   const availability = {};
@@ -98,8 +98,9 @@ async function merchantCenter(days) {
     availability[a] = (availability[a] || 0) + 1;
     for (const i of p.itemIssues || []) {
       const code = i.type?.code || 'unknown';
-      if (!issues[code]) issues[code] = { code, count: 0, severity: i.severity?.aggregatedSeverity || i.severity, example: p.title };
+      if (!issues[code]) issues[code] = { code, count: 0, severity: i.severity?.aggregatedSeverity || i.severity, example: p.title, products: [] };
       issues[code].count++;
+      if (issues[code].products.length < 50) issues[code].products.push({ id: p.offerId || p.id, title: p.title });
     }
   }
 
