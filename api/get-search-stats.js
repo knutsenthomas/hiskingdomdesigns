@@ -6,6 +6,7 @@ import { googleFetch } from './_google-sa.js';
 // Google Cloud project). Access: admin login, or ?key=<STATS_READ_KEY>.
 //   ?days=28      period for clicks/impressions (1–90)
 //   ?inspect=1    also URL-inspect the home page and a few product pages
+//   ?inspectUrl=a,b   URL-inspect up to 5 given pages (shows Google's chosen canonical)
 
 const SITE = 'https://hiskingdomdesigns.no/';
 const MERCHANT_ID = '5753624417';
@@ -14,7 +15,7 @@ const MC_SCOPE = ['https://www.googleapis.com/auth/content'];
 
 const day = d => d.toISOString().slice(0, 10);
 
-async function searchConsole(days, inspect) {
+async function searchConsole(days, inspect, inspectUrls = []) {
   const end = new Date(Date.now() - 2 * 864e5); // GSC data lags ~2 days
   const start = new Date(end.getTime() - (days - 1) * 864e5);
   const base = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE)}`;
@@ -44,15 +45,19 @@ async function searchConsole(days, inspect) {
     })),
   };
 
-  if (inspect) {
-    const urls = [SITE, ...result.topPages.map(p => p.key).filter(u => u && u !== SITE).slice(0, 4)];
+  if (inspect || inspectUrls.length) {
+    const urls = inspectUrls.length ? inspectUrls : [SITE, ...result.topPages.map(p => p.key).filter(u => u && u !== SITE).slice(0, 4)];
     result.inspection = await Promise.all(urls.map(async url => {
       try {
         const r = await googleFetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', GSC_SCOPE, {
           method: 'POST', body: JSON.stringify({ inspectionUrl: url, siteUrl: SITE, languageCode: 'no' }),
         });
         const s = r.inspectionResult?.indexStatusResult || {};
-        return { url, verdict: s.verdict, coverage: s.coverageState, lastCrawl: s.lastCrawlTime };
+        return {
+          url, verdict: s.verdict, coverage: s.coverageState, lastCrawl: s.lastCrawlTime,
+          googleCanonical: s.googleCanonical, userCanonical: s.userCanonical,
+          fetch: s.pageFetchState, indexing: s.indexingState, robots: s.robotsTxtState,
+        };
       } catch (e) {
         return { url, error: e.message };
       }
@@ -146,12 +151,15 @@ export default async function handler(req, res) {
 
   const days = Math.min(90, Math.max(1, parseInt(req.query?.days, 10) || 28));
   const inspect = req.query?.inspect === '1';
+  // ?inspectUrl=<url>,<url> (max 5) inspects specific pages on this site, incl. Google's chosen canonical
+  const inspectUrls = String(req.query?.inspectUrl || '').split(',').map(u => u.trim())
+    .filter(u => u.startsWith(SITE)).slice(0, 5);
 
   // ?parts=merchant or ?parts=gsc fetches only one of them (faster for dashboards)
   const parts = String(req.query?.parts || 'gsc,merchant').split(',');
   const skip = Promise.resolve(undefined);
   const [gsc, mc] = await Promise.allSettled([
-    parts.includes('gsc') ? searchConsole(days, inspect) : skip,
+    parts.includes('gsc') ? searchConsole(days, inspect, inspectUrls) : skip,
     parts.includes('merchant') ? merchantCenter(days) : skip,
   ]);
   res.status(200).json({
