@@ -5,6 +5,7 @@ import fs from 'fs';
 import { canonicalCategoryPath, canonicalProductPath } from '../src/lib/seoCanonical.js';
 import path from 'path';
 import { getTranslatedProduct } from '../src/lib/productTranslations.js';
+import { merchantTypeKey } from './_merchant-titles.js';
 
 const SITE_ID = process.env.WIX_SITE_ID || '7682a906-41f6-4e8d-b0b1-bfdb5ee596e7';
 const API_KEY = process.env.WIX_API_KEY;
@@ -423,6 +424,30 @@ const categorySeoData = {
     }
   }
 };
+
+// Related products differ per product page: same product type first (mug → mugs), then products
+// sharing a Wix collection, in an order seeded by the product id. Identical blocks on every page
+// made Google treat unrelated product pages as duplicates.
+const seedOf = (str) => { let h = 2166136261; for (const c of String(str)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+export function pickRelatedProducts(product, products, lang, count = 6) {
+  const usable = products.filter(p => p.id !== product.id && p.visible !== false && p.productType !== 'digital'
+    && (lang === 'en' || !isProductOceaniaExclusive(p)));
+  const type = merchantTypeKey(product.name || '');
+  const cols = new Set((product.collectionIds || []));
+  // Collections holding (nearly) everything say nothing about similarity.
+  const colCount = new Map();
+  for (const p of products) for (const c of p.collectionIds || []) colCount.set(c, (colCount.get(c) || 0) + 1);
+  const meaningful = [...cols].filter(c => (colCount.get(c) || 0) < products.length * 0.6);
+  const seed = seedOf(product.id);
+  const order = (p) => seedOf(p.id + seed);
+  const score = (p) => (type && merchantTypeKey(p.name || '') === type ? 2 : 0)
+    + ((p.collectionIds || []).some(c => meaningful.includes(c)) ? 1 : 0);
+  return usable
+    .map(p => ({ p, s: score(p), o: order(p) }))
+    .sort((a, b) => b.s - a.s || a.o - b.o)
+    .slice(0, count)
+    .map(x => x.p);
+}
 
 export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = getBaseHtml} = {}) {
   const fetchProducts = async () => (await catalogLoader()).products;
@@ -882,8 +907,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
         h1Text = shown.name;
         
         const priceVal = product.price?.discountedPrice ?? product.price?.price ?? product.price ?? 0;
-        const otherProducts = products.filter(p => p.id !== product.id && p.category === product.category && p.visible !== false && (lang === 'en' || !isProductOceaniaExclusive(p)));
-        const relatedProducts = otherProducts.slice(0, 6);
+        const relatedProducts = pickRelatedProducts(product, products, lang);
 
         bodySnippet = `
           <div class="product-summary" style="margin-top: 1rem;">
@@ -891,7 +915,7 @@ export function createRenderHandler({catalogLoader = loadCatalog, htmlLoader = g
             <p class="description" style="margin: 1rem 0; line-height: 1.6;">${escapeHtml(rawText)}</p>
             <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(shown.name)}" width="600" height="600" style="max-width: 100%; height: auto; border-radius: 12px;" />
             <div class="related-products" style="margin-top: 3rem; border-top: 1px solid #e5e7eb; padding-top: 2rem;">
-              <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; font-weight: 600;">${englishProductPage ? 'More popular products' : 'Flere populære produkter'}</h2>
+              <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; font-weight: 600;">${englishProductPage ? 'Similar products' : 'Lignende produkter'}</h2>
               <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
                 ${relatedProducts.map(rp => `
                   <div class="product-card" style="background: #fff; border-radius: 10px; padding: 0.75rem; border: 1px solid #e5e7eb;">
