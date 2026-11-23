@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { wixClient, resetWixTokens } from "@/lib/wix";
 import { useApp } from "@/contexts/AppContext";
 import { useCart } from "@/contexts/CartContext";
+import OrderConfirmation from "@/components/OrderConfirmation";
 import { getMemberPhone } from "../features/profile/lib/getMemberPhone";
 import { getMemberAddress } from "../features/profile/lib/getMemberAddress";
 import { formatE164Phone } from "@/lib/phone";
@@ -945,6 +946,7 @@ export default function Profile() {
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="max-w-lg mx-auto px-4 py-28"
       >
+        <OrderConfirmation isGuest />
         <div className="bg-white rounded-3xl p-8 md:p-10 shadow-lg border border-outline-variant/30">
           {/* Tabs header */}
           <div className="flex border-b border-slate-100 mb-8">
@@ -1095,6 +1097,7 @@ export default function Profile() {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="max-w-max-width xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto px-margin-mobile md:px-margin-desktop py-28"
     >
+      <OrderConfirmation />
       <div className="flex flex-col lg:flex-row gap-12 items-start">
         {/* Left column - Account overview */}
         <aside className="w-full lg:w-80 bg-white rounded-3xl p-8 border border-outline-variant/30 shadow-sm flex flex-col items-center text-center lg:text-left lg:items-start shrink-0">
