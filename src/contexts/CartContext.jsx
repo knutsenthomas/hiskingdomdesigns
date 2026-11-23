@@ -63,8 +63,34 @@ const productCache = {};
 // Active in-flight cart operations promise to serialize checkout and prevent race conditions
 let activeCartOperationPromise = Promise.resolve();
 
+// Matches a Wix cart line item to a locally mapped one (product, variant or options, custom text).
+const isCartItemMatch = (wixItem, loc) => {
+  if (!wixItem || !loc) return false;
+  const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference?.appId;
+  const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference?.catalogItemId;
+  if (!appIdMatch || !itemIdMatch) return false;
+
+  const wixVariantId = wixItem.catalogReference?.options?.variantId;
+  const locVariantId = loc.catalogReference?.options?.variantId;
+  if (wixVariantId && locVariantId) {
+    if (wixVariantId !== locVariantId) return false;
+  } else if (!wixVariantId && !locVariantId) {
+    const wixOpt = wixItem.catalogReference?.options?.options || {};
+    const locOpt = loc.catalogReference?.options?.options || {};
+    if (Object.keys(wixOpt).length > 0 || Object.keys(locOpt).length > 0) {
+      if (JSON.stringify(wixOpt) !== JSON.stringify(locOpt)) return false;
+    }
+  }
+
+  const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
+  const locCustomFields = loc.catalogReference?.options?.customTextFields || {};
+  if (JSON.stringify(wixCustomFields) !== JSON.stringify(locCustomFields)) return false;
+
+  return true;
+};
+
 export const CartProvider = ({ children }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   // Helper to safely load cart from storage with fallback
   const loadSavedCartItems = () => {
     try {
@@ -309,30 +335,6 @@ export const CartProvider = ({ children }) => {
 
       const wixLineItems = wixCartRes?.lineItems || [];
 
-      const isCartItemMatch = (wixItem, loc) => {
-        if (!wixItem || !loc) return false;
-        const appIdMatch = wixItem.catalogReference?.appId === loc.catalogReference?.appId;
-        const itemIdMatch = wixItem.catalogReference?.catalogItemId === loc.catalogReference?.catalogItemId;
-        if (!appIdMatch || !itemIdMatch) return false;
-
-        const wixVariantId = wixItem.catalogReference?.options?.variantId;
-        const locVariantId = loc.catalogReference?.options?.variantId;
-        if (wixVariantId && locVariantId) {
-          if (wixVariantId !== locVariantId) return false;
-        } else if (!wixVariantId && !locVariantId) {
-          const wixOpt = wixItem.catalogReference?.options?.options || {};
-          const locOpt = loc.catalogReference?.options?.options || {};
-          if (Object.keys(wixOpt).length > 0 || Object.keys(locOpt).length > 0) {
-            if (JSON.stringify(wixOpt) !== JSON.stringify(locOpt)) return false;
-          }
-        }
-
-        const wixCustomFields = wixItem.catalogReference?.options?.customTextFields || {};
-        const locCustomFields = loc.catalogReference?.options?.customTextFields || {};
-        if (JSON.stringify(wixCustomFields) !== JSON.stringify(locCustomFields)) return false;
-
-        return true;
-      };
 
       // 1. Find items in Wix cart that are NOT in local cart and remove them
       const itemsToRemove = [];
@@ -411,7 +413,10 @@ export const CartProvider = ({ children }) => {
     const timer = setTimeout(async () => {
       try {
         if (!active) return;
-        await forceSyncCartWithWix(cartItems);
+        const syncedCart = await forceSyncCartWithWix(cartItems);
+        if (active && cartItems.length > 0) {
+          await refreshCartPrices(cartItems, syncedCart);
+        }
         if (active && cartItems.length > 0 && appliedCoupon?.code) {
           await refreshCouponDiscount(cartItems, appliedCoupon.code);
         }
@@ -633,6 +638,30 @@ export const CartProvider = ({ children }) => {
 
   const mapCartItemsToWixLineItems = (items) => mapWixCartItems(items, resolveProductDetails);
 
+  // Prices are stored in the browser when an item is added. Take the current unit price
+  // (including variant price and sales) from the synced Wix cart so the cart shows what Wix will charge.
+  const refreshCartPrices = async (items, wixCart) => {
+    try {
+      const wixLines = wixCart?.lineItems || [];
+      if (wixLines.length === 0) return;
+      const localLines = await mapCartItemsToWixLineItems(items);
+      const newPrices = new Map();
+      items.forEach((item, index) => {
+        const wixLine = wixLines.find(line => isCartItemMatch(line, localLines[index]));
+        const price = parseFloat(wixLine?.price?.amount);
+        if (Number.isFinite(price) && price !== item.price) newPrices.set(index, price);
+      });
+      if (newPrices.size === 0) return;
+      setCartItems(prev => (prev.length === items.length
+        ? prev.map((item, index) => (newPrices.has(index) && prev[index].id === items[index].id
+          ? { ...item, price: newPrices.get(index) }
+          : item))
+        : prev));
+    } catch (err) {
+      console.warn('Could not refresh cart prices:', err);
+    }
+  };
+
   // The discount is stored when the code is applied. Recalculate it whenever the cart changes,
   // so the cart and checkout never show a discount Wix will not give.
   const refreshCouponDiscount = async (items, code) => {
@@ -651,14 +680,14 @@ export const CartProvider = ({ children }) => {
         return;
       }
       setAppliedCoupon(prev => (prev && prev.code === code ? null : prev));
-      setCouponError(`Rabattkoden "${code}" gjelder ikke for varene som er i handlekurven nå.`);
+      setCouponError(t('coupon.noLongerApplies', { code }));
     } catch (err) {
       const appCode = err?.details?.applicationError?.code || '';
       if (appCode.startsWith('ERROR_COUPON')) {
         setAppliedCoupon(prev => (prev && prev.code === code ? null : prev));
         setCouponError(appCode === 'ERROR_COUPON_EXPIRED'
-          ? `Rabattkoden "${code}" er utløpt.`
-          : `Rabattkoden "${code}" gjelder ikke for varene som er i handlekurven nå.`);
+          ? t('coupon.expiredCode', { code })
+          : t('coupon.noLongerApplies', { code }));
       } else {
         // A network or Wix hiccup is no reason to drop the customer's code.
         console.warn('Could not refresh coupon discount:', err);
@@ -694,22 +723,22 @@ export const CartProvider = ({ children }) => {
           return true;
         }
         
-        setCouponError('Ugyldig rabattkode');
+        setCouponError(t('coupon.invalid'));
         setIsApplyingCoupon(false);
         return false;
       });
     } catch (err) {
       console.error('Error validating coupon:', err);
       const appCode = err?.details?.applicationError?.code || '';
-      let errorMsg = 'Ugyldig rabattkode eller tilkoblingsfeil';
+      let errorMsg = t('coupon.genericError');
       if (appCode === 'ERROR_COUPON_DOES_NOT_EXIST') {
-        errorMsg = 'Rabattkoden finnes ikke';
+        errorMsg = t('coupon.notFound');
       } else if (appCode === 'ERROR_COUPON_EXPIRED') {
-        errorMsg = 'Rabattkoden er utløpt';
+        errorMsg = t('coupon.expired');
       } else if (appCode === 'ERROR_COUPON_MINIMUM_SUBTOTAL_NOT_REACHED') {
-        errorMsg = 'Kjøpesummen er for lav for denne rabattkoden';
-      } else if (err?.message && !err.message.includes('UNKNOWN')) {
-        errorMsg = err.message;
+        errorMsg = t('coupon.minSubtotal');
+      } else if (appCode.startsWith('ERROR_COUPON')) {
+        errorMsg = t('coupon.invalid');
       }
       setCouponError(errorMsg);
       setIsApplyingCoupon(false);
@@ -745,13 +774,13 @@ export const CartProvider = ({ children }) => {
           return true;
         }
         
-        setGiftCardError('Ugyldig gavekortkode');
+        setGiftCardError(t('giftcard.invalid'));
         setIsApplyingGiftCard(false);
         return false;
       });
     } catch (err) {
       console.error('Error validating gift card:', err);
-      setGiftCardError('Ugyldig gavekortkode eller tilkoblingsfeil');
+      setGiftCardError(t('giftcard.genericError'));
       setIsApplyingGiftCard(false);
       return false;
     }
@@ -1053,7 +1082,7 @@ export const CartProvider = ({ children }) => {
       });
     } catch (err) {
       console.error('Error estimating cart totals:', err);
-      setEstimateError('Kunne ikke beregne frakt. Vennligst sjekk postnummeret og prøv igjen.');
+      setEstimateError(t('checkout.errShippingEstimate'));
       setIsEstimating(false);
       setIsEstimated(false);
       return false;
@@ -1086,10 +1115,13 @@ export const CartProvider = ({ children }) => {
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
   
   // Use Wix shipping estimates when available; keep the existing weight-based fallback.
+  // The fallback uses Norwegian rates, so abroad the price stays unknown (null) until Wix has estimated it.
+  const shippingCountry = shippingAddress?.country || 'NO';
   const shipping = isEstimated && selectedShippingRate !== null 
     ? selectedShippingRate.cost 
     : (() => {
         if (subtotal === 0) return 0;
+        if (shippingCountry !== 'NO') return null;
         
         // Calculate total weight of the cart
         const totalWeight = cartItems.reduce((acc, item) => acc + ((item.weight || 0) * item.quantity), 0);
@@ -1108,7 +1140,7 @@ export const CartProvider = ({ children }) => {
       })();
 
   const mva = isEstimated ? estimatedTax : null;
-  const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + shipping;
+  const total = Math.max(0, subtotalAfterDiscount - giftCardAmount) + (shipping || 0);
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 

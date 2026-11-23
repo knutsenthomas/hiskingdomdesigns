@@ -279,7 +279,7 @@ export default function Cart() {
               <div className="flex justify-between font-body-md text-secondary">
                 <CmsText slug="cart-shipping-label" fallback={t('cart.shipping')} as="span" />
                 <span className="font-bold text-onyx">
-                  {shipping === 0 ? t('cart.free') : formatPrice(shipping)}
+                  {shipping === null ? t('cart.shippingAtCheckout') : shipping === 0 ? t('cart.free') : formatPrice(shipping)}
                 </span>
               </div>
               

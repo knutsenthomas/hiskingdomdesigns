@@ -73,6 +73,7 @@ export default function Checkout() {
     estimateError,
     shippingAddress,
     setShippingAddress,
+    clearEstimation,
     estimateShippingAndTotals,
     estimatedRates,
     estimatedTax,
@@ -205,6 +206,9 @@ export default function Checkout() {
     // Norwegian regions do not apply abroad; clear the choice when the country changes.
     if (name === 'country') {
       setFormData(prev => ({ ...prev, subdivision: '' }));
+      // Shipping estimated for the previous country no longer applies.
+      clearEstimation();
+      setShippingAddress({ country: value });
       setFormErrors(prev => ({ ...prev, subdivision: '', postalCode: '' }));
     }
 
@@ -225,25 +229,25 @@ export default function Checkout() {
   const validateForm = () => {
     const errors = {};
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      errors.email = 'Vennligst oppgi en gyldig e-postadresse';
+      errors.email = t('checkout.errEmail');
     }
     if (!formData.phone || formData.phone.trim().length < 8) {
-      errors.phone = 'Vennligst oppgi et gyldig telefonnummer';
+      errors.phone = t('checkout.errPhone');
     }
     if (!formData.firstName || formData.firstName.trim().length < 2) {
-      errors.firstName = 'Fornavn er påkrevd';
+      errors.firstName = t('checkout.errFirstName');
     }
     if (!formData.lastName || formData.lastName.trim().length < 2) {
-      errors.lastName = 'Etternavn er påkrevd';
+      errors.lastName = t('checkout.errLastName');
     }
     if (!formData.addressLine || formData.addressLine.trim().length < 3) {
-      errors.addressLine = 'Gateadresse er påkrevd';
+      errors.addressLine = t('checkout.errAddress');
     }
     if (!postalCodeIsComplete(formData.postalCode, formData.country)) {
-      errors.postalCode = formData.country === 'NO' ? 'Postnummer må være 4 siffer' : t('checkout.postalCodeInvalid');
+      errors.postalCode = formData.country === 'NO' ? t('checkout.errPostalNo') : t('checkout.postalCodeInvalid');
     }
     if (!formData.city || formData.city.trim().length < 2) {
-      errors.city = 'Poststed er påkrevd';
+      errors.city = t('checkout.errCity');
     }
     if (formData.country === 'NO' && !formData.subdivision) errors.subdivision = t('checkout.regionRequired');
     setFormErrors(errors);
@@ -256,7 +260,7 @@ export default function Checkout() {
     if (cartItems.length === 0) return;
 
     if (!validateForm()) {
-      setCheckoutError('Vennligst fyll ut alle påkrevde felter før du går til betaling.');
+      setCheckoutError(t('checkout.errFillAll'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -299,7 +303,7 @@ export default function Checkout() {
       if (redirectUrl) {
         window.location.href = redirectUrl;
       } else {
-        throw new Error('Mottok ingen betalingslenke fra betalingssystemet.');
+        throw Object.assign(new Error('Mottok ingen betalingslenke fra betalingssystemet.'), { i18nKey: 'checkout.errNoPaymentLink' });
       }
     } catch (err) {
       console.error('Checkout error on /checkout page:', err);
@@ -308,9 +312,10 @@ export default function Checkout() {
         error: err,
         cartItems: cartItems
       });
-      const userMessage = (err?.message && !err.message.includes('[object Object]') && !err.message.includes('SDKError'))
-        ? err.message
-        : 'Det oppstod en feil ved opprettelse av betaling. Vennligst prøv igjen.';
+      // Known errors carry a translation key; technical SDK errors get a general message.
+      const userMessage = err?.i18nKey
+        ? t(err.i18nKey, err.i18nParams || {})
+        : t('checkout.errPaymentGeneric');
       setCheckoutError(userMessage);
       window.hkd_is_checking_out = false;
       setIsSubmitting(false);
@@ -830,7 +835,7 @@ export default function Checkout() {
                 <div className="flex justify-between text-secondary">
                   <CmsText slug="cart.shipping" fallback="Frakt" as="span" />
                   <span className="font-semibold text-onyx">
-                    {shipping === 0 ? (t('cart.free') || 'Gratis') : formatPrice(shipping)}
+                    {shipping === null ? t('cart.shippingAtCheckout') : shipping === 0 ? (t('cart.free') || 'Gratis') : formatPrice(shipping)}
                   </span>
                 </div>
 
@@ -948,10 +953,10 @@ export default function Checkout() {
               </div>
               <div className="space-y-2 select-none">
                 <h3 className="font-headline-md text-lg text-onyx font-bold">
-                  Åpner sikker betaling
+                  {t('checkout.openingPayment')}
                 </h3>
                 <p className="text-xs text-secondary leading-relaxed">
-                  Vennligst vent et øyeblikk mens vi klargjør bestillingen din med Vipps og kortbetaling...
+                  {t('checkout.preparingPayment')}
                 </p>
               </div>
             </div>
