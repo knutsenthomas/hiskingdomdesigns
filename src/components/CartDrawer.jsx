@@ -21,6 +21,7 @@ export default function CartDrawer() {
     appliedCoupon,
     appliedGiftCard,
     mapCartItemsToWixLineItems,
+    isItemUnavailable,
     forceSyncCartWithWix,
     startCheckoutRedirect
   } = useCart();
@@ -196,6 +197,9 @@ export default function CartDrawer() {
                               );
                             })}
                           </div>
+                          {isItemUnavailable(item) && (
+                            <p className="text-[11px] font-semibold text-red-600 mt-1">{t('cart.itemUnavailable')}</p>
+                          )}
                           {item.customTextFields && item.customTextFields.length > 0 && (
                             <div className="mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100/70 text-[10px] text-secondary lowercase first-letter:uppercase normal-case">
                               {item.customTextFields.map(field => (

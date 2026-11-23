@@ -89,6 +89,18 @@ const isCartItemMatch = (wixItem, loc) => {
   return true;
 };
 
+// Identifies one cart line: the same product can sit in the cart with different choices.
+export const cartItemKey = (item) => JSON.stringify([
+  item?.id,
+  item?.variantId || '',
+  item?.selectedSize || '',
+  item?.selectedColor || '',
+  item?.selectedOptions || {},
+  item?.customTextFields || []
+]);
+
+const isProductSoldOut = (product) => product?.stock?.inventoryStatus === 'OUT_OF_STOCK' || product?.stock?.inStock === false;
+
 export const CartProvider = ({ children }) => {
   const { language, t } = useLanguage();
   // Helper to safely load cart from storage with fallback
@@ -413,6 +425,12 @@ export const CartProvider = ({ children }) => {
     const timer = setTimeout(async () => {
       try {
         if (!active) return;
+        try {
+          const { unavailable } = await splitAvailableItems(cartItems);
+          if (active) setUnavailableItemKeys(unavailable.map(cartItemKey));
+        } catch (e) {
+          console.warn('Could not check cart availability:', e);
+        }
         const syncedCart = await forceSyncCartWithWix(cartItems);
         if (active && cartItems.length > 0) {
           await refreshCartPrices(cartItems, syncedCart);
@@ -636,7 +654,35 @@ export const CartProvider = ({ children }) => {
     };
   }, []);
 
-  const mapCartItemsToWixLineItems = (items) => mapWixCartItems(items, resolveProductDetails);
+  // Items that are sold out, or whose chosen variant no longer exists, cannot be bought.
+  // They stay visible in the cart (marked) but are left out of Wix carts, coupon checks and checkout,
+  // so one such item never blocks the rest of the order.
+  const [unavailableItemKeys, setUnavailableItemKeys] = useState([]);
+
+  const splitAvailableItems = async (items) => {
+    const results = await Promise.all(items.map(async (item) => {
+      const product = await resolveProductDetails(item.id);
+      if (product && isProductSoldOut(product)) return { item, available: false };
+      try {
+        await mapWixCartItems([item], resolveProductDetails);
+        return { item, available: true };
+      } catch (err) {
+        if (err?.unavailableItemId) return { item, available: false };
+        throw err;
+      }
+    }));
+    return {
+      available: results.filter(r => r.available).map(r => r.item),
+      unavailable: results.filter(r => !r.available).map(r => r.item)
+    };
+  };
+
+  const mapCartItemsToWixLineItems = async (items) => {
+    const { available } = await splitAvailableItems(items);
+    return mapWixCartItems(available, resolveProductDetails);
+  };
+
+  const isItemUnavailable = (item) => unavailableItemKeys.includes(cartItemKey(item));
 
   // Prices are stored in the browser when an item is added. Take the current unit price
   // (including variant price and sales) from the synced Wix cart so the cart shows what Wix will charge.
@@ -644,19 +690,18 @@ export const CartProvider = ({ children }) => {
     try {
       const wixLines = wixCart?.lineItems || [];
       if (wixLines.length === 0) return;
-      const localLines = await mapCartItemsToWixLineItems(items);
+      const { available } = await splitAvailableItems(items);
+      const localLines = await mapWixCartItems(available, resolveProductDetails);
       const newPrices = new Map();
-      items.forEach((item, index) => {
+      available.forEach((item, index) => {
         const wixLine = wixLines.find(line => isCartItemMatch(line, localLines[index]));
         const price = parseFloat(wixLine?.price?.amount);
-        if (Number.isFinite(price) && price !== item.price) newPrices.set(index, price);
+        if (Number.isFinite(price) && price !== item.price) newPrices.set(cartItemKey(item), price);
       });
       if (newPrices.size === 0) return;
-      setCartItems(prev => (prev.length === items.length
-        ? prev.map((item, index) => (newPrices.has(index) && prev[index].id === items[index].id
-          ? { ...item, price: newPrices.get(index) }
-          : item))
-        : prev));
+      setCartItems(prev => prev.map(item => (newPrices.has(cartItemKey(item))
+        ? { ...item, price: newPrices.get(cartItemKey(item)) }
+        : item)));
     } catch (err) {
       console.warn('Could not refresh cart prices:', err);
     }
@@ -1110,7 +1155,7 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems.length]);
 
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((acc, item) => (isItemUnavailable(item) ? acc : acc + (item.price * item.quantity)), 0);
   
   // Calculate discount and apply it to subtotal
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
@@ -1127,7 +1172,7 @@ export const CartProvider = ({ children }) => {
         if (shippingCountry !== 'NO') return null;
         
         // Calculate total weight of the cart
-        const totalWeight = cartItems.reduce((acc, item) => acc + ((item.weight || 0) * item.quantity), 0);
+        const totalWeight = cartItems.reduce((acc, item) => (isItemUnavailable(item) ? acc : acc + ((item.weight || 0) * item.quantity)), 0);
         
         if (totalWeight <= 0.07) {
           return 39;
@@ -1172,6 +1217,7 @@ export const CartProvider = ({ children }) => {
       applyGiftCardCode,
       removeGiftCard,
       mapCartItemsToWixLineItems,
+      isItemUnavailable,
       forceSyncCartWithWix,
       syncServerCartToLocal,
       startCheckoutRedirect,

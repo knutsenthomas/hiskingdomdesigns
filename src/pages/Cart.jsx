@@ -38,6 +38,7 @@ export default function Cart() {
     applyGiftCardCode,
     removeGiftCard,
     mapCartItemsToWixLineItems,
+    isItemUnavailable,
     forceSyncCartWithWix,
     isEstimated,
     isEstimating,
@@ -159,6 +160,9 @@ export default function Cart() {
                             {translatedItem.name}
                           </Link>
                         </h3>
+                        {isItemUnavailable(item) && (
+                          <p className="text-[11px] font-semibold text-red-600 mt-1">{t('cart.itemUnavailable')}</p>
+                        )}
                         <div className="text-secondary text-sm mt-1">
                           {((item.sizes && item.sizes.length > 0 && !item.sizes.includes('One Size')) || item.selectedSize !== 'One Size') && (
                             <span>{t('product.size')}: <span className="font-semibold text-onyx">{item.selectedSize}</span></span>

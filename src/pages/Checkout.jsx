@@ -12,7 +12,7 @@ import {
   ChevronRight,
   PackageCheck
 } from 'lucide-react';
-import { useCart } from '@/contexts/CartContext';
+import { useCart, cartItemKey } from '@/contexts/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wixClient } from '@/lib/wix';
 import useMeta from '@/hooks/useMeta';
@@ -78,7 +78,8 @@ export default function Checkout() {
     estimatedRates,
     estimatedTax,
     selectedShippingRate,
-    selectShippingRate
+    selectShippingRate,
+    isItemUnavailable,
   } = useCart();
 
   // Contact and shipping form state
@@ -684,7 +685,7 @@ export default function Checkout() {
                 {cartItems.map((item) => {
                   const translated = translateProduct(item);
                   return (
-                    <div key={item.id} className="flex items-center gap-3.5 py-2 border-b border-slate-100 last:border-0">
+                    <div key={cartItemKey(item)} className={`flex items-center gap-3.5 py-2 border-b border-slate-100 last:border-0 ${isItemUnavailable(item) ? 'opacity-60' : ''}`}>
                       <div className="relative w-14 h-14 bg-parchment rounded-xl overflow-hidden shrink-0 border border-slate-200/50">
                         {item.image ? (
                           <img
@@ -713,6 +714,9 @@ export default function Checkout() {
                           {item.selectedSize && <span>Str: {item.selectedSize}</span>}
                           {item.selectedColor && <span>Farge: {item.selectedColor}</span>}
                         </div>
+                        {isItemUnavailable(item) && (
+                          <p className="text-[10px] font-semibold text-red-600 mt-0.5">{t('cart.itemUnavailable')}</p>
+                        )}
                       </div>
 
                       <div className="text-right shrink-0">
