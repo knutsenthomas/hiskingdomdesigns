@@ -29,7 +29,7 @@ export function registerServiceWorker() {
         await Promise.all(cacheNames.filter(name => ["hk-designs-cache-"].some(prefix => name.startsWith(prefix))).map(name => caches.delete(name)));
       }
       // An already controlling worker continues until navigation. Reload only when such a worker existed.
-      if (owned(controller)) location.reload();
+      if (owned(controller)) { window.hkd_silent_reload = true; location.reload(); }
     }).catch(error => { lastChoice = undefined; console.warn('[Offline] Could not update offline storage:', error); });
   };
   window.addEventListener('siteprivacychange', sync);

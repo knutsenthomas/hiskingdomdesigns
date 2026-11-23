@@ -108,6 +108,7 @@
     // Removing a script cannot stop an already running tracker. Reload after revocation.
     if ((!analytics && previouslyAllowed) || (!marketing && affiliateLoaded) || (mediaWasAllowed && !allows('media'))) {
       emit();
+      window.hkd_silent_reload = true;
       location.reload();
       return;
     }

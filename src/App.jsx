@@ -32,6 +32,7 @@ const lazyWithRetry = (componentImport) =>
 
         if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
           sessionStorage.setItem(chunkReloadKey, now.toString());
+          window.hkd_silent_reload = true;
           window.location.reload(true);
           // Return a pending promise so Suspense stays in fallback loading state while page reloads
           return new Promise(() => {});
@@ -84,6 +85,7 @@ class ErrorBoundary extends React.Component {
 
       if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
         sessionStorage.setItem(chunkReloadKey, now.toString());
+        window.hkd_silent_reload = true;
         window.location.reload(true);
       }
     }
@@ -102,7 +104,7 @@ class ErrorBoundary extends React.Component {
           </p>
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => { window.hkd_silent_reload = true; window.location.reload(); }}
               className="bg-terracotta text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:brightness-105 active:scale-95 transition-all shadow-md cursor-pointer"
             >
               Last inn på nytt
@@ -189,6 +191,7 @@ function MainLayout() {
 
         if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
           sessionStorage.setItem(chunkReloadKey, now.toString());
+          window.hkd_silent_reload = true;
           window.location.reload(true);
         }
       }
