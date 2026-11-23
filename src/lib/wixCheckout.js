@@ -1,5 +1,13 @@
 import { toWixStreetAddress } from './checkoutAddress.js';
 
+// Errors shown to customers carry a translation key; the UI translates them, the message stays Norwegian.
+const customerError = (message, i18nKey, i18nParams = {}) => {
+  const error = new Error(message);
+  error.i18nKey = i18nKey;
+  error.i18nParams = i18nParams;
+  return error;
+};
+
 const stableObject = (value) => {
   if (Array.isArray(value)) return value.map(stableObject);
   if (value && typeof value === 'object') {
@@ -13,7 +21,7 @@ const cartContents = (items = []) => {
   for (const item of items) {
     const ref = item.catalogReference;
     if (!ref?.appId || !ref?.catalogItemId || !Number.isInteger(item.quantity) || item.quantity < 1) {
-      throw new Error('Handlekurven inneholder ugyldige varer eller antall.');
+      throw customerError('Handlekurven inneholder ugyldige varer eller antall.', 'checkout.errInvalidItems');
     }
     const options = ref.options || {};
     const key = JSON.stringify(stableObject({
@@ -33,13 +41,13 @@ export const assertCheckoutMatches = (checkout, expectedItems) => {
   const actual = cartContents(checkout?.lineItems);
   if (!checkout?._id || expected.size === 0 || actual.size !== expected.size ||
       [...expected].some(([key, quantity]) => actual.get(key) !== quantity)) {
-    throw new Error('Wix-kassen mangler varer eller har andre produktvalg eller antall. Handlekurven er bevart. Prøv igjen.');
+    throw customerError('Wix-kassen mangler varer eller har andre produktvalg eller antall. Handlekurven er bevart. Prøv igjen.', 'checkout.errMismatch');
   }
   return checkout;
 };
 
 export const createVerifiedCheckout = async (wixClient, lineItems) => {
-  if (!lineItems?.length) throw new Error('Handlekurven er tom.');
+  if (!lineItems?.length) throw customerError('Handlekurven er tom.', 'checkout.errEmptyCart');
   cartContents(lineItems);
   const checkout = await wixClient.checkout.createCheckout({ lineItems, channelType: 'WEB' });
   return assertCheckoutMatches(checkout, lineItems);
@@ -141,14 +149,18 @@ export const enrichCheckout = async (wixClient, checkoutId, {
     } catch (couponErr) {
       const appCode = couponErr?.details?.applicationError?.code || '';
       let msg = 'Rabattkoden kunne ikke aktiveres i kassen.';
+      let key = 'coupon.checkoutFailed';
       if (appCode === 'ERROR_COUPON_DOES_NOT_EXIST') {
         msg = `Rabattkoden "${couponCode}" finnes ikke.`;
+        key = 'coupon.checkoutNotFound';
       } else if (appCode === 'ERROR_COUPON_EXPIRED') {
         msg = `Rabattkoden "${couponCode}" er utløpt.`;
+        key = 'coupon.checkoutExpired';
       } else if (appCode === 'ERROR_COUPON_MINIMUM_SUBTOTAL_NOT_REACHED') {
         msg = `Kjøpesummen er for lav for rabattkoden "${couponCode}".`;
+        key = 'coupon.checkoutMinSubtotal';
       }
-      throw new Error(`${msg} Fjern koden eller prøv en annen før du går til kassen.`);
+      throw customerError(`${msg} Fjern koden eller prøv en annen før du går til kassen.`, key, { code: couponCode });
     }
   }
 
@@ -157,7 +169,7 @@ export const enrichCheckout = async (wixClient, checkoutId, {
     try {
       currentId = await applyGiftCardToCheckout(wixClient, currentId, giftCardCode);
     } catch (giftCardErr) {
-      throw new Error(`Gavekortet kunne ikke aktiveres i kassen: ${giftCardErr?.message || 'Ugyldig eller utløpt kode'}.`);
+      throw customerError(`Gavekortet kunne ikke aktiveres i kassen: ${giftCardErr?.message || 'Ugyldig eller utløpt kode'}.`, 'giftcard.checkoutFailed');
     }
   }
 
