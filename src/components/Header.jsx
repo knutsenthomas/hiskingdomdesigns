@@ -172,7 +172,8 @@ export default function Header() {
   // Warn user when trying to close/reload the tab with items in their cart
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (cartCount > 0 && !window.hkd_is_checking_out) {
+      // Automatic reloads (failed chunk, offline worker, consent change) must not show the browser dialog.
+      if (cartCount > 0 && !window.hkd_is_checking_out && !window.hkd_silent_reload) {
         e.preventDefault();
         e.returnValue = '';
         return '';
