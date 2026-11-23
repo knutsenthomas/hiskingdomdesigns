@@ -412,6 +412,9 @@ export const CartProvider = ({ children }) => {
       try {
         if (!active) return;
         await forceSyncCartWithWix(cartItems);
+        if (active && cartItems.length > 0 && appliedCoupon?.code) {
+          await refreshCouponDiscount(cartItems, appliedCoupon.code);
+        }
         if (active && cartItems.length > 0) {
           const addr = shippingAddress || { country: 'NO' };
           await estimateShippingAndTotals(addr.postalCode, addr.city, addr.country);
@@ -425,7 +428,7 @@ export const CartProvider = ({ children }) => {
       active = false;
       clearTimeout(timer);
     };
-  }, [serializedCartItems, appliedCoupon, appliedGiftCard]);
+  }, [serializedCartItems, appliedCoupon?.code, appliedGiftCard?.code]);
   const resolveProductDetails = async (productId) => {
     if (productCache[productId]) {
       return productCache[productId];
@@ -629,6 +632,39 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const mapCartItemsToWixLineItems = (items) => mapWixCartItems(items, resolveProductDetails);
+
+  // The discount is stored when the code is applied. Recalculate it whenever the cart changes,
+  // so the cart and checkout never show a discount Wix will not give.
+  const refreshCouponDiscount = async (items, code) => {
+    try {
+      const { wixClient } = await getWixClient();
+      const lineItems = await mapCartItemsToWixLineItems(items);
+      const testCheckout = await createVerifiedCheckout(wixClient, lineItems);
+      const updatedCheckout = await wixClient.checkout.updateCheckout(testCheckout._id, {}, {
+        couponCode: code
+      });
+      const discountVal = parseFloat(updatedCheckout.priceSummary?.discount?.amount || '0');
+      if (updatedCheckout.appliedDiscounts?.length > 0 && discountVal > 0) {
+        setAppliedCoupon(prev => (prev && prev.code === code && prev.discount !== discountVal)
+          ? { ...prev, discount: discountVal }
+          : prev);
+        return;
+      }
+      setAppliedCoupon(prev => (prev && prev.code === code ? null : prev));
+      setCouponError(`Rabattkoden "${code}" gjelder ikke for varene som er i handlekurven nå.`);
+    } catch (err) {
+      const appCode = err?.details?.applicationError?.code || '';
+      if (appCode.startsWith('ERROR_COUPON')) {
+        setAppliedCoupon(prev => (prev && prev.code === code ? null : prev));
+        setCouponError(appCode === 'ERROR_COUPON_EXPIRED'
+          ? `Rabattkoden "${code}" er utløpt.`
+          : `Rabattkoden "${code}" gjelder ikke for varene som er i handlekurven nå.`);
+      } else {
+        // A network or Wix hiccup is no reason to drop the customer's code.
+        console.warn('Could not refresh coupon discount:', err);
+      }
+    }
+  };
 
   const applyCouponCode = async (code) => {
     if (!code || code.trim() === '') return false;
@@ -857,6 +893,10 @@ export const CartProvider = ({ children }) => {
 
       if (hasOrderId) {
         const orderId = params.get('orderId').trim();
+        // Lets the page Wix returns to (profile) thank the customer, even though the URL is cleaned below.
+        try {
+          sessionStorage.setItem('hkd_order_confirmation', orderId);
+        } catch (e) {}
         const pendingCheckoutId = sessionStorage.getItem('hkd_pending_checkout_id');
 
         const verifyAndClearOrder = async () => {
