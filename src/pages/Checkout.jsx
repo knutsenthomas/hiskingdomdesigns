@@ -22,8 +22,29 @@ import { reportCheckoutIncident } from '@/lib/incidentAlerts';
 import CmsText from '@/components/CmsText';
 import { formatStreetAddress, norwegianCheckoutRegions } from '@/lib/checkoutAddress';
 
+// Countries the Wix delivery profile ships to by name (Norway, the Europe region, USA),
+// plus a few common ones covered by the "Internasjonalt" region.
+const SHIPPING_COUNTRIES = [
+  'NO', 'SE', 'DK', 'FI', 'IS', 'FO', 'GL', 'AX', 'GB', 'IE', 'DE', 'NL', 'BE', 'LU', 'FR', 'CH', 'AT',
+  'ES', 'PT', 'IT', 'GR', 'PL', 'CZ', 'SK', 'HU', 'SI', 'RO', 'BG', 'EE', 'LV', 'LT', 'ME', 'UA',
+  'US', 'CA', 'AU', 'NZ', 'IL', 'ZA'
+];
+
+const countryName = (code, lang) => {
+  try {
+    return new Intl.DisplayNames([lang === 'no' ? 'nb' : (lang || 'nb')], { type: 'region' }).of(code) || code;
+  } catch (e) {
+    return code;
+  }
+};
+
+const postalCodeIsComplete = (postalCode, country) => {
+  const clean = (postalCode || '').trim();
+  return country === 'NO' ? /^\d{4}$/.test(clean) : clean.length >= 3;
+};
+
 export default function Checkout() {
-  const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath } = useLanguage();
+  const { t, translateProduct, formatPrice, getActiveCurrency, localizedPath, language } = useLanguage();
   const navigate = useNavigate();
 
   useMeta(
@@ -104,6 +125,7 @@ export default function Checkout() {
       let postalCode = '';
       let city = '';
       let subdivision = '';
+      let country = '';
 
       if (wixClient.auth.loggedIn()) {
         try {
@@ -123,6 +145,7 @@ export default function Checkout() {
               subdivision = addr.subdivision || '';
               postalCode = addr.postalCode || addr.zipCode || '';
               city = addr.city || '';
+              country = SHIPPING_COUNTRIES.includes(addr.country) ? addr.country : '';
             }
           }
         } catch (err) {
@@ -142,6 +165,7 @@ export default function Checkout() {
         city = shippingAddress.city || city;
         addressLine = formatStreetAddress(shippingAddress.streetAddress || shippingAddress.addressLine);
         subdivision = shippingAddress.subdivision || subdivision;
+        country = SHIPPING_COUNTRIES.includes(shippingAddress.country) ? shippingAddress.country : country;
       }
 
       setFormData(prev => ({
@@ -154,13 +178,14 @@ export default function Checkout() {
         postalCode: postalCode || prev.postalCode,
         city: city || prev.city,
         subdivision: subdivision || prev.subdivision,
+        country: country || prev.country,
       }));
 
       setIsMemberLoaded(true);
 
       // Auto-trigger shipping estimate if postal code is present
-      if (postalCode && postalCode.length >= 4) {
-        estimateShippingAndTotals(postalCode, city, 'NO');
+      if (postalCodeIsComplete(postalCode, country || 'NO')) {
+        estimateShippingAndTotals(postalCode, city, country || 'NO');
       }
     }
 
@@ -177,13 +202,20 @@ export default function Checkout() {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
 
-    // Auto calculate shipping when postal code is entered (4 digits for Norway)
-    if (name === 'postalCode') {
-      const cleanPostal = value.trim();
-      if (cleanPostal.length === 4) {
+    // Norwegian regions do not apply abroad; clear the choice when the country changes.
+    if (name === 'country') {
+      setFormData(prev => ({ ...prev, subdivision: '' }));
+      setFormErrors(prev => ({ ...prev, subdivision: '', postalCode: '' }));
+    }
+
+    // Auto calculate shipping once the postal code is complete (4 digits for Norway)
+    if (name === 'postalCode' || name === 'country') {
+      const country = name === 'country' ? value : (formData.country || 'NO');
+      const cleanPostal = (name === 'postalCode' ? value : formData.postalCode).trim();
+      if (postalCodeIsComplete(cleanPostal, country)) {
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => {
-          estimateShippingAndTotals(cleanPostal, formData.city, formData.country || 'NO');
+          estimateShippingAndTotals(cleanPostal, formData.city, country);
         }, 400);
       }
     }
@@ -207,13 +239,13 @@ export default function Checkout() {
     if (!formData.addressLine || formData.addressLine.trim().length < 3) {
       errors.addressLine = 'Gateadresse er påkrevd';
     }
-    if (!formData.postalCode || formData.postalCode.trim().length < 4) {
-      errors.postalCode = 'Postnummer må være minst 4 siffer';
+    if (!postalCodeIsComplete(formData.postalCode, formData.country)) {
+      errors.postalCode = formData.country === 'NO' ? 'Postnummer må være 4 siffer' : t('checkout.postalCodeInvalid');
     }
     if (!formData.city || formData.city.trim().length < 2) {
       errors.city = 'Poststed er påkrevd';
     }
-    if (!formData.subdivision) errors.subdivision = t('checkout.regionRequired');
+    if (formData.country === 'NO' && !formData.subdivision) errors.subdivision = t('checkout.regionRequired');
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -245,7 +277,7 @@ export default function Checkout() {
         lastName: formData.lastName.trim(),
         phone: formData.phone.trim(),
         addressLine: formData.addressLine.trim(),
-        subdivision: formData.subdivision,
+        subdivision: formData.country === 'NO' ? formData.subdivision : '',
         postalCode: formData.postalCode.trim(),
         city: formData.city.trim(),
         country: formData.country || 'NO'
@@ -502,8 +534,9 @@ export default function Checkout() {
                     name="postalCode"
                     value={formData.postalCode}
                     onChange={handleInputChange}
-                    placeholder="0150"
-                    maxLength={4}
+                    placeholder={formData.country === 'NO' ? '0150' : ''}
+                    maxLength={formData.country === 'NO' ? 4 : 10}
+                    autoComplete="postal-code"
                     required
                     className={`w-full bg-slate-50 border px-4 py-3 rounded-xl text-xs text-onyx placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all ${
                       formErrors.postalCode ? 'border-red-500 bg-red-50/20' : 'border-outline-variant/50 focus:border-terracotta'
@@ -534,6 +567,7 @@ export default function Checkout() {
                   )}
                 </div>
 
+                {formData.country === 'NO' && (
                 <div className="space-y-1 sm:col-span-2">
                   <label htmlFor="checkout-subdivision" className="block text-xs font-bold text-onyx uppercase tracking-wider">
                     {t('checkout.regionLabel')}
@@ -548,6 +582,7 @@ export default function Checkout() {
                   </select>
                   {formErrors.subdivision && <span className="text-[11px] text-red-600 font-medium block">{formErrors.subdivision}</span>}
                 </div>
+                )}
 
                 <div className="space-y-1 sm:col-span-2">
                   <label className="block text-xs font-bold text-onyx uppercase tracking-wider">
@@ -559,7 +594,9 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     className="w-full bg-slate-50 border border-outline-variant/50 px-4 py-3 rounded-xl text-xs text-onyx focus:outline-none focus:ring-2 focus:ring-terracotta/40"
                   >
-                    <option value="NO">Norge</option>
+                    {SHIPPING_COUNTRIES.map(code => (
+                      <option key={code} value={code}>{countryName(code, language)}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -618,9 +655,9 @@ export default function Checkout() {
               ) : (
                 <div className="p-4 bg-slate-50 rounded-xl text-xs text-secondary leading-relaxed border border-slate-200/50">
                   <p>
-                    {formData.postalCode?.length === 4 
-                      ? 'Standard frakt (Posten / Helthjem) beregnes automatisk.' 
-                      : 'Skriv inn postnummeret ovenfor for å se nøyaktige fraktalternativer.'}
+                    {postalCodeIsComplete(formData.postalCode, formData.country)
+                      ? t('checkout.shippingAuto')
+                      : t('checkout.shippingEnterPostal')}
                   </p>
                 </div>
               )}
