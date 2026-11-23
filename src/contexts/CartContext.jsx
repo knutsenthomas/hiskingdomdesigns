@@ -731,7 +731,10 @@ export const CartProvider = ({ children }) => {
       console.error('Error validating coupon:', err);
       const appCode = err?.details?.applicationError?.code || '';
       let errorMsg = t('coupon.genericError');
-      if (appCode === 'ERROR_COUPON_DOES_NOT_EXIST') {
+      if (err?.i18nKey) {
+        // A problem in the cart itself (e.g. a sold-out item), not with the code.
+        errorMsg = t(err.i18nKey, err.i18nParams || {});
+      } else if (appCode === 'ERROR_COUPON_DOES_NOT_EXIST') {
         errorMsg = t('coupon.notFound');
       } else if (appCode === 'ERROR_COUPON_EXPIRED') {
         errorMsg = t('coupon.expired');

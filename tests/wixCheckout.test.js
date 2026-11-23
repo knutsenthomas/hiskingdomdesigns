@@ -39,7 +39,7 @@ test('managed products use the selected variant, never substitute the first vari
     { _id: 'medium', choices: { 'Størrelse': 'M', Farge: '#1364ac' } },
   ] };
   assert.equal((await mapItems([item], managed))[0].catalogReference.options.variantId, 'medium');
-  await assert.rejects(mapItems([item], { ...managed, variants: [managed.variants[0]] }), /produktvarianten/);
+  await assert.rejects(mapItems([item], { ...managed, variants: [managed.variants[0]] }), /utsolgt eller finnes ikke lenger/);
 });
 
 test('canonical lookup failures do not fall back to translated cart metadata', async () => {

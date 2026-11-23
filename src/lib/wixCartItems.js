@@ -160,7 +160,12 @@ export const mapCartItemsToWixLineItems = async (items, resolveProductDetails) =
       const targetVariantId = manageVariants === false ? null : validMatchedVariantId;
 
       if (manageVariants === true && !targetVariantId) {
-        throw new Error('Den valgte produktvarianten finnes ikke. Velg størrelse og farge på nytt.');
+        // Name the item: one sold-out or changed product otherwise blocks coupons and checkout with no clue why.
+        const error = new Error(`«${item.name || 'En vare'}» er utsolgt eller finnes ikke lenger i valgt størrelse/farge. Fjern varen fra handlekurven og prøv igjen.`);
+        error.i18nKey = 'cart.errItemUnavailable';
+        error.i18nParams = { name: item.name || '' };
+        error.unavailableItemId = item.id;
+        throw error;
       }
 
       if (targetVariantId) {
