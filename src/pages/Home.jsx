@@ -173,15 +173,15 @@ export default function Home() {
       "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Løkkeveien 3B",
-        "addressLocality": "Lyngdal",
-        "postalCode": "4580",
+        "streetAddress": "Augerødlia 48",
+        "addressLocality": "Sperrebotn",
+        "postalCode": "1591",
         "addressCountry": "NO"
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 58.138,
-        "longitude": 7.070
+        "latitude": 59.4678,
+        "longitude": 10.8251
       },
       "description": "His Kingdom Designs tilbyr lekre kristne motiver på t-skjorter, hoodies, caps og plakater. Finn dine favorittbibelvers trykket på premium materialer.",
       "sameAs": [

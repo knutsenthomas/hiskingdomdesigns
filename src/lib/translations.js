@@ -589,7 +589,7 @@ export const translations = {
     'team-member-bio-thomas': 'Thomas har vært lovsangsleder siden han var 15 år og brenner for å lede lovsang. Han har jobbet 15 år i samme menighet med alt fra barn, ungdom og lovsang til administrasjon. I His Kingdom Ministry har han ansvar for alt det tekniske – fra nettside og nettbutikk til redigering av videoer og podkaster.',
     'team-base-title': 'Vår Base',
     'team-base-desc': 'Vi holder til i Lyngdal. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet.',
-    'team-base-address': 'Løkkeveien 3B, 4580 Lyngdal',
+    'team-base-address': 'Augerødlia 48, 1591 Sperrebotn',
     'team-base-email': 'post@hiskingdomministry.no',
 
     // Privacy Page
@@ -1600,7 +1600,7 @@ export const translations = {
     'team-member-bio-thomas': 'Thomas has been worship leader since he was 15 years old and loves leading worship. He has worked for 15 years in the same church with everything from children, youth and worship to administration. In His Kingdom Ministry, he is responsible for all the technical details – from the website and store to editing videos and podcasts.',
     'team-base-title': 'Our Base',
     'team-base-desc': 'We are located in Lyngdal. Here we design new collections for His Kingdom Designs, edit podcast episodes and videos for His Kingdom Ministry, and pack all shipments with love and precision.',
-    'team-base-address': 'Løkkeveien 3B, 4580 Lyngdal, Norway',
+    'team-base-address': 'Augerødlia 48, 1591 Sperrebotn, Norway',
     'team-base-email': 'post@hiskingdomministry.no',
 
     // Privacy Page
@@ -2629,7 +2629,7 @@ export const translations = {
     'team-member-bio-thomas': 'Thomas ha sido líder de alabanza desde que tenía 15 años y le apasiona dirigir la alabanza. Ha trabajado durante 15 años en la misma iglesia en áreas como niños, jóvenes, alabanza y administración. En His Kingdom Ministry es responsable de todos los detalles técnicos, desde el sitio web y la tienda hasta la edición de videos y podcasts.',
     'team-base-title': 'Nuestra Base',
     'team-base-desc': 'Estamos ubicados en Lyngdal. Aquí diseñamos nuevas colecciones para His Kingdom Designs, editamos episodios de podcasts y videos para His Kingdom Ministry, y empaquetamos todos los envíos con amor y precisión.',
-    'team-base-address': 'Løkkeveien 3B, 4580 Lyngdal, Noruega',
+    'team-base-address': 'Augerødlia 48, 1591 Sperrebotn, Noruega',
     'team-base-email': 'post@hiskingdomministry.no',
 
     // Privacy Page

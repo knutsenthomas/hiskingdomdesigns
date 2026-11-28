@@ -165,7 +165,7 @@ export default function Team() {
               />
               <CmsText
                 slug="team-base-address"
-                fallback="Løkkeveien 3B, 4580 Lyngdal"
+                fallback="Augerødlia 48, 1591 Sperrebotn"
                 as="span"
               />
             </p>
