@@ -12,6 +12,24 @@ const getWixClient = async () => {
   return wixClient;
 };
 
+// Saves CMS text through /api/update-cms, which checks that the logged-in Wix member is an admin.
+// The browser no longer writes to Firestore directly, so nobody can change texts without logging in.
+const saveCmsToServer = async (payload) => {
+  const wixClient = await getWixClient();
+  const accessToken = wixClient?.auth?.getTokens?.()?.accessToken?.value;
+  if (!accessToken) throw new Error('Du må være logget inn som admin for å lagre.');
+  const res = await fetch('/api/update-cms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `Lagring feilet (${res.status})`);
+  }
+  return res.json();
+};
+
 const getFirestoreDb = async () => {
   const { db } = await import('@/firebase');
   const firestore = await import('firebase/firestore');
@@ -407,24 +425,13 @@ export const AppProvider = ({ children }) => {
       return updated;
     });
 
-    // 2. Persist to Firestore client SDK
+    // 2-3. Persist via the authenticated serverless API endpoint
     try {
-      const { db, doc, setDoc } = await getFirestoreDb();
-      const cmsDocRef = doc(db, "cms_configs", "designs");
-      await setDoc(cmsDocRef, { [slug]: value }, { merge: true });
-    } catch (err) {
-      console.warn("Feil ved oppdatering av CMS-innhold i Firestore klient:", err);
-    }
-
-    // 3. Persist via serverless API endpoint
-    try {
-      await fetch('/api/update-cms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, value })
-      });
+      await saveCmsToServer({ slug, value });
     } catch (apiErr) {
-      console.warn("Server-side CMS update fallback notice:", apiErr);
+      console.warn("Kunne ikke lagre CMS-innhold:", apiErr);
+      showToast(apiErr.message || "Kunne ikke lagre endringen.");
+      return;
     }
 
     // 4. Automatically translate and synchronize counterpart languages
@@ -463,18 +470,10 @@ export const AppProvider = ({ children }) => {
             return updated;
           });
 
-          // Sync to Firestore & API
-          try {
-            const { db, doc, setDoc } = await getFirestoreDb();
-            const cmsDocRef = doc(db, "cms_configs", "designs");
-            await setDoc(cmsDocRef, translationsToSave, { merge: true });
-          } catch (e) {}
-
-          fetch('/api/update-cms', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ updates: translationsToSave })
-          }).catch(() => {});
+          // Sync via the authenticated API
+          await saveCmsToServer({ updates: translationsToSave }).catch((e) => {
+            console.warn("Kunne ikke lagre oversettelser:", e);
+          });
 
           showToast("Lagret! Automatisk oversatt til andre språk ✨");
         }

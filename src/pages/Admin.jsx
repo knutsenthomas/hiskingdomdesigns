@@ -12,16 +12,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
 import { wixClient } from "@/lib/wix";
-import {
-  query,
-  collection,
-  where,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { db } from "@/firebase";
+import { customerApi } from "@/lib/customerApi";
 import { getParsedWixStats } from "../features/admin/lib/getParsedWixStats";
 import { getParsedGaStats } from "../features/admin/lib/getParsedGaStats";
 import {
@@ -152,10 +143,9 @@ export default function Admin() {
   ];
   const isAdminUser =
     ADMIN_EMAILS.includes(wixEmail) ||
-    ADMIN_MEMBER_IDS.includes(member?._id) ||
-    localRole === "admin" ||
-    localRole === "superadmin" ||
-    window.location.search.includes("admin=true");
+    ADMIN_MEMBER_IDS.includes(member?._id);
+  // localRole and ?admin=true no longer grant access: anyone could set them.
+  void localRole;
 
   const isAuthLoading = isLoggedIn && !member;
 
@@ -274,35 +264,11 @@ export default function Admin() {
     const fetchApps = async () => {
       setIsLoading(true);
       try {
-        const q = query(
-          collection(db, "affiliate_applications"),
-          where("status", "==", activeSubTab),
-        );
-        const querySnapshot = await getDocs(q);
-        const apps = [];
-        querySnapshot.forEach((doc) => {
-          apps.push({ id: doc.id, ...doc.data() });
-        });
-        // Sort by applied date descending
-        apps.sort(
-          (a, b) => new Date(b.appliedAt || 0) - new Date(a.appliedAt || 0),
-        );
-        setApplications(apps);
-
-        // Fetch counts for both pending and approved
-        const pendingQuery = query(
-          collection(db, "affiliate_applications"),
-          where("status", "==", "pending"),
-        );
-        const pendingSnap = await getDocs(pendingQuery);
-        setPendingCount(pendingSnap.size);
-
-        const approvedQuery = query(
-          collection(db, "affiliate_applications"),
-          where("status", "==", "approved"),
-        );
-        const approvedSnap = await getDocs(approvedQuery);
-        setApprovedCount(approvedSnap.size);
+        const { applications: apps, pendingCount, approvedCount } =
+          await customerApi("affiliate.list", { status: activeSubTab });
+        setApplications(apps || []);
+        setPendingCount(pendingCount || 0);
+        setApprovedCount(approvedCount || 0);
       } catch (err) {
         console.error("Kunne ikke hente søknader:", err);
         showToast(
@@ -318,8 +284,7 @@ export default function Admin() {
 
   const handleApprove = async (appId, appName) => {
     try {
-      const docRef = doc(db, "affiliate_applications", appId);
-      await updateDoc(docRef, { status: "approved" });
+      await customerApi("affiliate.approve", { id: appId });
       showToast(`Søknaden til ${appName} ble godkjent!`);
       // Update local state instantly with animation
       setApplications((prev) => prev.filter((app) => app.id !== appId));
@@ -338,8 +303,7 @@ export default function Admin() {
 
   const handleReject = async (appId, appName) => {
     try {
-      const docRef = doc(db, "affiliate_applications", appId);
-      await deleteDoc(docRef);
+      await customerApi("affiliate.reject", { id: appId });
       showToast(`Søknaden til ${appName} ble slettet/avvist.`);
       setApplications((prev) => prev.filter((app) => app.id !== appId));
 

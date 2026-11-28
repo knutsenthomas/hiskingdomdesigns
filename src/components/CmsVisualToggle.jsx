@@ -64,12 +64,11 @@ export default function CmsVisualToggle() {
   const isAdminUser = Boolean(
     ADMIN_EMAILS.includes(cleanEmail) ||
     ADMIN_MEMBER_IDS.includes(member?._id) ||
-    localRole === 'admin' ||
-    localRole === 'superadmin' ||
-    isCmsAuthorized ||
-    isDevelopment ||
-    isUrlAdmin
+    isDevelopment
   );
+  // localRole, isCmsAuthorized and isUrlAdmin no longer grant access on their own:
+  // anyone could set them, so admin now requires a logged-in admin member.
+  void localRole; void isCmsAuthorized;
 
   // If opened with ?edit=1 or ?cms=1 or ?admin=true, activate editing mode and remember authorization
   React.useEffect(() => {
