@@ -84,7 +84,7 @@ const FAQ_ITEMS = [
       },
       {
         q: 'Når sendes månedspakken ut?',
-        a: 'Månedspakkene pakkes og sendes ut fra Lyngdal den 10. hver måned. Betalingen trekkes automatisk på samme dato hver måned inntil du eventuelt avslutter.',
+        a: 'Månedspakkene pakkes og sendes ut fra Sperrebotn den 10. hver måned. Betalingen trekkes automatisk på samme dato hver måned inntil du eventuelt avslutter.',
         qSlug: 'faq-subscription-q2',
         aSlug: 'faq-subscription-a2'
       }
