@@ -84,7 +84,7 @@ export async function verifyAdminAuth(req) {
 
       // 2C. Wix Member Bearer Token check (from logged-in admin in store)
       try {
-        const memberRes = await fetch('https://www.wixapis.com/members/v1/members/my', {
+        const memberRes = await fetch('https://www.wixapis.com/members/v1/members/my?fieldsets=FULL', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
