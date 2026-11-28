@@ -21,7 +21,7 @@ const str = (v, max = 2000) => (typeof v === 'string' ? v.slice(0, max) : '');
 async function getMember(req) {
   const authHeader = req.headers['authorization'] || '';
   if (!authHeader.startsWith('Bearer ')) return null;
-  const r = await fetch('https://www.wixapis.com/members/v1/members/my', {
+  const r = await fetch('https://www.wixapis.com/members/v1/members/my?fieldsets=FULL', {
     headers: { Authorization: authHeader }
   });
   if (!r.ok) return null;
