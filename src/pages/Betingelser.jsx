@@ -59,7 +59,7 @@ export default function Betingelser() {
           </div>
           <CmsText
             slug="terms-section-desc-1"
-            fallback="Selger er His Kingdom Ministry / His Kingdom Designs. Kjøper er den forbrukeren som foretar bestillingen i nettbutikken."
+            fallback="Selger er His Kingdom Ministry / His Kingdom Designs, org.nr. 933 728 927, Augerødlia 48, 1591 Sperrebotn. Kjøper er den forbrukeren som foretar bestillingen i nettbutikken."
             as="p"
           />
         </section>
