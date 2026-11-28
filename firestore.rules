@@ -1,9 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // CMS configs: Publicly readable and writable for site content editing
+    // CMS configs: Publicly readable. Writes only go through /api/update-cms,
+    // which checks for a logged-in admin and writes with the service account
+    // (service accounts are not affected by these rules).
+    // NB: Deploy this only after the service account has Firestore access,
+    // otherwise CMS editing stops working.
     match /cms_configs/{document=**} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
     // Wishlists: Accessible for storing customer wishlist items

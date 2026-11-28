@@ -152,10 +152,9 @@ export default function Admin() {
   ];
   const isAdminUser =
     ADMIN_EMAILS.includes(wixEmail) ||
-    ADMIN_MEMBER_IDS.includes(member?._id) ||
-    localRole === "admin" ||
-    localRole === "superadmin" ||
-    window.location.search.includes("admin=true");
+    ADMIN_MEMBER_IDS.includes(member?._id);
+  // localRole and ?admin=true no longer grant access: anyone could set them.
+  void localRole;
 
   const isAuthLoading = isLoggedIn && !member;
 
