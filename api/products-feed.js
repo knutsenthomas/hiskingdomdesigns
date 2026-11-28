@@ -155,7 +155,15 @@ export default async function handler(req, res) {
       const link = en ? `https://hiskingdomdesigns.no/produkt/${id}?lang=en&amp;cur=NOK` : `https://hiskingdomdesigns.no/produkt/${id}`;
       
       // Get main image URL (and resolve wix:image:// internal URIs if present)
-      let imageUrl = p.media?.mainMedia?.image?.url || p.media?.items?.[0]?.image?.url || '';
+      // Google requires apparel images of at least 250x250 px, so if the main image is
+      // too small, use the largest image the product has instead.
+      const images = [p.media?.mainMedia?.image, ...(p.media?.items || []).map(i => i?.image)]
+        .filter(img => img?.url);
+      const area = img => (img.width || 0) * (img.height || 0);
+      const main = images[0];
+      const largest = images.reduce((best, img) => (area(img) > area(best) ? img : best), main);
+      const tooSmall = main && main.width && main.height && (main.width < 250 || main.height < 250);
+      let imageUrl = (tooSmall ? largest : main)?.url || '';
       if (imageUrl.startsWith('wix:image://')) {
         const match = imageUrl.match(/wix:image:\/\/v1\/([^\/]+)\/([^\s#?]+)/);
         if (match && match[1]) {

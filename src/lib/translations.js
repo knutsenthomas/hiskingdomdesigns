@@ -421,7 +421,7 @@ export const translations = {
     'category.seoText.stickers': 'Våre kristne klistremerker (stickers) er en av våre mest populære og enkle måter å dele troen på. De er laget av slitesterk, vanntett vinyl, noe som gjør dem perfekte til å feste på bibelen, laptopen, vannflasken eller mobildekselet. Med fargerike design og korte, kraftfulle sitater eller bibelvers, er de flotte som små gaver til ungdomsgrupper, søndagsskolen eller som personlige påminnelser i hverdagen.',
     'category.seoText.barn': 'Vi ønsker å hjelpe foreldre med å så troens frø i barnas hjerter tidlig. Vår kolleksjon for barn og familie inneholder myke barneklær med milde og oppløftende design, samt lekre plakater med barnebønner og bibelvers til barnerommet. Produktene er skreddersydd for dåpsgaver, barnevelsignelser og babyshower, og er laget med tanke på barns følsomme hud og hverdagsbruk.',
     'category.seoText.salg': 'I vår salgskampanje tilbyr vi et variert utvalg av våre tidligere kolleksjoner og restlagre til ekstra gode priser. Dette gir deg en rimelig mulighet til å sikre deg kristne gaver, plakater eller t-skjorter med bibelvers uten å gå på kompromiss med kvaliteten. Enten du er på jakt etter en konfirmasjonsgave eller noe til deg selv, kan du gjøre et kupp på våre kristne designprodukter her.',
-    'category.seoText.default': 'His Kingdom Designs ønsker å tilby unike, trosbaserte produkter som inspirerer til å leve et liv med Jesus Kristus i sentrum. Enten du velger kristne klær, plakater med bibelvers eller småting som klistremerker, er hvert produkt designet med kjærlighet og bønn i vårt studio i Lyngdal. Vi bruker anerkjente råmaterialer for å sikre at du mottar produkter som varer, og som bærer et evig budskap.',
+    'category.seoText.default': 'His Kingdom Designs ønsker å tilby unike, trosbaserte produkter som inspirerer til å leve et liv med Jesus Kristus i sentrum. Enten du velger kristne klær, plakater med bibelvers eller småting som klistremerker, er hvert produkt designet med kjærlighet og bønn i vårt studio i Sperrebotn. Vi bruker anerkjente råmaterialer for å sikre at du mottar produkter som varer, og som bærer et evig budskap.',
     'category.loading': 'Henter produkter...',
     'product.loading': 'Henter produkter...',
     'category.filterBtn': 'Filtrer produkter',
@@ -440,8 +440,8 @@ export const translations = {
 
     // About Page
     'about.metaTitle': 'Om oss',
-    'about.metaDesc': 'Lær mer om His Kingdom Ministry og His Kingdom Designs. Vi driver med undervisning, bønn og misjon med base i Lyngdal, og tilbyr kristne produkter.',
-    'about.hkmDesc': 'er en kristen organisasjon med base i Lyngdal. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.',
+    'about.metaDesc': 'Lær mer om His Kingdom Ministry og His Kingdom Designs. Vi driver med undervisning, bønn og misjon med base i Sperrebotn, og tilbyr kristne produkter.',
+    'about.hkmDesc': 'er en kristen organisasjon med base i Sperrebotn. Vi driver med undervisning, bønn og misjon, og ønsker å hjelpe folk å vokse i troen sin.',
     'about.exploreBtn': 'Se produktene våre',
     'about.readFaqBtn': 'Les ofte stilte spørsmål',
     'about.teamBtn': 'Møt teamet',
@@ -530,7 +530,7 @@ export const translations = {
     'faq-subscription-q1': 'Er det bindingstid på månedspakkene?',
     'faq-subscription-a1': 'Det er 1 måned bindingstid på månedspakkene våre, noe som betyr at du forplikter deg til å motta og betale for minimum 2 pakker totalt. Deretter kan du når som helst endre, pause eller avslutte abonnementet ditt direkte via profilsiden din.',
     'faq-subscription-q2': 'Når sendes månedspakken ut?',
-    'faq-subscription-a2': 'Månedspakkene pakkes og sendes ut fra Lyngdal den 10. hver måned. Betalingen trekkes automatisk på samme dato hver måned inntil du eventuelt avslutter.',
+    'faq-subscription-a2': 'Månedspakkene pakkes og sendes ut fra Sperrebotn den 10. hver måned. Betalingen trekkes automatisk på samme dato hver måned inntil du eventuelt avslutter.',
     'faq-support-title': 'Finner du ikke svar på det du lurer på?',
 
     // Privacy page CMS keys
@@ -564,7 +564,7 @@ export const translations = {
     'terms-title': 'Kjøpsbetingelser',
     'terms-desc': 'Disse kjøpsbetingelsene gjelder for alt salg av varer fra His Kingdom Designs til forbrukere. Betingelsene utgjør sammen med din bestilling det samlede avtalegrunnlaget for kjøpet.',
     'terms-section-title-1': '1. Partene',
-    'terms-section-desc-1': 'Selger er His Kingdom Ministry / His Kingdom Designs. Kjøper er den forbrukeren som foretar bestillingen i nettbutikken.',
+    'terms-section-desc-1': 'Selger er His Kingdom Ministry / His Kingdom Designs, org.nr. 933 728 927, Augerødlia 48, 1591 Sperrebotn. Kjøper er den forbrukeren som foretar bestillingen i nettbutikken.',
     'terms-section-title-2': '2. Priser og betaling',
     'terms-section-desc-2': 'Alle oppgitte priser i nettbutikken er fritatt for merverdiavgift (MVA) da His Kingdom Designs drives av en frivillig organisasjon. Eventuelle fraktkostnader vil fremkomme i handlekurven før bestillingen fullføres. Du kan betale trygt med Vipps eller betalingskort (Visa, Mastercard) via vår integrerte og sikre Wix betalingsløsning.',
     'terms-section-title-3': '3. Avtaleinngåelse',
@@ -588,8 +588,8 @@ export const translations = {
     'team-member-role-thomas': 'Tilbedelsesleder & Teknisk Ansvarlig',
     'team-member-bio-thomas': 'Thomas har vært lovsangsleder siden han var 15 år og brenner for å lede lovsang. Han har jobbet 15 år i samme menighet med alt fra barn, ungdom og lovsang til administrasjon. I His Kingdom Ministry har han ansvar for alt det tekniske – fra nettside og nettbutikk til redigering av videoer og podkaster.',
     'team-base-title': 'Vår Base',
-    'team-base-desc': 'Vi holder til i Lyngdal. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet.',
-    'team-base-address': 'Løkkeveien 3B, 4580 Lyngdal',
+    'team-base-desc': 'Vi holder til i Sperrebotn. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet.',
+    'team-base-address': 'Augerødlia 48, 1591 Sperrebotn',
     'team-base-email': 'post@hiskingdomministry.no',
 
     // Privacy Page
@@ -1432,7 +1432,7 @@ export const translations = {
     'category.seoText.stickers': 'Our Christian stickers are one of our most popular and simple ways to share your faith. Made from durable, waterproof vinyl, they are perfect for decorating your Bible, laptop, water bottle, or phone case. Featuring colorful designs and short, powerful quotes or Bible verses, they are great as small gifts for youth groups, Sunday schools, or personal daily reminders.',
     'category.seoText.barn': 'We want to help parents sow the seeds of faith in their children\'s hearts early. Our collection for kids and families features soft children\'s clothing with gentle, uplifting designs, as well as beautiful posters with children\'s prayers and Bible verses for the nursery. These products are tailor-made for baptism gifts, baby blessings, and baby showers, designed with children\'s sensitive skin and everyday use in mind.',
     'category.seoText.salg': 'In our sale campaign, we offer a varied selection of our previous collections and stock clearance at extra good prices. This gives you an affordable opportunity to secure Christian gifts, posters, or Bible verse t-shirts without compromising on quality. Whether you are looking for a confirmation gift or something for yourself, you can find a bargain on our Christian design products here.',
-    'category.seoText.default': 'His Kingdom Designs aims to offer unique, faith-based products that inspire living a life centered on Jesus Christ. Whether you choose Christian apparel, posters with Bible verses, or small items like stickers, every product is designed with love and prayer in our studio in Lyngdal. We use premium raw materials to ensure you receive products that last and carry an eternal message.',
+    'category.seoText.default': 'His Kingdom Designs aims to offer unique, faith-based products that inspire living a life centered on Jesus Christ. Whether you choose Christian apparel, posters with Bible verses, or small items like stickers, every product is designed with love and prayer in our studio in Sperrebotn. We use premium raw materials to ensure you receive products that last and carry an eternal message.',
     'category.loading': 'Fetching items...',
     'product.loading': 'Fetching items...',
     'category.filterBtn': 'Filter products',
@@ -1451,8 +1451,8 @@ export const translations = {
 
     // About Page
     'about.metaTitle': 'About Us',
-    'about.metaDesc': 'Learn more about His Kingdom Ministry and His Kingdom Designs. We conduct teaching, prayer, and mission based in Lyngdal, and offer Christian products.',
-    'about.hkmDesc': 'is a Christian organization based in Lyngdal. We conduct teaching, prayer, and mission, and wish to help people grow in their faith.',
+    'about.metaDesc': 'Learn more about His Kingdom Ministry and His Kingdom Designs. We conduct teaching, prayer, and mission based in Sperrebotn, and offer Christian products.',
+    'about.hkmDesc': 'is a Christian organization based in Sperrebotn. We conduct teaching, prayer, and mission, and wish to help people grow in their faith.',
     'about.exploreBtn': 'View our products',
     'about.readFaqBtn': 'Read FAQ',
     'about.teamBtn': 'Meet the team',
@@ -1541,7 +1541,7 @@ export const translations = {
     'faq-subscription-q1': 'Is there a binding period on the monthly packages?',
     'faq-subscription-a1': 'There is a 1-month binding period on our monthly packages, which means you commit to receiving and paying for a minimum of 2 packages in total. After that, you can change, pause or cancel your subscription at any time directly via your profile page.',
     'faq-subscription-q2': 'When is the monthly package sent out?',
-    'faq-subscription-a2': 'The monthly packages are packed and shipped from Lyngdal on the 10th of each month. Payment is deducted automatically on the same date each month until you cancel.',
+    'faq-subscription-a2': 'The monthly packages are packed and shipped from Sperrebotn on the 10th of each month. Payment is deducted automatically on the same date each month until you cancel.',
     'faq-support-title': 'Can\'t find the answer you are looking for?',
 
     // Privacy page CMS keys
@@ -1575,7 +1575,7 @@ export const translations = {
     'terms-title': 'Terms & Conditions',
     'terms-desc': 'These terms and conditions apply to all sales of goods from His Kingdom Designs to consumers. Together with your order, the conditions constitute the overall contractual basis for the purchase.',
     'terms-section-title-1': '1. The Parties',
-    'terms-section-desc-1': 'Seller is His Kingdom Ministry / His Kingdom Designs. Buyer is the consumer who places the order in the webshop.',
+    'terms-section-desc-1': 'Seller is His Kingdom Ministry / His Kingdom Designs, org. no. 933 728 927, Augerødlia 48, 1591 Sperrebotn, Norway. Buyer is the consumer who places the order in the webshop.',
     'terms-section-title-2': '2. Prices and payment',
     'terms-section-desc-2': 'All stated prices in the webshop are exempt from value added tax (VAT) as His Kingdom Designs is run by a voluntary organization. Any shipping costs will appear in the shopping cart before the order is completed. You can pay securely with Vipps or payment cards (Visa, Mastercard) via our integrated and secure Wix payment solution.',
     'terms-section-title-3': '3. Conclusion of agreement',
@@ -1599,8 +1599,8 @@ export const translations = {
     'team-member-role-thomas': 'Worship Leader & Tech Lead',
     'team-member-bio-thomas': 'Thomas has been worship leader since he was 15 years old and loves leading worship. He has worked for 15 years in the same church with everything from children, youth and worship to administration. In His Kingdom Ministry, he is responsible for all the technical details – from the website and store to editing videos and podcasts.',
     'team-base-title': 'Our Base',
-    'team-base-desc': 'We are located in Lyngdal. Here we design new collections for His Kingdom Designs, edit podcast episodes and videos for His Kingdom Ministry, and pack all shipments with love and precision.',
-    'team-base-address': 'Løkkeveien 3B, 4580 Lyngdal, Norway',
+    'team-base-desc': 'We are located in Sperrebotn. Here we design new collections for His Kingdom Designs, edit podcast episodes and videos for His Kingdom Ministry, and pack all shipments with love and precision.',
+    'team-base-address': 'Augerødlia 48, 1591 Sperrebotn, Norway',
     'team-base-email': 'post@hiskingdomministry.no',
 
     // Privacy Page
@@ -2480,8 +2480,8 @@ export const translations = {
 
     // About Page
     'about.metaTitle': 'Nosotros',
-    'about.metaDesc': 'Obtenga más información sobre His Kingdom Ministry y His Kingdom Designs. Llevamos a cabo enseñanza, oración y misión con sede en Lyngdal, y ofrecemos productos cristianos.',
-    'about.hkmDesc': 'es una organización cristiana con sede en Lyngdal. Llevamos a cabo enseñanza, oración y misión, y deseamos ayudar a las personas a crecer en su fe.',
+    'about.metaDesc': 'Obtenga más información sobre His Kingdom Ministry y His Kingdom Designs. Llevamos a cabo enseñanza, oración y misión con sede en Sperrebotn, y ofrecemos productos cristianos.',
+    'about.hkmDesc': 'es una organización cristiana con sede en Sperrebotn. Llevamos a cabo enseñanza, oración y misión, y deseamos ayudar a las personas a crecer en su fe.',
     'about.exploreBtn': 'Ver nuestros productos',
     'about.readFaqBtn': 'Leer preguntas frecuentes',
     'about.teamBtn': 'Conoce al equipo',
@@ -2570,7 +2570,7 @@ export const translations = {
     'faq-subscription-q1': '¿Hubo un período de permanencia en los paquetes mensuales?',
     'faq-subscription-a1': 'Hay un período de permanencia de 1 mes en nuestros paquetes mensuales, lo que significa que se compromete a recibir y pagar un mínimo de 2 paquetes en total. Después de eso, puede cambiar, pausar o cancelar su suscripción en cualquier momento directamente a través de su página de perfil.',
     'faq-subscription-q2': '¿Cuándo se envía el paquete mensual?',
-    'faq-subscription-a2': 'Los paquetes mensuales se empaquetan y envían desde Lyngdal el día 10 de cada mes. El pago se deduce automáticamente en la misma fecha cada mes hasta que cancele.',
+    'faq-subscription-a2': 'Los paquetes mensuales se empaquetan y envían desde Sperrebotn el día 10 de cada mes. El pago se deduce automáticamente en la misma fecha cada mes hasta que cancele.',
     'faq-support-title': '¿No encuentra la respuesta que busca?',
 
     // Privacy page CMS keys
@@ -2604,7 +2604,7 @@ export const translations = {
     'terms-title': 'Condiciones de compra',
     'terms-desc': 'Estas condiciones de compra se aplican a todas las ventas de bienes de His Kingdom Designs a los consumidores. Junto con su pedido, las condiciones constituyen la base contractual general para la compra.',
     'terms-section-title-1': '1. Las Partes',
-    'terms-section-desc-1': 'El vendedor es His Kingdom Ministry / His Kingdom Designs. El comprador es el consumidor que realiza el pedido en la tienda web.',
+    'terms-section-desc-1': 'El vendedor es His Kingdom Ministry / His Kingdom Designs, n.º de org. 933 728 927, Augerødlia 48, 1591 Sperrebotn, Noruega. El comprador es el consumidor que realiza el pedido en la tienda web.',
     'terms-section-title-2': '2. Precios y pago',
     'terms-section-desc-2': 'Todos los precios indicados en la tienda web están exentos del impuesto sobre el valor añadido (IVA) ya que His Kingdom Designs está gestionada por una organización voluntaria. Los gastos de envío aparecerán en el carrito de la compra antes de completar el pedido. Puede pagar de forma segura con Vipps o tarjetas de pago (Visa, Mastercard) a través de nuestra solución de pago integrada y segura de Wix.',
     'terms-section-title-3': '3. Conclusión del acuerdo',
@@ -2628,8 +2628,8 @@ export const translations = {
     'team-member-role-thomas': 'Líder de Alabanza y Responsable Técnico',
     'team-member-bio-thomas': 'Thomas ha sido líder de alabanza desde que tenía 15 años y le apasiona dirigir la alabanza. Ha trabajado durante 15 años en la misma iglesia en áreas como niños, jóvenes, alabanza y administración. En His Kingdom Ministry es responsable de todos los detalles técnicos, desde el sitio web y la tienda hasta la edición de videos y podcasts.',
     'team-base-title': 'Nuestra Base',
-    'team-base-desc': 'Estamos ubicados en Lyngdal. Aquí diseñamos nuevas colecciones para His Kingdom Designs, editamos episodios de podcasts y videos para His Kingdom Ministry, y empaquetamos todos los envíos con amor y precisión.',
-    'team-base-address': 'Løkkeveien 3B, 4580 Lyngdal, Noruega',
+    'team-base-desc': 'Estamos ubicados en Sperrebotn. Aquí diseñamos nuevas colecciones para His Kingdom Designs, editamos episodios de podcasts y videos para His Kingdom Ministry, y empaquetamos todos los envíos con amor y precisión.',
+    'team-base-address': 'Augerødlia 48, 1591 Sperrebotn, Noruega',
     'team-base-email': 'post@hiskingdomministry.no',
 
     // Privacy Page

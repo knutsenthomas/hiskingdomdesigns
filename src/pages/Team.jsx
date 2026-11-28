@@ -138,7 +138,7 @@ export default function Team() {
         ))}
       </div>
 
-      {/* Lyngdal office details block */}
+      {/* Sperrebotn office details block */}
       <div className="bg-parchment border border-outline-variant/40 rounded-3xl p-10 md:p-16 flex flex-col md:flex-row items-center gap-12">
         <div className="md:w-1/2 space-y-6">
           <span className="material-symbols-outlined text-4xl text-terracotta bg-white p-4 rounded-2xl shadow-sm">
@@ -152,7 +152,7 @@ export default function Team() {
           />
           <CmsText
             slug="team-base-desc"
-            fallback="Vi holder til i Lyngdal. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
+            fallback="Vi holder til i Sperrebotn. Her designer vi nye kolleksjoner for His Kingdom Designs, redigerer podcast-episoder og videoer for His Kingdom Ministry, og pakker alle forsendelser med kjærlighet og nøyaktighet."
             as="p"
             className="font-body-md text-secondary leading-relaxed"
           />
@@ -165,7 +165,7 @@ export default function Team() {
               />
               <CmsText
                 slug="team-base-address"
-                fallback="Løkkeveien 3B, 4580 Lyngdal"
+                fallback="Augerødlia 48, 1591 Sperrebotn"
                 as="span"
               />
             </p>
@@ -185,7 +185,7 @@ export default function Team() {
         </div>
         <div className="md:w-1/2 w-full h-[300px] rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm relative bg-slate-50">
           <img 
-            alt="Lyngdal kontor" 
+            alt="Sperrebotn kontor" 
             className="w-full h-full object-cover" 
             src="/lyngdal_office.webp"
             loading="lazy"
