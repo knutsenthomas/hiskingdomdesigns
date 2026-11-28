@@ -46,15 +46,32 @@ export function fromFields(fields = {}) {
 
 const docFromRest = (d) => ({ id: d.name.split('/').pop(), ...fromFields(d.fields) });
 
-async function request(path, { method = 'GET', body } = {}) {
+async function send(path, method, body, useServiceAccount) {
   const headers = { 'Content-Type': 'application/json' };
   let url = `${BASE}${path}`;
-  if (getServiceAccount()) {
+  if (useServiceAccount) {
     headers.Authorization = `Bearer ${await getAccessToken(['https://www.googleapis.com/auth/datastore'])}`;
   } else {
     url += (url.includes('?') ? '&' : '?') + `key=${API_KEY}`;
   }
-  const r = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  return fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+}
+
+async function request(path, { method = 'GET', body } = {}) {
+  let r;
+  if (getServiceAccount()) {
+    try {
+      r = await send(path, method, body, true);
+    } catch (e) {
+      console.warn('[firestore-rest] service account token failed:', e.message);
+    }
+    // Service account without Firestore access yet: fall back to rule-based access.
+    if (r && (r.status === 401 || r.status === 403)) {
+      console.warn('[firestore-rest] service account has no Firestore access, falling back');
+      r = null;
+    }
+  }
+  if (!r) r = await send(path, method, body, false);
   const text = await r.text();
   const data = text ? JSON.parse(text) : {};
   if (!r.ok) {
