@@ -16,14 +16,16 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // Affiliate applications: Accessible for submitting and admin review
+    // Affiliate applications: contain personal data. Only accessed through /api/customer-data,
+    // which checks the logged-in member/admin and uses the service account.
     match /affiliate_applications/{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
 
-    // Order returns: Accessible for customer returns and admin review
+    // Order returns: contain personal data. Only accessed through /api/customer-data,
+    // which checks the logged-in member/admin and uses the service account.
     match /order_returns/{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
 
     // Customer chat sessions: Scoped to specific session ID; prevent bulk dumping of all customer chats

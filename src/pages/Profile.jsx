@@ -11,19 +11,7 @@ import { getMemberPhone } from "../features/profile/lib/getMemberPhone";
 import { getMemberAddress } from "../features/profile/lib/getMemberAddress";
 import { formatE164Phone } from "@/lib/phone";
 let isExchangingTokens = false;
-import {
-  query,
-  collection,
-  where,
-  getDocs,
-  addDoc,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { db } from "@/firebase";
+import { customerApi } from "@/lib/customerApi";
 import { getMemberEmail } from "../features/profile/lib/getMemberEmail";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -499,16 +487,8 @@ export default function Profile() {
     async function fetchReturns() {
       if (isLoggedIn && member?._id) {
         try {
-          const q = query(
-            collection(db, "order_returns"),
-            where("memberId", "==", member._id),
-          );
-          const querySnapshot = await getDocs(q);
-          const returns = [];
-          querySnapshot.forEach((doc) => {
-            returns.push({ id: doc.id, ...doc.data() });
-          });
-          setActiveReturns(returns);
+          const { returns } = await customerApi("returns.list");
+          setActiveReturns(returns || []);
         } catch (e) {
           console.warn("Failed to fetch returns:", e);
         }
@@ -562,7 +542,7 @@ export default function Profile() {
         createdAt: new Date().toISOString(),
       };
 
-      await addDoc(collection(db, "order_returns"), payload);
+      await customerApi("returns.create", payload);
       setReturnSuccess(true);
       setRefreshKey((prev) => prev + 1); // Refresh return list
     } catch (err) {
@@ -776,10 +756,8 @@ export default function Profile() {
 
     const fetchStatus = async () => {
       try {
-        const docRef = doc(db, "affiliate_applications", member._id);
-        const snapshot = await getDoc(docRef);
-        if (snapshot.exists()) {
-          const data = snapshot.data();
+        const data = await customerApi("affiliate.get");
+        {
           if (data.status) {
             setAffiliateStatus(data.status);
             localStorage.setItem(
@@ -802,16 +780,12 @@ export default function Profile() {
     setAffiliateError("");
     setAffiliateSuccess(false);
     try {
-      const docRef = doc(db, "affiliate_applications", member._id);
-      await setDoc(docRef, {
-        memberId: member._id,
+      await customerApi("affiliate.apply", {
         name: affiliateName,
         email: affiliateEmail,
         address: affiliateAddress,
         socialMedia: affiliateSocials,
         motivation: affiliateMotivation,
-        status: "pending",
-        appliedAt: new Date().toISOString(),
       });
       setAffiliateStatus("pending");
       localStorage.setItem(`hkm-affiliate-status-${member._id}`, "pending");
@@ -842,26 +816,15 @@ export default function Profile() {
   ];
   const isAdminUser =
     ADMIN_EMAILS.includes(displayEmail?.toLowerCase()) ||
-    ADMIN_MEMBER_IDS.includes(member?._id) ||
-    localStorage.getItem("hkm-user-role") === "admin" ||
-    localStorage.getItem("hkm-user-role") === "superadmin" ||
-    window.location.search.includes("admin=true");
+    ADMIN_MEMBER_IDS.includes(member?._id);
 
   useEffect(() => {
     if (!isAdminUser) return;
 
     const fetchPendingApps = async () => {
       try {
-        const q = query(
-          collection(db, "affiliate_applications"),
-          where("status", "==", "pending"),
-        );
-        const querySnapshot = await getDocs(q);
-        const apps = [];
-        querySnapshot.forEach((doc) => {
-          apps.push({ id: doc.id, ...doc.data() });
-        });
-        setPendingApplications(apps);
+        const { applications } = await customerApi("affiliate.list", { status: "pending" });
+        setPendingApplications(applications || []);
       } catch (err) {
         console.warn("Kunne ikke hente søknader for admin:", err);
       }
@@ -874,8 +837,7 @@ export default function Profile() {
 
   const handleAdminApprove = async (appId) => {
     try {
-      const docRef = doc(db, "affiliate_applications", appId);
-      await updateDoc(docRef, { status: "approved" });
+      await customerApi("affiliate.approve", { id: appId });
       setPendingApplications((prev) => prev.filter((app) => app.id !== appId));
       if (appId === member?._id) {
         setAffiliateStatus("approved");
@@ -888,8 +850,7 @@ export default function Profile() {
 
   const handleAdminReject = async (appId) => {
     try {
-      const docRef = doc(db, "affiliate_applications", appId);
-      await deleteDoc(docRef);
+      await customerApi("affiliate.reject", { id: appId });
       setPendingApplications((prev) => prev.filter((app) => app.id !== appId));
       if (appId === member?._id) {
         setAffiliateStatus("none");
